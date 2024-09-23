@@ -1,4 +1,11 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using RHCQS_BusinessObjects;
+using RHCQS_DataAccessObjects;
+using RHCQS_Repositories.UnitOfWork;
+using RHCQS_Services.Interface;
+using RHCQS_Services.Implement;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
@@ -26,7 +33,7 @@ namespace RHCQS_BE.Extenstion
         }
         public static IServiceCollection AddDatabase(this IServiceCollection services)
         {
-            services.AddDbContext<RHCQSContext>(options =>
+            services.AddDbContext<RhcqsContext>(options =>
                 options.UseSqlServer(GetConnectionString()));
             return services;
         }
@@ -51,44 +58,43 @@ namespace RHCQS_BE.Extenstion
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
-            // Ví dụ với AddScoped:
             services.AddScoped<IAccountService, AccountService>();
-           
+            services.AddScoped<IRoleService, RoleService>();
             return services;
         }
 
-        public static IServiceCollection AddJwtValidation(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey =
-                        new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
-                };
-                options.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-                        if (!string.IsNullOrEmpty(token))
-                        {
-                            context.Token = token;
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-            });
-            return services;
-        }
+        //public static IServiceCollection AddJwtValidation(this IServiceCollection services, IConfiguration configuration)
+        //{
+        //    services.AddAuthentication(options =>
+        //    {
+        //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        //    }).AddJwtBearer(options =>
+        //    {
+        //        options.TokenValidationParameters = new TokenValidationParameters()
+        //        {
+        //            ValidateIssuer = false,
+        //            ValidateAudience = false,
+        //            ValidateIssuerSigningKey = true,
+        //            IssuerSigningKey =
+        //                new SymmetricSecurityKey(
+        //                    Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+        //        };
+        //        options.Events = new JwtBearerEvents
+        //        {
+        //            OnMessageReceived = context =>
+        //            {
+        //                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+        //                if (!string.IsNullOrEmpty(token))
+        //                {
+        //                    context.Token = token;
+        //                }
+        //                return Task.CompletedTask;
+        //            }
+        //        };
+        //    });
+        //    return services;
+        //}
 
         public static IServiceCollection AddConfigSwagger(this IServiceCollection services)
         {
@@ -101,7 +107,6 @@ namespace RHCQS_BE.Extenstion
                     Description = "Residential Housing Construction Quotation System"
                 });
 
-                // Lấy đường dẫn tới file XML của tài liệu
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 

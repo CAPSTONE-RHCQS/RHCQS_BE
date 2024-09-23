@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
+
 namespace RHCQS_BusinessObjects;
 
 public static class PaginateExtension

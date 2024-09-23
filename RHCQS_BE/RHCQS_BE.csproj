@@ -4,16 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RHCQS_BusinessObject\RHCQS_BusinessObject.csproj" />
-    <ProjectReference Include="..\RHCQS_DataAccessObjects\RHCQS_DataAccessObjects.csproj" />
-    <ProjectReference Include="..\RHCQS_Repositories\RHCQS_Repositories.csproj" />
     <ProjectReference Include="..\RHCQS_Services\RHCQS_Services.csproj" />
   </ItemGroup>
 

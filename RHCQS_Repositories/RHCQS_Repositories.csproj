@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Repo\Implement\" />
-    <Folder Include="Repo\Interface\" />
+    <ProjectReference Include="..\RHCQS_BusinessObject\RHCQS_BusinessObject.csproj" />
   </ItemGroup>
 
 </Project>

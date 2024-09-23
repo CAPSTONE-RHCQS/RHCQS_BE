@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using RHCQS.BusinessObject.Constants;
 using RHCQS_BE.Extenstion;
 using System.Text.Json.Serialization;
 
@@ -21,8 +22,7 @@ namespace RHCQS_BE
                 options.AddPolicy(name: CorsConstant.PolicyName,
                    policy =>
                    {
-                       policy.WithOrigins("https://localhost:7016")
-                             .WithOrigins("https://localhost:44328")
+                       policy.WithOrigins("https://localhost:3000")
                              .AllowAnyHeader()
                              .AllowAnyMethod()
                              .AllowCredentials();
@@ -44,7 +44,7 @@ namespace RHCQS_BE
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddConfigSwagger();
             builder.Services.AddSingletonJson();
-            builder.Services.AddJwtValidation(configuration);
+            //builder.Services.AddJwtValidation(configuration);
             builder.Services.AddSignalRServices();
 
             var app = builder.Build();

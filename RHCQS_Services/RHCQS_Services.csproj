@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RHCQS_Repositories\RHCQS_Repositories.csproj" />
+  </ItemGroup>
+
 </Project>
