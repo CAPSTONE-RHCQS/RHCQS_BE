@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using RHCQS.BusinessObject.Constants;
@@ -16,7 +15,6 @@ namespace RHCQS_BE
 
             var currentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
 
-            // Add services to the container.
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy(name: CorsConstant.PolicyName,
@@ -29,13 +27,13 @@ namespace RHCQS_BE
                    });
             });
 
-
             builder.Services.AddControllers().AddJsonOptions(x =>
             {
                 x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 x.JsonSerializerOptions.Converters.Add(new TimeOnlyJsonConverter());
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             });
+
             var configuration = builder.Configuration;
 
             builder.Services.AddDatabase();
@@ -49,17 +47,20 @@ namespace RHCQS_BE
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Enable Swagger
             app.UseSwagger();
             app.UseSwaggerUI();
+
+            // Middleware for Exception and Authorization Handling
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseMiddleware<AuthorizationHandlingMiddleware>();
 
+            // Enable CORS with the defined policy
             app.UseCors(CorsConstant.PolicyName);
             app.UseHttpsRedirection();
 
             app.UseRouting();
-            app.UseCors("CorsPolicy");
+            // Authentication and Authorization
             app.UseAuthentication();
             app.UseAuthorization();
 
