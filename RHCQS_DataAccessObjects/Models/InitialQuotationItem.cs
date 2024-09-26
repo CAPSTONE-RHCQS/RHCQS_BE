@@ -23,5 +23,9 @@ public partial class InitialQuotationItem
 
     public DateTime? UpsDate { get; set; }
 
+    public Guid? InitialQuotationId { get; set; }
+
     public virtual ConstructionItem? ConstructionItem { get; set; }
+
+    public virtual InitialQuotation? InitialQuotation { get; set; }
 }

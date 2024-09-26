@@ -21,6 +21,8 @@ public partial class Project
 
     public string? ProjectCode { get; set; }
 
+    public virtual Account? Account { get; set; }
+
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
 
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();

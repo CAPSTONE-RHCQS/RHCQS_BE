@@ -15,8 +15,6 @@ public partial class InitialQuotation
 
     public Guid PackageId { get; set; }
 
-    public Guid? QuotationUtilitiesId { get; set; }
-
     public double? Area { get; set; }
 
     public DateTime? TimeProcessing { get; set; }
@@ -41,11 +39,11 @@ public partial class InitialQuotation
 
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
 
+    public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
+
     public virtual Package Package { get; set; } = null!;
 
     public virtual Project Project { get; set; } = null!;
 
     public virtual Promotion Promotion { get; set; } = null!;
-
-    public virtual QuoationUltity? QuotationUtilities { get; set; }
 }

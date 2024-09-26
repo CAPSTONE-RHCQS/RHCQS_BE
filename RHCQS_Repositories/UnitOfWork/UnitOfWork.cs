@@ -14,6 +14,8 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public IAccountRepository AccountRepository => new AccountRepository(Context);
     public IRoleRepository RoleRepository => new RoleRepository(Context);
 
+    public IProjectRepository ProjectRepository => new ProjectRepository(Context);
+
 
     public UnitOfWork(RhcqsContext context)
     {

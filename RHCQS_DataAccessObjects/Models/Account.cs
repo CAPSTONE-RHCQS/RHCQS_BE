@@ -33,5 +33,7 @@ public partial class Account
 
     public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
 
+    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+
     public virtual Role? Role { get; set; }
 }

@@ -9,6 +9,8 @@ namespace RHCQS_Repositories.UnitOfWork;
 	public IAccountRepository AccountRepository { get; }
 	public IRoleRepository RoleRepository { get; }
 
+	public IProjectRepository ProjectRepository { get; }
+
 
 	int Commit();
 

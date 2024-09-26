@@ -28,5 +28,10 @@ namespace RHCQS_BE.Extenstion
             public const string AccountEndpoint = ApiEndpoint + "/Account";
 
         }
+
+        public static class Project
+        {
+            public const string ProjectEndpoint = ApiEndpoint + "/Project";
+        }
     }
 }

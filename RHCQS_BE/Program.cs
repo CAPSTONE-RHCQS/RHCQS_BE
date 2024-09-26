@@ -57,7 +57,7 @@ namespace RHCQS_BE
 
             // Enable CORS with the defined policy
             app.UseCors(CorsConstant.PolicyName);
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
             // Authentication and Authorization

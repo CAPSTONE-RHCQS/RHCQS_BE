@@ -27,7 +27,5 @@ public partial class QuoationUltity
 
     public virtual ICollection<DetailedQuotation> DetailedQuotations { get; set; } = new List<DetailedQuotation>();
 
-    public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
-
     public virtual UltilitiesItem UltilitiesItem { get; set; } = null!;
 }

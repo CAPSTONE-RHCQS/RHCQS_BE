@@ -97,6 +97,7 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UltilitiesSection> UltilitiesSections { get; set; }
 
     public virtual DbSet<Ultility> Ultilities { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -308,10 +309,6 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.PromotionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InitialQuotation_Promotion");
-
-            entity.HasOne(d => d.QuotationUtilities).WithMany(p => p.InitialQuotations)
-                .HasForeignKey(d => d.QuotationUtilitiesId)
-                .HasConstraintName("FK_InitialQuotation_QuoationUltities");
         });
 
         modelBuilder.Entity<InitialQuotationItem>(entity =>
@@ -326,6 +323,10 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.ConstructionItem).WithMany(p => p.InitialQuotationItems)
                 .HasForeignKey(d => d.ConstructionItemId)
                 .HasConstraintName("FK_InitialQuotationItem_ConstructionItems");
+
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.InitialQuotationItems)
+                .HasForeignKey(d => d.InitialQuotationId)
+                .HasConstraintName("FK_InitialQuotationItem_InitialQuotation");
         });
 
         modelBuilder.Entity<Labor>(entity =>
@@ -546,6 +547,10 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Account).WithMany(p => p.Projects)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_Project_Account");
         });
 
         modelBuilder.Entity<Promotion>(entity =>
