@@ -10,7 +10,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public Guid Id { get; set; }
 
-        public Guid? RoleId { get; set; }
+        public Guid RoleId { get; set; }
 
         public string? Email { get; set; }
 
@@ -31,7 +31,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public bool? Deflag { get; set; }
 
         public AccountResponse(Guid id, string? username, string? phoneNumber, DateOnly? dateOfBirth, string? passwordHash,
-            string? email, string? imageUrl, bool? deflag, Guid? roleId, DateTime? insDate, DateTime? upsDate)
+            string? email, string? imageUrl, bool? deflag, Guid roleId, DateTime? insDate, DateTime? upsDate)
         {
             Id = id;
             Username = username;

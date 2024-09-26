@@ -116,6 +116,7 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)
                 .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Account_Role");
         });
 
@@ -542,7 +543,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.ProjectCode)
-                .HasMaxLength(10)
+                .HasMaxLength(5)
                 .IsFixedLength();
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
@@ -550,6 +551,7 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.Account).WithMany(p => p.Projects)
                 .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Project_Account");
         });
 

@@ -7,7 +7,7 @@ public partial class Project
 {
     public Guid Id { get; set; }
 
-    public Guid? AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
     public string? Name { get; set; }
 
@@ -21,7 +21,7 @@ public partial class Project
 
     public string? ProjectCode { get; set; }
 
-    public virtual Account? Account { get; set; }
+    public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
 

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
+using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
@@ -26,7 +27,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<ProjectResponse>> GetProjects(int page, int size)
         {
             IPaginate<ProjectResponse> listProjects =
-            await _unitOfWork.ProjectRepository.GetList(
+            await _unitOfWork.GetRepository<Project>().GetList(
                 selector: x => new ProjectResponse(x.Id, x.Account.Username, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Account),

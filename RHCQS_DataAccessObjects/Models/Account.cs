@@ -7,7 +7,7 @@ public partial class Account
 {
     public Guid Id { get; set; }
 
-    public Guid? RoleId { get; set; }
+    public Guid RoleId { get; set; }
 
     public string? Email { get; set; }
 
@@ -35,5 +35,5 @@ public partial class Account
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 
-    public virtual Role? Role { get; set; }
+    public virtual Role Role { get; set; } = null!;
 }
