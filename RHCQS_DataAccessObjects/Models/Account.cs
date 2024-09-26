@@ -15,7 +15,7 @@ public partial class Account
 
     public string? ImageUrl { get; set; }
 
-    public string? PasswordHasd { get; set; }
+    public string? PasswordHash { get; set; }
 
     public string? PhoneNumber { get; set; }
 

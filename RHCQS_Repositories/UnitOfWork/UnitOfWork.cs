@@ -10,9 +10,7 @@ namespace RHCQS_Repositories.UnitOfWork;
 public class UnitOfWork : IUnitOfWork, IDisposable
 {
     public RhcqsContext Context { get; }
-
-    public IAccountRepository AccountRepository => new AccountRepository(Context);
-    public IRoleRepository RoleRepository => new RoleRepository(Context);
+    private Dictionary<Type, object> _repositories;
 
 
     public UnitOfWork(RhcqsContext context)
@@ -36,7 +34,18 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         TrackChanges();
         return await Context.SaveChangesAsync();
     }
+    public IGenericRepository<TEntity> GetRepository<TEntity>() where TEntity : class
+    {
+        _repositories ??= new Dictionary<Type, object>();
+        if (_repositories.TryGetValue(typeof(TEntity), out object repository))
+        {
+            return (IGenericRepository<TEntity>)repository;
+        }
 
+        repository = new GenericRepository<TEntity>(Context);
+        _repositories.Add(typeof(TEntity), repository);
+        return (IGenericRepository<TEntity>)repository;
+    }
     private void TrackChanges()
     {
         var validationErrors = Context.ChangeTracker.Entries<IValidatableObject>()
