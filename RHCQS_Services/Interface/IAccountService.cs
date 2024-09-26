@@ -11,7 +11,6 @@ namespace RHCQS_Services.Interface
 {
     public interface IAccountService
     {
-        Task<IEnumerable<Account>> GetAllAccountsAsync();
         Task<Account> GetAccountByIdAsync(Guid id);
         Task<int> GetTotalAccountCountAsync();
         Task<int> GetActiveAccountCountAsync();

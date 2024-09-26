@@ -25,7 +25,6 @@ namespace RHCQS_BE.Controllers
         /// <returns>List of accounts.</returns>
         // GET: api/Account
         #endregion
-        [Authorize(Roles = "Manager, Admin")]
         [HttpGet(ApiEndPointConstant.Account.AccountEndpoint)]
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListAccountAsync(int page, int size)

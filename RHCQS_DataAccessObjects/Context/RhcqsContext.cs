@@ -106,7 +106,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.PasswordHasd).HasMaxLength(50);
+            entity.Property(e => e.PasswordHash).HasMaxLength(50);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(10)
                 .IsFixedLength();

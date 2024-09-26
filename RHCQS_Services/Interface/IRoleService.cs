@@ -1,4 +1,6 @@
-﻿using RHCQS_DataAccessObjects.Models;
+﻿using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
+using RHCQS_DataAccessObjects.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IRoleService
     {
-        Task<IEnumerable<Role>> GetAllRolesAsync();
+        Task<IPaginate<RoleResponse>> GetAllRolesAsync(int page, int size);
         Task<int> GetTotalRoleCountAsync();
     }
 }
