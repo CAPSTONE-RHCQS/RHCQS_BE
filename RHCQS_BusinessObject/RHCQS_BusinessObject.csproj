@@ -14,4 +14,8 @@
     <ProjectReference Include="..\RHCQS_DataAccessObjects\RHCQS_DataAccessObjects.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Payload\Request\" />
+  </ItemGroup>
+
 </Project>

@@ -19,16 +19,18 @@ namespace RHCQS_BE.Controllers
             _roleService = roleService;
         }
 
+        #region GetListRoleAsync
         /// <summary>
         /// Retrieves the list of all roles.
         /// </summary>
         /// <returns>List of roles in the system</returns>
+        #endregion
         [HttpGet(ApiEndPointConstant.Role.RoleEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<Role>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Role>>> GetListRoleAsync()
+        public async Task<ActionResult<IEnumerable<Role>>> GetListRoleAsync(int page, int size)
         {
-            var roles = await _roleService.GetAllRolesAsync();
+            var roles = await _roleService.GetAllRolesAsync(page, size);
             var response = JsonConvert.SerializeObject(roles, Formatting.Indented);
             return Ok(response);
         }
