@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 
@@ -34,6 +35,55 @@ namespace RHCQS_BE.Controllers
             var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
             return Ok(result);
         }
+
+        #region GetListConstructionRough
+        /// <summary>
+        /// Retrieves the list of construction items based on the specified type.
+        /// </summary>
+        /// <remarks>
+        /// This API returns a list of construction items based on the provided `type`. The possible values for `type` are:
+        /// 
+        /// - "ROUGH": Retrieves all rough construction items.
+        /// - "FINISHED": Retrieves all finished construction items.
+        /// - "ALL": Retrieves all construction items.
+        /// 
+        /// Example request:
+        /// 
+        ///     GET /api/v1/construction/rough?type=ROUGH 
+        ///     GET /api/v1/construction/rough?type=FINISHED
+        ///     GET /api/v1/construction/rough?type=ALL
+        ///     
+        /// </remarks>
+        /// <param name="type">
+        /// The type of construction items to retrieve. Must be one of the following values:
+        /// - ROUGH: Retrieves rough construction items.
+        /// - FINISHED: Retrieves finished construction items.
+        /// - ALL: Retrieves all construction items.
+        /// </param>
+        /// <returns>
+        /// A list of construction items of the specified type.
+        /// </returns>
+        /// <response code="200">Returns the list of construction items successfully.</response>
+        /// <response code="400">If the `type` is invalid or not provided.</response>
+        /// <response code="500">If there is an internal server error while processing the request.</response>
+        #endregion
+        [HttpGet(ApiEndPointConstant.Construction.ConstructionRoughEndpoint)]
+        [ProducesResponseType(typeof(List<ConstructionItemResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetListConstructionRough(string type)
+        {
+            if (string.IsNullOrWhiteSpace(type) ||
+                (type != AppConstant.Type.ROUGH && type != AppConstant.Type.FINISHED && type != AppConstant.Type.ALL))
+            {
+                return BadRequest("Invalid type. Allowed values are ROUGH, FINISHED, or ALL.");
+            }
+
+            var listConstructions = await _constructionService.GetListConstructionRough(type.ToUpper());
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+            return Ok(result);
+        }
+
 
         #region GetDetailConstructionItem
         /// <summary>

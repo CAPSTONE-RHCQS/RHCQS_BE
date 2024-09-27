@@ -29,7 +29,7 @@ namespace RHCQS_Services.Implement
         {
             var listConstruction = await _unitOfWork.GetRepository<ConstructionItem>().GetList(
                 selector: x => new ConstructionItemResponse(x.Id, x.Name, x.Coefficient, x.Unit,
-                                                            x.InsDate, x.UpsDate,
+                                                            x.InsDate, x.UpsDate, x.Type,
                                                             x.SubConstructionItems.Select(
                                                                 sub => new SubConstructionItemResponse(
                                                                     sub.Id,
@@ -42,6 +42,24 @@ namespace RHCQS_Services.Implement
                 page: page,
                 size: size);
             return listConstruction;
+        }
+
+        public async Task<List<ConstructionItemResponse>> GetListConstructionRough(string type)
+        {
+            var listConstruction = await _unitOfWork.GetRepository<ConstructionItem>().GetList(
+                predicate: x => x.Type.Equals(type.ToUpper()),
+                selector: x => new ConstructionItemResponse(x.Id, x.Name, x.Coefficient, x.Unit,
+                                                            x.InsDate, x.UpsDate, x.Type,
+                                                            x.SubConstructionItems.Select(
+                                                                sub => new SubConstructionItemResponse(
+                                                                    sub.Id,
+                                                                    sub.Name,
+                                                                    sub.Coefficient,
+                                                                    sub.Unit,
+                                                                    sub.InsDate)).ToList()),
+                include: x => x.Include(x => x.InitialQuotationItems),
+                orderBy: x => x.OrderBy(x => x.InsDate));
+            return listConstruction.Items.ToList();
         }
 
         public async Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id)
@@ -60,6 +78,7 @@ namespace RHCQS_Services.Implement
                     constructionItem.Unit,
                     constructionItem.InsDate,
                     constructionItem.UpsDate,
+                    constructionItem.Type,
                     constructionItem.SubConstructionItems.Select(
                         sub => new SubConstructionItemResponse(
                             sub.Id,
@@ -79,6 +98,9 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                var isCheckConstruction = await _unitOfWork.GetRepository<ConstructionItem>()
+                                                .FirstOrDefaultAsync(i => i.Name.Equals(item.Name));
+                if (isCheckConstruction != null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionExit);
                 var constructionItem = new ConstructionItem()
                 {
                     Id = Guid.NewGuid(),
@@ -87,7 +109,7 @@ namespace RHCQS_Services.Implement
                     Unit = item.Unit,
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
-                    //Type = item.Type
+                    Type = item.Type
                 };
                 await _unitOfWork.GetRepository<ConstructionItem>().InsertAsync(constructionItem);
                 if (item.subConstructionRequests != null)
@@ -115,7 +137,7 @@ namespace RHCQS_Services.Implement
             }
             catch (Exception ex)
             {
-                throw new Exception("Commit failed, no rows affected.");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionExit);
             }
         }
     }
