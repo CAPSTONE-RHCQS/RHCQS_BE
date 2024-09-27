@@ -14,7 +14,9 @@ namespace RHCQS_BE.Extenstion
 
         public static class Auth
         {
+            public const string RegisterEndpoint = ApiEndpoint + "/register";
             public const string LoginEndpoint = ApiEndpoint + "/login";
+            public const string LogoutEndpoint = ApiEndpoint + "/logout";
         }
 
         public static class Role

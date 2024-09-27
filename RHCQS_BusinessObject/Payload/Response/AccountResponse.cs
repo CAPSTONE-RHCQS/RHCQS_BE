@@ -37,9 +37,9 @@ namespace RHCQS_BusinessObject.Payload.Response
             Username = username;
             PhoneNumber = phoneNumber;
             DateOfBirth = dateOfBirth;
-            PasswordHash = passwordHash;  // Fixed mismatch in parameter
+            PasswordHash = passwordHash;
             Email = email;
-            ImageUrl = imageUrl;  // Fixed mismatch in parameter
+            ImageUrl = imageUrl;
             Deflag = deflag;
             RoleId = roleId;
             InsDate = insDate;

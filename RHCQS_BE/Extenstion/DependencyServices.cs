@@ -10,6 +10,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 
 namespace RHCQS_BE.Extenstion
@@ -58,44 +61,45 @@ namespace RHCQS_BE.Extenstion
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IProjectService, ProjectService>();
             return services;
         }
 
-        //public static IServiceCollection AddJwtValidation(this IServiceCollection services, IConfiguration configuration)
-        //{
-        //    services.AddAuthentication(options =>
-        //    {
-        //        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        //    }).AddJwtBearer(options =>
-        //    {
-        //        options.TokenValidationParameters = new TokenValidationParameters()
-        //        {
-        //            ValidateIssuer = false,
-        //            ValidateAudience = false,
-        //            ValidateIssuerSigningKey = true,
-        //            IssuerSigningKey =
-        //                new SymmetricSecurityKey(
-        //                    Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
-        //        };
-        //        options.Events = new JwtBearerEvents
-        //        {
-        //            OnMessageReceived = context =>
-        //            {
-        //                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        //                if (!string.IsNullOrEmpty(token))
-        //                {
-        //                    context.Token = token;
-        //                }
-        //                return Task.CompletedTask;
-        //            }
-        //        };
-        //    });
-        //    return services;
-        //}
+        public static IServiceCollection AddJwtValidation(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            context.Token = token;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+            return services;
+        }
 
         public static IServiceCollection AddConfigSwagger(this IServiceCollection services)
         {

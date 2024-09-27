@@ -42,7 +42,7 @@ namespace RHCQS_BE
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddConfigSwagger();
             builder.Services.AddSingletonJson();
-            //builder.Services.AddJwtValidation(configuration);
+            builder.Services.AddJwtValidation(configuration);
             builder.Services.AddSignalRServices();
 
             var app = builder.Build();
