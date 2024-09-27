@@ -65,6 +65,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IProjectService, ProjectService>();
+            services.AddScoped<IConstructionItemService, ConstructionItemService>();
             return services;
         }
 
