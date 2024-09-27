@@ -27,6 +27,10 @@ public partial class DetailedQuotation
 
     public Guid QuotationUlititiesId { get; set; }
 
+    public Guid AccountId { get; set; }
+
+    public virtual Account Account { get; set; } = null!;
+
     public virtual ICollection<DetailedQuotationItem> DetailedQuotationItems { get; set; } = new List<DetailedQuotationItem>();
 
     public virtual Project Project { get; set; } = null!;

@@ -31,6 +31,8 @@ public partial class Account
 
     public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 
+    public virtual ICollection<DetailedQuotation> DetailedQuotations { get; set; } = new List<DetailedQuotation>();
+
     public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();

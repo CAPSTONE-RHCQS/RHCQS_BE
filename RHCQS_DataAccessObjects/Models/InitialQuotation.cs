@@ -35,6 +35,8 @@ public partial class InitialQuotation
 
     public bool? Deflag { get; set; }
 
+    public string? Note { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();

@@ -14,24 +14,26 @@ namespace RHCQS_BE.Extenstion
 
         public static class Auth
         {
-            public const string LoginEndpoint = ApiEndpoint + "/Login";
+            public const string LoginEndpoint = ApiEndpoint + "/login";
         }
 
         public static class Role
         {
-            public const string RoleEndpoint = ApiEndpoint + "/Role";
+            public const string RoleEndpoint = ApiEndpoint + "/role";
             public const string TotalRoleEndpoint = RoleEndpoint + "/total";
         }
 
         public static class Account
         {
-            public const string AccountEndpoint = ApiEndpoint + "/Account";
+            public const string AccountEndpoint = ApiEndpoint + "/account";
 
         }
 
         public static class Project
         {
-            public const string ProjectEndpoint = ApiEndpoint + "/Project";
+            public const string ProjectEndpoint = ApiEndpoint + "/project";
+            public const string ProjectDetailEndpoint = ProjectEndpoint + "/id";
+            public const string ProjectByNumberPhone = ProjectEndpoint + "/phone";
         }
     }
 }

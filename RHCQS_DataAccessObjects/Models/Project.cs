@@ -21,6 +21,10 @@ public partial class Project
 
     public string? ProjectCode { get; set; }
 
+    public string? Address { get; set; }
+
+    public double? Area { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();

@@ -228,6 +228,11 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
             entity.Property(e => e.Version).HasMaxLength(10);
 
+            entity.HasOne(d => d.Account).WithMany(p => p.DetailedQuotations)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DetailedQuotation_Account");
+
             entity.HasOne(d => d.Project).WithMany(p => p.DetailedQuotations)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
