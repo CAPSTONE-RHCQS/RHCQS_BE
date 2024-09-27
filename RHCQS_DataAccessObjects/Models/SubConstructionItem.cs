@@ -9,7 +9,7 @@ public partial class SubConstructionItem
 
     public Guid ConstructionItemsId { get; set; }
 
-    public double? Area { get; set; }
+    public string? Name { get; set; }
 
     public double? Coefficient { get; set; }
 
