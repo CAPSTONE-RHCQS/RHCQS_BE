@@ -35,5 +35,11 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectDetailEndpoint = ProjectEndpoint + "/id";
             public const string ProjectByNumberPhone = ProjectEndpoint + "/phone";
         }
+
+        public static class Construction
+        {
+            public const string ConstructionEndpoint = ApiEndpoint + "/construction";
+            public const string ConstructionDetailEndpoint = ApiEndpoint + "/id";
+        }
     }
 }
