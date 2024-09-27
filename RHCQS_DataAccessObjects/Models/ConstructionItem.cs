@@ -17,6 +17,8 @@ public partial class ConstructionItem
 
     public DateTime? UpsDate { get; set; }
 
+    public string? Type { get; set; }
+
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
 
     public virtual ICollection<SubConstructionItem> SubConstructionItems { get; set; } = new List<SubConstructionItem>();

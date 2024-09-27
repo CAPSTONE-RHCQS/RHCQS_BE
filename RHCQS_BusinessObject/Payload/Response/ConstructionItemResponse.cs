@@ -11,7 +11,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public ConstructionItemResponse() { }
         public ConstructionItemResponse(Guid id, string? name, double? coefficient,
-            string? unit, DateTime? insDate, DateTime? upsDate, List<SubConstructionItemResponse> subConstructionItems)
+            string? unit, DateTime? insDate, DateTime? upsDate,string? type, List<SubConstructionItemResponse> subConstructionItems)
         {
             Id = id;
             Name = name;
@@ -19,6 +19,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Unit = unit;
             InsDate = insDate;
             UpsDate = upsDate;
+            Type = type;
             SubConstructionItems = subConstructionItems;
         }
         public Guid Id { get; set; }
@@ -32,6 +33,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
+
+        public string? Type { get; set; }
         public List<SubConstructionItemResponse> SubConstructionItems { get; set; }
     }
 

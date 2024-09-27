@@ -41,7 +41,8 @@ namespace RHCQS_BE.Extenstion
         public static class Construction
         {
             public const string ConstructionEndpoint = ApiEndpoint + "/construction";
-            public const string ConstructionDetailEndpoint = ApiEndpoint + "/id";
+            public const string ConstructionDetailEndpoint = ConstructionEndpoint + "/id";
+            public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/rough";
         }
     }
 }

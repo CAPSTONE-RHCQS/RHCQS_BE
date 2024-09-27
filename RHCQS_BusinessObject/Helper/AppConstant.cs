@@ -20,10 +20,16 @@ public static class AppConstant
     }
     public class Role
     {
-        public const string Admin = "Admin";
         public const string Manager = "Manager";
         public const string Staff = "Staff";
         public const string Customer = "Customer";
+    }
+
+    public class Type 
+    {
+        public const string ROUGH = "ROUGH";
+        public const string FINISHED = "FINISHED";
+        public const string ALL = "ALL";
     }
     public enum ErrCode
     {
@@ -42,6 +48,7 @@ public static class AppConstant
         public const string PromotionIllegal = "Khuyến mãi không hợp lệ";
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
+        public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
     }
 }
 

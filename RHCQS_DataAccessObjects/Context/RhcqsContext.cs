@@ -62,6 +62,8 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<PackageMaterial> PackageMaterials { get; set; }
 
+    public virtual DbSet<PackageQuotation> PackageQuotations { get; set; }
+
     public virtual DbSet<PackageType> PackageTypes { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
@@ -182,6 +184,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
         });
@@ -500,6 +503,25 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.PackageDetailId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PackageMaterial_PackageMaterial");
+        });
+
+        modelBuilder.Entity<PackageQuotation>(entity =>
+        {
+            entity.ToTable("PackageQuotation");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+            entity.Property(e => e.Type).HasMaxLength(50);
+
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.PackageQuotations)
+                .HasForeignKey(d => d.InitialQuotationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PackageQuotation_InitialQuotation");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageQuotations)
+                .HasForeignKey(d => d.PackageId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PackageQuotation_Package");
         });
 
         modelBuilder.Entity<PackageType>(entity =>

@@ -45,6 +45,8 @@ public partial class InitialQuotation
 
     public virtual Package Package { get; set; } = null!;
 
+    public virtual ICollection<PackageQuotation> PackageQuotations { get; set; } = new List<PackageQuotation>();
+
     public virtual Project Project { get; set; } = null!;
 
     public virtual Promotion Promotion { get; set; } = null!;
