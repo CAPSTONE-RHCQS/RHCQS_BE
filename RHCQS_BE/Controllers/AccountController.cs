@@ -31,12 +31,11 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If no accounts are found.</response>
         /// <response code="500">If there is an internal server error.</response>
         #endregion
-        [Authorize(Roles = "Customer")]
+/*        [Authorize(Roles = "Customer")]*/
         [HttpGet(ApiEndPointConstant.Account.AccountEndpoint)]
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListAccountAsync(int page, int size)
         {
-            // Validate input parameters
             if (page < 1 || size < 1)
             {
                 return BadRequest("Page and size must be greater than 0.");
@@ -44,12 +43,12 @@ namespace RHCQS_BE.Controllers
 
             try
             {
-                var accounts = await _accountService.GetListAccountAsync(page, size);
-                if (accounts == null)
+                var list = await _accountService.GetListAccountAsync(page, size);
+                if (list == null)
                 {
                     return NotFound("No accounts found.");
                 }
-
+                var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
                 return Ok(accounts);
             }
             catch (UnauthorizedAccessException ex)

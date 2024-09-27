@@ -6,6 +6,8 @@ using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_Services.Interface;
+using static RHCQS_BusinessObjects.AppConstant;
+using System.ComponentModel.DataAnnotations;
 
 namespace RHCQS_BE.Controllers
 {
@@ -24,7 +26,7 @@ namespace RHCQS_BE.Controllers
         /// Login JWT
         /// </summary>
         /// <returns>Home</returns> 
-        /// GET : api/Login
+        /// GET : api/login
         #endregion
         [AllowAnonymous]
         [HttpPost(ApiEndPointConstant.Auth.LoginEndpoint)]
@@ -44,6 +46,42 @@ namespace RHCQS_BE.Controllers
                 return Unauthorized(ex.Message);
             }
         }
+        #region Register
+        /// <summary>
+        /// Register account
+        /// </summary>
+        /// <returns>Home</returns> 
+        /// GET : api/register
+        #endregion
+        [AllowAnonymous]
+        [HttpPost(ApiEndPointConstant.Auth.RegisterEndpoint)]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest,
+            [FromQuery][Required(ErrorMessage = "Role is required.")] UserRoleForRegister role)
+        {
+            try
+            {
+                if (registerRequest == null)
+                    return BadRequest("Invalid registration request");
+
+                if (registerRequest.Password != registerRequest.ConfirmPassword)
+                {
+                    return BadRequest("Passwords do not match.");
+                }
+                var result = await _authService.RegisterAsync(registerRequest, role);
+
+                if (result == null)
+                {
+                    return BadRequest("Registration failed.");
+                }
+
+                return Ok(JsonConvert.SerializeObject(new { message = "Registration successful"}));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+        }
+
 
         #region Logout
         /// <summary>
