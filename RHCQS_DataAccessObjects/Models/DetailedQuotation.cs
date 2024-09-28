@@ -37,5 +37,5 @@ public partial class DetailedQuotation
 
     public virtual Promotion? Promotion { get; set; }
 
-    public virtual QuoationUltity QuotationUlitities { get; set; } = null!;
+    public virtual QuotationUtility QuotationUlitities { get; set; } = null!;
 }

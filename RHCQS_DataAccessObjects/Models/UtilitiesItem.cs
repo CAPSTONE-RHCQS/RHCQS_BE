@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RHCQS_DataAccessObjects.Models;
 
-public partial class UltilitiesItem
+public partial class UtilitiesItem
 {
     public Guid Id { get; set; }
 
@@ -13,13 +13,11 @@ public partial class UltilitiesItem
 
     public double? Coefficient { get; set; }
 
-    public string? Description { get; set; }
-
     public DateTime? InsDate { get; set; }
 
     public DateTime? UpsDate { get; set; }
 
-    public virtual ICollection<QuoationUltity> QuoationUltities { get; set; } = new List<QuoationUltity>();
+    public virtual ICollection<QuotationUtility> QuotationUtilities { get; set; } = new List<QuotationUtility>();
 
-    public virtual UltilitiesSection Section { get; set; } = null!;
+    public virtual UtilitiesSection Section { get; set; } = null!;
 }

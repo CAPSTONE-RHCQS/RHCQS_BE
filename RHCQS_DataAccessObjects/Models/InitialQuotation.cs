@@ -11,17 +11,17 @@ public partial class InitialQuotation
 
     public Guid ProjectId { get; set; }
 
-    public Guid PromotionId { get; set; }
+    public Guid? PromotionId { get; set; }
 
     public Guid PackageId { get; set; }
 
     public double? Area { get; set; }
 
-    public DateTime? TimeProcessing { get; set; }
+    public int? TimeProcessing { get; set; }
 
-    public DateTime? TimeRough { get; set; }
+    public int? TimeRough { get; set; }
 
-    public DateTime? TimeOthers { get; set; }
+    public int? TimeOthers { get; set; }
 
     public string? OthersAgreement { get; set; }
 
@@ -49,5 +49,5 @@ public partial class InitialQuotation
 
     public virtual Project Project { get; set; } = null!;
 
-    public virtual Promotion Promotion { get; set; } = null!;
+    public virtual Promotion? Promotion { get; set; }
 }

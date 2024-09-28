@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RHCQS_DataAccessObjects.Models;
 
-public partial class QuoationUltity
+public partial class QuotationUtility
 {
     public Guid Id { get; set; }
 
@@ -27,5 +27,5 @@ public partial class QuoationUltity
 
     public virtual ICollection<DetailedQuotation> DetailedQuotations { get; set; } = new List<DetailedQuotation>();
 
-    public virtual UltilitiesItem UltilitiesItem { get; set; } = null!;
+    public virtual UtilitiesItem UltilitiesItem { get; set; } = null!;
 }

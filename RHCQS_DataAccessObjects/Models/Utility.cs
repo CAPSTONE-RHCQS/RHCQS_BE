@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace RHCQS_DataAccessObjects.Models;
 
-public partial class UltilitiesSection
+public partial class Utility
 {
     public Guid Id { get; set; }
 
-    public Guid UltilitiesId { get; set; }
-
     public string? Name { get; set; }
+
+    public string? Type { get; set; }
 
     public string? Status { get; set; }
 
@@ -17,7 +17,5 @@ public partial class UltilitiesSection
 
     public DateTime? UpsDate { get; set; }
 
-    public virtual Ultility Ultilities { get; set; } = null!;
-
-    public virtual ICollection<UltilitiesItem> UltilitiesItems { get; set; } = new List<UltilitiesItem>();
+    public virtual ICollection<UtilitiesSection> UtilitiesSections { get; set; } = new List<UtilitiesSection>();
 }
