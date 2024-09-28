@@ -13,5 +13,6 @@ namespace RHCQS_Services.Interface
     {
         Task<IPaginate<RoleResponse>> GetAllRolesAsync(int page, int size);
         Task<int> GetTotalRoleCountAsync();
+        Task<Role> GetRoleByIdAsync(Guid? id);
     }
 }

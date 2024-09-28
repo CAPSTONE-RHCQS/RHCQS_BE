@@ -42,5 +42,9 @@ namespace RHCQS_Services.Implement
             var totalRole = await _unitOfWork.GetRepository<Role>().CountAsync();
             return totalRole;
         }
+        public async Task<Role> GetRoleByIdAsync(Guid? id)
+        {
+            return await _unitOfWork.GetRepository<Role>().FirstOrDefaultAsync(a => a.Id == id);
+        }
     }
 }

@@ -28,6 +28,12 @@ namespace RHCQS_BE.Extenstion
         public static class Account
         {
             public const string AccountEndpoint = ApiEndpoint + "/account";
+            public const string AccountByIdEndpoint = AccountEndpoint + "/id";
+            public const string ActiveAccountEndpoint = ApiEndpoint + "/account/active-account";
+            public const string TotalAccountEndpoint = ApiEndpoint + "/account/total-account";
+            public const string AccountProfileEndpoint = AccountEndpoint + "/profile";
+            public const string SearchAccountEndpoint = AccountEndpoint + "/name";
+            public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/{id}";
 
         }
 

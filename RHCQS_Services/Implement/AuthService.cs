@@ -41,10 +41,11 @@ namespace RHCQS_Services.Implement
         public async Task<string> LoginAsync(string email, string password)
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();
-            var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(predicate: x =>
-                x.Email.Equals(email), include: q => q.Include(x => x.Role));
+            var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
+                predicate: x => x.Email.Equals(email),
+                include: q => q.Include(x => x.Role));
 
-            if (account == null || !VerifyPassword(password, account.PasswordHash))
+            if (account == null || !VerifyPassword(password, account.PasswordHash) || account.Deflag !=true)
             {
                 throw new UnauthorizedAccessException("Invalid credentials or account not found.");
             }
@@ -67,7 +68,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 Email = registerRequest.Email,
                 PasswordHash = HashPassword(registerRequest.Password),
-                Username = selectedrole.ToString(),
+                Username = registerRequest.Email,
                 InsDate = DateTime.UtcNow,
                 UpsDate = DateTime.UtcNow,
                 RoleId = role.Id,
