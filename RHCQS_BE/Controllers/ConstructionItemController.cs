@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -91,12 +92,13 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item construction in the system</returns>
         #endregion
+        [Authorize(Roles = "Customer, Sales Staff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionDetailEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItem(Guid id)
         {
-            var listConstructions = await _constructionService.GetDetailConstructionItem(id);
-            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+            var construction = await _constructionService.GetDetailConstructionItem(id);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
             return Ok(result);
         }
 
@@ -133,6 +135,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to create the construction item</response>
         /// 
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.Construction.ConstructionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -24,6 +25,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of project in the system</returns>
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetProjects(int page, int size)
@@ -43,6 +45,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If the project is not found.</response>
         /// <response code="400">If the input is invalid.</response>
         #endregion
+        [Authorize(Roles = "Customer, Sales Staff, Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectDetailEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailProjectById(Guid id)
@@ -62,6 +65,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If no projects are found for the provided phone number.</response>
         /// <response code="400">If the phone number input is invalid.</response>
         #endregion
+        [Authorize(Roles = "Sales Staff, Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectByNumberPhone)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListProjectByPhone(string phone)

@@ -15,6 +15,8 @@ public partial class SubTemplate
 
     public DateTime? InsDate { get; set; }
 
+    public string? Size { get; set; }
+
     public virtual DesignTemplate DesignTemplate { get; set; } = null!;
 
     public virtual ICollection<TemplateItem> TemplateItems { get; set; } = new List<TemplateItem>();

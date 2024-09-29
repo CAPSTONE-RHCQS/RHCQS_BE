@@ -9,23 +9,23 @@ public partial class InitialQuotationItem
 
     public string? Name { get; set; }
 
-    public Guid? ConstructionItemId { get; set; }
+    public Guid ConstructionItemId { get; set; }
 
-    public Guid? SubConstruction { get; set; }
+    public string? SubConstruction { get; set; }
 
     public double? Area { get; set; }
 
     public double? Price { get; set; }
 
-    public double? UnitPrice { get; set; }
+    public string? UnitPrice { get; set; }
 
     public DateTime? InsDate { get; set; }
 
     public DateTime? UpsDate { get; set; }
 
-    public Guid? InitialQuotationId { get; set; }
+    public Guid InitialQuotationId { get; set; }
 
-    public virtual ConstructionItem? ConstructionItem { get; set; }
+    public virtual ConstructionItem ConstructionItem { get; set; } = null!;
 
-    public virtual InitialQuotation? InitialQuotation { get; set; }
+    public virtual InitialQuotation InitialQuotation { get; set; } = null!;
 }
