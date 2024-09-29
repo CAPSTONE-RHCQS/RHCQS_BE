@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RHCQS_DataAccessObjects.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,6 +50,18 @@ namespace RHCQS_BusinessObject.Payload.Response
             UpsDate = upsDate;
             Description = description;
         }
+
+        public UtilitiesSectionResponse(Guid id, string? name, string? status, DateTime? insDate,
+            DateTime? upsDate, string? description, List<UtilityItemResponse> items)
+        {
+            Id = id;
+            Name = name;
+            Status = status;
+            InsDate = insDate;
+            UpsDate = upsDate;
+            Description = description;
+            Items = items;
+        }
         public Guid Id { get; set; }
 
 
@@ -62,5 +75,31 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Description { get; set; }
 
+        public List<UtilityItemResponse> Items { get; set; }
+
+    }
+
+    public class UtilityItemResponse
+    {
+        public UtilityItemResponse() { }
+        public UtilityItemResponse(Guid id, string? name, double? coefficient, DateTime? insDate, DateTime? upsDate)
+        {
+            Id = id;
+            Name = name;
+            Coefficient = coefficient;
+            InsDate = insDate;
+            UpsDate = upsDate;
+        }
+        public Guid Id { get; set; }
+
+        public Guid SectionId { get; set; }
+
+        public string? Name { get; set; }
+
+        public double? Coefficient { get; set; }
+
+        public DateTime? InsDate { get; set; }
+
+        public DateTime? UpsDate { get; set; }
     }
 }

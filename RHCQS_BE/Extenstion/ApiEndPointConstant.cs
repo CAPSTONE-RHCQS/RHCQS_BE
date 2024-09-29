@@ -42,13 +42,16 @@ namespace RHCQS_BE.Extenstion
         {
             public const string ConstructionEndpoint = ApiEndpoint + "/construction";
             public const string ConstructionDetailEndpoint = ConstructionEndpoint + "/id";
-            public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/rough";
+            public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
         }
 
         public static class Utility
         {
             public const string UtilityEndpoint = ApiEndpoint + "/utilities";
             public const string UtilityDetaidEndpoint = UtilityEndpoint + "/id";
+            public const string UtilityByTypeEndpoint = UtilityEndpoint + "/type";
+            public const string UtilitySectionEndpoint = UtilityEndpoint + "/section";
+            public const string UtilitySectionDEndpoint = UtilitySectionEndpoint + "/id";
         }
     }
 }

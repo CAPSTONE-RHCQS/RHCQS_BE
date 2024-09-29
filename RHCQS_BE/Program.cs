@@ -21,6 +21,7 @@ namespace RHCQS_BE
                    policy =>
                    {
                        policy.WithOrigins("https://localhost:3000")
+                             .WithOrigins("https://localhost:5137")
                              .AllowAnyHeader()
                              .AllowAnyMethod()
                              .AllowCredentials();

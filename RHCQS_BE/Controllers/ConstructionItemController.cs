@@ -97,8 +97,8 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItem(Guid id)
         {
-            var listConstructions = await _constructionService.GetDetailConstructionItem(id);
-            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+            var construction = await _constructionService.GetDetailConstructionItem(id);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
             return Ok(result);
         }
 
