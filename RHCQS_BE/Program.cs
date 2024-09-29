@@ -20,8 +20,8 @@ namespace RHCQS_BE
                 options.AddPolicy(name: CorsConstant.PolicyName,
                    policy =>
                    {
-                       policy.WithOrigins("https://localhost:3000")
-                             .WithOrigins("https://localhost:5173")
+                       policy.WithOrigins("http://localhost:3000")
+                             .WithOrigins("http://localhost:5173")
                              .AllowAnyHeader()
                              .AllowAnyMethod()
                              .AllowCredentials();

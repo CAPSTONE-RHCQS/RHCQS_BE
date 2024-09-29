@@ -93,7 +93,8 @@ namespace RHCQS_Services.Implement
         public async Task<UtilitiesSectionResponse> GetDetailUtilitySection(Guid idUtilitySection)
         {
             var utiItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(
-                x => x.Id == idUtilitySection
+                x => x.Id == idUtilitySection,
+                include: x => x.Include(x => x.UtilitiesItems)
             );
 
             if (utiItem != null)
