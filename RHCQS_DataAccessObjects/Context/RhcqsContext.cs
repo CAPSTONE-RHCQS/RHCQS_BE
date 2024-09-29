@@ -711,7 +711,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Size)
-                .HasMaxLength(20)
+                .HasMaxLength(9)
                 .IsFixedLength();
 
             entity.HasOne(d => d.DesignTemplate).WithMany(p => p.SubTemplates)

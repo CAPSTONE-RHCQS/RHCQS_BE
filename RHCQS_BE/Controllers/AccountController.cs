@@ -133,10 +133,10 @@ namespace RHCQS_BE.Controllers
         }
         #region SearchAccounts
         /// <summary>
-        /// Search accounts by name.
+        /// Search account by name.
         /// </summary>
         /// <param name="name">The name to search for.</param>
-        /// <returns>List of accounts that match the search criteria.</returns>
+        /// <returns>The account that match the search criteria.</returns>
         // GET: api/Account/Search
         #endregion
         [HttpGet(ApiEndPointConstant.Account.SearchAccountEndpoint)]

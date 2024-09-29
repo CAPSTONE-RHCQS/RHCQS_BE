@@ -33,8 +33,13 @@ namespace RHCQS_BE.Extenstion
             public const string TotalAccountEndpoint = ApiEndpoint + "/account/total-account";
             public const string AccountProfileEndpoint = AccountEndpoint + "/profile";
             public const string SearchAccountEndpoint = AccountEndpoint + "/name";
-            public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/{id}";
+            public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
 
+        }
+        public static class HouseTemplate
+        {
+            public const string HouseTemplateEndpoint = ApiEndpoint + "/housetemplate";
+            public const string SearchHouseTemplateEndpoint = HouseTemplateEndpoint + "/name";
         }
 
         public static class Project

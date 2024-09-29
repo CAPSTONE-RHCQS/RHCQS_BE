@@ -40,14 +40,11 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> LoginAsync(string email, string password)
         {
-            var accountRepository = _unitOfWork.GetRepository<Account>();
-            var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
-                predicate: x => x.Email.Equals(email),
-                include: q => q.Include(x => x.Role));
+            var account = await GetAccountByEmail(email, password);
 
-            if (account == null || !VerifyPassword(password, account.PasswordHash) || account.Deflag !=true)
+            if ((bool)!account.Deflag)
             {
-                throw new UnauthorizedAccessException("Invalid credentials or account not found.");
+                throw new UnauthorizedAccessException("Account is not active.");
             }
 
             return GenerateJwtToken(account);

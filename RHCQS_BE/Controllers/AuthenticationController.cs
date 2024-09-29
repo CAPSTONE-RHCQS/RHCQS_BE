@@ -37,7 +37,6 @@ namespace RHCQS_BE.Controllers
                 if (loginRequest == null)
                     return BadRequest("Invalid client request");
 
-                var user = await _authService.GetAccountByEmail(loginRequest.Email, loginRequest.Password);
                 var token = await _authService.LoginAsync(loginRequest.Email, loginRequest.Password);
                 return Ok(JsonConvert.SerializeObject(new LoginResponse(token), Formatting.Indented));
             }

@@ -62,6 +62,7 @@ namespace RHCQS_BE.Extenstion
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IHouseTemplateService, HouseTemplateService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IProjectService, ProjectService>();
