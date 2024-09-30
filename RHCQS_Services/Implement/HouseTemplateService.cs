@@ -40,6 +40,7 @@ namespace RHCQS_Services.Implement
                                                                         item => new TemplateItemReponse(
                                                                             item.Id,
                                                                             item.ConstructionItem.Name,
+                                                                            item.ConstructionItem.Coefficient,
                                                                             item.Area,
                                                                             item.Unit,
                                                                             item.InsDate)))).ToList()),

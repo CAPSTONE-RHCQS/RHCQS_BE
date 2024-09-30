@@ -111,7 +111,7 @@ namespace RHCQS_Services.Implement
             var keyString = _configuration["Jwt:Key"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddMinutes(30);
+            var expires = DateTime.Now.AddDays(7);
 
             var token = new JwtSecurityToken(
                 claims: claims,
