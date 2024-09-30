@@ -28,13 +28,19 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<Contract> Contracts { get; set; }
 
+    public virtual DbSet<Customer> Customers { get; set; }
+
     public virtual DbSet<DesignTemplate> DesignTemplates { get; set; }
 
-    public virtual DbSet<DetailedQuotation> DetailedQuotations { get; set; }
+    public virtual DbSet<EquimentItem> EquimentItems { get; set; }
 
-    public virtual DbSet<DetailedQuotationItem> DetailedQuotationItems { get; set; }
+    public virtual DbSet<FinalQuotation> FinalQuotations { get; set; }
+
+    public virtual DbSet<FinalQuotationItem> FinalQuotationItems { get; set; }
 
     public virtual DbSet<HouseDesignDrawing> HouseDesignDrawings { get; set; }
+
+    public virtual DbSet<HouseDesignVersion> HouseDesignVersions { get; set; }
 
     public virtual DbSet<InitialQuotation> InitialQuotations { get; set; }
 
@@ -100,7 +106,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<Utility> Utilities { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -136,11 +141,6 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_AssignTask_Account");
-
-            entity.HasOne(d => d.Project).WithMany(p => p.AssignTasks)
-                .HasForeignKey(d => d.ProjectId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AssignTask_Project");
         });
 
         modelBuilder.Entity<BactchPayment>(entity =>
@@ -159,6 +159,11 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.ContractId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_Contract");
+
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.BactchPayments)
+                .HasForeignKey(d => d.FinalQuotationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_BactchPayment_DetailedQuotation");
 
             entity.HasOne(d => d.IntitialQuotation).WithMany(p => p.BactchPayments)
                 .HasForeignKey(d => d.IntitialQuotationId)
@@ -211,6 +216,22 @@ public partial class RhcqsContext : DbContext
                 .HasConstraintName("FK_Contract_Project");
         });
 
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.ToTable("Customer");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(50);
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+            entity.Property(e => e.PasswordHash).HasMaxLength(60);
+            entity.Property(e => e.PhoneNumber)
+                .HasMaxLength(11)
+                .IsFixedLength();
+            entity.Property(e => e.UpsDate).HasColumnType("datetime");
+            entity.Property(e => e.Username).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<DesignTemplate>(entity =>
         {
             entity.ToTable("DesignTemplate");
@@ -220,11 +241,28 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<DetailedQuotation>(entity =>
+        modelBuilder.Entity<EquimentItem>(entity =>
+        {
+            entity.ToTable("EquimentItem");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Note)
+                .HasMaxLength(10)
+                .IsFixedLength();
+            entity.Property(e => e.Unit).HasMaxLength(50);
+
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.EquimentItems)
+                .HasForeignKey(d => d.FinalQuotationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_EquimentItem_FinalQuotation");
+        });
+
+        modelBuilder.Entity<FinalQuotation>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_OfficialQuotation");
 
-            entity.ToTable("DetailedQuotation");
+            entity.ToTable("FinalQuotation");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
@@ -232,29 +270,31 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
             entity.Property(e => e.Version).HasMaxLength(10);
 
-            entity.HasOne(d => d.Account).WithMany(p => p.DetailedQuotations)
+            entity.HasOne(d => d.Account).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetailedQuotation_Account");
 
-            entity.HasOne(d => d.Project).WithMany(p => p.DetailedQuotations)
+            entity.HasOne(d => d.Project).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetailedQuotation_Project");
 
-            entity.HasOne(d => d.Promotion).WithMany(p => p.DetailedQuotations)
+            entity.HasOne(d => d.Promotion).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.PromotionId)
                 .HasConstraintName("FK_DetailedQuotation_Promotion");
 
-            entity.HasOne(d => d.QuotationUlitities).WithMany(p => p.DetailedQuotations)
+            entity.HasOne(d => d.QuotationUlitities).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.QuotationUlititiesId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetailedQuotation_QuoationUltities");
         });
 
-        modelBuilder.Entity<DetailedQuotationItem>(entity =>
+        modelBuilder.Entity<FinalQuotationItem>(entity =>
         {
-            entity.ToTable("DetailedQuotationItem");
+            entity.HasKey(e => e.Id).HasName("PK_DetailedQuotationItem");
+
+            entity.ToTable("FinalQuotationItem");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
@@ -262,8 +302,8 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.Weight).HasMaxLength(50);
 
-            entity.HasOne(d => d.DetailQuotation).WithMany(p => p.DetailedQuotationItems)
-                .HasForeignKey(d => d.DetailQuotationId)
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.FinalQuotationItems)
+                .HasForeignKey(d => d.FinalQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_DetailedQuotationItem_DetailedQuotation");
         });
@@ -278,12 +318,30 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Step).HasMaxLength(100);
             entity.Property(e => e.Type).HasMaxLength(50);
-            entity.Property(e => e.Version).HasMaxLength(50);
 
             entity.HasOne(d => d.AssignTask).WithMany(p => p.HouseDesignDrawings)
                 .HasForeignKey(d => d.AssignTaskId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HouseDesignDrawing_AssignTask");
+
+            entity.HasOne(d => d.Project).WithMany(p => p.HouseDesignDrawings)
+                .HasForeignKey(d => d.ProjectId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_HouseDesignDrawing_Project");
+        });
+
+        modelBuilder.Entity<HouseDesignVersion>(entity =>
+        {
+            entity.ToTable("HouseDesignVersion");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.Status).HasMaxLength(50);
+
+            entity.HasOne(d => d.HouseDesignDrawing).WithMany(p => p.HouseDesignVersions)
+                .HasForeignKey(d => d.HouseDesignDrawingId)
+                .HasConstraintName("FK_HouseDesignVersion_HouseDesignDrawing");
         });
 
         modelBuilder.Entity<InitialQuotation>(entity =>
@@ -577,10 +635,9 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Account).WithMany(p => p.Projects)
-                .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Project_Account");
+            entity.HasOne(d => d.Customer).WithMany(p => p.Projects)
+                .HasForeignKey(d => d.CustomerId)
+                .HasConstraintName("FK_Project_Customer");
         });
 
         modelBuilder.Entity<Promotion>(entity =>
