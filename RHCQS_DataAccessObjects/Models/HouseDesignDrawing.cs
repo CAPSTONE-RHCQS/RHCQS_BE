@@ -13,8 +13,6 @@ public partial class HouseDesignDrawing
 
     public string? Step { get; set; }
 
-    public string? Version { get; set; }
-
     public string? Status { get; set; }
 
     public string? Type { get; set; }
@@ -27,5 +25,9 @@ public partial class HouseDesignDrawing
 
     public virtual AssignTask AssignTask { get; set; } = null!;
 
+    public virtual ICollection<HouseDesignVersion> HouseDesignVersions { get; set; } = new List<HouseDesignVersion>();
+
     public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
+
+    public virtual Project Project { get; set; } = null!;
 }

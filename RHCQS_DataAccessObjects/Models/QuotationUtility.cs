@@ -25,7 +25,7 @@ public partial class QuotationUtility
 
     public DateTime? UpsDate { get; set; }
 
-    public virtual ICollection<DetailedQuotation> DetailedQuotations { get; set; } = new List<DetailedQuotation>();
+    public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
 
     public virtual UtilitiesItem UltilitiesItem { get; set; } = null!;
 }

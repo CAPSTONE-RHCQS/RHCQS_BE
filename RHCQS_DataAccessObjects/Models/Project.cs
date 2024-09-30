@@ -7,7 +7,7 @@ public partial class Project
 {
     public Guid Id { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? CustomerId { get; set; }
 
     public string? Name { get; set; }
 
@@ -25,13 +25,13 @@ public partial class Project
 
     public double? Area { get; set; }
 
-    public virtual Account Account { get; set; } = null!;
-
-    public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
-
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
 
-    public virtual ICollection<DetailedQuotation> DetailedQuotations { get; set; } = new List<DetailedQuotation>();
+    public virtual Customer? Customer { get; set; }
+
+    public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
+
+    public virtual ICollection<HouseDesignDrawing> HouseDesignDrawings { get; set; } = new List<HouseDesignDrawing>();
 
     public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
 }

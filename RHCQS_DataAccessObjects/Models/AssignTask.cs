@@ -20,6 +20,4 @@ public partial class AssignTask
     public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<HouseDesignDrawing> HouseDesignDrawings { get; set; } = new List<HouseDesignDrawing>();
-
-    public virtual Project Project { get; set; } = null!;
 }
