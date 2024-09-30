@@ -29,9 +29,9 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<ProjectResponse> listProjects =
             await _unitOfWork.GetRepository<Project>().GetList(
-                selector: x => new ProjectResponse(x.Id, x.Account.Username, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.Customer.Username, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
-                include: x => x.Include(w => w.Account),
+                include: x => x.Include(w => w.Customer),
                 orderBy: x => x.OrderBy(w => w.InsDate),
                 page: page,
                 size: size
@@ -42,11 +42,13 @@ namespace RHCQS_Services.Implement
         public async Task<ProjectDetail> GetDetailProjectById(Guid id)
         {
             var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id,
-                                include: w => w.Include(p => p.Account)
+                                include: w => w.Include(p => p.Customer)
                                                 .Include(p => p.InitialQuotations)
-                                                .Include(p => p.DetailedQuotations)
-                                                .Include(p => p.AssignTasks)
-                                                .ThenInclude(h => h.HouseDesignDrawings));
+                                                .Include(p => p.FinalQuotations)
+                                                .Include(p => p.HouseDesignDrawings)
+                                                .ThenInclude(h => h.HouseDesignVersions)
+                                                .Include(p => p.HouseDesignDrawings)
+                                                .ThenInclude(h => h.AssignTask));
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 
             if (projectItem == null) return null;
@@ -61,31 +63,31 @@ namespace RHCQS_Services.Implement
                                             Status = i.Status
                                         }).ToList() ?? new List<InitialInfo>();
 
-            var detailedItem = projectItem.DetailedQuotations?
-                                        .Select(d => new DetailedInfo
+            var finalItem = projectItem.FinalQuotations?
+                                        .Select(d => new FinalInfo
                                         {
                                             Id = d.Id,
                                             AccountName = d.Account?.Username,
                                             Version = d.Version,
                                             InsDate = d.InsDate,
                                             Status = d.Status
-                                        }).ToList() ?? new List<DetailedInfo>();
+                                        }).ToList() ?? new List<FinalInfo>();
 
-            var houseDesignItem = projectItem.AssignTasks?.SelectMany(task => task.HouseDesignDrawings
-                                                         .Select(h => new HouseDesignDrawingInfo
-                                                         {
-                                                             Id = h.Id,
-                                                             AccountName = task.Account?.Username,
-                                                             Version = h.Version,
-                                                             InsDate = h.InsDate,
-                                                             Status = h.Status
-                                                         })).ToList() ?? new List<HouseDesignDrawingInfo>();
+            var houseDesignItem = projectItem.HouseDesignDrawings?
+                                                                     .Select(h => new HouseDesignDrawingInfo
+                                                                     {
+                                                                         Id = h.Id,
+                                                                         //Version = h.HouseDesignVersions.,
+                                                                         InsDate = h.InsDate,
+                                                                         Status = h.Status
+                                                                     }).ToList() ?? new List<HouseDesignDrawingInfo>();
+
 
             var projectDetailItem = new ProjectDetail
             {
                 Id = projectItem.Id,
                 Name = projectItem.Name,
-                AccountName = projectItem.Account.Username,
+                AccountName = projectItem.Customer.Username,
                 Address = projectItem.Address,
                 Area = projectItem.Area,
                 Type = projectItem.Type,
@@ -95,7 +97,7 @@ namespace RHCQS_Services.Implement
                 ProjectCode = projectItem.ProjectCode,
                 InitialInfo = initialItem,
                 HouseDesignDrawingInfo = houseDesignItem,
-                DetailedInfo = detailedItem
+                FinalInfo = finalItem
             };
 
             return projectDetailItem;
@@ -109,10 +111,10 @@ namespace RHCQS_Services.Implement
             }
 
             var projectPaginate = await _unitOfWork.GetRepository<Project>().GetList(
-                selector: x => new ProjectResponse(x.Id, x.Account.Username, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.Customer.Username, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
-                include: x => x.Include(w => w.Account),
-                predicate: x => x.Account.PhoneNumber == phoneNumber,
+                include: x => x.Include(w => w.Customer),
+                predicate: x => x.Customer.PhoneNumber == phoneNumber,
                 orderBy: x => x.OrderBy(w => w.InsDate));
 
 

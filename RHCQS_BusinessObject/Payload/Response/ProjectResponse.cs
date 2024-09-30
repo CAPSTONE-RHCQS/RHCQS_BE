@@ -60,7 +60,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public List<InitialInfo>? InitialInfo { get; set; }
         public List<HouseDesignDrawingInfo>? HouseDesignDrawingInfo { get; set; }
-        public List<DetailedInfo>? DetailedInfo { get; set; }
+        public List<FinalInfo>? FinalInfo { get; set; }
     }
 
     public class InitialInfo
@@ -75,13 +75,12 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class HouseDesignDrawingInfo
     {
         public Guid Id { get; set; }
-        public string? AccountName { get; set; }
-        public string? Version { get; set; }
+        //public string? Version { get; set; }
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
     }
 
-    public class DetailedInfo
+    public class FinalInfo
     {
         public Guid Id { get; set; }
         public string? AccountName { get; set; }

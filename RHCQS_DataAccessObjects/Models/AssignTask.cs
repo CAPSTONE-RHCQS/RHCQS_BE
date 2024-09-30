@@ -7,8 +7,6 @@ public partial class AssignTask
 {
     public Guid Id { get; set; }
 
-    public Guid ProjectId { get; set; }
-
     public Guid AccountId { get; set; }
 
     public string? Name { get; set; }
