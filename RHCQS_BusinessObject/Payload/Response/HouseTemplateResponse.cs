@@ -71,10 +71,11 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class TemplateItemReponse
     {
-        public TemplateItemReponse(Guid id, string? name, double? area, string? unit, DateTime? insDate)
+        public TemplateItemReponse(Guid id, string? name, double? area, double? coefficient, string? unit, DateTime? insDate)
         {
             Id = id;
             Name = name;
+            Coefficient = coefficient;
             Area = area;
             Unit = unit;
             InsDate = insDate;
@@ -82,6 +83,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
 
         public String Name { get; set; }
+        public double? Coefficient { get; set; }
 
         public double? Area { get; set; }
 
