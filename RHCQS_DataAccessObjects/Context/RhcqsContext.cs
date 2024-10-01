@@ -316,8 +316,11 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.Step).HasMaxLength(100);
             entity.Property(e => e.Type).HasMaxLength(50);
+
+            entity.Property(e => e.Step)
+                  .HasColumnName("Step")
+                  .IsRequired(false);
 
             entity.HasOne(d => d.AssignTask).WithMany(p => p.HouseDesignDrawings)
                 .HasForeignKey(d => d.AssignTaskId)

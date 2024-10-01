@@ -11,7 +11,7 @@ public partial class HouseDesignDrawing
 
     public string? Name { get; set; }
 
-    public string? Step { get; set; }
+    public int? Step { get; set; }
 
     public string? Status { get; set; }
 
@@ -21,7 +21,7 @@ public partial class HouseDesignDrawing
 
     public DateTime? InsDate { get; set; }
 
-    public Guid AssignTaskId { get; set; }
+    public Guid? AssignTaskId { get; set; }
 
     public virtual AssignTask AssignTask { get; set; } = null!;
 
