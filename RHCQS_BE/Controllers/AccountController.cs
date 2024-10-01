@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace RHCQS_BE.Controllers
@@ -41,29 +42,9 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListAccountAsync(int page, int size)
         {
-            if (page < 1 || size < 1)
-            {
-                return BadRequest("Page and size must be greater than 0.");
-            }
-
-            try
-            {
-                var list = await _accountService.GetListAccountAsync(page, size);
-                if (list == null)
-                {
-                    return NotFound("No accounts found.");
-                }
-                var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
-                return Ok(accounts);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
-            }
+            var list = await _accountService.GetListAccountAsync(page, size);
+            var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
+            return Ok(accounts);
         }
         #region AccountProfile
         /// <summary>
@@ -77,11 +58,6 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetAccountProfile()
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (accountId == null)
-            {
-                return Unauthorized();
-            }
-
             var accountProfile = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId));
             return Ok(accountProfile);
         }
@@ -110,12 +86,6 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<Account>> GetAccountByIdAsync(Guid id)
         {
             var account = await _accountService.GetAccountByIdAsync(id);
-
-            if (account == null)
-            {
-                return NotFound();
-            }
-
             return Ok(account);
         }
         #region GetTotalAccount
@@ -143,10 +113,6 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<Account>> SearchAccountsByNameAsync(string name)
         {
             var account = await _accountService.SearchAccountsByNameAsync(name);
-            if (account == null)
-            {
-                return NotFound();
-            }
 
             var searchEmployee = new Account
             {
@@ -242,10 +208,6 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<AccountResponse>> UpdateDeflagAccountAsync(Guid id)
         {
             var updatedAccount = await _accountService.UpdateDeflagAccountAsync(id);
-            if (updatedAccount == null)
-            {
-                return NotFound("Account not found.");
-            }
 
             return Ok(new AccountResponse(
                 updatedAccount.Id,

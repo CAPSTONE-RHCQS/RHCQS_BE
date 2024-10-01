@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
@@ -31,35 +32,82 @@ namespace RHCQS_Services.Implement
                 predicate: x => x.Email.Equals(email),
                 include: q => q.Include(x => x.Role));
 
-            if (account == null || !VerifyPassword(password, account.PasswordHash))
+            if (account == null)
             {
-                throw new UnauthorizedAccessException("Invalid email or password.");
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
+            }
+            if (!VerifyPassword(password, account.PasswordHash))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Forbidden,
+                    AppConstant.ErrMessage.InvalidPassword
+                );
             }
             return account;
         }
 
         public async Task<string> LoginAsync(string email, string password)
         {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
             var account = await GetAccountByEmail(email, password);
 
             if ((bool)!account.Deflag)
             {
-                throw new UnauthorizedAccessException("Account is not active.");
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Forbidden,
+                    AppConstant.ErrMessage.AccountInActive
+                );
             }
 
             return GenerateJwtToken(account);
         }
         public async Task<Account> RegisterAsync(RegisterRequest registerRequest, UserRoleForRegister selectedrole)
         {
+            if (registerRequest == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
             var existingAccount = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
                 x => x.Email.Equals(registerRequest.Email));
 
             if (existingAccount != null)
             {
-                return null;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.EmailExists
+                );
             }
+
+            if (registerRequest.Password != registerRequest.ConfirmPassword)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.PasswordMismatch
+                );
+            }
+
             var roleName = selectedrole.ToString();
             var role = await _unitOfWork.GetRepository<Role>().FirstOrDefaultAsync(r => r.RoleName == roleName);
+            if (role == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.RoleNotFound
+                );
+            }
             var newAccount = new Account
             {
                 Id = Guid.NewGuid(),
@@ -76,7 +124,10 @@ namespace RHCQS_Services.Implement
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
             {
-                throw new Exception("Commit failed, no rows affected.");
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.CreateAccountError
+                );
             }
 
             return newAccount;
@@ -96,7 +147,10 @@ namespace RHCQS_Services.Implement
         {
             if (account == null)
             {
-                throw new ArgumentNullException(nameof(account), "Account cannot be null");
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.NullValue
+                );
             }
 
             var claims = new List<Claim>

@@ -45,10 +45,6 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<DesignTemplate>> SearchHouseTemplateByName(string name)
         {
             var housetemplate = await _houseService.SearchHouseTemplateByNameAsync(name);
-            if (housetemplate == null)
-            {
-                return NotFound();
-            }
 
             var searchHouseTempalte = new DesignTemplate
             {

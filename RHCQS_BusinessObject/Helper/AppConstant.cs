@@ -35,8 +35,12 @@ public static class AppConstant
     {
         Success = 200,
         Internal_Server_Error = 500,
+        Bad_Request = 400,
+        Unauthorized = 401,
+        Forbidden = 403,
         Not_Found = 404,
         Conflict = 409,
+
     }
     public class ErrMessage
     {
@@ -49,6 +53,23 @@ public static class AppConstant
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
+        //Login
+        public const string EmailExists = "Email đã tồn tại!";
+        public const string AccountInActive = "Tài khoản bị khóa!";
+        public const string InvalidPassword = "Mật khẩu không đúng!";
+        public const string PasswordMismatch = "Mật khẩu không trùng khớp!";
+        public const string Not_Found_Account = "Tài khoản không tồn tại!";
+        public const string RoleNotFound = "Role này không tồn tại!";
+        public const string CreateAccountError = "Tạo tài khoản thất bại!";
+        public const string NullValue = "Invalid input: Field cannot be empty";
+        //Acount
+        public const string AccountIdError = "AccounntId không hợp lệ (phải theo kiểu Gui)!";
+        public const string PageAndSizeError = "Page and size must be greater than 0!";
+        public const string FailedToGetList = "Lấy danh sách account thất bại!";
+        public const string BanAccount = "Ban tài khoản thất bại!";
+        public const string UpdateAccount = "Cập nhật tài khoản thất bại!";
+        //HouseTemplate
+        public const string Not_Found_HouseTemplate = "Không tìm thấy mẫu nhà!";
     }
 }
 

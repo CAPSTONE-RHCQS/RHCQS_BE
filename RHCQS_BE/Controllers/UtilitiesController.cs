@@ -26,7 +26,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of utilities in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListUtilities(int page, int size)
@@ -67,7 +67,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">If the `type` is invalid or not provided.</response>
         /// <response code="500">If there is an internal server error while processing the request.</response>
         #endregion
-        [Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityByTypeEndpoint)]
         [ProducesResponseType(typeof(List<UtilityResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -91,7 +91,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item utility in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityDetaidEndpoint)]
         [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailUtilityItem(Guid id)
@@ -107,7 +107,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item utility section in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilitySectionDEndpoint)]
         [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailUtilitySection(Guid id)

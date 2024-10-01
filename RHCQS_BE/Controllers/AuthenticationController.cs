@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_Services.Interface;
 using static RHCQS_BusinessObjects.AppConstant;
 using System.ComponentModel.DataAnnotations;
+using RHCQS_BusinessObjects;
 
 namespace RHCQS_BE.Controllers
 {
@@ -32,18 +33,8 @@ namespace RHCQS_BE.Controllers
         [HttpPost(ApiEndPointConstant.Auth.LoginEndpoint)]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
-            try
-            {
-                if (loginRequest == null)
-                    return BadRequest("Invalid client request");
-
-                var token = await _authService.LoginAsync(loginRequest.Email, loginRequest.Password);
-                return Ok(JsonConvert.SerializeObject(new LoginResponse(token), Formatting.Indented));
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
+            var token = await _authService.LoginAsync(loginRequest.Email, loginRequest.Password);
+            return Ok(JsonConvert.SerializeObject(new LoginResponse(token), Formatting.Indented));
         }
         #region Register
         /// <summary>
@@ -57,30 +48,9 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest,
             [FromQuery][Required(ErrorMessage = "Role is required.")] UserRoleForRegister role)
         {
-            try
-            {
-                if (registerRequest == null)
-                    return BadRequest("Invalid registration request");
-
-                if (registerRequest.Password != registerRequest.ConfirmPassword)
-                {
-                    return BadRequest("Passwords do not match.");
-                }
-                var result = await _authService.RegisterAsync(registerRequest, role);
-
-                if (result == null)
-                {
-                    return BadRequest("Registration failed.");
-                }
-
-                return Ok(JsonConvert.SerializeObject(new { message = "Registration successful"}));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
-            }
+            var result = await _authService.RegisterAsync(registerRequest, role);
+            return Ok(JsonConvert.SerializeObject(new { message = "Registration successful" }));
         }
-
 
         #region Logout
         /// <summary>

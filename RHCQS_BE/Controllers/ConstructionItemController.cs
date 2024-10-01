@@ -92,7 +92,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item construction in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionDetailEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItem(Guid id)

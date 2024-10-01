@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -29,21 +30,23 @@ namespace RHCQS_Services.Implement
 
         public async Task<Account> GetAccountByIdAsync(Guid id)
         {
-            try
+            if (id == Guid.Empty)
             {
-                var accountRepository = _unitOfWork.GetRepository<Account>();
-                var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
-                if (account == null)
-                {
-                    throw new KeyNotFoundException("Account not found");
-                }
-                return account;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.AccountIdError
+                );
             }
-            catch (Exception ex)
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
+            if (account == null)
             {
-                _logger.LogError(ex, "Error occurred while getting the account by ID");
-                throw;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
             }
+            return account;
         }
 
         public async Task<int> GetActiveAccountCountAsync()
@@ -54,20 +57,28 @@ namespace RHCQS_Services.Implement
 
         public async Task<IPaginate<AccountResponse>> GetListAccountAsync(int page, int size)
         {
-            try
+
+            if (page < 1 || size < 1)
             {
-                IPaginate<AccountResponse> listAccounts = await _unitOfWork.GetRepository<Account>()
-                    .GetList(selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth, x.PasswordHash,
-                                                                x.Email, x.ImageUrl, x.Deflag, x.RoleId, x.InsDate, x.UpsDate),
-                            page: page,
-                            size: size);
-                return listAccounts;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.PageAndSizeError
+                );
             }
-            catch (Exception ex)
+            IPaginate<AccountResponse> listAccounts = await _unitOfWork.GetRepository<Account>()
+                .GetList(selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth, x.PasswordHash,
+                                                            x.Email, x.ImageUrl, x.Deflag, x.RoleId, x.InsDate, x.UpsDate),
+                        page: page,
+                        size: size);
+            if (listAccounts == null)
             {
-                _logger.LogError(ex, "Error occurred while getting all accounts");
-                throw;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.FailedToGetList
+                );
             }
+            return listAccounts;
+
         }
 
         public async Task<int> GetTotalAccountCountAsync()
@@ -77,21 +88,22 @@ namespace RHCQS_Services.Implement
         }
         public async Task<Account> SearchAccountsByNameAsync(string name)
         {
-            try
+
+            if (string.IsNullOrEmpty(name))
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    return await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(include: s => s.Include(p => p.Role));
-                }
-                else
-                {
-                    return await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(p => p.Username.Contains(name), include: s => s.Include(p => p.Role));
-                }
+                return await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(include: s => s.Include(p => p.Role));
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "An error occurred while getting the account by name.");
-                throw;
+                var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(p => p.Username.Contains(name), include: s => s.Include(p => p.Role));
+                if (account == null)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Not_Found,
+                        AppConstant.ErrMessage.Not_Found_Account
+                    );
+                }
+                return account;
             }
         }
 
@@ -104,7 +116,10 @@ namespace RHCQS_Services.Implement
 
                 if (_account == null)
                 {
-                    return null;
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Not_Found,
+                        AppConstant.ErrMessage.Not_Found_Account
+                    );
                 }
 
                 _account.Username = account.Username != default ? account.Username : _account.Username;
@@ -114,20 +129,26 @@ namespace RHCQS_Services.Implement
                 _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
                 _account.RoleId = account.RoleId != Guid.Empty ? account.RoleId : _account.RoleId;
 
-/*                if (imageStream != null)
-                {
-                    var imageUrl = await UploadImageToFirebase(imageStream, imageName);
-                    _account.ImgUrl = imageUrl;
-                }
-                else if (imageStream == null)
-                {
-                    account.ImgUrl = _account.ImgUrl;
-                }*/
+                /*                if (imageStream != null)
+                                {
+                                    var imageUrl = await UploadImageToFirebase(imageStream, imageName);
+                                    _account.ImgUrl = imageUrl;
+                                }
+                                else if (imageStream == null)
+                                {
+                                    account.ImgUrl = _account.ImgUrl;
+                                }*/
                 _account.UpsDate = DateTime.UtcNow;
 
                 accountRepository.UpdateAsync(_account);
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-                if (!isSuccessful) return null;
+                if (!isSuccessful)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.UpdateAccount
+                    );
+                }
 
                 return _account;
             }
@@ -146,7 +167,10 @@ namespace RHCQS_Services.Implement
 
                 if (account == null)
                 {
-                    return null;
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Not_Found,
+                        AppConstant.ErrMessage.Not_Found_Account
+                    );
                 }
 
                 account.Deflag = false;
@@ -156,7 +180,10 @@ namespace RHCQS_Services.Implement
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 if (!isSuccessful)
                 {
-                    return null;
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.BanAccount
+                    );
                 }
 
                 return account;

@@ -53,22 +53,23 @@ namespace RHCQS_Services.Implement
 
         public async Task<DesignTemplate> SearchHouseTemplateByNameAsync(string name)
         {
-            try
+            if (string.IsNullOrEmpty(name))
             {
-                if (string.IsNullOrEmpty(name))
-                {
-                    return await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(include: s => s.Include(p => p.SubTemplates));
-                }
-                else
-                {
-                    return await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(p => p.Name.Contains(name), include: s => s.Include(p => p.SubTemplates));
-                }
+                return await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(include: s => s.Include(p => p.SubTemplates));
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "An error occurred while getting the housetemplate by name.");
-                throw;
+                var houseTemplate =  await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(p => p.Name.Contains(name), include: s => s.Include(p => p.SubTemplates));
+                if (houseTemplate == null)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Not_Found,
+                        AppConstant.ErrMessage.Not_Found_HouseTemplate
+                    );
+                }
+                return houseTemplate;
             }
+
         }
     }
 }

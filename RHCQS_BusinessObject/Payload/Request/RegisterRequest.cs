@@ -17,6 +17,8 @@ namespace RHCQS_BusinessObject.Payload.Request
     public enum UserRoleForRegister
     {
         Customer,
-        Manager
+        Manager,
+        SalesStaff,
+        DesignStaff
     }
 }
