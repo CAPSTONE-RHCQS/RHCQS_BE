@@ -42,7 +42,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingDetailEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailHouseDesignDrawing(Guid id)
@@ -89,7 +89,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Returns when the `type` is invalid or not provided.</response>
         /// <response code="500">Returns if there is an internal server error during the request processing.</response>
         #endregion
-        [Authorize(Roles = "Design Staff, Manager")]
+        [Authorize(Roles = "DesignStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingTypeEndpoint)]
         [ProducesResponseType(typeof(List<HouseDesignDrawingResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
