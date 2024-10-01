@@ -21,5 +21,7 @@ public partial class HouseDesignVersion
 
     public string? Note { get; set; }
 
+    public string? FileUrl { get; set; }
+
     public virtual HouseDesignDrawing? HouseDesignDrawing { get; set; }
 }

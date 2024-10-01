@@ -318,13 +318,8 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
 
-            entity.Property(e => e.Step)
-                  .HasColumnName("Step")
-                  .IsRequired(false);
-
             entity.HasOne(d => d.AssignTask).WithMany(p => p.HouseDesignDrawings)
                 .HasForeignKey(d => d.AssignTaskId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HouseDesignDrawing_AssignTask");
 
             entity.HasOne(d => d.Project).WithMany(p => p.HouseDesignDrawings)

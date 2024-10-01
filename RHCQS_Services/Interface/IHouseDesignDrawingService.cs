@@ -14,6 +14,7 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawings(int page, int size);
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawing(Guid id);
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type);
+        Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId);
         Task<bool> CreateHouseDesignDrawing(HouseDesignDrawingRequest item);
     }
 }

@@ -27,6 +27,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of house design drawing in the system</returns>
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListHouseDesignDrawing(int page, int size)
@@ -48,6 +49,23 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetDetailHouseDesignDrawing(Guid id)
         {
             var design = await _houseService.GetDetailHouseDesignDrawing(id);
+            if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
+            var result = JsonConvert.SerializeObject(design, Formatting.Indented);
+            return Ok(result);
+        }
+
+        #region GetListTaskByAccount
+        /// <summary>
+        /// Retrieves the house design drawing item.
+        /// </summary>
+        /// <returns>Item constructhouse design drawing in the system</returns>
+        #endregion
+        //[Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingTask)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListTaskByAccount(Guid id)
+        {
+            var design = await _houseService.GetListTaskByAccount(id);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
             return Ok(result);

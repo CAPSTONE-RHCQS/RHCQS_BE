@@ -69,6 +69,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IConstructionItemService, ConstructionItemService>();
             services.AddScoped<IUtilitiesService, UtilitiesService>();
             services.AddScoped<IHouseDesignDrawingService, HouseDesignDrawingService>();
+            services.AddScoped<IAssignTaskService, AssignTaskService>();
             return services;
         }
 

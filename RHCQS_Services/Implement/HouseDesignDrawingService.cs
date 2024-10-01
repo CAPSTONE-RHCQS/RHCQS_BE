@@ -150,5 +150,30 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
+        public async Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId)
+        {
+            var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
+                predicate: x => x.AssignTask.Account.Id == accountId,
+                selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+                                                          x.Type, x.IsCompany, x.InsDate,
+                                                          x.HouseDesignVersions.Select(
+                                                              v => new HouseDesignVersionResponse(
+                                                                  v.Id,
+                                                                  v.Name,
+                                                                  v.Version,
+                                                                  v.Status,
+                                                                  v.InsDate,
+                                                                  v.UpVersion,
+                                                                  v.Note)).ToList()),
+                include: x => x.Include(x => x.AssignTask)
+                               .ThenInclude(a => a.Account)
+            )).Items.ToList();
+            return listTask;
+        }
+
+        //public async Task<bool> UploadFileDrawing(string urlFile)
+        //{
+
+        //}
     }
 }
