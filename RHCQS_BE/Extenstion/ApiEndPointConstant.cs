@@ -64,5 +64,12 @@ namespace RHCQS_BE.Extenstion
             public const string UtilitySectionEndpoint = UtilityEndpoint + "/section";
             public const string UtilitySectionDEndpoint = UtilitySectionEndpoint + "/id";
         }
+
+        public static class HouseDesignDrawing
+        {
+            public const string HouseDesignDrawingEndpoint = ApiEndpoint + "/housedesign";
+            public const string HouseDesignDrawingDetailEndpoint = HouseDesignDrawingEndpoint + "/id";
+            public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
+        }
     }
 }

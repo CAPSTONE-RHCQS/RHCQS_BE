@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -30,7 +31,27 @@ public static class AppConstant
         public const string ROUGH = "ROUGH";
         public const string FINISHED = "FINISHED";
         public const string ALL = "ALL";
+        public const string PHOICANH = "PHOICANH";
+        public const string KIENTRUC = "KIENTRUC";
+        public const string KETCAU = "KETCAU";
+        public const string DIENNUOC = "DIENNUOC";
     }
+
+    public enum DesignDrawing
+    {
+        [Description("Phối cảnh")]
+        Perspective,
+
+        [Description("Kiến trúc")]
+        Architecture,
+
+        [Description("Kết cấu")]
+        Structure,
+
+        [Description("Điện & nước")]
+        ElectricityWater
+    }
+
     public enum ErrCode
     {
         Success = 200,
@@ -49,6 +70,7 @@ public static class AppConstant
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
+        public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
     }
 }
 
