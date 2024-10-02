@@ -8,7 +8,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class HouseDesignDrawingResponse
     {
-        public HouseDesignDrawingResponse() { }
         public HouseDesignDrawingResponse(Guid id, Guid projectId, string? name, int? step, 
             string? status, string? type, bool? isCompany, DateTime? insDate, 
             List<HouseDesignVersionResponse> versions)
@@ -46,14 +45,26 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public HouseDesignVersionResponse() { }
         public HouseDesignVersionResponse(Guid id, string? name, double? version, string? status, 
-            DateTime? insDate, string? upVersion, string? note)
+            DateTime? insDate, string? note, string? namePrevious)
         {
             Id = id;
             Name = name;
             Version = version;
             Status = status;
             InsDate = insDate;
-            UpVersion = upVersion;
+            Note = note;
+            NamePrevious = namePrevious;
+        }
+
+        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? status,
+            DateTime? insDate,Guid? previousDrawingId, string? note)
+        {
+            Id = id;
+            Name = name;
+            Version = version;
+            Status = status;
+            InsDate = insDate;
+            PreviousDrawingId = previousDrawingId;
             Note = note;
         }
 
@@ -66,7 +77,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Status { get; set; }
 
         public DateTime? InsDate { get; set; }
-        public string? UpVersion { get; set; }
+        public Guid? PreviousDrawingId { get; set; }
+        public string? NamePrevious { get; set; }
 
         public string? Note { get; set; }
     }

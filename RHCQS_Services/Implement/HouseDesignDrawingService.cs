@@ -40,7 +40,7 @@ namespace RHCQS_Services.Implement
                                                                               v.Version,
                                                                               v.Status,
                                                                               v.InsDate,
-                                                                              v.UpVersion,
+                                                                              v.PreviousDrawingId,
                                                                               v.Note)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions),
                         orderBy: x => x.OrderBy(x => x.InsDate),
@@ -75,7 +75,7 @@ namespace RHCQS_Services.Implement
                             version.Version,
                             version.Status,
                             version.InsDate,
-                            version.UpVersion,
+                            version.PreviousDrawingId,
                             version.Note
                            )).ToList()
                     );
@@ -91,36 +91,71 @@ namespace RHCQS_Services.Implement
                 predicate: x => x.Type.Equals(type),
                 include: x => x.Include(x => x.HouseDesignVersions)
                                 .Include(x => x.AssignTask)
-                );
+            );
 
-            if (drawingItem != null)
+            if (drawingItem == null)
             {
-                var resutl = new HouseDesignDrawingResponse(
-                       drawingItem.Id,
-                       drawingItem.ProjectId,
-                       drawingItem.Name,
-                       drawingItem.Step,
-                       drawingItem.Status,
-                       drawingItem.Type,
-                       drawingItem.IsCompany,
-                       drawingItem.InsDate,
-                       drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
-                            version.Id,
-                            version.Name,
-                            version.Version,
-                            version.Status,
-                            version.InsDate,
-                            version.UpVersion,
-                            version.Note
-                           )).ToList()
-                    );
-                return resutl;
+                throw new InvalidOperationException($"No drawing found for type: {type}");
             }
 
-            return null;
+            var result = new HouseDesignDrawingResponse(
+                drawingItem.Id,
+                drawingItem.ProjectId,
+                drawingItem.Name,
+                drawingItem.Step,
+                drawingItem.Status,
+                drawingItem.Type,
+                drawingItem.IsCompany,
+                drawingItem.InsDate,
+                drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
+                        version.Id,
+                        version.Name,
+                        version.Version,
+                        version.Status,
+                        version.InsDate,
+                        version.PreviousDrawingId,
+                        version.Note
+                       )).ToList()
+            );
+
+            return result;
         }
 
-        public async Task<bool> CreateHouseDesignDrawing(HouseDesignDrawingRequest item)
+
+        //private async Task<List<HouseDesignVersionResponse>> GetHouseDesignVersionResponses(IEnumerable<HouseDesignVersion> versions)
+        //{
+        //    var versionResponses = new List<HouseDesignVersionResponse>();
+
+        //    var previousIds = versions.Select(v => v.PreviousDrawingId).Where(id => id.HasValue).Distinct().ToList();
+        //    var previousVersions = await _unitOfWork.GetRepository<HouseDesignVersion>()
+        //        .GetList(x => previousIds.Contains(x.Id));
+
+        //    var previousVersionsList = previousVersions.Items;
+
+        //    //var previousVersionsDict = previousVersionsList.ToDictionary(v => v.Id);
+
+
+        //    foreach (var version in previousVersionsList)
+        //    {
+        //        string? namePrevious = null;
+
+        //        namePrevious = $"{version.Name} {previousVersion.Version}";
+        //        versionResponses.Add(new HouseDesignVersionResponse(
+        //            version.Id,
+        //            version.Name,
+        //            version.Version,
+        //            version.Status,
+        //            version.InsDate,
+        //            namePrevious,
+        //            version.Note
+        //        ));
+        //    }
+
+        //    return versionResponses;
+        //}
+
+
+        public async Task<bool> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item)
         {
             int stepDrawing = 1;
             var statusDrawing = "Pending";
@@ -150,5 +185,30 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
+        public async Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId)
+        {
+            var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
+                predicate: x => x.AssignTask.Account.Id == accountId,
+                selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+                                                          x.Type, x.IsCompany, x.InsDate,
+                                                          x.HouseDesignVersions.Select(
+                                                              v => new HouseDesignVersionResponse(
+                                                                  v.Id,
+                                                                  v.Name,
+                                                                  v.Version,
+                                                                  v.Status,
+                                                                  v.InsDate,
+                                                                  v.PreviousDrawingId,
+                                                                  v.Note)).ToList()),
+                include: x => x.Include(x => x.AssignTask)
+                               .ThenInclude(a => a.Account)
+            )).Items.ToList();
+            return listTask;
+        }
+
+        //public async Task<bool> UploadFileDrawing(string urlFile)
+        //{
+
+        //}
     }
 }
