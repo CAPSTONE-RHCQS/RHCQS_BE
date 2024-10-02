@@ -336,6 +336,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.HouseDesignDrawing).WithMany(p => p.HouseDesignVersions)
                 .HasForeignKey(d => d.HouseDesignDrawingId)

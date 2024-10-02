@@ -152,7 +152,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHouseDesignDrawing([FromBody] HouseDesignDrawingRequest item)
         {
-            var isCreate = await _houseService.CreateHouseDesignDrawing(item);
+            var isCreate = await _houseService.CreateListTaskHouseDesignDrawing(item);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
     }

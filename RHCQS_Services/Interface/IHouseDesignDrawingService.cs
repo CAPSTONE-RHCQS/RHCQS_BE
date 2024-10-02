@@ -15,6 +15,6 @@ namespace RHCQS_Services.Interface
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawing(Guid id);
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type);
         Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId);
-        Task<bool> CreateHouseDesignDrawing(HouseDesignDrawingRequest item);
+        Task<bool> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item);
     }
 }

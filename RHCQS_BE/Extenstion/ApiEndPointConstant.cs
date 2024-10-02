@@ -80,6 +80,10 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task/id";
         }
 
-
+        public static class HouseDesignVersion
+        {
+            public const string HouseDesignVersionEndpoint = ApiEndpoint + "/design";
+            public const string HouseDesignVersionDetailEndpoint = HouseDesignVersionEndpoint + "/id";
+        }
     }
 }

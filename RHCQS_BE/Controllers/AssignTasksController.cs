@@ -38,36 +38,37 @@ namespace RHCQS_BE.Controllers
 
         #region AssignWork
         /// <summary>
-        /// Creates a new construction item and its sub-items in the system.
+        /// Assigns work tasks to a list of accounts for a specific house design drawing.
         /// </summary>
         /// <remarks>
-        /// Sample request:
-        /// 
-        ///     POST /api/v1/construction
-        ///     {
-        ///       "name": "Mái phụ",
-        ///       "coefficient": 0,
-        ///       "unit": "m2",
-        ///       "type": "ROUGH",
-        ///       "subConstructionRequests": [
+        /// This endpoint allows managers to assign tasks to multiple accounts related to a house design drawing.
+        /// Each task includes the account ID and the house design drawing ID that the account will work on.
+        ///
+        /// **Sample Request:**
+        ///
+        ///     POST /api/v1/assign
+        ///     [
         ///         {
-        ///           "name": "Mái BTCT",
-        ///           "coefficient": 0.5,
-        ///           "unit": "m2"
+        ///             "accountId": "BF339E88-5303-45C4-A6F4-33A79681766C",
+        ///             "houseDesignDrawingId": "bB528F8BC-3992-499B-AF7D-67510D730087"
         ///         },
         ///         {
-        ///           "name": "Mái Tole",
-        ///           "coefficient": 0.3,
-        ///           "unit": "m2"
+        ///             "accountId": "990773A2-1817-47F5-9116-301E97435C44",
+        ///             "houseDesignDrawingId": "a09ed901-92c9-4c5e-950b-d9c5a7a99f4c"
         ///         }
-        ///       ]
-        ///     }
+        ///     ]
+        ///
+        /// **Request Fields:**
+        /// - **accountId** (Guid, Required): The unique identifier of the account being assigned the task.
+        /// - **houseDesignDrawingId** (Guid, Required): The unique identifier of the house design drawing associated with the task.
+        ///
         /// </remarks>
-        /// <param name="item">Construction item request model</param>
-        /// <returns>Returns true if the construction item is created successfully, otherwise false.</returns>
-        /// <response code="200">Construction item created successfully</response>
-        /// <response code="400">Failed to create the construction item</response>
-        /// 
+        /// <param name="item">A list of assign task request models containing account and house design drawing details</param>
+        /// <returns>Returns true if the tasks are assigned successfully, otherwise false.</returns>
+        /// <response code="200">Tasks assigned successfully</response>
+        /// <response code="400">Failed to assign tasks due to validation errors or missing required fields</response>
+        /// <response code="401">Unauthorized, only managers are allowed to assign tasks</response>
+        /// <response code="500">Internal server error</response>
         #endregion
         [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.AssignTask.AssignTaskEndpoint)]

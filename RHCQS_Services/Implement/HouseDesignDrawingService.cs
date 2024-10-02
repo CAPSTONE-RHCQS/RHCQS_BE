@@ -40,7 +40,7 @@ namespace RHCQS_Services.Implement
                                                                               v.Version,
                                                                               v.Status,
                                                                               v.InsDate,
-                                                                              v.UpVersion,
+                                                                              v.PreviousDrawingId,
                                                                               v.Note)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions),
                         orderBy: x => x.OrderBy(x => x.InsDate),
@@ -75,7 +75,7 @@ namespace RHCQS_Services.Implement
                             version.Version,
                             version.Status,
                             version.InsDate,
-                            version.UpVersion,
+                            version.PreviousDrawingId,
                             version.Note
                            )).ToList()
                     );
@@ -91,36 +91,71 @@ namespace RHCQS_Services.Implement
                 predicate: x => x.Type.Equals(type),
                 include: x => x.Include(x => x.HouseDesignVersions)
                                 .Include(x => x.AssignTask)
-                );
+            );
 
-            if (drawingItem != null)
+            if (drawingItem == null)
             {
-                var resutl = new HouseDesignDrawingResponse(
-                       drawingItem.Id,
-                       drawingItem.ProjectId,
-                       drawingItem.Name,
-                       drawingItem.Step,
-                       drawingItem.Status,
-                       drawingItem.Type,
-                       drawingItem.IsCompany,
-                       drawingItem.InsDate,
-                       drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
-                            version.Id,
-                            version.Name,
-                            version.Version,
-                            version.Status,
-                            version.InsDate,
-                            version.UpVersion,
-                            version.Note
-                           )).ToList()
-                    );
-                return resutl;
+                throw new InvalidOperationException($"No drawing found for type: {type}");
             }
 
-            return null;
+            var result = new HouseDesignDrawingResponse(
+                drawingItem.Id,
+                drawingItem.ProjectId,
+                drawingItem.Name,
+                drawingItem.Step,
+                drawingItem.Status,
+                drawingItem.Type,
+                drawingItem.IsCompany,
+                drawingItem.InsDate,
+                drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
+                        version.Id,
+                        version.Name,
+                        version.Version,
+                        version.Status,
+                        version.InsDate,
+                        version.PreviousDrawingId,
+                        version.Note
+                       )).ToList()
+            );
+
+            return result;
         }
 
-        public async Task<bool> CreateHouseDesignDrawing(HouseDesignDrawingRequest item)
+
+        //private async Task<List<HouseDesignVersionResponse>> GetHouseDesignVersionResponses(IEnumerable<HouseDesignVersion> versions)
+        //{
+        //    var versionResponses = new List<HouseDesignVersionResponse>();
+
+        //    var previousIds = versions.Select(v => v.PreviousDrawingId).Where(id => id.HasValue).Distinct().ToList();
+        //    var previousVersions = await _unitOfWork.GetRepository<HouseDesignVersion>()
+        //        .GetList(x => previousIds.Contains(x.Id));
+
+        //    var previousVersionsList = previousVersions.Items;
+
+        //    //var previousVersionsDict = previousVersionsList.ToDictionary(v => v.Id);
+
+
+        //    foreach (var version in previousVersionsList)
+        //    {
+        //        string? namePrevious = null;
+
+        //        namePrevious = $"{version.Name} {previousVersion.Version}";
+        //        versionResponses.Add(new HouseDesignVersionResponse(
+        //            version.Id,
+        //            version.Name,
+        //            version.Version,
+        //            version.Status,
+        //            version.InsDate,
+        //            namePrevious,
+        //            version.Note
+        //        ));
+        //    }
+
+        //    return versionResponses;
+        //}
+
+
+        public async Task<bool> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item)
         {
             int stepDrawing = 1;
             var statusDrawing = "Pending";
@@ -163,7 +198,7 @@ namespace RHCQS_Services.Implement
                                                                   v.Version,
                                                                   v.Status,
                                                                   v.InsDate,
-                                                                  v.UpVersion,
+                                                                  v.PreviousDrawingId,
                                                                   v.Note)).ToList()),
                 include: x => x.Include(x => x.AssignTask)
                                .ThenInclude(a => a.Account)
