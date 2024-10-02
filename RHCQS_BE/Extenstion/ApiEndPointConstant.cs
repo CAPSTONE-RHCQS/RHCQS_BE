@@ -85,5 +85,11 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignVersionEndpoint = ApiEndpoint + "/design";
             public const string HouseDesignVersionDetailEndpoint = HouseDesignVersionEndpoint + "/id";
         }
+
+        public static class InitialQuotation
+        {
+            public const string InitialQuotationEndpoint = ApiEndpoint + "/quotation" + "/initial";
+            public const string InitialQuotationDetailEndpoint = InitialQuotationEndpoint + "/id";
+        }
     }
 }
