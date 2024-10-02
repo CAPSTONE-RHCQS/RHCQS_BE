@@ -71,6 +71,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IHouseDesignDrawingService, HouseDesignDrawingService>();
             services.AddScoped<IAssignTaskService, AssignTaskService>();
             services.AddScoped<IHouseDesignVersionService, HouseDesignVersionService>();
+            services.AddScoped<IInitialQuotationService, InitialQuotationService>();
             return services;
         }
 
