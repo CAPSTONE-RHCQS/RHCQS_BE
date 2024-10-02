@@ -37,6 +37,11 @@ public static class AppConstant
         public const string DIENNUOC = "DIENNUOC";
     }
 
+    public class Status
+    {
+        public const string PROCESSING = "Processing";
+        public const string UPDATED = "Updated";
+    }
     public enum DesignDrawing
     {
         [Description("Phối cảnh")]
@@ -92,6 +97,8 @@ public static class AppConstant
         public const string UpdateAccount = "Cập nhật tài khoản thất bại!";
         //HouseTemplate
         public const string Not_Found_HouseTemplate = "Không tìm thấy mẫu nhà!";
+        public const string Not_Access_DesignDrawing = "Tài khoản này không có quyền truy cập bản vẽ này!";
+        public const string Not_Found_DesignDrawing = "Không tìm thấy bản vẽ!";
     }
 }
 

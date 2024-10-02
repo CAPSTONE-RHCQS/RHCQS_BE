@@ -36,6 +36,13 @@ namespace RHCQS_BE.Extenstion
             public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
 
         }
+
+        public static class AssignTask
+        {
+            public const string AssignTaskEndpoint = ApiEndpoint + "/task";
+            public const string AssignTaskDetailEndpoint = AssignTaskEndpoint + "/id";
+        }
+
         public static class HouseTemplate
         {
             public const string HouseTemplateEndpoint = ApiEndpoint + "/housetemplate";
@@ -70,6 +77,13 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignDrawingEndpoint = ApiEndpoint + "/housedesign";
             public const string HouseDesignDrawingDetailEndpoint = HouseDesignDrawingEndpoint + "/id";
             public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
+            public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task/id";
+        }
+
+        public static class HouseDesignVersion
+        {
+            public const string HouseDesignVersionEndpoint = ApiEndpoint + "/design";
+            public const string HouseDesignVersionDetailEndpoint = HouseDesignVersionEndpoint + "/id";
         }
     }
 }
