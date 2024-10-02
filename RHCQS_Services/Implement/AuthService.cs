@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -39,7 +40,7 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.Not_Found_Account
                 );
             }
-            if (!VerifyPassword(password, account.PasswordHash))
+            if (!PasswordHash.VerifyPassword(password, account.PasswordHash))
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Forbidden,
@@ -112,7 +113,7 @@ namespace RHCQS_Services.Implement
             {
                 Id = Guid.NewGuid(),
                 Email = registerRequest.Email,
-                PasswordHash = HashPassword(registerRequest.Password),
+                PasswordHash = PasswordHash.HashPassword(registerRequest.Password),
                 Username = registerRequest.Email,
                 InsDate = DateTime.UtcNow,
                 UpsDate = DateTime.UtcNow,
@@ -131,17 +132,6 @@ namespace RHCQS_Services.Implement
             }
 
             return newAccount;
-        }
-        private bool VerifyPassword(string providedPassword, string storedHash)
-        {
-            return BCrypt.Net.BCrypt.Verify(providedPassword, storedHash);
-        }
-
-        private string HashPassword(string password)
-        {
-            string salt = BCrypt.Net.BCrypt.GenerateSalt(12);
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password, salt);
-            return hashedPassword;
         }
         private string GenerateJwtToken(Account account)
         {

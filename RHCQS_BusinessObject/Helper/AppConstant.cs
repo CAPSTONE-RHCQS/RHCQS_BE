@@ -99,6 +99,7 @@ public static class AppConstant
         public const string Not_Found_HouseTemplate = "Không tìm thấy mẫu nhà!";
         public const string Not_Access_DesignDrawing = "Tài khoản này không có quyền truy cập bản vẽ này!";
         public const string Not_Found_DesignDrawing = "Không tìm thấy bản vẽ!";
+        public const string UpdateTempalte = "Cập nhật mẫu nhà thất bại!";
         public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";

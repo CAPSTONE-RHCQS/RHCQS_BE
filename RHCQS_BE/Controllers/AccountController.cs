@@ -149,7 +149,7 @@ namespace RHCQS_BE.Controllers
                 return NotFound("Account not found.");
             }
 
-            if (accountRequest.RoleId != Guid.Empty && accountRequest.RoleId != accountRequest.RoleId)
+            if (accountRequest.RoleId != Guid.Empty && existingAccount.RoleId != accountRequest.RoleId)
             {
                 var role = await _roleService.GetRoleByIdAsync(accountRequest.RoleId);
                 if (role == null)

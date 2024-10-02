@@ -1,6 +1,7 @@
 ﻿using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
@@ -109,81 +110,64 @@ namespace RHCQS_Services.Implement
 
         public async Task<Account> UpdateAccountAsync(Guid id, Account account)
         {
-            try
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var _account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
+
+            if (_account == null)
             {
-                var accountRepository = _unitOfWork.GetRepository<Account>();
-                var _account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
-
-                if (_account == null)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Not_Found,
-                        AppConstant.ErrMessage.Not_Found_Account
-                    );
-                }
-
-                _account.Username = account.Username != default ? account.Username : _account.Username;
-                _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
-                _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
-                _account.PasswordHash = account.PasswordHash != default ? account.PasswordHash : _account.PasswordHash;
-                _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
-                _account.RoleId = account.RoleId != Guid.Empty ? account.RoleId : _account.RoleId;
-                _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
-                _account.UpsDate = DateTime.UtcNow;
-
-                accountRepository.UpdateAsync(_account);
-                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-                if (!isSuccessful)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.UpdateAccount
-                    );
-                }
-
-                return _account;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
             }
-            catch (Exception ex)
+            _account.Username = account.Username != default ? account.Username : _account.Username;
+            _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
+            _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
+            _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash) != default ? PasswordHash.HashPassword(account.PasswordHash) : _account.PasswordHash;
+            _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
+            _account.RoleId = account.RoleId != Guid.Empty ? account.RoleId : _account.RoleId;
+            _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
+            _account.UpsDate = DateTime.UtcNow;
+
+            accountRepository.UpdateAsync(_account);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
             {
-                _logger.LogError(ex, "Error occurred while updating account");
-                throw;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.UpdateAccount
+                );
             }
+
+            return _account;
         }
         public async Task<Account> UpdateDeflagAccountAsync(Guid id)
         {
-            try
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (account == null)
             {
-                var accountRepository = _unitOfWork.GetRepository<Account>();
-                var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id);
-
-                if (account == null)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Not_Found,
-                        AppConstant.ErrMessage.Not_Found_Account
-                    );
-                }
-
-                account.Deflag = false;
-                account.UpsDate = DateTime.UtcNow;
-
-                accountRepository.UpdateAsync(account);
-                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-                if (!isSuccessful)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.BanAccount
-                    );
-                }
-
-                return account;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
             }
-            catch (Exception ex)
+
+            account.Deflag = false;
+            account.UpsDate = DateTime.UtcNow;
+
+            accountRepository.UpdateAsync(account);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
             {
-                _logger.LogError(ex, "Error occurred while updating deflag of account");
-                throw;
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.BanAccount
+                );
             }
+
+            return account;
         }
     }
 }

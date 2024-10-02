@@ -47,6 +47,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string HouseTemplateEndpoint = ApiEndpoint + "/housetemplate";
             public const string SearchHouseTemplateEndpoint = HouseTemplateEndpoint + "/name";
+            public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";
         }
 
         public static class Project

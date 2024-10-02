@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
@@ -39,14 +41,13 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <param name="name">The name to search for.</param>
         /// <returns>The housetemplate that match the search criteria.</returns>
-        // GET: api/Account/Search
         #endregion
         [HttpGet(ApiEndPointConstant.HouseTemplate.SearchHouseTemplateEndpoint)]
-        public async Task<ActionResult<DesignTemplate>> SearchHouseTemplateByName(string name)
+        public async Task<ActionResult<HouseTemplateResponse>> SearchHouseTemplateByName(string name)
         {
             var housetemplate = await _houseService.SearchHouseTemplateByNameAsync(name);
 
-            var searchHouseTempalte = new DesignTemplate
+            var searchHouseTempalte = new HouseTemplateResponse
             {
                 Id = housetemplate.Id,
                 Name = housetemplate.Name,
@@ -59,6 +60,44 @@ namespace RHCQS_BE.Controllers
             };
             var result = JsonConvert.SerializeObject(searchHouseTempalte, Formatting.Indented);
             return Ok(result);
+        }
+        #region SearchHouseTemplate
+        /// <summary>
+        /// Get detailhousetemplate by id.
+        /// </summary>
+        /// <param id="id">The id to get for.</param>
+        /// <returns>The housetemplate match with id.</returns>
+        #endregion
+        [HttpGet(ApiEndPointConstant.HouseTemplate.HouseTemplateDetail)]
+        public async Task<ActionResult<HouseTemplateResponse>> GetHouseTemplateDetail(Guid id)
+        {
+            var housetemplate = await _houseService.GetHouseTemplateDetail(id);
+            var result = JsonConvert.SerializeObject(housetemplate, Formatting.Indented);
+            return Ok(result);
+        }
+        #region CreateHouseTemplate
+        /// <summary>
+        /// Creates a new house tempalte.
+        /// </summary>
+        #endregion
+        [HttpPost(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequest templ)
+        {
+            var isCreate = await _houseService.CreateHouseTemplate(templ);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
+        #region UpdateHouseTemplate
+        /// <summary>
+        /// Update a new house tempalte.
+        /// </summary>
+        #endregion
+        [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequest templ)
+        {
+            var update = await _houseService.UpdateHouseTemplate(templ);
+            return Ok(update);
         }
     }
 }
