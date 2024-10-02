@@ -107,7 +107,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<Account> UpdateAccountAsync(Guid id, Account account, Stream imageStream, string imageName)
+        public async Task<Account> UpdateAccountAsync(Guid id, Account account)
         {
             try
             {
@@ -128,16 +128,7 @@ namespace RHCQS_Services.Implement
                 _account.PasswordHash = account.PasswordHash != default ? account.PasswordHash : _account.PasswordHash;
                 _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
                 _account.RoleId = account.RoleId != Guid.Empty ? account.RoleId : _account.RoleId;
-
-                /*                if (imageStream != null)
-                                {
-                                    var imageUrl = await UploadImageToFirebase(imageStream, imageName);
-                                    _account.ImgUrl = imageUrl;
-                                }
-                                else if (imageStream == null)
-                                {
-                                    account.ImgUrl = _account.ImgUrl;
-                                }*/
+                _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
                 _account.UpsDate = DateTime.UtcNow;
 
                 accountRepository.UpdateAsync(_account);

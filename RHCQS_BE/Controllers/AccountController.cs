@@ -142,11 +142,6 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Account.AccountByIdEndpoint)]
         public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequest accountRequest)
         {
-            Stream stream = null;
-            if (!string.IsNullOrEmpty(accountRequest.ImageUrl))
-            {
-                stream = new MemoryStream(Convert.FromBase64String(accountRequest.ImageUrl));
-            }
 
             var existingAccount = await _accountService.GetAccountByIdAsync(id);
             if (existingAccount == null)
@@ -176,7 +171,7 @@ namespace RHCQS_BE.Controllers
                 UpsDate = accountRequest.UpsDate
             };
 
-            var updatedAccount = await _accountService.UpdateAccountAsync(id, account, stream, "uploadedFileName");
+            var updatedAccount = await _accountService.UpdateAccountAsync(id, account);
             if (updatedAccount == null)
             {
                 return StatusCode(500, "An error occurred while updating the account.");
