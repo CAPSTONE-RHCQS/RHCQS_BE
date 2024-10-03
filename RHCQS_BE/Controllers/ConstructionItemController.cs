@@ -102,6 +102,22 @@ namespace RHCQS_BE.Controllers
             return Ok(result);
         }
 
+        #region GetDetailConstructionItemByName
+        /// <summary>
+        /// Retrieves the construction item by name.
+        /// </summary>
+        /// <returns>Item construction in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.COnstructionDetailByNameEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailConstructionItemByName(string name)
+        {
+            var construction = await _constructionService.GetDetailConstructionItemByName(name);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
+            return Ok(result);
+        }
+
         #region CreateConstructionItem
         /// <summary>
         /// Creates a new construction item and its sub-items in the system.

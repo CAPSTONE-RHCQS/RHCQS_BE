@@ -94,6 +94,38 @@ namespace RHCQS_Services.Implement
             return null;
         }
 
+        public async Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name)
+        {
+            var constructionItem = await _unitOfWork.GetRepository<ConstructionItem>().FirstOrDefaultAsync(
+                predicate: con => con.Name.Equals(name),
+                include: con => con.Include(con => con.SubConstructionItems)
+            );
+
+            if (constructionItem != null)
+            {
+                return new ConstructionItemResponse(
+                    constructionItem.Id,
+                    constructionItem.Name,
+                    constructionItem.Coefficient,
+                    constructionItem.Unit,
+                    constructionItem.InsDate,
+                    constructionItem.UpsDate,
+                    constructionItem.Type,
+                    constructionItem.SubConstructionItems.Select(
+                        sub => new SubConstructionItemResponse(
+                            sub.Id,
+                            sub.Name,
+                            sub.Coefficient,
+                            sub.Unit,
+                            sub.InsDate
+                        )
+                    ).ToList()
+                );
+            }
+
+            return null;
+        }
+
         public async Task<bool> CreateConstructionItem(ConstructionItemRequest item)
         {
             try

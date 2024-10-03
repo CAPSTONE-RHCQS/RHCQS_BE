@@ -62,6 +62,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string ConstructionEndpoint = ApiEndpoint + "/construction";
             public const string ConstructionDetailEndpoint = ConstructionEndpoint + "/id";
+            public const string COnstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
         }
 
