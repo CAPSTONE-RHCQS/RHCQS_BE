@@ -25,7 +25,7 @@ public partial class FinalQuotation
 
     public bool? Deflag { get; set; }
 
-    public Guid QuotationUtilitiesId { get; set; }
+    public Guid? QuotationUtilitiesId { get; set; }
 
     public Guid AccountId { get; set; }
 
@@ -41,5 +41,5 @@ public partial class FinalQuotation
 
     public virtual Promotion? Promotion { get; set; }
 
-    public virtual QuotationUtility QuotationUtilities { get; set; } = null!;
+    public virtual QuotationUtility? QuotationUtilities { get; set; }
 }
