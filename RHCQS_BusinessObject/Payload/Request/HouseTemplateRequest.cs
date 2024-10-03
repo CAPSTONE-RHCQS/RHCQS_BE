@@ -49,6 +49,8 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         [Required(ErrorMessage = "ConstructionItemId là bắt buộc phải có.")]
         public Guid ConstructionItemId { get; set; }
+        [Required(ErrorMessage = "SubConstructionItemId là bắt buộc phải có.")]
+        public Guid SubConstructionItemId { get; set; }
 
         [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;

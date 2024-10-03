@@ -16,7 +16,7 @@ namespace RHCQS_BusinessObject.Payload.Request
         public Guid RoleId { get; set; }
 
         [Required(ErrorMessage = "Email là bắt buộc phải có.")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ(phải theo dạng @gmail.com).")]
         public string? Email { get; set; }
 
         [Required(ErrorMessage = "Username là bắt buộc phải có.")]

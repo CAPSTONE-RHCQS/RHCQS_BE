@@ -100,6 +100,7 @@ namespace RHCQS_Services.Implement
                     {
                         Id = item.Id,
                         ConstructionItemId = item.ConstructionItemId,
+                        SubConstructionId = item.SubConstructionItemId,
                         Area = item.Area,
                         Unit = item.Unit,
                         InsDate = DateTime.Now,
@@ -111,8 +112,6 @@ namespace RHCQS_Services.Implement
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful;
         }
-
-
         public async Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id)
         {
             var template = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(
@@ -120,41 +119,49 @@ namespace RHCQS_Services.Implement
                 include: x => x.Include(x => x.SubTemplates)
                                .ThenInclude(st => st.TemplateItems)
                                .ThenInclude(ti => ti.ConstructionItem)
+                               .ThenInclude(ti => ti.SubConstructionItems)
                                .Include(x => x.PackageHouses)
             );
+
             if (template != null)
             {
-                var resutl = new HouseTemplateResponse(
-                       template.Id,
-                       template.Name,
-                       template.Description,
-                       template.NumberOfFloor,
-                       template.NumberOfBed,
-                       template.NumberOfFront,
-                       template.ImgUrl,
-                       template.InsDate,
-                       template.SubTemplates.Select(sub => new SubTemplatesResponse(
-                            sub.Id,
-                            sub.BuildingArea,
-                            sub.FloorArea,
-                            sub.Size,
-                            sub.InsDate,
-                            sub.TemplateItems.Select(item => new TemplateItemReponse(
-                                item.Id,
-                                item.ConstructionItem.Name,
-                                item.ConstructionItem.Id,
-                                item.ConstructionItem.Coefficient,
-                                item.Area,
-                                item.Unit,
-                                item.InsDate
-
-                                )).ToList()
-                           )).ToList()
-                    );
-                return resutl;
+                var result = new HouseTemplateResponse(
+                    template.Id,
+                    template.Name,
+                    template.Description,
+                    template.NumberOfFloor,
+                    template.NumberOfBed,
+                    template.NumberOfFront,
+                    template.ImgUrl,
+                    template.InsDate,
+                    template.SubTemplates.Select(sub => new SubTemplatesResponse(
+                        sub.Id,
+                        sub.BuildingArea,
+                        sub.FloorArea,
+                        sub.Size,
+                        sub.InsDate,
+                        sub.TemplateItems.Select(item => new TemplateItemReponse(
+                            item.Id,
+                            item.SubConstructionId == null
+                                ? item.ConstructionItem.Name
+                                : item.ConstructionItem.SubConstructionItems.FirstOrDefault(sci => sci.Id == item.SubConstructionId)?.Name,
+                            item.ConstructionItemId,
+                            item.SubConstructionId,
+                            item.SubConstructionId == null
+                                ? item.ConstructionItem.Coefficient
+                                : item.ConstructionItem.SubConstructionItems.FirstOrDefault(sci => sci.Id == item.SubConstructionId)?.Coefficient,
+                            item.Area,
+                            item.Unit,
+                            item.InsDate
+                        )).ToList()
+                    )).ToList()
+                );
+                return result;
             }
             return null;
         }
+
+
 
         public async Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size)
         {
@@ -171,9 +178,14 @@ namespace RHCQS_Services.Implement
                                                                     (List<TemplateItemReponse>)sub.TemplateItems.Select(
                                                                         item => new TemplateItemReponse(
                                                                             item.Id,
-                                                                            item.ConstructionItem.Name,
+                                                                            item.SubConstructionId == null
+                                                                                    ? item.ConstructionItem.Name
+                                                                                    : item.SubConstruction.Name,
                                                                             item.ConstructionItem.Id,
-                                                                            item.ConstructionItem.Coefficient,
+                                                                            item.SubConstructionId,
+                                                                            item.SubConstructionId == null
+                                                                                    ? item.ConstructionItem.Coefficient
+                                                                                    : item.SubConstruction.Coefficient,
                                                                             item.Area,
                                                                             item.Unit,
                                                                             item.InsDate)))).ToList()),
@@ -262,7 +274,8 @@ namespace RHCQS_Services.Implement
                                 Area = item.Area,
                                 Unit = item.Unit,
                                 InsDate = DateTime.Now,
-                                ConstructionItemId = item.ConstructionItemId
+                                ConstructionItemId = item.ConstructionItemId,
+                                SubConstructionId = item.SubConstructionItemId
                             });
                         }
                     }

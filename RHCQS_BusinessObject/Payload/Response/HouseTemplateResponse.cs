@@ -71,20 +71,25 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class TemplateItemReponse
     {
-        public TemplateItemReponse(Guid id, string? name, Guid contructionid, double? coefficient, double? area, string? unit, DateTime? insDate)
+        public TemplateItemReponse(Guid id, string? name, Guid contructionid, Guid? subcontructionid, double? coefficient, double? area, string? unit, DateTime? insDate)
         {
             Id = id;
             Name = name;
-            ContructionId = contructionid;
+            ConstructionId = contructionid;
+            SubConstructionId = subcontructionid;
             Coefficient = coefficient;
             Area = area;
             Unit = unit;
             InsDate = insDate;
         }
         public Guid Id { get; set; }
-        public Guid ContructionId { get; set; }
+
+        public Guid ConstructionId { get; set; }
+
+        public Guid? SubConstructionId { get; set; }
 
         public String Name { get; set; }
+
         public double? Coefficient { get; set; }
 
         public double? Area { get; set; }

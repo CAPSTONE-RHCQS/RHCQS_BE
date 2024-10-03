@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
-using RHCQS_DataAccessObjects;
+using RHCQS_DataAccessObjects.Context;
 
 
 namespace RHCQS_BE.Extenstion
@@ -66,6 +66,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IHouseTemplateService, HouseTemplateService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IPackageTypeService, PackageTypeService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<IConstructionItemService, ConstructionItemService>();
             services.AddScoped<IUtilitiesService, UtilitiesService>();

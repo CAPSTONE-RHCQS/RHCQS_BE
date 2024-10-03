@@ -128,6 +128,9 @@ public static class AppConstant
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
+        //PackageType
+        public const string CreatePackageType = "Tạo packagetype thất bại.";
+        public const string PackageTypeExists = "PackageType đã tồn tại.";
     }
 }
 

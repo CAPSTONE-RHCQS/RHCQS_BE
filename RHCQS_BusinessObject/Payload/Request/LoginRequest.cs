@@ -10,7 +10,7 @@ namespace RHCQS_BusinessObject.Payload.Request
     public class LoginRequest
     {
         [Required(ErrorMessage = "Email là bắt buộc phải có.")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ(phải theo dạng @gmail.com).")]
         public string Email { get; set; }
         [Required(ErrorMessage = "Password là bắt buộc phải có.")]
         public string Password { get; set; } = null!;

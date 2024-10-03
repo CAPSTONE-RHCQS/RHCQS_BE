@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects;
+namespace RHCQS_DataAccessObjects.Context;
 
 public partial class RhcqsContext : DbContext
 {

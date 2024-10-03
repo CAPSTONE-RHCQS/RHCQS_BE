@@ -11,7 +11,7 @@ namespace RHCQS_BusinessObject.Payload.Request
     public class RegisterRequest
     {
         [Required(ErrorMessage = "Email là bắt buộc phải có.")]
-        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
+        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ(phải theo dạng @gmail.com)")]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Mật khẩu là bắt buộc phải có.")]
