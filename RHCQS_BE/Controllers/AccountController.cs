@@ -46,6 +46,22 @@ namespace RHCQS_BE.Controllers
             var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
             return Ok(accounts);
         }
+        #region GetAccountsByRoleId
+        /// <summary>
+        /// Get a list of accounts by RoleId.
+        /// </summary>
+        /// <param name="roleId">The Role ID to filter accounts.</param>
+        /// <returns>List of accounts with the specified Role ID.</returns>
+        // GET: api/account/role/{roleId}
+        #endregion
+        [HttpGet(ApiEndPointConstant.Account.AccountByRoleIdEndpoint)]
+        [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListAccountByRoleIdAsync(Guid id, int page, int size)
+        {
+            var list = await _accountService.GetListAccountByRoleIdAsync(id,page, size);
+            var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
+            return Ok(accounts);
+        }
         #region AccountProfile
         /// <summary>
         /// Profile account.
@@ -88,6 +104,7 @@ namespace RHCQS_BE.Controllers
             var account = await _accountService.GetAccountByIdAsync(id);
             return Ok(account);
         }
+
         #region GetTotalAccount
         /// <summary>
         /// Get Total accounts.
@@ -186,6 +203,7 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.Email,
                 updatedAccount.ImageUrl,
                 updatedAccount.Deflag,
+                updatedAccount.Role.RoleName,
                 updatedAccount.RoleId,
                 updatedAccount.InsDate,
                 updatedAccount.UpsDate
@@ -213,6 +231,7 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.Email,
                 updatedAccount.ImageUrl,
                 updatedAccount.Deflag,
+                updatedAccount.Role.RoleName,
                 updatedAccount.RoleId,
                 updatedAccount.InsDate,
                 updatedAccount.UpsDate

@@ -15,6 +15,7 @@ namespace RHCQS_Services.Interface
         Task<int> GetTotalAccountCountAsync();
         Task<int> GetActiveAccountCountAsync();
         public Task<IPaginate<AccountResponse>> GetListAccountAsync(int page, int size);
+        public Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size);
         Task<Account> SearchAccountsByNameAsync(string name);
         Task<Account> UpdateAccountAsync(Guid id, Account account);
         Task<Account> UpdateDeflagAccountAsync(Guid id);

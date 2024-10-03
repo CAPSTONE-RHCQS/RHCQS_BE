@@ -25,6 +25,10 @@ public partial class Contract
 
     public double? Area { get; set; }
 
+    public double? RoughPackagePrice { get; set; }
+
+    public double? FinishedPackagePrice { get; set; }
+
     public string? UnitPrice { get; set; }
 
     public double? ContractValue { get; set; }

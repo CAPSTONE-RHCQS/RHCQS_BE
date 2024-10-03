@@ -10,12 +10,14 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class RegisterRequest
     {
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [Required(ErrorMessage = "Email là bắt buộc phải có.")]
+        [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
         public string Email { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Password is required")]
+
+        [Required(ErrorMessage = "Mật khẩu là bắt buộc phải có.")]
         public string Password { get; set; } = string.Empty;
-        [Required(ErrorMessage = "ConfirmPassword is required")]
+
+        [Required(ErrorMessage = "Xác nhận mật khẩu là bắt buộc phải có.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
     [JsonConverter(typeof(JsonStringEnumConverter))]

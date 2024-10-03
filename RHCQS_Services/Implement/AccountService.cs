@@ -68,7 +68,7 @@ namespace RHCQS_Services.Implement
             }
             IPaginate<AccountResponse> listAccounts = await _unitOfWork.GetRepository<Account>()
                 .GetList(selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth, x.PasswordHash,
-                                                            x.Email, x.ImageUrl, x.Deflag, x.RoleId, x.InsDate, x.UpsDate),
+                                                            x.Email, x.ImageUrl, x.Deflag, x.Role.RoleName, x.RoleId, x.InsDate, x.UpsDate),
                         page: page,
                         size: size);
             if (listAccounts == null)
@@ -81,7 +81,38 @@ namespace RHCQS_Services.Implement
             return listAccounts;
 
         }
+        public async Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+            if (page < 1 || size < 1)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.PageAndSizeError
+                );
+            }
+            IPaginate<AccountResponse> listAccounts = await _unitOfWork.GetRepository<Account>()
+                .GetList(selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth, x.PasswordHash,
+                                                            x.Email, x.ImageUrl, x.Deflag, x.Role.RoleName, x.RoleId, x.InsDate, x.UpsDate),
+                        predicate: x => x.RoleId == id,
+                        page: page,
+                        size: size);
+            if (listAccounts == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.FailedToGetList
+                );
+            }
+            return listAccounts;
 
+        }
         public async Task<int> GetTotalAccountCountAsync()
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();
