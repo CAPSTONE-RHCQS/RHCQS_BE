@@ -35,6 +35,10 @@ public partial class Contract
 
     public bool? Deflag { get; set; }
 
+    public double? RoughPackagePrice { get; set; }
+
+    public double? FinishedPackagePrice { get; set; }
+
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
 
     public virtual Project Project { get; set; } = null!;

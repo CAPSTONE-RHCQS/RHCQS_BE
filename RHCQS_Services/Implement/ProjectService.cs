@@ -46,13 +46,13 @@ namespace RHCQS_Services.Implement
             var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id,
                                 include: w => w.Include(p => p.Customer)
                                                 .Include(p => p.InitialQuotations)
-                                                .ThenInclude(p => p.Account)
+                                                    .ThenInclude(p => p.Account)
                                                 .Include(p => p.FinalQuotations)
-                                                .ThenInclude(p => p.Account)
+                                                    .ThenInclude(p => p.Account)
                                                 .Include(p => p.HouseDesignDrawings)
-                                                .ThenInclude(h => h.HouseDesignVersions)
+                                                    .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
-                                                .ThenInclude(h => h.AssignTask!));
+                                                    .ThenInclude(h => h.AssignTask!));
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 
             if (projectItem == null) return null;
@@ -81,7 +81,8 @@ namespace RHCQS_Services.Implement
                                                                      .Select(h => new HouseDesignDrawingInfo
                                                                      {
                                                                          Id = h.Id,
-                                                                         //Version = h.HouseDesignVersions.,
+                                                                         //Version = h.HouseDesignVersions,
+                                                                         Name = h.Name,
                                                                          InsDate = h.InsDate,
                                                                          Status = h.Status
                                                                      }).ToList() ?? new List<HouseDesignDrawingInfo>();

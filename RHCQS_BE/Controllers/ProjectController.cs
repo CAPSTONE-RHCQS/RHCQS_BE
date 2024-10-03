@@ -76,73 +76,73 @@ namespace RHCQS_BE.Controllers
             return Ok(result);
         }
 
-        //#region CreateProject
-        ///// <summary>
-        ///// Creates a new project with its associated initial quotation and optional utilities.
-        ///// </summary>
-        ///// <remarks>
-        ///// Sample request:
-        ///// 
-        /////     POST /api/v1/project
-        /////     {
-        /////       "customerId": "e0f86523-13d8-4d89-b6d6-32fbf580e911",
-        /////       "name": "Residential Project",
-        /////       "type": "Residential",
-        /////       "address": "123 Main Street",
-        /////       "area": 250.5,
-        /////       "initialQuotation": {
-        /////         "accountId": "d2f86523-13d8-4d89-b6d6-32fbf580e912",
-        /////         "projectId": "a3f86523-13d8-4d89-b6d6-32fbf580e913",
-        /////         "promotionId": "b4f86523-13d8-4d89-b6d6-32fbf580e914",
-        /////         "packageId": "c5f86523-13d8-4d89-b6d6-32fbf580e915",
-        /////         "area": 200.0,
-        /////         "isTemplate": true,
-        /////         "note": "Initial quotation for construction",
-        /////         "initialQuotationItemRequests": [
-        /////           {
-        /////             "name": "Foundation Work",
-        /////             "constructionItemId": "c6f86523-13d8-4d89-b6d6-32fbf580e916",
-        /////             "subConstructionId": null,
-        /////             "area": 100.0,
-        /////             "price": 50000.0,
-        /////             "unitPrice": "USD"
-        /////           },
-        /////           {
-        /////             "name": "Roofing",
-        /////             "constructionItemId": "e8f86523-13d8-4d89-b6d6-32fbf580e918",
-        /////             "subConstructionId": null,
-        /////             "area": 50.0,
-        /////             "price": 15000.0,
-        /////             "unitPrice": "USD"
-        /////           }
-        /////         ]
-        /////       },
-        /////       "quotationUtilitiesRequest": [
-        /////         {
-        /////           "ultilitiesItemId": "f1f86523-13d8-4d89-b6d6-32fbf580e919",
-        /////           "finalQuotationId": null,
-        /////           "initialQuotationId": "d7f86523-13d8-4d89-b6d6-32fbf580e917",
-        /////           "name": "Electricity",
-        /////           "coefiicient": 1.5,
-        /////           "price": 1000.0,
-        /////           "description": "Utility cost for electricity"
-        /////         }
-        /////       ]
-        /////     }
-        ///// </remarks>
-        ///// <param name="request">Project creation request model</param>
-        ///// <returns>Returns true if the project is created successfully, otherwise false.</returns>
-        ///// <response code="200">Project created successfully</response>
-        ///// <response code="400">Failed to create the project</response>
-        //#endregion
-        ////[Authorize(Roles = "Manager")]
-        //[HttpPost(ApiEndPointConstant.Project.ProjectEndpoint)]
-        //[ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<IActionResult> CreateProject([FromBody] ProjectRequest request)
-        //{
-        //    var isCreate = await _projectService.CreateProjectQuotation(request);
-        //    return isCreate ? Ok(isCreate) : BadRequest();
-        //}
+        #region CreateProject
+        /// <summary>
+        /// Creates a new project with its associated initial quotation and optional utilities.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /api/v1/project
+        ///     {
+        ///       "customerId": "e0f86523-13d8-4d89-b6d6-32fbf580e911",
+        ///       "name": "Residential Project",
+        ///       "type": "Residential",
+        ///       "address": "123 Main Street",
+        ///       "area": 250.5,
+        ///       "initialQuotation": {
+        ///         "accountId": "d2f86523-13d8-4d89-b6d6-32fbf580e912",
+        ///         "projectId": "a3f86523-13d8-4d89-b6d6-32fbf580e913",
+        ///         "promotionId": "b4f86523-13d8-4d89-b6d6-32fbf580e914",
+        ///         "packageId": "c5f86523-13d8-4d89-b6d6-32fbf580e915",
+        ///         "area": 200.0,
+        ///         "isTemplate": true,
+        ///         "note": "Initial quotation for construction",
+        ///         "initialQuotationItemRequests": [
+        ///           {
+        ///             "name": "Foundation Work",
+        ///             "constructionItemId": "c6f86523-13d8-4d89-b6d6-32fbf580e916",
+        ///             "subConstructionId": null,
+        ///             "area": 100.0,
+        ///             "price": 50000.0,
+        ///             "unitPrice": "USD"
+        ///           },
+        ///           {
+        ///             "name": "Roofing",
+        ///             "constructionItemId": "e8f86523-13d8-4d89-b6d6-32fbf580e918",
+        ///             "subConstructionId": null,
+        ///             "area": 50.0,
+        ///             "price": 15000.0,
+        ///             "unitPrice": "USD"
+        ///           }
+        ///         ]
+        ///       },
+        ///       "quotationUtilitiesRequest": [
+        ///         {
+        ///           "ultilitiesItemId": "f1f86523-13d8-4d89-b6d6-32fbf580e919",
+        ///           "finalQuotationId": null,
+        ///           "initialQuotationId": "d7f86523-13d8-4d89-b6d6-32fbf580e917",
+        ///           "name": "Electricity",
+        ///           "coefiicient": 1.5,
+        ///           "price": 1000.0,
+        ///           "description": "Utility cost for electricity"
+        ///         }
+        ///       ]
+        ///     }
+        /// </remarks>
+        /// <param name="request">Project creation request model</param>
+        /// <returns>Returns true if the project is created successfully, otherwise false.</returns>
+        /// <response code="200">Project created successfully</response>
+        /// <response code="400">Failed to create the project</response>
+        #endregion
+        //[Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Project.ProjectEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateProject([FromBody] ProjectRequest request)
+        {
+            var isCreate = await _projectService.CreateProjectQuotation(request);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
     }
 }
