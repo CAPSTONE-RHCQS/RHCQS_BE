@@ -11,7 +11,7 @@ public partial class InitialQuotationItem
 
     public Guid ConstructionItemId { get; set; }
 
-    public string? SubConstruction { get; set; }
+    public Guid? SubConstructionId { get; set; }
 
     public double? Area { get; set; }
 

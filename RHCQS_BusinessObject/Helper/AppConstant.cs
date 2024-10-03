@@ -37,6 +37,29 @@ public static class AppConstant
         public const string DIENNUOC = "DIENNUOC";
     }
 
+    public class ProjectStatus
+    {
+        public const string PROCCESSING = "Proccessing";
+        public const string DESIGNED = "Designed";
+        public const string UNDER_REVIEW = "Under Review";
+        public const string SIGNED_DESIGN_CONTRACT = "Signed Design Contract";
+        public const string SIGNED_CONTRACT = "Signed Contract";
+        public const string FINALIZED = "Finalized";
+        public const string TERMINATED = "Terminated";
+    }
+
+    public class InitialQuotationStatus
+    {
+        public const string PENDING = "Pending";
+        public const string PROCESSING = "Processing";
+        public const string REJECTED = "Rejected";
+        public const string UNDER_REVIEW = "Under Review";
+        public const string APPROVED = "Approved";
+        public const string SEND_TO_CUSTOMER = "Send To Customer";
+        public const string FINALIZED = "Finalized";
+        public const string CANCELED = "Canceled";
+    }
+
     public class Status
     {
         public const string PROCESSING = "Processing";

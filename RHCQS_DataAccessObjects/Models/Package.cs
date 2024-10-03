@@ -21,8 +21,6 @@ public partial class Package
 
     public DateTime? UpsDate { get; set; }
 
-    public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
-
     public virtual ICollection<PackageDetail> PackageDetails { get; set; } = new List<PackageDetail>();
 
     public virtual ICollection<PackageHouse> PackageHouses { get; set; } = new List<PackageHouse>();

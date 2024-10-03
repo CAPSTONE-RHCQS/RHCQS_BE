@@ -7,7 +7,7 @@ public partial class InitialQuotation
 {
     public Guid Id { get; set; }
 
-    public Guid AccountId { get; set; }
+    public Guid? AccountId { get; set; }
 
     public Guid ProjectId { get; set; }
 
@@ -29,7 +29,7 @@ public partial class InitialQuotation
 
     public string? Status { get; set; }
 
-    public string? Version { get; set; }
+    public double Version { get; set; }
 
     public bool? IsTemplate { get; set; }
 
@@ -37,17 +37,15 @@ public partial class InitialQuotation
 
     public string? Note { get; set; }
 
-    public virtual Account Account { get; set; } = null!;
+    public virtual Account? Account { get; set; }
 
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
 
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
 
-    public virtual Package Package { get; set; } = null!;
-
     public virtual ICollection<PackageQuotation> PackageQuotations { get; set; } = new List<PackageQuotation>();
 
     public virtual Project Project { get; set; } = null!;
 
-    public virtual Promotion? Promotion { get; set; }
+    public virtual ICollection<QuotationUtility> QuotationUtilities { get; set; } = new List<QuotationUtility>();
 }

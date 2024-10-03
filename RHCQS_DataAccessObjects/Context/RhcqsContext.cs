@@ -352,26 +352,15 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.Version).HasMaxLength(50);
 
             entity.HasOne(d => d.Account).WithMany(p => p.InitialQuotations)
                 .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InitialQuotation_Account");
-
-            entity.HasOne(d => d.Package).WithMany(p => p.InitialQuotations)
-                .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_InitialQuotation_Package");
 
             entity.HasOne(d => d.Project).WithMany(p => p.InitialQuotations)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InitialQuotation_Project");
-
-            entity.HasOne(d => d.Promotion).WithMany(p => p.InitialQuotations)
-                .HasForeignKey(d => d.PromotionId)
-                .HasConstraintName("FK_InitialQuotation_Promotion");
         });
 
         modelBuilder.Entity<InitialQuotationItem>(entity =>
@@ -381,7 +370,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.SubConstruction).HasMaxLength(50);
             entity.Property(e => e.UnitPrice).HasMaxLength(10);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
@@ -728,6 +716,10 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.QuotationUtilities)
+                .HasForeignKey(d => d.InitialQuotationId)
+                .HasConstraintName("FK_QuotationUtilities_InitialQuotation");
 
             entity.HasOne(d => d.UltilitiesItem).WithMany(p => p.QuotationUtilities)
                 .HasForeignKey(d => d.UltilitiesItemId)
