@@ -269,25 +269,24 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
-            entity.Property(e => e.Version).HasMaxLength(10);
 
             entity.HasOne(d => d.Account).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.AccountId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DetailedQuotation_Account");
+                .HasConstraintName("FK_FinalQuotation_Account");
 
             entity.HasOne(d => d.Project).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DetailedQuotation_Project");
+                .HasConstraintName("FK_FinalQuotation_Project");
 
             entity.HasOne(d => d.Promotion).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.PromotionId)
-                .HasConstraintName("FK_DetailedQuotation_Promotion");
+                .HasConstraintName("FK_FinalQuotation_Promotion");
 
             entity.HasOne(d => d.QuotationUtilities).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.QuotationUtilitiesId)
-                .HasConstraintName("FK_DetailedQuotation_QuoationUltities");
+                .HasConstraintName("FK_FinalQuotation_QuotationUtilities");
         });
 
         modelBuilder.Entity<FinalQuotationItem>(entity =>
@@ -301,11 +300,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.Weight).HasMaxLength(50);
-
-            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.FinalQuotationItems)
-                .HasForeignKey(d => d.FinalQuotationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_DetailedQuotationItem_DetailedQuotation");
         });
 
         modelBuilder.Entity<HouseDesignDrawing>(entity =>

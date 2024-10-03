@@ -28,6 +28,4 @@ public partial class FinalQuotationItem
     public double? TotalPriceFinished { get; set; }
 
     public DateTime? InsDate { get; set; }
-
-    public virtual FinalQuotation FinalQuotation { get; set; } = null!;
 }

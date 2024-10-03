@@ -15,7 +15,7 @@ public partial class FinalQuotation
 
     public string? Note { get; set; }
 
-    public string? Version { get; set; }
+    public double? Version { get; set; }
 
     public DateTime? InsDate { get; set; }
 
@@ -34,8 +34,6 @@ public partial class FinalQuotation
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
 
     public virtual ICollection<EquimentItem> EquimentItems { get; set; } = new List<EquimentItem>();
-
-    public virtual ICollection<FinalQuotationItem> FinalQuotationItems { get; set; } = new List<FinalQuotationItem>();
 
     public virtual Project Project { get; set; } = null!;
 
