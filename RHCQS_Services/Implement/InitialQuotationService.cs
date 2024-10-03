@@ -79,7 +79,6 @@ namespace RHCQS_Services.Implement
                 AccountName = initialQuotation.Project.Customer.Username,
                 ProjectId = initialQuotation.Project.Id,
                 PromotionId = initialQuotation.PromotionId,
-                PackageId = initialQuotation.PackageId,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
                 TimeOthers = initialQuotation.TimeOthers,

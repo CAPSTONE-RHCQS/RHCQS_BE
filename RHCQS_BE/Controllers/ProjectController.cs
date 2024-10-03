@@ -78,64 +78,77 @@ namespace RHCQS_BE.Controllers
 
         #region CreateProject
         /// <summary>
-        /// Creates a new project with its associated initial quotation and optional utilities.
+        /// Creates a new project along with its initial quotation and optional utilities.
         /// </summary>
         /// <remarks>
-        /// Sample request:
+        /// **Sample request:**
         /// 
-        ///     POST /api/v1/project
-        ///     {
-        ///       "customerId": "e0f86523-13d8-4d89-b6d6-32fbf580e911",
-        ///       "name": "Residential Project",
-        ///       "type": "Residential",
-        ///       "address": "123 Main Street",
-        ///       "area": 250.5,
-        ///       "initialQuotation": {
-        ///         "accountId": "d2f86523-13d8-4d89-b6d6-32fbf580e912",
-        ///         "projectId": "a3f86523-13d8-4d89-b6d6-32fbf580e913",
-        ///         "promotionId": "b4f86523-13d8-4d89-b6d6-32fbf580e914",
-        ///         "packageId": "c5f86523-13d8-4d89-b6d6-32fbf580e915",
-        ///         "area": 200.0,
-        ///         "isTemplate": true,
-        ///         "note": "Initial quotation for construction",
-        ///         "initialQuotationItemRequests": [
-        ///           {
-        ///             "name": "Foundation Work",
-        ///             "constructionItemId": "c6f86523-13d8-4d89-b6d6-32fbf580e916",
-        ///             "subConstructionId": null,
-        ///             "area": 100.0,
-        ///             "price": 50000.0,
-        ///             "unitPrice": "USD"
-        ///           },
-        ///           {
-        ///             "name": "Roofing",
-        ///             "constructionItemId": "e8f86523-13d8-4d89-b6d6-32fbf580e918",
-        ///             "subConstructionId": null,
-        ///             "area": 50.0,
-        ///             "price": 15000.0,
-        ///             "unitPrice": "USD"
-        ///           }
-        ///         ]
-        ///       },
-        ///       "quotationUtilitiesRequest": [
+        /// ```json
+        /// POST /api/v1/project
+        /// {
+        ///     "customerId": "1E6FA320-6945-4B76-8426-AD6DFDB1AD74",
+        ///     "name": "Báo giá sơ bộ - TP.Thủ Đức",
+        ///     "type": "ALL",
+        ///     "address": "382 D2, Phường Tân Phú, TP.Thủ Đức",
+        ///     "area": 125,
+        ///     "packageQuotations": [
         ///         {
-        ///           "ultilitiesItemId": "f1f86523-13d8-4d89-b6d6-32fbf580e919",
-        ///           "finalQuotationId": null,
-        ///           "initialQuotationId": "d7f86523-13d8-4d89-b6d6-32fbf580e917",
-        ///           "name": "Electricity",
-        ///           "coefiicient": 1.5,
-        ///           "price": 1000.0,
-        ///           "description": "Utility cost for electricity"
+        ///             "packageId": "59F5FD78-B895-4D60-934A-4727C219B2D9",
+        ///             "type": "ROUGH"
+        ///         },
+        ///         {
+        ///             "packageId": "0BFB83DD-04AF-4F8C-A6D0-2CD8EE1FF0F5",
+        ///             "type": "FINISHED"
         ///         }
-        ///       ]
-        ///     }
+        ///     ],
+        ///     "initialQuotation": {
+        ///         "accountId": "D63A2A80-CDEA-46DF-8419-E5C70A7632EE",
+        ///         "promotionId": "00000000-0000-0000-0000-000000000000",
+        ///         "packageId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        ///         "initialQuotationItemRequests": [
+        ///             {
+        ///                 "name": null,
+        ///                 "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",
+        ///                 "subConstructionId": "06FF2D3D-2F14-4ACC-BA2E-0C4EE659CA81",
+        ///                 "area": 49.5,
+        ///                 "price": 66330000.0
+        ///             },
+        ///             {
+        ///                 "name": null,
+        ///                 "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
+        ///                 "subConstructionId": "06FF2D3D-2F14-4ACC-BA2E-0C4EE659CA81",
+        ///                 "area": 99,
+        ///                 "price": 331650000.0
+        ///             },
+        ///             {
+        ///                 "name": null,
+        ///                 "constructionItemId": "BD101AF5-AC48-43BA-A474-957A20A933BD",
+        ///                 "subConstructionId": "7E442652-EEFC-43B7-918B-A264A10E679D",
+        ///                 "area": 49.5,
+        ///                 "price": 66330000.0
+        ///             }
+        ///         ]
+        ///     },
+        ///     "quotationUtilitiesRequest": [
+        ///         {
+        ///             "ultilitiesItemId": "2EC103AA-AA83-4D58-9E85-22A6247F4CD6",
+        ///             "name": "Sàn từ 30m2 ~ 40m2",
+        ///             "coefficient": 0.05,
+        ///             "price": 110617000,
+        ///             "description": "Sàn từ 30m2 ~ 40m2"
+        ///         }
+        ///     ]
+        /// }
+        /// ```
         /// </remarks>
-        /// <param name="request">Project creation request model</param>
-        /// <returns>Returns true if the project is created successfully, otherwise false.</returns>
+        /// <param name="request">The request model for creating a project</param>
+        /// <returns>
+        /// Returns true if the project is created successfully; otherwise, false.
+        /// </returns>
         /// <response code="200">Project created successfully</response>
-        /// <response code="400">Failed to create the project</response>
+        /// <response code="400">Failed to create the project due to validation errors</response>
         #endregion
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Customer, SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

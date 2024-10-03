@@ -17,7 +17,11 @@ public partial class TemplateItem
 
     public DateTime? InsDate { get; set; }
 
+    public Guid? SubConstructionId { get; set; }
+
     public virtual ConstructionItem ConstructionItem { get; set; } = null!;
+
+    public virtual SubConstructionItem? SubConstruction { get; set; }
 
     public virtual SubTemplate SubTemplate { get; set; } = null!;
 }

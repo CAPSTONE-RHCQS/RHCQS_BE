@@ -144,7 +144,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     CustomerId = projectRequest.CustomerId,
-                    Name = projectRequest.Name,
+                    Name = "Báo giá sơ bộ " +  DateTime.Now,
                     Type = projectRequest.Type,
                     Status = AppConstant.ProjectStatus.PROCCESSING,
                     InsDate = DateTime.Now,
@@ -155,14 +155,12 @@ namespace RHCQS_Services.Implement
                 };
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
 
-                //Gãy
                 var initialItem = new InitialQuotation
                 {
                     Id = Guid.NewGuid(),
                     AccountId = projectRequest.InitialQuotation.AccountId,
                     ProjectId = projectItem.Id,
                     PromotionId = projectRequest.InitialQuotation.PromotionId,
-                    PackageId = Guid.Parse("3F58EAFC-772E-4D14-9ADC-04E0736BDF2C"),
                     Area = projectRequest.Area,
                     TimeProcessing = null,
                     TimeRough = null,
@@ -175,17 +173,20 @@ namespace RHCQS_Services.Implement
                     Note = null
                 };
 
-                //await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
-                //var packageQuotation = new PackageQuotation
+                await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+                //foreach(var package in projectRequest.PackageQuotations)
                 //{
-                //    Id = Guid.NewGuid(),
-                //    PackageId = Guid.Parse("3F58EAFC-772E-4D14-9ADC-04E0736BDF2C"),
-                //    InitialQuotationId = initialItem.Id,
-                //    Type = "ROUGH",
-                //    InsDate = DateTime.Now
-                //};
+                //    var packageQuotation = new PackageQuotation
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        PackageId = package.PackageId,
+                //        InitialQuotationId = initialItem.Id,
+                //        Type = package.Type,
+                //        InsDate = DateTime.Now
+                //    };
 
-                //await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
+                //    await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
+                //}
 
                 //foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests)
                 //{

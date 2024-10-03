@@ -2,7 +2,6 @@
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using RHCQS_BusinessObjects;
-using RHCQS_DataAccessObjects;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using RHCQS_Services.Implement;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
+using RHCQS_DataAccessObjects;
 
 
 namespace RHCQS_BE.Extenstion

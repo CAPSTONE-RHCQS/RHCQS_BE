@@ -1,5 +1,4 @@
-﻿
-using RHCQS_DataAccessObjects;
+﻿using RHCQS_DataAccessObjects;
 using RHCQS_Repositories.Repo.Implement;
 using RHCQS_Repositories.Repo.Interface;
 using System.ComponentModel.DataAnnotations;

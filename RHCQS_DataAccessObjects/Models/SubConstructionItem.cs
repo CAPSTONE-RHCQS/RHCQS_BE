@@ -18,4 +18,6 @@ public partial class SubConstructionItem
     public DateTime? InsDate { get; set; }
 
     public virtual ConstructionItem ConstructionItems { get; set; } = null!;
+
+    public virtual ICollection<TemplateItem> TemplateItems { get; set; } = new List<TemplateItem>();
 }

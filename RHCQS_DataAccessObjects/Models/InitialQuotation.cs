@@ -13,8 +13,6 @@ public partial class InitialQuotation
 
     public Guid? PromotionId { get; set; }
 
-    public Guid PackageId { get; set; }
-
     public double? Area { get; set; }
 
     public int? TimeProcessing { get; set; }
