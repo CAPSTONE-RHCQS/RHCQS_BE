@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static RHCQS_BusinessObjects.AppConstant;
+using Role = RHCQS_DataAccessObjects.Models.Role;
 
 namespace RHCQS_Services.Implement
 {
@@ -83,6 +84,16 @@ namespace RHCQS_Services.Implement
         }
         public async Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size)
         {
+            var role = _unitOfWork.GetRepository<Role>();
+            var _role = await role.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (_role == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Role
+                );
+            }
             if (id == Guid.Empty)
             {
                 throw new AppConstant.MessageError(

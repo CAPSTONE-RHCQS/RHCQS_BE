@@ -126,6 +126,8 @@ public static class AppConstant
         public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
+        //Role
+        public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
     }
 }
 
