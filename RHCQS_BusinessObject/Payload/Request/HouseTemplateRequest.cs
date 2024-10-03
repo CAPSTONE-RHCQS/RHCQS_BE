@@ -7,10 +7,10 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class HouseTemplateRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "Name is required.")]
+        [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;
 
         public string? Description { get; set; }
@@ -23,13 +23,13 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? ImgUrl { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
         public List<SubTemplatesRequest> SubTemplates { get; set; } = new List<SubTemplatesRequest>();
     }
 
     public class SubTemplatesRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid Id { get; set; }
 
         public double? BuildingArea { get; set; }
@@ -38,19 +38,19 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Size { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequest> TemplateItems { get; set; } = new List<TemplateItemRequest>();
     }
 
     public class TemplateItemRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "ConstructionItemId is required.")]
+        [Required(ErrorMessage = "ConstructionItemId là bắt buộc phải có.")]
         public Guid ConstructionItemId { get; set; }
 
-        [Required(ErrorMessage = "Name is required.")]
+        [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;
 
         public double? Area { get; set; }

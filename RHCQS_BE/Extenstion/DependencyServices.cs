@@ -13,6 +13,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace RHCQS_BE.Extenstion
@@ -72,6 +73,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IAssignTaskService, AssignTaskService>();
             services.AddScoped<IHouseDesignVersionService, HouseDesignVersionService>();
             services.AddScoped<IInitialQuotationService, InitialQuotationService>();
+            services.AddApiBehavior();
             return services;
         }
 
@@ -155,6 +157,36 @@ namespace RHCQS_BE.Extenstion
                     Example = OpenApiAnyFactory.CreateFromJson("\"13:45:42.0000000\"")
                 });
             });
+            return services;
+        }
+        public static IServiceCollection AddApiBehavior(this IServiceCollection services)
+        {
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var errors = context.ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    var errorMessage = errors.FirstOrDefault() ?? "Validation error";
+
+                    // Create the response object
+                    var errorResponse = new ErrorResponse
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Error = errorMessage,
+                        TimeStamp = DateTime.UtcNow
+                    };
+
+                    return new ObjectResult(JsonConvert.SerializeObject(errorResponse, Formatting.Indented))
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                    };
+                };
+            });
+
             return services;
         }
     }

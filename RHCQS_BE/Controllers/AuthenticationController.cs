@@ -46,7 +46,7 @@ namespace RHCQS_BE.Controllers
         [AllowAnonymous]
         [HttpPost(ApiEndPointConstant.Auth.RegisterEndpoint)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest,
-            [FromQuery][Required(ErrorMessage = "Role is required.")] UserRoleForRegister role)
+            [FromQuery][Required(ErrorMessage = "Role là cần thiết.")] UserRoleForRegister role)
         {
             var result = await _authService.RegisterAsync(registerRequest, role);
             return Ok(JsonConvert.SerializeObject(new { message = "Đăng kí thành công!" }));

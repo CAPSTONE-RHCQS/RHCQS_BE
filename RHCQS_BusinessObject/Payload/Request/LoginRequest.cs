@@ -9,10 +9,10 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class LoginRequest
     {
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [Required(ErrorMessage = "Email là bắt buộc phải có.")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
         public string Email { get; set; }
-        [Required(ErrorMessage = "Password is required")]
+        [Required(ErrorMessage = "Password là bắt buộc phải có.")]
         public string Password { get; set; } = null!;
     }
 }

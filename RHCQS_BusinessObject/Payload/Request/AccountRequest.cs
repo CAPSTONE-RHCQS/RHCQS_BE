@@ -9,28 +9,28 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class AccountRequest
     {
-        [Required(ErrorMessage = "Id is required")]
+        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage = "RoleId is required")]
+        [Required(ErrorMessage = "RoleId là bắt buộc phải có.")]
         public Guid RoleId { get; set; }
 
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
+        [Required(ErrorMessage = "Email là bắt buộc phải có.")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
         public string? Email { get; set; }
 
-        [Required(ErrorMessage = "Username is required")]
-        [StringLength(50, ErrorMessage = "Username cannot be longer than 50 characters")]
+        [Required(ErrorMessage = "Username là bắt buộc phải có.")]
+        [StringLength(50, ErrorMessage = "Username không được dài quá 50 ký tự.")]
         public string? Username { get; set; }
 
-        [Url(ErrorMessage = "ImageUrl must be a valid URL")]
+        [Url(ErrorMessage = "ImageUrl phải là một URL hợp lệ.")]
         public string? ImageUrl { get; set; }
 
-        [Required(ErrorMessage = "Password is required")]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters long")]
+        [Required(ErrorMessage = "Password là bắt buộc phải có.")]
+        [MinLength(6, ErrorMessage = "Password phải có ít nhất 6 ký tự.")]
         public string? PasswordHash { get; set; }
 
-        [Phone(ErrorMessage = "Phone number is invalid")]
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
         public string? PhoneNumber { get; set; }
 
         [DataType(DataType.Date)]
