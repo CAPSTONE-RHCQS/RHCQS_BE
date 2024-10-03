@@ -47,11 +47,14 @@ namespace RHCQS_Services.Implement
                     "A house template with the same ID already exists."
                 );
             }
-
-            // Check if any SubTemplates IDs already exist
             foreach (var sub in templ.SubTemplates)
             {
-                if (await templateRepo.AnyAsync(x => x.SubTemplates.Any(st => st.Id == sub.Id)) != null)
+                // Check if SubTemplate ID already exists
+                bool subTemplateExists = await templateRepo.AnyAsync(
+                    x => x.SubTemplates.Any(st => st.Id == sub.Id)
+                );
+
+                if (subTemplateExists)
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
@@ -59,10 +62,14 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
-                // Check if any TemplateItems IDs already exist for each SubTemplate
+                // Check if any TemplateItem IDs already exist for each SubTemplate
                 foreach (var item in sub.TemplateItems)
                 {
-                    if (await templateRepo.AnyAsync(x => x.SubTemplates.Any(st => st.TemplateItems.Any(ti => ti.Id == item.Id))) != null)
+                    bool templateItemExists = await templateRepo.AnyAsync(
+                        x => x.SubTemplates.Any(st => st.TemplateItems.Any(ti => ti.Id == item.Id))
+                    );
+
+                    if (templateItemExists)
                     {
                         throw new AppConstant.MessageError(
                             (int)AppConstant.ErrCode.Conflict,
