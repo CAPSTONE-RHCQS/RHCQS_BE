@@ -52,7 +52,8 @@ namespace RHCQS_Services.Implement
                                                 .Include(p => p.HouseDesignDrawings)
                                                     .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
-                                                    .ThenInclude(h => h.AssignTask!));
+                                                    .ThenInclude(h => h.AssignTask!)
+                                                .Include(p => p.Contracts));
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 
             if (projectItem == null) return null;
@@ -68,7 +69,7 @@ namespace RHCQS_Services.Implement
                                         }).ToList() ?? new List<InitialInfo>();
 
             var finalItem = projectItem.FinalQuotations?
-                                        .Select(d => new FinalInfo  
+                                        .Select(d => new FinalInfo
                                         {
                                             Id = d.Id,
                                             AccountName = d.Account?.Username,
@@ -82,10 +83,19 @@ namespace RHCQS_Services.Implement
                                                                      {
                                                                          Id = h.Id,
                                                                          //Version = h.HouseDesignVersions,
+                                                                         Step = h.Step,
                                                                          Name = h.Name,
+                                                                         Type = h.Type,
                                                                          InsDate = h.InsDate,
                                                                          Status = h.Status
-                                                                     }).ToList() ?? new List<HouseDesignDrawingInfo>();
+                                                                     }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
+
+            var contractItem = projectItem.Contracts?.Select(c => new ContractInfo
+                                                    {
+                                                        Name = c.Name,
+                                                        Status = c.Status,
+                                                        Note = c.Note
+                                                    }).ToList() ?? new List<ContractInfo>();
 
 
             var projectDetailItem = new ProjectDetail
@@ -102,7 +112,8 @@ namespace RHCQS_Services.Implement
                 ProjectCode = projectItem.ProjectCode,
                 InitialInfo = initialItem,
                 HouseDesignDrawingInfo = houseDesignItem,
-                FinalInfo = finalItem
+                FinalInfo = finalItem,
+                ContractInfo = contractItem,
             };
 
             return projectDetailItem;

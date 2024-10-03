@@ -39,6 +39,8 @@ public partial class Contract
 
     public double? FinishedPackagePrice { get; set; }
 
+    public string Status { get; set; } = null!;
+
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
 
     public virtual Project Project { get; set; } = null!;

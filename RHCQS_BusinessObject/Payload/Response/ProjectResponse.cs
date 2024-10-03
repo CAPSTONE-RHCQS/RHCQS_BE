@@ -61,6 +61,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public List<InitialInfo>? InitialInfo { get; set; }
         public List<HouseDesignDrawingInfo>? HouseDesignDrawingInfo { get; set; }
         public List<FinalInfo>? FinalInfo { get; set; }
+
+        public List<ContractInfo>? ContractInfo { get; set; }
     }
 
     public class InitialInfo
@@ -76,7 +78,9 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public Guid Id { get; set; }
         //public string? Version { get; set; }
+        public int? Step { get; set; }
         public string Name { get; set; }
+        public string Type { get; set; }
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
     }
@@ -88,5 +92,12 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Version { get; set; }
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
+    }
+
+    public class ContractInfo
+    {
+        public string? Name { get; set; }
+        public string Status { get; set; }
+        public string? Note { get; set; }
     }
 }
