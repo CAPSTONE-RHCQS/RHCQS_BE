@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -44,11 +46,13 @@ namespace RHCQS_Services.Implement
             var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id,
                                 include: w => w.Include(p => p.Customer)
                                                 .Include(p => p.InitialQuotations)
+                                                .ThenInclude(p => p.Account)
                                                 .Include(p => p.FinalQuotations)
+                                                .ThenInclude(p => p.Account)
                                                 .Include(p => p.HouseDesignDrawings)
                                                 .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
-                                                .ThenInclude(h => h.AssignTask));
+                                                .ThenInclude(h => h.AssignTask!));
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 
             if (projectItem == null) return null;
@@ -64,7 +68,7 @@ namespace RHCQS_Services.Implement
                                         }).ToList() ?? new List<InitialInfo>();
 
             var finalItem = projectItem.FinalQuotations?
-                                        .Select(d => new FinalInfo
+                                        .Select(d => new FinalInfo  
                                         {
                                             Id = d.Id,
                                             AccountName = d.Account?.Username,
@@ -117,8 +121,105 @@ namespace RHCQS_Services.Implement
                 predicate: x => x.Customer.PhoneNumber == phoneNumber,
                 orderBy: x => x.OrderBy(w => w.InsDate));
 
-
             return projectPaginate.Items.ToList();
         }
+
+        public async Task<bool> CreateProjectQuotation(ProjectRequest projectRequest)
+        {
+            try
+            {
+                var projectItem = new Project
+                {
+                    Id = Guid.NewGuid(),
+                    CustomerId = projectRequest.CustomerId,
+                    Name = projectRequest.Name,
+                    Type = projectRequest.Type,
+                    Status = AppConstant.ProjectStatus.PROCCESSING,
+                    InsDate = DateTime.Now,
+                    UpsDate = DateTime.Now,
+                    ProjectCode = GenerateRandom.GenerateRandomString(5),
+                    Address = projectRequest.Address,
+                    Area = projectRequest.Area
+                };
+                await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
+
+                //Gãy
+                var initialItem = new InitialQuotation
+                {
+                    Id = Guid.NewGuid(),
+                    AccountId = projectRequest.InitialQuotation.AccountId,
+                    ProjectId = projectItem.Id,
+                    PromotionId = projectRequest.InitialQuotation.PromotionId,
+                    PackageId = Guid.Parse("3F58EAFC-772E-4D14-9ADC-04E0736BDF2C"),
+                    Area = projectRequest.Area,
+                    TimeProcessing = null,
+                    TimeRough = null,
+                    TimeOthers = null,
+                    InsDate = DateTime.Now,
+                    Status = AppConstant.InitialQuotationStatus.PENDING,
+                    Version = 1.0,
+                    IsTemplate = false,
+                    Deflag = true,
+                    Note = null
+                };
+
+                //await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+                //var packageQuotation = new PackageQuotation
+                //{
+                //    Id = Guid.NewGuid(),
+                //    PackageId = Guid.Parse("3F58EAFC-772E-4D14-9ADC-04E0736BDF2C"),
+                //    InitialQuotationId = initialItem.Id,
+                //    Type = "ROUGH",
+                //    InsDate = DateTime.Now
+                //};
+
+                //await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
+
+                //foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests)
+                //{
+                //    var initialQuotationItem = new InitialQuotationItem
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        Name = "",
+                //        ConstructionItemId = request.ConstructionItemId,
+                //        SubConstructionId = request.SubConstructionId,
+                //        Area = request.Area,
+                //        Price = request.Price,
+                //        UnitPrice = "đ",
+                //        InsDate = DateTime.Now,
+                //        UpsDate = DateTime.Now,
+                //        InitialQuotationId = initialItem.Id
+                //    };
+                //    await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
+                //}
+
+                //foreach (var utl in projectRequest.QuotationUtilitiesRequest)
+                //{
+                //    var utlItem = new QuotationUtility
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        UltilitiesItemId = utl.UltilitiesItemId,
+                //        FinalQuotationId = null,
+                //        InitialQuotationId = initialItem.Id,
+                //        Name = "",
+                //        Coefiicient = utl.Coefiicient,
+                //        Price = utl.Price,
+                //        Description = utl.Description,
+                //        InsDate = DateTime.Now,
+                //        UpsDate = DateTime.Now,
+                //    };
+                //    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                //}
+
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                return isSuccessful;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+                return false;
+            }
+        }
+
     }
 }

@@ -20,6 +20,4 @@ public partial class Promotion
     public DateTime? UpsDate { get; set; }
 
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
-
-    public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
 }

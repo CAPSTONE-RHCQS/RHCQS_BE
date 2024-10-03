@@ -8,7 +8,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class InitialQuotationListResponse
     {
-        public InitialQuotationListResponse(Guid id, string customerName, string? version, double? area, string? status)
+        public InitialQuotationListResponse(Guid id, string customerName, double? version, double? area, string? status)
         {
             Id = id;
             CustomerName = customerName;
@@ -19,7 +19,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
         public string CustomerName { get; set; }
-        public string? Version { get; set; }
+        public double? Version { get; set; }
         public double? Area { get; set; }
         public string? Status { get; set; }
     }
@@ -30,7 +30,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public InitialQuotationResponse(Guid id, string accountName, Guid projectId, Guid? promotionId, Guid packageId,
             double? area, int? timeProccessing, int? timeOthers, string? othersAgreement, DateTime? insDate, string? status,
-            string? version, bool deflag, string? note, PackageQuotationList packageQuotationList, List<InitialQuotationItemResponse> itemInitial)
+            double? version, bool deflag, string? note, PackageQuotationList packageQuotationList, List<InitialQuotationItemResponse> itemInitial)
         {
             Id = id;
             AccountName = accountName;
@@ -61,7 +61,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? OthersAgreement { get; set; }
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
-        public string? Version { get; set; }
+        public double? Version { get; set; }
         public bool Deflag { get; set; }
         public string? Note { get; set; }
         public PackageQuotationList PackageQuotationList { get; set; }

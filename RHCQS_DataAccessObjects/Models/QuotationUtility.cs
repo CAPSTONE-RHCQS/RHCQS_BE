@@ -9,7 +9,7 @@ public partial class QuotationUtility
 
     public Guid UltilitiesItemId { get; set; }
 
-    public Guid DetailedQuotationId { get; set; }
+    public Guid? FinalQuotationId { get; set; }
 
     public Guid? InitialQuotationId { get; set; }
 
@@ -26,6 +26,8 @@ public partial class QuotationUtility
     public DateTime? UpsDate { get; set; }
 
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
+
+    public virtual InitialQuotation? InitialQuotation { get; set; }
 
     public virtual UtilitiesItem UltilitiesItem { get; set; } = null!;
 }
