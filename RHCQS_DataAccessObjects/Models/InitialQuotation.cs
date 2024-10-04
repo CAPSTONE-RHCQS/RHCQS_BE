@@ -35,6 +35,12 @@ public partial class InitialQuotation
 
     public string? Note { get; set; }
 
+    public double? TotalRough { get; set; }
+
+    public double? TotalUtilities { get; set; }
+
+    public string? Unit { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
@@ -44,6 +50,8 @@ public partial class InitialQuotation
     public virtual ICollection<PackageQuotation> PackageQuotations { get; set; } = new List<PackageQuotation>();
 
     public virtual Project Project { get; set; } = null!;
+
+    public virtual Promotion? Promotion { get; set; }
 
     public virtual ICollection<QuotationUtility> QuotationUtilities { get; set; } = new List<QuotationUtility>();
 }

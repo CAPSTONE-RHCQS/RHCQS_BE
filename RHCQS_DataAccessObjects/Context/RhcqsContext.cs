@@ -150,10 +150,12 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("BactchPayment");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentPhase).HasColumnType("datetime");
             entity.Property(e => e.Percents).HasMaxLength(5);
+            entity.Property(e => e.Unit).HasMaxLength(10);
 
             entity.HasOne(d => d.Contract).WithMany(p => p.BactchPayments)
                 .HasForeignKey(d => d.ContractId)
@@ -346,6 +348,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Unit).HasMaxLength(5);
 
             entity.HasOne(d => d.Account).WithMany(p => p.InitialQuotations)
                 .HasForeignKey(d => d.AccountId)
@@ -355,6 +358,10 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_InitialQuotation_Project");
+
+            entity.HasOne(d => d.Promotion).WithMany(p => p.InitialQuotations)
+                .HasForeignKey(d => d.PromotionId)
+                .HasConstraintName("FK_InitialQuotation_Promotion");
         });
 
         modelBuilder.Entity<InitialQuotationItem>(entity =>
@@ -631,7 +638,7 @@ public partial class RhcqsContext : DbContext
                 .HasMaxLength(10)
                 .IsFixedLength();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.UpsDate).HasColumnType("datetime");
+            entity.Property(e => e.Name).HasMaxLength(200);
         });
 
         modelBuilder.Entity<QuotationItem>(entity =>

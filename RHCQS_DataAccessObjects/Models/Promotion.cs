@@ -9,15 +9,15 @@ public partial class Promotion
 
     public string? Code { get; set; }
 
-    public Guid? AccountId { get; set; }
-
     public int? Value { get; set; }
 
     public DateTime? AvailableTime { get; set; }
 
     public DateTime? InsDate { get; set; }
 
-    public DateTime? UpsDate { get; set; }
+    public string? Name { get; set; }
 
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
+
+    public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
 }

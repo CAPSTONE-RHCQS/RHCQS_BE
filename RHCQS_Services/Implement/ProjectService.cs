@@ -158,7 +158,7 @@ namespace RHCQS_Services.Implement
                 var initialItem = new InitialQuotation
                 {
                     Id = Guid.NewGuid(),
-                    AccountId = projectRequest.InitialQuotation.AccountId,
+                    AccountId = new Guid(),
                     ProjectId = projectItem.Id,
                     PromotionId = projectRequest.InitialQuotation.PromotionId,
                     Area = projectRequest.Area,

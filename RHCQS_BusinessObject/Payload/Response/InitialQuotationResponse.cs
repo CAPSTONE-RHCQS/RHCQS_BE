@@ -30,7 +30,9 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public InitialQuotationResponse(Guid id, string accountName, Guid projectId, Guid? promotionId, Guid packageId,
             double? area, int? timeProccessing, int? timeOthers, string? othersAgreement, DateTime? insDate, string? status,
-            double? version, bool deflag, string? note, PackageQuotationList packageQuotationList, List<InitialQuotationItemResponse> itemInitial)
+            double? version, bool deflag, string? note, double? totalRough, double? totalUtilities, string? unit,
+            PackageQuotationList packageQuotationList, List<InitialQuotationItemResponse> itemInitial,
+            PromotionInfo promotionInfo, List<BatchPaymentInfo> batchPaymentInfos)
         {
             Id = id;
             AccountName = accountName;
@@ -46,8 +48,13 @@ namespace RHCQS_BusinessObject.Payload.Response
             Version = version;
             Deflag = deflag;
             Note = note;
+            TotalRough = totalRough;
+            TotalUtilities = totalUtilities;
+            Unit = unit;
             PackageQuotationList = packageQuotationList;
             ItemInitial = itemInitial;
+            PromotionInfo = promotionInfo;
+            BatchPaymentInfos = batchPaymentInfos;
         }
 
         public Guid Id { get; set; }
@@ -64,15 +71,22 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? Version { get; set; }
         public bool Deflag { get; set; }
         public string? Note { get; set; }
+        public double? TotalRough { get; set; }
+
+        public double? TotalUtilities { get; set; }
+
+        public string? Unit { get; set; }
         public PackageQuotationList PackageQuotationList { get; set; }
         public List<InitialQuotationItemResponse> ItemInitial { get; set; }
+        public PromotionInfo PromotionInfo { get; set; }
+        public List<BatchPaymentInfo> BatchPaymentInfos { get; set; }
     }
 
 
     public class InitialQuotationItemResponse
     {
         public InitialQuotationItemResponse(Guid id, string? name, string? subConstruction, double? area, double? price,
-            string? unitPrice, string constructionName)
+            string? unitPrice, double? subCoefficient, double? coefficient)
         {
             Id = id;
             Name = name;
@@ -80,7 +94,8 @@ namespace RHCQS_BusinessObject.Payload.Response
             Area = area;
             Price = price;
             UnitPrice = unitPrice;
-            ConstructionName = constructionName;
+            SubCoefficient = subCoefficient;
+            Coefficient = coefficient;
         }
         public Guid Id { get; set; }
 
@@ -94,7 +109,9 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? UnitPrice { get; set; }
 
-        public string ConstructionName { get; set; }
+        public double? SubCoefficient {  get; set; }
+
+        public double? Coefficient { get; set; }
     }
 
     public class PackageQuotationList
@@ -111,5 +128,35 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string PackageRough { get; set; }
         public Guid IdPackageFinished { get; set; }
         public string PackageFinished { get; set; }
+    }
+
+    public class PromotionInfo
+    {
+        public PromotionInfo(Guid idPromotion, string? name, int? value)
+        {
+            Id = idPromotion;
+            Name = name;
+            Value = value;
+        }
+        public Guid Id { get; set; }
+        public string? Name { get; set; }
+        public int? Value { get; set; }
+    }
+
+    public class BatchPaymentInfo
+    {
+        public BatchPaymentInfo(Guid id, string? description, string? percents, double? price, string? unit)
+        {
+            Id = id;
+            Description = description;
+            Percents = percents;
+            Price = price;
+            Unit = unit;
+        }
+        public Guid Id { get; set; }
+        public string? Description { get; set; }
+        public string? Percents { get; set; }
+        public double? Price { get; set; }
+        public string? Unit { get; set; }
     }
 }

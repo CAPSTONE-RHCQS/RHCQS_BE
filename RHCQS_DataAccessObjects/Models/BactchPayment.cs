@@ -23,6 +23,10 @@ public partial class BactchPayment
 
     public Guid FinalQuotationId { get; set; }
 
+    public string? Description { get; set; }
+
+    public string? Unit { get; set; }
+
     public virtual Contract Contract { get; set; } = null!;
 
     public virtual FinalQuotation FinalQuotation { get; set; } = null!;

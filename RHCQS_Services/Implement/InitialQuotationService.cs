@@ -28,11 +28,11 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotation(int page, int size)
         {
             var list = await _unitOfWork.GetRepository<InitialQuotation>().GetList(
-                selector: x => new InitialQuotationListResponse(x.Id, x.Project.Customer.Username ,x.Version, x.Area, x.Status),
+                selector: x => new InitialQuotationListResponse(x.Id, x.Project.Customer.Username, x.Version, x.Area, x.Status),
                 include: x => x.Include(x => x.Project)
                                 .ThenInclude(x => x.Customer!),
                 page: page,
-                size:size
+                size: size
                 );
             return list;
         }
@@ -48,7 +48,11 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(x => x.Customer!)
                                        .Include(x => x.PackageQuotations)
                                        .ThenInclude(x => x.Package)
+                                       .Include(x => x.Promotion)
+                                       .Include(x => x.BactchPayments)
                 );
+
+            var promo = await _unitOfWork.GetRepository<Promotion>().FirstOrDefaultAsync(x => x.Id == initialQuotation.PromotionId);
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == "ROUGH");
 
@@ -61,17 +65,32 @@ namespace RHCQS_Services.Implement
                 finishedPackage?.PackageId ?? Guid.Empty,
                 finishedPackage?.Package.PackageName ?? string.Empty
             );
-
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
-                                       item.Id,
-                                       item.ConstructionItem?.Name,
-                                       item.ConstructionItem?.SubConstructionItems != null ? 
-                                        string.Join(", ", item.ConstructionItem.SubConstructionItems.Select(s => s.Name)) : null,
-                                       item.Area,
-                                       item.Price,
-                                       item.UnitPrice,
-                                       item.ConstructionItem?.Name
-                                       )).ToList();
+                            item.Id,
+                            item.ConstructionItem?.Name,
+                            item.SubConstructionId.HasValue ?
+                              item.ConstructionItem?.SubConstructionItems
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem.Name,
+                            item.Area,
+                            item.Price,
+                            item.UnitPrice,
+                                item.ConstructionItem?.SubConstructionItems
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
+                            item.ConstructionItem.Coefficient
+                            )).ToList();
+
+            var promotionResponse = new PromotionInfo(
+                            initialQuotation.Promotion.Id,
+                            initialQuotation.Promotion.Name,
+                            initialQuotation.Promotion.Value);
+
+            var batchPaymentResponse =
+                            initialQuotation.BactchPayments.Select(item => new BatchPaymentInfo(
+                                item.Id,
+                                item.Description,
+                                item.Percents,
+                                item.Price,
+                                item.Unit)).ToList();
 
             var result = new InitialQuotationResponse
             {
@@ -88,8 +107,13 @@ namespace RHCQS_Services.Implement
                 Version = initialQuotation.Version,
                 Deflag = (bool)initialQuotation.Deflag,
                 Note = initialQuotation.Note,
+                TotalRough = initialQuotation.TotalRough,
+                TotalUtilities = initialQuotation.TotalUtilities,
+                Unit = initialQuotation.Unit,
                 PackageQuotationList = packageInfo,
-                ItemInitial = itemInitialResponses
+                ItemInitial = itemInitialResponses,
+                PromotionInfo = promotionResponse,
+                BatchPaymentInfos = batchPaymentResponse
             };
 
             return result;
