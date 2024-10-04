@@ -131,6 +131,8 @@ public static class AppConstant
         //PackageType
         public const string CreatePackageType = "Tạo packagetype thất bại.";
         public const string PackageTypeExists = "PackageType đã tồn tại.";
+        //House Design Drawing Version
+        public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
     }
 }
 

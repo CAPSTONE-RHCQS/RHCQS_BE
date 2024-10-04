@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObjects;
@@ -10,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 
 namespace RHCQS_Services.Implement
 {
@@ -17,11 +21,13 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<HouseDesignVersionService> _logger;
+        private readonly Cloudinary _cloudinary;
 
-        public HouseDesignVersionService(IUnitOfWork unitOfWork, ILogger<HouseDesignVersionService> logger)
+        public HouseDesignVersionService(IUnitOfWork unitOfWork, ILogger<HouseDesignVersionService> logger, Cloudinary cloudinary, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _cloudinary = cloudinary;
         }
 
         public async Task<bool> CreateHouseDesignVersion(HouseDesignVersionRequest request)
@@ -68,7 +74,7 @@ namespace RHCQS_Services.Implement
                     HouseDesignDrawingId = availableDrawing.HouseDesignDrawingId,
                     Note = null,
                     FileUrl = request.FileUrl,
-                    UpsDate= DateTime.Now,
+                    UpsDate = DateTime.Now,
                     RelatedDrawingId = availableDrawing?.RelatedDrawingId,
                     PreviousDrawingId = availableDrawing?.PreviousDrawingId,
                 };
@@ -76,7 +82,7 @@ namespace RHCQS_Services.Implement
                 //Update status in house desgin draw previous
                 availableDrawing.Status = AppConstant.Status.UPDATED;
 
-                 _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
+                _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
 
                 await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesignUpdate);
             }
@@ -88,29 +94,57 @@ namespace RHCQS_Services.Implement
             return false;
         }
 
-        public async Task<bool> UploadDesignDrawing(HouseDesignVersionUpdateRequest request, Guid versionId)
+        public async Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId)
         {
+            if (files == null || files.Count == 0)
+            {
+                return false;
+            }
+
             var itemDrawing = await _unitOfWork.GetRepository<HouseDesignVersion>()
-                                                .FirstOrDefaultAsync(x => x.Id == versionId);
+                                               .FirstOrDefaultAsync(x => x.Id == versionId);
             if (itemDrawing == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                                                AppConstant.ErrMessage.Not_Found_DesignDrawing);
+                                                   AppConstant.ErrMessage.Not_Found_DesignDrawing);
             }
 
-            itemDrawing.FileUrl = request.FileUrl ?? itemDrawing.FileUrl;
+            foreach (var file in files)
+            {
+                if (file == null || file.Length == 0)
+                {
+                    continue;
+                }
+
+                var publicId = $"{itemDrawing.Name + "_" + itemDrawing.Version}" + DateTime.Now.ToString() ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = "HouseDesignDrawing",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                }
+
+                itemDrawing.FileUrl = uploadResult.Url?.ToString() ?? itemDrawing.FileUrl;
+                itemDrawing.Status = "Processing"; 
+            }
+
             itemDrawing.Status = itemDrawing.FileUrl != null ? "Finished" : "Processing";
-            itemDrawing.RelatedDrawingId = itemDrawing.RelatedDrawingId;
-            itemDrawing.PreviousDrawingId = itemDrawing.PreviousDrawingId;
             itemDrawing.UpsDate = DateTime.Now;
 
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;
-            if (isUpdate)
-            {
-                return true;
-            }
-            return false;
+            return isUpdate;
         }
     }
 }

@@ -174,55 +174,55 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
-                //foreach(var package in projectRequest.PackageQuotations)
-                //{
-                //    var packageQuotation = new PackageQuotation
-                //    {
-                //        Id = Guid.NewGuid(),
-                //        PackageId = package.PackageId,
-                //        InitialQuotationId = initialItem.Id,
-                //        Type = package.Type,
-                //        InsDate = DateTime.Now
-                //    };
+                foreach (var package in projectRequest.PackageQuotations)
+                {
+                    var packageQuotation = new PackageQuotation
+                    {
+                        Id = Guid.NewGuid(),
+                        PackageId = package.PackageId,
+                        InitialQuotationId = initialItem.Id,
+                        Type = package.Type,
+                        InsDate = DateTime.Now
+                    };
 
-                //    await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
-                //}
+                    await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
+                }
 
-                //foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests)
-                //{
-                //    var initialQuotationItem = new InitialQuotationItem
-                //    {
-                //        Id = Guid.NewGuid(),
-                //        Name = "",
-                //        ConstructionItemId = request.ConstructionItemId,
-                //        SubConstructionId = request.SubConstructionId,
-                //        Area = request.Area,
-                //        Price = request.Price,
-                //        UnitPrice = "đ",
-                //        InsDate = DateTime.Now,
-                //        UpsDate = DateTime.Now,
-                //        InitialQuotationId = initialItem.Id
-                //    };
-                //    await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
-                //}
+                foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests)
+                {
+                    var initialQuotationItem = new InitialQuotationItem
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "",
+                        ConstructionItemId = request.ConstructionItemId,
+                        SubConstructionId = request.SubConstructionId,
+                        Area = request.Area,
+                        Price = request.Price,
+                        UnitPrice = "đ",
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        InitialQuotationId = initialItem.Id
+                    };
+                    await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
+                }
 
-                //foreach (var utl in projectRequest.QuotationUtilitiesRequest)
-                //{
-                //    var utlItem = new QuotationUtility
-                //    {
-                //        Id = Guid.NewGuid(),
-                //        UltilitiesItemId = utl.UltilitiesItemId,
-                //        FinalQuotationId = null,
-                //        InitialQuotationId = initialItem.Id,
-                //        Name = "",
-                //        Coefiicient = utl.Coefiicient,
-                //        Price = utl.Price,
-                //        Description = utl.Description,
-                //        InsDate = DateTime.Now,
-                //        UpsDate = DateTime.Now,
-                //    };
-                //    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
-                //}
+                foreach (var utl in projectRequest.QuotationUtilitiesRequest)
+                {
+                    var utlItem = new QuotationUtility
+                    {
+                        Id = Guid.NewGuid(),
+                        UltilitiesItemId = utl.UltilitiesItemId,
+                        FinalQuotationId = null,
+                        InitialQuotationId = initialItem.Id,
+                        Name = "",
+                        Coefiicient = utl.Coefiicient,
+                        Price = utl.Price,
+                        Description = utl.Description,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                    };
+                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder.Extensions;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using RHCQS.BusinessObject.Constants;
 using RHCQS_BE.Extenstion;
 using System.Text.Json.Serialization;
@@ -41,6 +42,7 @@ namespace RHCQS_BE
             builder.Services.AddDatabase();
             builder.Services.AddUnitOfWork();
             builder.Services.AddServices();
+            builder.Services.AddCloudinary(builder.Configuration);
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddConfigSwagger();
             builder.Services.AddSingletonJson();

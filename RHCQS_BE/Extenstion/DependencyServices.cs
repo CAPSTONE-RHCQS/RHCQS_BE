@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using RHCQS_DataAccessObjects.Context;
+using CloudinaryDotNet;
 
 
 namespace RHCQS_BE.Extenstion
@@ -62,6 +63,7 @@ namespace RHCQS_BE.Extenstion
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IHouseTemplateService, HouseTemplateService>();
             services.AddScoped<IAccountService, AccountService>();
@@ -110,6 +112,22 @@ namespace RHCQS_BE.Extenstion
             });
             return services;
         }
+
+        public static IServiceCollection AddCloudinary(this IServiceCollection services, IConfiguration configuration)
+        {
+            var account = new CloudinaryDotNet.Account(
+                configuration["Cloudinary:Cloudname"],
+                configuration["Cloudinary:ApiKey"],
+                configuration["Cloudinary:ApiSecret"]
+            );
+
+            Cloudinary cloudinary = new Cloudinary(account);
+            cloudinary.Api.Secure = true;
+
+            services.AddSingleton(cloudinary);
+            return services;
+        }
+
 
         public static IServiceCollection AddConfigSwagger(this IServiceCollection services)
         {

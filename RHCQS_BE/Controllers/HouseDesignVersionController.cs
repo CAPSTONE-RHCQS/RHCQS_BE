@@ -64,36 +64,35 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
-        #region UpdateWorkDesignStaff
+        #region UploadDesignFiles
         /// <summary>
-        /// Updates an existing house design version with new details or file uploads.
+        /// Uploads multiple PDF files for a house design version.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows design staff to update details or upload files for an existing house design version.
-        /// The request must include the new information for the version along with the `versionId` as a URL parameter.
+        /// This endpoint allows design staff to upload multiple PDF files related to a house design version.
+        /// The request must include the `versionId` as a URL parameter and the PDF files as form data.
         /// 
         /// **Sample Request:**
         /// 
-        ///     PUT /api/v1/design/id
-        ///     {
-        ///       "fileUrl": "http://example.com/updated-design-file.pdf"
-        ///     }
+        ///     POST /api/v1/design/upload-files/{versionId}
+        ///     Content-Type: multipart/form-data
+        ///     Files: [file1.pdf, file2.pdf, file3.pdf]
         /// 
         /// **Request Fields:**
-        /// - **fileUrl** (string, Optional): The updated URL to the design version file (must be a valid URL).
+        /// - **files** (IFormFile[], Required): The list of PDF files to upload.
         /// 
         /// **URL Parameters:**
-        /// - **versionId** (Guid, Required): The unique identifier of the house design version to be updated.
+        /// - **versionId** (Guid, Required): The unique identifier of the house design version.
         /// 
         /// **Authorization:** Only users with the "Design Staff" role can perform this action.
         /// 
         /// </remarks>
-        /// <param name="item">Request model containing the updated house design version details</param>
-        /// <param name="versionId">The ID of the house design version to be updated</param>
-        /// <returns>Returns true if the house design version is updated successfully, otherwise false.</returns>
-        /// <response code="200">House design version updated successfully</response>
+        /// <param name="files">List of PDF files to upload</param>
+        /// <param name="versionId">The ID of the house design version to associate the files with</param>
+        /// <returns>Returns true if the files are uploaded successfully, otherwise false.</returns>
+        /// <response code="200">Files uploaded successfully</response>
         /// <response code="400">Bad request, validation failed or missing required fields</response>
-        /// <response code="401">Unauthorized, only design staff can update design versions</response>
+        /// <response code="401">Unauthorized, only design staff can upload files</response>
         /// <response code="404">Not found, the house design version with the specified ID was not found</response>
         /// <response code="500">Internal server error</response>
         #endregion
@@ -104,9 +103,13 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateWorkDesignStaff([FromBody] HouseDesignVersionUpdateRequest item, Guid versionId)
+        public async Task<IActionResult> UpdateWorkDesignStaff([FromForm] List<IFormFile> files, Guid versionId)
         {
-            var isCreate = await _designVersionService.UploadDesignDrawing(item, versionId);
+            if (files == null || files.Count == 0)
+            {
+                return BadRequest("No files provided.");
+            }
+            var isCreate = await _designVersionService.UploadDesignDrawing(files, versionId);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
     }
