@@ -89,7 +89,7 @@ public static class AppConstant
         Forbidden = 403,
         Not_Found = 404,
         Conflict = 409,
-
+        Too_Many_Requests = 429
     }
     public class ErrMessage
     {
@@ -133,6 +133,9 @@ public static class AppConstant
         public const string PackageTypeExists = "PackageType đã tồn tại.";
         //House Design Drawing Version
         public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
+        //Assign staff
+        public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
+        public const string QuotationHasStaff = "Báo giá đã có nhân viên đảm nhận!";
     }
 }
 

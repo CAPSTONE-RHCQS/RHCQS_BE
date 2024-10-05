@@ -12,5 +12,6 @@ namespace RHCQS_Services.Interface
     {
         Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotation(int page, int size);
         Task<InitialQuotationResponse> GetDetailInitialQuotationById(Guid id);
+        Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId);
     }
 }

@@ -8,6 +8,13 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     using System.ComponentModel.DataAnnotations;
 
+    public class AssignQuotaionInitial
+    {
+        [Required(ErrorMessage = "AccountId là bắt buộc.")]
+        public Guid accountId { get; set; }
+        [Required(ErrorMessage = "Báo giá sơ bộ là bắt buộc.")]
+        public Guid initialQuotationId { get; set; }
+    }
     public class InitialQuotationRequest
     {
         [Required(ErrorMessage = "AccountId là bắt buộc.")]

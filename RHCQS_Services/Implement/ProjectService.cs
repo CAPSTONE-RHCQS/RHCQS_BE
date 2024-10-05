@@ -169,7 +169,7 @@ namespace RHCQS_Services.Implement
                     Status = AppConstant.InitialQuotationStatus.PENDING,
                     Version = 1.0,
                     IsTemplate = false,
-                    Deflag = true,
+                    Deflag = false,
                     Note = null
                 };
 

@@ -116,18 +116,25 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class PackageQuotationList
     {
-        public PackageQuotationList(Guid idPackageRough, string packageRough, Guid idPackageFinished, string packageFinished)
+        public PackageQuotationList(Guid idPackageRough, string packageRough, double unitPackageRough,
+            Guid idPackageFinished, string packageFinished, double unitPackageFinished, string unit)
         {
             IdPackageRough = idPackageRough;
             PackageRough = packageRough;
+            UnitPackageRough = unitPackageRough;
             IdPackageFinished = idPackageFinished;
             PackageFinished = packageFinished;
+            UnitPackageFinished = unitPackageFinished;
+            Unit = unit;
         }
 
         public Guid IdPackageRough { get; set; }
         public string PackageRough { get; set; }
+        public double UnitPackageRough { get; set; }
         public Guid IdPackageFinished { get; set; }
         public string PackageFinished { get; set; }
+        public double UnitPackageFinished { get; set; }
+        public string Unit {  get; set; }
     }
 
     public class PromotionInfo

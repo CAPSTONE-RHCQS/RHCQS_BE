@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
@@ -90,6 +91,15 @@ namespace RHCQS_BE.Controllers
         ///   "TotalRough": 1500000000.0,           //Tổng tiền phần hoàn thiện
         ///   "TotalUtilities": 20000000.0,         //Tổng tiền phần tiện ích - giấy phép nằm luôn trong tiện ích
         ///   "Unit": "VNĐ",
+        ///   "PackageQuotationList": {
+        ///   "IdPackageRough": "59f5fd78-b895-4d60-934a-4727c219b2d9",
+        ///   "PackageRough": "Gói tiêu chuẩn",
+        ///   "UnitPackageRough": 3550000.0,                                //Giá thi công phần thô
+        ///   "IdPackageFinished": "0bfb83dd-04af-4f8c-a6d0-2cd8ee1ff0f5",
+        ///   "PackageFinished": "Gói tiêu chuẩn",
+        ///   "UnitPackageFinished": 3450000.0,                             //Giá thi công phần hoàn thiện
+        ///   "Unit": "m2"
+        ///   },
         ///   "ItemInitial": [
         ///     {
         ///       "Id": "5b792ed1-a726-44ce-9820-9629d459ed8b",
@@ -163,5 +173,37 @@ namespace RHCQS_BE.Controllers
             var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
             return Ok(result);
         }
+
+        #region
+        /// <summary>
+        /// Assign a quotation to a customer based on the request payload.
+        /// </summary>
+        /// <param name="request">The request payload containing accountId and initialQuotationId.</param>
+        /// <returns>Assigned quotation details or an error message.</returns>
+        /// <response code="200">Returns the details of the assigned quotation.</response>
+        /// <response code="404">If no quotation is found or staff overload error occurs.</response>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     PUT /api/initial-quotation
+        ///     {
+        ///         "accountId": "d287e991-5b2b-4569-b0c4-7e81d9e75b78",
+        ///         "initialQuotationId": "3f63e5b2-632f-48fa-ae9d-1c123456abcd"
+        ///     }
+        ///     
+        /// </remarks>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpPut(ApiEndPointConstant.InitialQuotation.AssignInitialQuotationEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AssignQuotation([FromBody] AssignQuotaionInitial request)
+        {
+            var quotation = await _initialService.AssignQuotation(request.accountId, request.initialQuotationId);
+            if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.OverloadStaff });
+            var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
+            return Ok(result);
+        }
+
     }
 }

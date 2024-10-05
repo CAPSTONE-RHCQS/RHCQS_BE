@@ -62,8 +62,11 @@ namespace RHCQS_Services.Implement
             var packageInfo = new PackageQuotationList(
                 roughPackage?.PackageId ?? Guid.Empty,
                 roughPackage?.Package.PackageName ?? string.Empty,
+                roughPackage?.Package.Price ?? 0,
                 finishedPackage?.PackageId ?? Guid.Empty,
-                finishedPackage?.Package.PackageName ?? string.Empty
+                finishedPackage?.Package.PackageName ?? string.Empty,
+                finishedPackage?.Package.Price ?? 0,
+                finishedPackage?.Package.Unit ?? string.Empty
             );
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
                             item.Id,
@@ -119,6 +122,31 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+        public async Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId)
+        {
+            var infoStaff = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(a => a.Id == accountId,
+                            include: a => a.Include(a => a.InitialQuotations));
+
+            if (infoStaff.InitialQuotations.Count > 2)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
+            }
+
+            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(i => i.Id == initialQuotationId);
+            if (initialItem.Deflag == true)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.QuotationHasStaff);
+            }
+            if(initialItem != null)
+            {
+                initialItem.AccountId = accountId;
+                initialItem.Deflag = true;
+            } 
+
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
+        }
 
     }
 }
