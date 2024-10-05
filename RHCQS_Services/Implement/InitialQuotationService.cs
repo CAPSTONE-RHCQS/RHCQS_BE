@@ -49,6 +49,8 @@ namespace RHCQS_Services.Implement
                                        .Include(x => x.PackageQuotations)
                                        .ThenInclude(x => x.Package)
                                        .Include(x => x.Promotion)
+                                       .Include(x => x.QuotationUtilities)
+                                            .ThenInclude(x => x.UltilitiesItem)
                                        .Include(x => x.BactchPayments)
                 );
 
@@ -81,6 +83,13 @@ namespace RHCQS_Services.Implement
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
                             item.ConstructionItem.Coefficient
                             )).ToList();
+
+            var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
+                            item.Id, 
+                            item.Description ?? string.Empty,
+                            item.Coefiicient ?? 0,
+                            item.Price ?? 0
+                )).ToList();
 
             var promotionResponse = new PromotionInfo(
                             initialQuotation.Promotion.Id,
@@ -115,6 +124,7 @@ namespace RHCQS_Services.Implement
                 Unit = initialQuotation.Unit,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
+                UtilityInfos = utiResponse,
                 PromotionInfo = promotionResponse,
                 BatchPaymentInfos = batchPaymentResponse
             };

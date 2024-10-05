@@ -163,7 +163,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Initial quotation details retrieved successfully</response>
         /// <response code="404">Initial quotation not found</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationDetailEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailInitialQuotation(Guid id)
