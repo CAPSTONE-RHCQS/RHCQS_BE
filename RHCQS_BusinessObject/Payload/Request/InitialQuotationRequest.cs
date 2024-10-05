@@ -15,6 +15,12 @@ namespace RHCQS_BusinessObject.Payload.Request
         [Required(ErrorMessage = "Báo giá sơ bộ là bắt buộc.")]
         public Guid initialQuotationId { get; set; }
     }
+
+    public class ApproveQuotationRequest
+    {
+        public string Type { get; set; }
+        public string Reason { get; set; }
+    }
     public class InitialQuotationRequest
     {
         [Required(ErrorMessage = "AccountId là bắt buộc.")]

@@ -91,6 +91,13 @@ public static class AppConstant
         Conflict = 409,
         Too_Many_Requests = 429
     }
+
+    public class Message
+    {
+        public const string APPROVED = "Báo giá đã được phê duyệt thành công!";
+        public const string REJECTED = "Báo giá đã bị từ chối!";
+        public const string ERROR = "Có lỗi xảy ra trong quá trình lưu!";
+    }
     public class ErrMessage
     {
         public const string Internal_Server_Error = "Hệ thống xảy ra lỗi, vui lòng thử lại";

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -54,7 +55,6 @@ namespace RHCQS_Services.Implement
                                        .Include(x => x.BactchPayments)
                 );
 
-            var promo = await _unitOfWork.GetRepository<Promotion>().FirstOrDefaultAsync(x => x.Id == initialQuotation.PromotionId);
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == "ROUGH");
 
@@ -156,6 +156,28 @@ namespace RHCQS_Services.Implement
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
+        }
+
+        public async Task<bool> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
+        {
+            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
+
+            if (initialItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, 
+                                               AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+
+            if (request.Type == AppConstant.InitialQuotationStatus.APPROVED)
+            {
+                initialItem.Status = AppConstant.InitialQuotationStatus.APPROVED;
+            }
+            else
+            {
+                initialItem.Status = AppConstant.InitialQuotationStatus.REJECTED;
+                initialItem.ReasonReject = request.Reason;
+            }
+
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            return isSuccessful;
         }
 
     }

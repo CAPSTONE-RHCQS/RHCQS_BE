@@ -41,6 +41,8 @@ public partial class InitialQuotation
 
     public string? Unit { get; set; }
 
+    public string? ReasonReject { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();

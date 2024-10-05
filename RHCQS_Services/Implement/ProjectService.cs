@@ -170,7 +170,8 @@ namespace RHCQS_Services.Implement
                     Version = 1.0,
                     IsTemplate = false,
                     Deflag = false,
-                    Note = null
+                    Note = null,
+                    ReasonReject = null
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);

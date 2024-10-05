@@ -205,5 +205,56 @@ namespace RHCQS_BE.Controllers
             return Ok(result);
         }
 
+        #region
+        /// <summary>
+        /// Approve or reject an initial quotation by a Manager.
+        /// </summary>
+        /// <remarks>
+        /// This API allows a Manager to approve or reject an initial quotation. 
+        /// 
+        /// ### Request Examples:
+        /// 
+        /// **PUT** `/api/quotation/initial/approve?initialId=5e6321c8-fc09-4b45-8a64-d72f91c19b7f`
+        /// 
+        /// **Body**:
+        /// ```json
+        /// {
+        ///   "reason": "The quotation does not meet the necessary requirements."
+        /// }
+        /// ```
+        /// 
+        /// ### Responses:
+        /// 
+        /// **200 OK** - Quotation Approved or Rejected
+        /// 
+        /// Example success response (Approved):
+        /// ```json
+        /// {
+        ///   "message": "Approved"
+        /// }
+        /// ```
+        /// 
+        /// Example success response (Rejected):
+        /// ```json
+        /// {
+        ///   "message": "An error occurred during approval."
+        /// }
+        /// ```
+        /// 
+        /// **404 Not Found** - The initial quotation ID was not found.
+        /// </remarks>
+        /// <param name="initialId">The unique ID of the initial quotation to be approved or rejected.</param>
+        /// <param name="request">The request body containing the reason for approval or rejection.</param>
+        /// <returns>Returns a success or error message based on the approval result.</returns>
+        #endregion
+        [HttpPut(ApiEndPointConstant.InitialQuotation.ApproveInitialEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ApproveInitialFromManager([FromQuery] Guid initialId, [FromBody] ApproveQuotationRequest request)
+        {
+            bool quotation = await _initialService.ApproveInitialFromManager(initialId, request);
+
+            return Ok(quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR);
+        }
     }
 }
