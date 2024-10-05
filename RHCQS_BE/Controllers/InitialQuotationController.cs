@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
-using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
@@ -248,13 +248,94 @@ namespace RHCQS_BE.Controllers
         /// <returns>Returns a success or error message based on the approval result.</returns>
         #endregion
         [HttpPut(ApiEndPointConstant.InitialQuotation.ApproveInitialEndpoint)]
-        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApproveQuotationRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ApproveInitialFromManager([FromQuery] Guid initialId, [FromBody] ApproveQuotationRequest request)
         {
             bool quotation = await _initialService.ApproveInitialFromManager(initialId, request);
 
             return Ok(quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR);
+        }
+
+        #region
+        /// <summary>
+        /// Updates the initial quotation.
+        /// </summary>
+        /// <remarks>
+        /// This API allows users to update the initial quotation information. 
+        /// To perform this request, please provide the necessary information in the request body.
+        ///
+        /// **Sample Request:**
+        /// ```json
+        /// {
+        ///   "versionPresent": 1.0,
+        ///   "accountId": "D63A2A80-CDEA-46DF-8419-E5C70A7632EE",
+        ///   "projectId": "b81935a8-4482-43f5-ad68-558abde58d58",
+        ///   "area": 125.0,
+        ///   "timeProcessing": 165,
+        ///   "timeRough": 115,
+        ///   "timeOthers": 50,
+        ///   "othersAgreement": "Khách hàng phải thanh toán trong vòng 7 ngày kể từ khi hợp động được kí",
+        ///   "totalRough": 0,
+        ///   "totalUtilities": 0,
+        ///   "items": [
+        ///     {
+        ///       "name": "Mái che",
+        ///       "constructionItemId": "BD101AF5-AC48-43BA-A474-957A20A933BD",
+        ///       "subConstructionId": "7E442652-EEFC-43B7-918B-A264A10E679D",
+        ///       "area": 49.5,
+        ///       "price": 66330000.0
+        ///     },
+        ///     {
+        ///       "name": "Trệt",
+        ///       "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
+        ///       "subConstructionId": null,
+        ///       "area": 99.0,
+        ///       "price": 331650000.0
+        ///     },
+        ///     {
+        ///       "name": "Móng",
+        ///       "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",
+        ///       "subConstructionId": "06FF2D3D-2F14-4ACC-BA2E-0C4EE659CA81",
+        ///       "area": 49.5,
+        ///       "price": 66330000.0
+        ///     }
+        ///   ],
+        ///   "packages": [
+        ///     {
+        ///       "packageId": "59f5fd78-b895-4d60-934a-4727c219b2d9",
+        ///       "type": "Gói tiêu chuẩn"
+        ///     },
+        ///     {
+        ///       "packageId": "0bfb83dd-04af-4f8c-a6d0-2cd8ee1ff0f5",
+        ///       "type": "Gói tiêu chuẩn"
+        ///     }
+        ///   ],
+        ///   "utilities": [
+        ///     {
+        ///       "utilitiesItemId": "2EC103AA-AA83-4D58-9E85-22A6247F4CD6",
+        ///       "coefiicient": 0.8,
+        ///       "price": 50000.0,
+        ///       "description": "Sàn từ 30m2 ~ 40m2"
+        ///     }
+        ///   ],
+        ///   "promotions": null
+        /// }
+        /// ```
+        /// </remarks>
+        /// <param name="request">The request containing the updated initial quotation information.</param>
+        /// <returns>A result indicating whether the update was successful.</returns>
+        /// <response code="200">Returns success message if the update was successful.</response>
+        /// <response code="404">Returns if the specified quotation was not found.</response>
+        #endregion
+        [HttpPost(ApiEndPointConstant.InitialQuotation.InitialQuotationUpdateEndpoibt)]
+        [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateInitialQuotation([FromBody] UpdateInitialRequest request)
+        {
+            bool quotation = await _initialService.UpdateInitialQuotation(request);
+
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
         }
     }
 }

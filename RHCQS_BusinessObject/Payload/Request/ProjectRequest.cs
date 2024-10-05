@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace RHCQS_BusinessObject.Payload.Request
 {
     using System.ComponentModel.DataAnnotations;
+    using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 
     public class ProjectRequest
     {
