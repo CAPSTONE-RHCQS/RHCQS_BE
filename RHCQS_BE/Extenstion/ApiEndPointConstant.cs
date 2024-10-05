@@ -28,6 +28,10 @@ namespace RHCQS_BE.Extenstion
         {
             public const string PackageTypeEndpoint = ApiEndpoint + "/packagetype";
         }
+        public static class Package
+        {
+            public const string PackageEndpoint = ApiEndpoint + "/package";
+        }
 
         public static class Account
         {

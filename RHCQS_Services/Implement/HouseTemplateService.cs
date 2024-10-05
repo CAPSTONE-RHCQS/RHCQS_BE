@@ -39,7 +39,6 @@ namespace RHCQS_Services.Implement
 
             var templateRepo = _unitOfWork.GetRepository<DesignTemplate>();
 
-            // Check if the DesignTemplate ID already exists
             if (await templateRepo.AnyAsync(x => x.Id == templ.Id))
             {
                 throw new AppConstant.MessageError(
@@ -49,7 +48,6 @@ namespace RHCQS_Services.Implement
             }
             foreach (var sub in templ.SubTemplates)
             {
-                // Check if SubTemplate ID already exists
                 bool subTemplateExists = await templateRepo.AnyAsync(
                     x => x.SubTemplates.Any(st => st.Id == sub.Id)
                 );
@@ -62,7 +60,6 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
-                // Check if any TemplateItem IDs already exist for each SubTemplate
                 foreach (var item in sub.TemplateItems)
                 {
                     bool templateItemExists = await templateRepo.AnyAsync(
@@ -134,6 +131,12 @@ namespace RHCQS_Services.Implement
                     template.NumberOfFront,
                     template.ImgUrl,
                     template.InsDate,
+                    template.PackageHouses.Select(pkg => new PackageHouseResponse(
+                        pkg.Id,
+                        pkg.DesignTemplateId,
+                        pkg.ImgUrl,
+                        pkg.InsDate
+                    )).ToList(),
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
                         sub.Id,
                         sub.BuildingArea,
@@ -161,40 +164,59 @@ namespace RHCQS_Services.Implement
             return null;
         }
 
-
-
         public async Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size)
         {
             var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetList(
-                selector: x => new HouseTemplateResponse(x.Id, x.Name, x.Description, x.NumberOfFloor, x.NumberOfBed,
-                                                            x.NumberOfFront, x.ImgUrl, x.InsDate,
-                                                            x.SubTemplates.Select(
-                                                                sub => new SubTemplatesResponse(
-                                                                    sub.Id,
-                                                                    sub.BuildingArea,
-                                                                    sub.FloorArea,
-                                                                    sub.Size,
-                                                                    sub.InsDate,
-                                                                    (List<TemplateItemReponse>)sub.TemplateItems.Select(
-                                                                        item => new TemplateItemReponse(
-                                                                            item.Id,
-                                                                            item.SubConstructionId == null
-                                                                                    ? item.ConstructionItem.Name
-                                                                                    : item.SubConstruction.Name,
-                                                                            item.ConstructionItem.Id,
-                                                                            item.SubConstructionId,
-                                                                            item.SubConstructionId == null
-                                                                                    ? item.ConstructionItem.Coefficient
-                                                                                    : item.SubConstruction.Coefficient,
-                                                                            item.Area,
-                                                                            item.Unit,
-                                                                            item.InsDate)))).ToList()),
+                selector: x => new HouseTemplateResponse(
+                    x.Id,
+                    x.Name,
+                    x.Description,
+                    x.NumberOfFloor,
+                    x.NumberOfBed,
+                    x.NumberOfFront,
+                    x.ImgUrl,
+                    x.InsDate,
+                    x.PackageHouses.Select(
+                        pgk => new PackageHouseResponse(
+                            pgk.Id,
+                            pgk.DesignTemplateId,
+                            pgk.ImgUrl,
+                            pgk.InsDate
+                        )).ToList(),
+                    x.SubTemplates.Select(
+                        sub => new SubTemplatesResponse(
+                            sub.Id,
+                            sub.BuildingArea,
+                            sub.FloorArea,
+                            sub.Size,
+                            sub.InsDate,
+                            sub.TemplateItems.Select(
+                                item => new TemplateItemReponse(
+                                    item.Id,
+                                    item.SubConstructionId == null
+                                        ? item.ConstructionItem.Name
+                                        : item.SubConstruction.Name,
+                                    item.ConstructionItem.Id,
+                                    item.SubConstructionId,
+                                    item.SubConstructionId == null
+                                        ? item.ConstructionItem.Coefficient
+                                        : item.SubConstruction.Coefficient,
+                                    item.Area,
+                                    item.Unit,
+                                    item.InsDate
+                                )
+                            ).ToList()
+                        )
+                    ).ToList()
+                ),
                 include: x => x.Include(x => x.PackageHouses),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
                 size: size);
+
             return listHouseTemplate;
         }
+
 
         public async Task<DesignTemplate> SearchHouseTemplateByNameAsync(string name)
         {
@@ -244,18 +266,15 @@ namespace RHCQS_Services.Implement
             houseTemplate.NumberOfFront = templ.NumberOfFront;
             houseTemplate.ImgUrl = templ.ImgUrl;
 
-            // Update or add SubTemplates
             foreach (var sub in templ.SubTemplates)
             {
                 var existingSubTemplate = houseTemplate.SubTemplates.FirstOrDefault(st => st.Id == sub.Id);
                 if (existingSubTemplate != null)
                 {
-                    // Update existing SubTemplate properties
                     existingSubTemplate.BuildingArea = sub.BuildingArea;
                     existingSubTemplate.FloorArea = sub.FloorArea;
                     existingSubTemplate.Size = sub.Size;
 
-                    // Update or add TemplateItems
                     foreach (var item in sub.TemplateItems)
                     {
                         var existingTemplateItem = existingSubTemplate.TemplateItems.FirstOrDefault(ti => ti.Id == item.Id);
@@ -267,7 +286,6 @@ namespace RHCQS_Services.Implement
                         }
                         else
                         {
-                            // Add new TemplateItem
                             existingSubTemplate.TemplateItems.Add(new TemplateItem
                             {
                                 Id = item.Id,
@@ -282,7 +300,6 @@ namespace RHCQS_Services.Implement
                 }
                 else
                 {
-                    // Add new SubTemplate if it does not exist
                     houseTemplate.SubTemplates.Add(new SubTemplate
                     {
                         Id = sub.Id,

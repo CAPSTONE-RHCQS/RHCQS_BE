@@ -11,7 +11,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public HouseTemplateResponse() { }
         public HouseTemplateResponse(Guid id, string name, string? description, int? numberOfFloor, int? numberOfBed,
-            int? numberOfFront, string? imgUrl, DateTime? insDate,/* List<PackageHouseResponse> packageHouses,*/ List<SubTemplatesResponse> subTemplates)
+            int? numberOfFront, string? imgUrl, DateTime? insDate, List<PackageHouseResponse> packageHouses, List<SubTemplatesResponse> subTemplates)
         {
             Id = id;
             Name = name;
@@ -21,7 +21,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             NumberOfFront = numberOfFront;
             ImgUrl = imgUrl;
             InsDate = insDate;
- /*           PackageHouses = packageHouses;*/
+            PackageHouses = packageHouses;
             SubTemplates = subTemplates;
         }
 
@@ -43,7 +43,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public List<SubTemplatesResponse> SubTemplates { get; set; }
 
-/*        public List<PackageHouseResponse> PackageHouses { get; set; }*/
+        public List<PackageHouseResponse> PackageHouses { get; set; }
 
     }
     public class SubTemplatesResponse

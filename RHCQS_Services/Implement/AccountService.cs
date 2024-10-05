@@ -40,7 +40,8 @@ namespace RHCQS_Services.Implement
                 );
             }
             var accountRepository = _unitOfWork.GetRepository<Account>();
-            var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
+            var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id && a.Deflag == true,
+                include: q => q.Include(x => x.Role));
             if (account == null)
             {
                 throw new AppConstant.MessageError(
@@ -70,6 +71,7 @@ namespace RHCQS_Services.Implement
             IPaginate<AccountResponse> listAccounts = await _unitOfWork.GetRepository<Account>()
                 .GetList(selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth, x.PasswordHash,
                                                             x.Email, x.ImageUrl, x.Deflag, x.Role.RoleName, x.RoleId, x.InsDate, x.UpsDate),
+                        predicate: x => x.Deflag == true,
                         page: page,
                         size: size);
             if (listAccounts == null)
@@ -111,7 +113,7 @@ namespace RHCQS_Services.Implement
             IPaginate<AccountResponse> listAccounts = await _unitOfWork.GetRepository<Account>()
                 .GetList(selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth, x.PasswordHash,
                                                             x.Email, x.ImageUrl, x.Deflag, x.Role.RoleName, x.RoleId, x.InsDate, x.UpsDate),
-                        predicate: x => x.RoleId == id,
+                        predicate: x => x.RoleId == id && x.Deflag == true,
                         page: page,
                         size: size);
             if (listAccounts == null)
@@ -138,7 +140,8 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(p => p.Username.Contains(name), include: s => s.Include(p => p.Role));
+                var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(p => p.Username.Contains(name) && p.Deflag == true,
+                    include: s => s.Include(p => p.Role));
                 if (account == null)
                 {
                     throw new AppConstant.MessageError(
