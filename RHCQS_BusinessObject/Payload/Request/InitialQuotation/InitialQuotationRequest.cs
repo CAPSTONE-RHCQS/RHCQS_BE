@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RHCQS_BusinessObject.Payload.Request
+namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
 {
     using System.ComponentModel.DataAnnotations;
 

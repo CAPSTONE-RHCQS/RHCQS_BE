@@ -19,6 +19,11 @@ public static class AppConstant
             Message = message;
         }
     }
+    public class Unit
+    {
+        public const string UnitPrice = "VNĐ";
+        public const string UnitPriceD = "đ";
+    }
     public class Role
     {
         public const string Manager = "Manager";
@@ -97,6 +102,7 @@ public static class AppConstant
         public const string APPROVED = "Báo giá đã được phê duyệt thành công!";
         public const string REJECTED = "Báo giá đã bị từ chối!";
         public const string ERROR = "Có lỗi xảy ra trong quá trình lưu!";
+        public const string SUCCESSFUL_INITIAL = "Cập nhập báo giá sơ bộ thành công";
     }
     public class ErrMessage
     {

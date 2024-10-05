@@ -100,6 +100,7 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationDetailEndpoint = InitialQuotationEndpoint + "/id";
             public const string AssignInitialQuotationEndpoint = InitialQuotationEndpoint + "/assign";
             public const string ApproveInitialEndpoint = InitialQuotationEndpoint + "/approve";
+            public const string InitialQuotationUpdateEndpoibt = InitialQuotationEndpoint + "/update";
         }
     }
 }

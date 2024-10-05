@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -85,7 +86,7 @@ namespace RHCQS_Services.Implement
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.Id, 
+                            item.Id,
                             item.Description ?? string.Empty,
                             item.Coefiicient ?? 0,
                             item.Price ?? 0
@@ -147,11 +148,11 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.QuotationHasStaff);
             }
-            if(initialItem != null)
+            if (initialItem != null)
             {
                 initialItem.AccountId = accountId;
                 initialItem.Deflag = true;
-            } 
+            }
 
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -162,7 +163,7 @@ namespace RHCQS_Services.Implement
         {
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
 
-            if (initialItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, 
+            if (initialItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
                                                AppConstant.ErrMessage.Not_Found_InitialQuotaion);
 
             if (request.Type == AppConstant.InitialQuotationStatus.APPROVED)
@@ -180,5 +181,91 @@ namespace RHCQS_Services.Implement
             return isSuccessful;
         }
 
+        public async Task<bool> UpdateInitialQuotation(UpdateInitialRequest request)
+        {
+            try
+            {
+                var initialItem = new InitialQuotation()
+                {
+                    Id = Guid.NewGuid(),
+                    AccountId = request.AccountId,
+                    ProjectId = request.ProjectId,
+                    PromotionId = request.Promotions?.Id != null ? request.Promotions.Id : (Guid?)null,
+                    Area = request.Area,
+                    TimeProcessing = request.TimeProcessing,
+                    TimeRough = request.TimeRough,
+                    TimeOthers = request.TimeOthers,
+                    OthersAgreement = request.OthersAgreement,
+                    InsDate = DateTime.Now,
+                    Status = AppConstant.InitialQuotationStatus.UNDER_REVIEW,
+                    Version = request.VersionPresent + 1,
+                    IsTemplate = false,
+                    Deflag = true,
+                    Note = null,
+                    TotalRough = request.TotalRough,
+                    TotalUtilities = request.TotalUtilities,
+                    Unit = AppConstant.Unit.UnitPrice,
+                    ReasonReject = null
+                };
+                await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+
+                foreach (var item in request.Items)
+                {
+                    var itemInitial = new InitialQuotationItem()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = null,
+                        ConstructionItemId = item.ConstructionItemId,
+                        SubConstructionId = item.SubConstructionId,
+                        Area = item.Area,
+                        Price = item.Price,
+                        UnitPrice = AppConstant.Unit.UnitPriceD,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        InitialQuotationId = initialItem.Id,
+                    };
+                    await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
+                }
+
+                foreach (var package in request.Packages)
+                {
+                    var packageQuotation = new PackageQuotation
+                    {
+                        Id = Guid.NewGuid(),
+                        PackageId = package.PackageId,
+                        InitialQuotationId = initialItem.Id,
+                        Type = package.Type,
+                        InsDate = DateTime.Now
+                    };
+
+                    await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
+                }
+
+                foreach (var utl in request.Utilities)
+                {
+                    var utlItem = new QuotationUtility
+                    {
+                        Id = Guid.NewGuid(),
+                        UltilitiesItemId = utl.UtilitiesItemId,
+                        FinalQuotationId = null,
+                        InitialQuotationId = initialItem.Id,
+                        Name = utl.Description,
+                        Coefiicient = utl.Coefiicient,
+                        Price = utl.Price,
+                        Description = utl.Description,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                    };
+                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                }
+
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                return isSuccessful;
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
+        }
     }
 }
