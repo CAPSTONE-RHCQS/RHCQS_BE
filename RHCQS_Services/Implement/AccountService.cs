@@ -172,6 +172,24 @@ namespace RHCQS_Services.Implement
             _account.UpsDate = DateTime.UtcNow;
 
             accountRepository.UpdateAsync(_account);
+            if (_account.Role.RoleName == UserRoleForRegister.Customer.ToString())
+            {
+                var customerRepository = _unitOfWork.GetRepository<Customer>();
+                var _customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == _account.Email);
+
+                if (_customer != null)
+                {
+                    _customer.Username = account.Username != default ? account.Username : _customer.Username;
+                    _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
+                    _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
+                    _customer.PasswordHash = !string.IsNullOrEmpty(account.PasswordHash) ? PasswordHash.HashPassword(account.PasswordHash) : _customer.PasswordHash;
+                    _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
+                    _customer.ImgUrl = account.ImageUrl == default ? null : account.ImageUrl;
+                    _customer.UpsDate = DateTime.UtcNow;
+
+                    customerRepository.UpdateAsync(_customer);
+                }
+            }
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
             {
@@ -200,6 +218,19 @@ namespace RHCQS_Services.Implement
             account.UpsDate = DateTime.UtcNow;
 
             accountRepository.UpdateAsync(account);
+            if (account.Role.RoleName == UserRoleForRegister.Customer.ToString())
+            {
+                var customerRepository = _unitOfWork.GetRepository<Customer>();
+                var customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == account.Email);
+
+                if (customer != null)
+                {
+                    customer.Deflag = false;
+                    customer.UpsDate = DateTime.UtcNow;
+
+                    customerRepository.UpdateAsync(customer);
+                }
+            }
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
             {

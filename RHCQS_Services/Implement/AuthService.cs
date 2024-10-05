@@ -120,6 +120,21 @@ namespace RHCQS_Services.Implement
                 RoleId = role.Id,
                 Deflag = true
             };
+            if (roleName == UserRoleForRegister.Customer.ToString())
+            {
+                var newCustomer = new Customer
+                {
+                    Id = Guid.NewGuid(),
+                    Email = registerRequest.Email,
+                    PasswordHash = PasswordHash.HashPassword(registerRequest.Password),
+                    Username = registerRequest.Email,
+                    InsDate = DateTime.UtcNow,
+                    UpsDate = DateTime.UtcNow,
+                    Deflag = true
+                };
+
+                await _unitOfWork.GetRepository<Customer>().InsertAsync(newCustomer);
+            }
 
             await _unitOfWork.GetRepository<Account>().InsertAsync(newAccount);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
