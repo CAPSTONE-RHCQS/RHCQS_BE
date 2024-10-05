@@ -76,6 +76,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalUtilities { get; set; }
 
         public string? Unit { get; set; }
+        public string? ReasonReject { get; set; }
         public PackageQuotationList PackageQuotationList { get; set; }
         public List<InitialQuotationItemResponse> ItemInitial { get; set; }
         public List<UtilityInfo> UtilityInfos { get; set; }

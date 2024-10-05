@@ -99,6 +99,7 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationEndpoint = ApiEndpoint + "/quotation" + "/initial";
             public const string InitialQuotationDetailEndpoint = InitialQuotationEndpoint + "/id";
             public const string AssignInitialQuotationEndpoint = InitialQuotationEndpoint + "/assign";
+            public const string ApproveInitialEndpoint = InitialQuotationEndpoint + "/approve";
         }
     }
 }

@@ -21,7 +21,7 @@ public partial class BactchPayment
 
     public DateTime? InsDate { get; set; }
 
-    public Guid FinalQuotationId { get; set; }
+    public Guid? FinalQuotationId { get; set; }
 
     public string? Description { get; set; }
 
@@ -29,7 +29,7 @@ public partial class BactchPayment
 
     public virtual Contract Contract { get; set; } = null!;
 
-    public virtual FinalQuotation FinalQuotation { get; set; } = null!;
+    public virtual FinalQuotation? FinalQuotation { get; set; }
 
     public virtual InitialQuotation IntitialQuotation { get; set; } = null!;
 

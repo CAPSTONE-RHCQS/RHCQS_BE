@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Response;
+﻿using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -13,5 +14,6 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotation(int page, int size);
         Task<InitialQuotationResponse> GetDetailInitialQuotationById(Guid id);
         Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId);
+        Task<bool> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request);
     }
 }
