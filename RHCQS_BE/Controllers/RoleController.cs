@@ -35,7 +35,7 @@ namespace RHCQS_BE.Controllers
             var response = JsonConvert.SerializeObject(roles, Formatting.Indented);
             return new ContentResult()
             {
-                Content = res,
+                Content = response,
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
