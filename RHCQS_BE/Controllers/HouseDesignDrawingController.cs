@@ -34,7 +34,12 @@ namespace RHCQS_BE.Controllers
         {
             var listHouseDesignDrawings = await _houseService.GetListHouseDesignDrawings(page, size);
             var result = JsonConvert.SerializeObject(listHouseDesignDrawings, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailHouseDesignDrawing
@@ -51,7 +56,12 @@ namespace RHCQS_BE.Controllers
             var design = await _houseService.GetDetailHouseDesignDrawing(id);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetListTaskByAccount
@@ -60,7 +70,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer, Sales Staff, Manager")]
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingTask)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListTaskByAccount(Guid id)
@@ -68,7 +78,12 @@ namespace RHCQS_BE.Controllers
             var design = await _houseService.GetListTaskByAccount(id);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailHouseDesignDrawingByType
@@ -125,7 +140,12 @@ namespace RHCQS_BE.Controllers
 
             var design = await _houseService.GetDetailHouseDesignDrawingByType(type.ToUpper());
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CreateHouseDesignDrawing

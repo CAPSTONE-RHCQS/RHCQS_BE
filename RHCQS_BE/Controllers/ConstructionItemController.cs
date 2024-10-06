@@ -35,7 +35,12 @@ namespace RHCQS_BE.Controllers
         {
             var listConstructions = await _constructionService.GetListConstruction(page, size);
             var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetListConstructionRough
@@ -84,7 +89,12 @@ namespace RHCQS_BE.Controllers
 
             var listConstructions = await _constructionService.GetListConstructionRough(type.ToUpper());
             var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
 
@@ -101,7 +111,12 @@ namespace RHCQS_BE.Controllers
         {
             var construction = await _constructionService.GetDetailConstructionItem(id);
             var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailConstructionItemByName
@@ -117,7 +132,12 @@ namespace RHCQS_BE.Controllers
         {
             var construction = await _constructionService.GetDetailConstructionItemByName(name);
             var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CreateConstructionItem

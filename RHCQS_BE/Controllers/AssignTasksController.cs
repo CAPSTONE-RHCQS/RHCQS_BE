@@ -33,7 +33,12 @@ namespace RHCQS_BE.Controllers
         {
             var listAssignTask = await _assignService.GetListAssignTaskAll(page, size);
             var result = JsonConvert.SerializeObject(listAssignTask, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region AssignWork

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -32,7 +33,12 @@ namespace RHCQS_BE.Controllers
         {
             var roles = await _roleService.GetAllRolesAsync(page, size);
             var response = JsonConvert.SerializeObject(roles, Formatting.Indented);
-            return Ok(response);
+            return new ContentResult()
+            {
+                Content = res,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         [HttpGet(ApiEndPointConstant.Role.TotalRoleEndpoint)]

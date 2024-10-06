@@ -64,7 +64,12 @@ namespace RHCQS_BE.Controllers
             var list = await _initialService.GetListInitialQuotation(page, size);
             if (list == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_InitialQuotaion });
             var result = JsonConvert.SerializeObject(list, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailInitialQuotation
@@ -163,7 +168,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Initial quotation details retrieved successfully</response>
         /// <response code="404">Initial quotation not found</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationDetailEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailInitialQuotation(Guid id)
@@ -171,7 +176,12 @@ namespace RHCQS_BE.Controllers
             var quotation = await _initialService.GetDetailInitialQuotationById(id);
             if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_InitialQuotaion });
             var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region
@@ -202,7 +212,12 @@ namespace RHCQS_BE.Controllers
             var quotation = await _initialService.AssignQuotation(request.accountId, request.initialQuotationId);
             if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.OverloadStaff });
             var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region

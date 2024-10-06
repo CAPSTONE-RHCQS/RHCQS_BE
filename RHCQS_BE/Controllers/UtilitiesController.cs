@@ -33,7 +33,12 @@ namespace RHCQS_BE.Controllers
         {
             var listUtilities = await _utilitiesService.GetListUtilities(page, size);
             var result = JsonConvert.SerializeObject(listUtilities, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetListUtilitiesByType
@@ -82,7 +87,12 @@ namespace RHCQS_BE.Controllers
 
             var listUtilities = await _utilitiesService.GetListUtilitiesByType(type.ToUpper());
             var result = JsonConvert.SerializeObject(listUtilities, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailUtilityItem
@@ -98,7 +108,12 @@ namespace RHCQS_BE.Controllers
         {
             var utilityItem = await _utilitiesService.GetDetailUtilityItem(id);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailUtilitySection
@@ -114,7 +129,12 @@ namespace RHCQS_BE.Controllers
         {
             var utilityItem = await _utilitiesService.GetDetailUtilitySection(id);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }

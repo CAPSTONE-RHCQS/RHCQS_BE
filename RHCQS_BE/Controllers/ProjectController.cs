@@ -33,7 +33,12 @@ namespace RHCQS_BE.Controllers
         {
             var listProjects = await _projectService.GetProjects(page, size);
             var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetDetailProjectById
@@ -53,7 +58,12 @@ namespace RHCQS_BE.Controllers
         {
             var listProjects = await _projectService.GetDetailProjectById(id);
             var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region GetListProjectByPhone
@@ -73,7 +83,12 @@ namespace RHCQS_BE.Controllers
         {
             var listProjects = await _projectService.SearchProjectByPhone(phone);
             var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CreateProject
