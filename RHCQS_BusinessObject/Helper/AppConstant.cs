@@ -65,6 +65,23 @@ public static class AppConstant
         public const string CANCELED = "Canceled";
     }
 
+    public class HouseDesignStatus
+    {
+        public const string PENDING = "Pending";
+        public const string DESIGN_PAYMENT_PENDING = "Design Payment Pending";
+        public const string DESIGN_PAYMENT_VERIFIED = "Design Payment Verified";
+        public const string PROCESSING = "Processing";
+        public const string TASK_ASSIGNED = "Task Assigned";
+        public const string FINISHED = "Finished";
+        public const string UNDER_REVIEW = "Under Review";
+        public const string APPROVED = "Approved";
+        public const string SEND_TO_CUSTOMER = "Send To Customer";
+        public const string FINALIZED = "Finalized";
+        public const string CANCELED = "Canceled";
+        public const string UPDATED = "Updated";
+        public const string ACCEPTED = "Accepted";
+
+    }
     public class Status
     {
         public const string PROCESSING = "Processing";
