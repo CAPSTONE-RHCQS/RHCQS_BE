@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -37,14 +38,19 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If no accounts are found.</response>
         /// <response code="500">If there is an internal server error.</response>
         #endregion
-        /*        [Authorize(Roles = "Customer")]*/
+        [Authorize(Roles = "Manager")]
         [HttpGet(ApiEndPointConstant.Account.AccountEndpoint)]
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListAccountAsync(int page, int size)
         {
             var list = await _accountService.GetListAccountAsync(page, size);
             var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
-            return Ok(accounts);
+            return new ContentResult
+            {
+                Content = accounts,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region GetAccountsByRoleId
         /// <summary>
@@ -54,13 +60,19 @@ namespace RHCQS_BE.Controllers
         /// <returns>List of accounts with the specified Role ID.</returns>
         // GET: api/account/role/{roleId}
         #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Account.AccountByRoleIdEndpoint)]
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListAccountByRoleIdAsync(Guid id, int page, int size)
         {
             var list = await _accountService.GetListAccountByRoleIdAsync(id,page, size);
             var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
-            return Ok(accounts);
+            return new ContentResult
+            {
+                Content = accounts,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region AccountProfile
         /// <summary>
@@ -75,8 +87,24 @@ namespace RHCQS_BE.Controllers
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var accountProfile = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId));
-            return Ok(accountProfile);
+
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var profile = JsonConvert.SerializeObject(accountProfile, settings);
+
+            return new ContentResult
+            {
+                Content = profile,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
+
         #region GetActiveAccount
         /// <summary>
         /// Get active accounts.
@@ -84,6 +112,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>List of accounts.</returns>
         // GET: api/Account
         #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Account.ActiveAccountEndpoint)]
         public async Task<ActionResult<int>> GetActiveAccountCount()
         {
@@ -98,11 +127,26 @@ namespace RHCQS_BE.Controllers
         /// <returns>The stall with the specified ID.</returns>
         // GET: api/account/{id}
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Account.AccountByIdEndpoint)]
         public async Task<ActionResult<Account>> GetAccountByIdAsync(Guid id)
         {
             var account = await _accountService.GetAccountByIdAsync(id);
-            return Ok(account);
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var acount = JsonConvert.SerializeObject(account, settings);
+
+            return new ContentResult
+            {
+                Content = acount,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         #region GetTotalAccount
@@ -112,6 +156,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>List of accounts.</returns>
         // GET: api/Account
         #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Account.TotalAccountEndpoint)]
         public async Task<ActionResult<int>> GetTotalAccountCount()
         {
@@ -126,6 +171,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>The account that match the search criteria.</returns>
         // GET: api/Account/Search
         #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Account.SearchAccountEndpoint)]
         public async Task<ActionResult<Account>> SearchAccountsByNameAsync(string name)
         {
@@ -145,7 +191,21 @@ namespace RHCQS_BE.Controllers
                 UpsDate = account.UpsDate,
                 Role = account.Role
             };
-            return Ok(searchEmployee);
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var acount = JsonConvert.SerializeObject(searchEmployee, settings);
+
+            return new ContentResult
+            {
+                Content = acount,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region UpdateAccount
         /// <summary>
@@ -156,6 +216,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>The updated account object.</returns>
         // PUT: api/account/{id}
         #endregion
+        [Authorize(Roles = "Customer ,DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Account.AccountByIdEndpoint)]
         public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequest accountRequest)
         {
@@ -217,6 +278,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>The updated account object with deflag set to false and status set to inactive.</returns>
         // PUT: api/Account/UpdateDeflag/{id}
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.Account.UpdateDeflagEndpoint)]
         public async Task<ActionResult<AccountResponse>> UpdateDeflagAccountAsync(Guid id)
         {

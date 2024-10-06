@@ -27,13 +27,19 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of housetemplate in the system</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(HouseTemplateResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListHouseTemplate(int page, int size)
         {
             var listHouseTemplates = await _houseService.GetListHouseTemplateAsync(page, size);
             var result = JsonConvert.SerializeObject(listHouseTemplates, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region SearchHouseTemplate
         /// <summary>
@@ -42,6 +48,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="name">The name to search for.</param>
         /// <returns>The housetemplate that match the search criteria.</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseTemplate.SearchHouseTemplateEndpoint)]
         public async Task<ActionResult<HouseTemplateResponse>> SearchHouseTemplateByName(string name)
         {
@@ -59,7 +66,12 @@ namespace RHCQS_BE.Controllers
                 InsDate = housetemplate.InsDate,
             };
             var result = JsonConvert.SerializeObject(searchHouseTempalte, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region SearchHouseTemplate
         /// <summary>
@@ -68,18 +80,25 @@ namespace RHCQS_BE.Controllers
         /// <param id="id">The id to get for.</param>
         /// <returns>The housetemplate match with id.</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseTemplate.HouseTemplateDetail)]
         public async Task<ActionResult<HouseTemplateResponse>> GetHouseTemplateDetail(Guid id)
         {
             var housetemplate = await _houseService.GetHouseTemplateDetail(id);
             var result = JsonConvert.SerializeObject(housetemplate, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region CreateHouseTemplate
         /// <summary>
         /// Creates a new house tempalte.
         /// </summary>
         #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPost(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequest templ)
@@ -92,6 +111,7 @@ namespace RHCQS_BE.Controllers
         /// Update a new house tempalte.
         /// </summary>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequest templ)

@@ -34,7 +34,22 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             var token = await _authService.LoginAsync(loginRequest.Email, loginRequest.Password);
-            return Ok(JsonConvert.SerializeObject(new LoginResponse(token), Formatting.Indented));
+            var logintoken = new LoginResponse(token);
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var returntoken = JsonConvert.SerializeObject(logintoken, settings);
+
+            return new ContentResult
+            {
+                Content = returntoken,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region Register
         /// <summary>
@@ -49,7 +64,7 @@ namespace RHCQS_BE.Controllers
             [FromQuery][Required(ErrorMessage = "Role là cần thiết.")] UserRoleForRegister role)
         {
             var result = await _authService.RegisterAsync(registerRequest, role);
-            return Ok(JsonConvert.SerializeObject(new { message = "Đăng kí thành công!" }));
+            return Ok(new { message = "Đăng kí thành công!" });
         }
 
         #region Logout

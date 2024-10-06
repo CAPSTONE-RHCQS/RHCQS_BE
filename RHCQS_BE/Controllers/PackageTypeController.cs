@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -25,6 +26,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of packagetypes in the system</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.PackageType.PackageTypeEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<PackageType>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -32,7 +34,12 @@ namespace RHCQS_BE.Controllers
         {
             var roles = await _packageService.GetAllPackageTypesAsync(page, size);
             var response = JsonConvert.SerializeObject(roles, Formatting.Indented);
-            return Ok(response);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region CreatePackageTypeAsync
         /// <summary>
@@ -41,6 +48,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="packageType">The package type to create.</param>
         /// <returns>The created package type.</returns>
         #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpPost(ApiEndPointConstant.PackageType.PackageTypeEndpoint)]
         public async Task<IActionResult> CreatePackageTypeAsync([FromBody] PackageTypeRequest packageType)
         {
@@ -51,7 +59,7 @@ namespace RHCQS_BE.Controllers
 
             var createdPackageType = await _packageService.CreatePackageTypeAsync(packageType);
 
-            return Ok(JsonConvert.SerializeObject(new { message = "Tạo packagetype thành công!" }));
+            return Ok(new { message = "Tạo packagetype thành công!" });
         }
     }
 }

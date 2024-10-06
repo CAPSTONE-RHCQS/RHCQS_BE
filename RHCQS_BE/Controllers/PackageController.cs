@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -24,6 +26,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of packages in the system</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Package.PackageEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -31,7 +34,12 @@ namespace RHCQS_BE.Controllers
         {
             var package = await _packageService.GetListPackageAsync(page, size);
             var response = JsonConvert.SerializeObject(package, Formatting.Indented);
-            return Ok(response);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region PackageDetail
         /// <summary>
@@ -40,12 +48,18 @@ namespace RHCQS_BE.Controllers
         /// <param id="id">The id to get for.</param>
         /// <returns>The detailpackage match with id.</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Package.PackageDetailEndpoint)]
         public async Task<ActionResult<PackageResponse>> GetPackageDetail(Guid id)
         {
             var packagedetail = await _packageService.GetPackageDetail(id);
             var result = JsonConvert.SerializeObject(packagedetail, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region SearchPackageByName
         /// <summary>
@@ -54,12 +68,18 @@ namespace RHCQS_BE.Controllers
         /// <param id="id">The name to get for.</param>
         /// <returns>The detailpackage match with name.</returns>
         #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Package.PackageByNameEndpoint)]
         public async Task<ActionResult<PackageResponse>> GetPackageDetailByName(string name)
         {
             var packagedetail = await _packageService.GetPackageByName(name);
             var result = JsonConvert.SerializeObject(packagedetail, Formatting.Indented);
-            return Ok(result);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
     }
 }
