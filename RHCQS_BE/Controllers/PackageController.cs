@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Interface;
@@ -80,6 +81,32 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json",
                 StatusCode = StatusCodes.Status200OK
             };
+        }
+        #region CreatePackage
+        /// <summary>
+        /// Creates a new Package.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.Package.PackageEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreatePackage([FromBody] PackageRequest package)
+        {
+            var isCreate = await _packageService.CreatePackage(package);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
+        #region UpdatePackage
+        /// <summary>
+        /// Update a Package.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPut(ApiEndPointConstant.Package.PackageEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateHouseTemplate([FromBody] PackageRequest package)
+        {
+            var update = await _packageService.UpdatePackage(package);
+            return Ok(update);
         }
     }
 }

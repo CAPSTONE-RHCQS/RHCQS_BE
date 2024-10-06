@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -82,24 +83,24 @@ namespace RHCQS_Services.Implement
 
         public async Task<IPaginate<PackageResponse>> GetListPackageAsync(int page, int size)
         {
-                var listPackage = await _unitOfWork.GetRepository<Package>().GetList(
-                    selector: x => MapPackageToResponse(x),
-                    include: x => x.Include(x => x.PackageHouses)
-                               .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageLabors)
-                               .ThenInclude(lb => lb.Labor)
-                               .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageMaterials)
-                               .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Material)
-                               .Include(x => x.PackageType),
-                    orderBy: x => x.OrderBy(x => x.InsDate),
-                    predicate: x => x.Status == "Active",
-                    page: page,
-                    size: size
-                );
+            var listPackage = await _unitOfWork.GetRepository<Package>().GetList(
+                selector: x => MapPackageToResponse(x),
+                include: x => x.Include(x => x.PackageHouses)
+                           .Include(x => x.PackageDetails)
+                           .ThenInclude(pd => pd.PackageLabors)
+                           .ThenInclude(lb => lb.Labor)
+                           .Include(x => x.PackageDetails)
+                           .ThenInclude(pd => pd.PackageMaterials)
+                           .ThenInclude(pm => pm.MaterialSection)
+                           .ThenInclude(ms => ms.Material)
+                           .Include(x => x.PackageType),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                predicate: x => x.Status == "Active",
+                page: page,
+                size: size
+            );
 
-                return listPackage;
+            return listPackage;
         }
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
@@ -116,7 +117,11 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.PackageType)
             );
 
-            return package != null ? MapPackageToResponse(package) : null;
+            return package != null ? MapPackageToResponse(package) :
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Resource
+                );
         }
 
         public async Task<PackageResponse> GetPackageByName(string name)
@@ -134,8 +139,170 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.PackageType)
             );
 
-            return package != null ? MapPackageToResponse(package) : null;
+            return package != null ? MapPackageToResponse(package) :
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Resource
+                );
         }
+
+        public async Task<bool> CreatePackage(PackageRequest packageRequest)
+        {
+            if (packageRequest == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var packageRepo = _unitOfWork.GetRepository<Package>();
+            if (await packageRepo.AnyAsync(p => p.PackageName == packageRequest.PackageName))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    "Package với name này đã tồn tại."
+                );
+            }
+
+            var package = new Package
+            {
+                Id = Guid.NewGuid(),
+                PackageTypeId = packageRequest.PackageTypeId,
+                PackageName = packageRequest.PackageName,
+                Unit = packageRequest.Unit,
+                Price = packageRequest.Price,
+                Status = packageRequest.Status,
+                InsDate = DateTime.Now,
+                PackageDetails = packageRequest.PackageDetails.Select(pd => new PackageDetail
+                {
+                    Id = Guid.NewGuid(),
+                    Action = pd.Action,
+                    Type = pd.Type,
+                    InsDate = DateTime.Now,
+                    PackageLabors = pd.PackageLabors?.Select(pl => new PackageLabor
+                    {
+                        Id = Guid.NewGuid(),
+                        LaborId = pl.LaborId,
+                        Price = pl.TotalPrice,
+                        Quantity = pl.Quantity,
+                        InsDate = DateTime.Now,
+                    }).ToList(),
+                    PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
+                    {
+                        Id = Guid.NewGuid(),
+                        MaterialSectionId = pm.MaterialSectionId,
+                        InsDate = DateTime.Now
+                    }).ToList()
+                }).ToList(),
+                PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+                {
+                    Id = Guid.NewGuid(),
+                    DesignTemplateId = ph.DesignTemplateId,
+                    ImgUrl = ph.ImgUrl,
+                    InsDate = DateTime.Now
+                }).ToList()
+            };
+
+            await packageRepo.InsertAsync(package);
+
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    "Tạo package thất bại"
+                );
+            }
+            return isSuccessful;
+        }
+
+        public async Task<Package> UpdatePackage(PackageRequest packageRequest)
+        {
+            if (packageRequest == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var packageRepo = _unitOfWork.GetRepository<Package>();
+
+            var existingPackage = await packageRepo.FirstOrDefaultAsync(
+                predicate: p => p.PackageName == packageRequest.PackageName,
+                include: p => p.Include(pd => pd.PackageDetails)
+                               .ThenInclude(pl => pl.PackageLabors)
+                               .Include(pd => pd.PackageDetails)
+                               .ThenInclude(pm => pm.PackageMaterials)
+                               .Include(p => p.PackageHouses)
+            );
+
+            if (existingPackage == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    "Không tìm thấy package với tên này."
+                );
+            }
+
+            existingPackage.PackageTypeId = packageRequest.PackageTypeId;
+            existingPackage.PackageName = packageRequest.PackageName;
+            existingPackage.Unit = packageRequest.Unit;
+            existingPackage.Price = packageRequest.Price;
+            existingPackage.Status = packageRequest.Status;
+            existingPackage.UpsDate = DateTime.Now;
+
+            existingPackage.PackageDetails.Clear();
+            foreach (var pd in packageRequest.PackageDetails)
+            {
+                var newPackageDetail = new PackageDetail
+                {
+                    Action = pd.Action,
+                    Type = pd.Type,
+                    InsDate = DateTime.Now,
+                    PackageLabors = pd.PackageLabors?.Select(pl => new PackageLabor
+                    {
+                        LaborId = pl.LaborId,
+                        Price = pl.TotalPrice,
+                        Quantity = pl.Quantity,
+                        InsDate = DateTime.Now
+                    }).ToList() ?? new List<PackageLabor>(),
+                    PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
+                    {
+                        MaterialSectionId = pm.MaterialSectionId,
+                        InsDate = DateTime.Now,
+                    }).ToList() ?? new List<PackageMaterial>()
+                };
+                existingPackage.PackageDetails.Add(newPackageDetail);
+            }
+
+            existingPackage.PackageHouses.Clear();
+            foreach (var ph in packageRequest.PackageHouses)
+            {
+                var newPackageHouse = new PackageHouse
+                {
+                    DesignTemplateId = ph.DesignTemplateId,
+                    ImgUrl = ph.ImgUrl,
+                    InsDate = DateTime.Now
+                };
+                existingPackage.PackageHouses.Add(newPackageHouse);
+            }
+
+            packageRepo.UpdateAsync(existingPackage);
+
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    "Cập nhật package thất bại."
+                );
+            }
+
+            return existingPackage;
+        }
+
     }
 
 }

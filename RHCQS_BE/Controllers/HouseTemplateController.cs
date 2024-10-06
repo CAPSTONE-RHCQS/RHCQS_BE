@@ -108,7 +108,7 @@ namespace RHCQS_BE.Controllers
         }
         #region UpdateHouseTemplate
         /// <summary>
-        /// Update a new house tempalte.
+        /// Update a house tempalte.
         /// </summary>
         #endregion
         [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]

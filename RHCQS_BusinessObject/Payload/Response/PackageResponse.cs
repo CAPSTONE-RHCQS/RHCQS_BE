@@ -41,9 +41,9 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
-        public virtual List<PackageDetailsResponse> PackageDetails { get; set; }
+        public List<PackageDetailsResponse> PackageDetails { get; set; }
 
-        public virtual List<PackageHousesResponse> PackageHouses { get; set; }
+        public List<PackageHousesResponse> PackageHouses { get; set; }
 
         public PackageTypeResponse PackageType { get; set; } = null!;
 
