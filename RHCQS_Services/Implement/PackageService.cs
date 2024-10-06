@@ -157,11 +157,11 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
-            if (await packageRepo.AnyAsync(p => p.PackageName == packageRequest.PackageName))
+            if (await packageRepo.AnyAsync(p => p.Id == packageRequest.Id))
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Package với name này đã tồn tại."
+                    "Package với Id này đã tồn tại."
                 );
             }
 
@@ -230,7 +230,7 @@ namespace RHCQS_Services.Implement
             var packageRepo = _unitOfWork.GetRepository<Package>();
 
             var existingPackage = await packageRepo.FirstOrDefaultAsync(
-                predicate: p => p.PackageName == packageRequest.PackageName,
+                predicate: p => p.Id == packageRequest.Id,
                 include: p => p.Include(pd => pd.PackageDetails)
                                .ThenInclude(pl => pl.PackageLabors)
                                .Include(pd => pd.PackageDetails)
@@ -242,7 +242,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Not_Found,
-                    "Không tìm thấy package với tên này."
+                    "Không tìm thấy package với Id này."
                 );
             }
 
@@ -253,40 +253,99 @@ namespace RHCQS_Services.Implement
             existingPackage.Status = packageRequest.Status;
             existingPackage.UpsDate = DateTime.Now;
 
-            existingPackage.PackageDetails.Clear();
             foreach (var pd in packageRequest.PackageDetails)
             {
-                var newPackageDetail = new PackageDetail
+                var existingPackageDetail = existingPackage.PackageDetails.FirstOrDefault(detail => detail.PackageId == packageRequest.Id);
+
+                if (existingPackageDetail != null)
                 {
-                    Action = pd.Action,
-                    Type = pd.Type,
-                    InsDate = DateTime.Now,
-                    PackageLabors = pd.PackageLabors?.Select(pl => new PackageLabor
+                    existingPackageDetail.Action = pd.Action;
+                    existingPackageDetail.Type = pd.Type;
+
+                    foreach (var labor in pd.PackageLabors)
                     {
-                        LaborId = pl.LaborId,
-                        Price = pl.TotalPrice,
-                        Quantity = pl.Quantity,
-                        InsDate = DateTime.Now
-                    }).ToList() ?? new List<PackageLabor>(),
-                    PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
+                        var existingLabor = existingPackageDetail.PackageLabors.FirstOrDefault(l => l.PackageDetailId == existingPackageDetail.Id);
+                        if (existingLabor != null)
+                        {
+                            existingLabor.LaborId = labor.LaborId;
+                            existingLabor.Price = labor.TotalPrice;
+                            existingLabor.Quantity = labor.Quantity;
+                        }
+                        else
+                        {
+                            existingPackageDetail.PackageLabors.Add(new PackageLabor
+                            {
+                                Id = Guid.NewGuid(),
+                                LaborId = labor.LaborId,
+                                Price = labor.TotalPrice,
+                                Quantity = labor.Quantity,
+                                InsDate = DateTime.Now
+                            });
+                        }
+                    }
+
+                    foreach (var material in pd.PackageMaterials)
                     {
-                        MaterialSectionId = pm.MaterialSectionId,
+                        var existingMaterial = existingPackageDetail.PackageMaterials.FirstOrDefault(m => m.PackageDetailId == existingPackageDetail.Id);
+                        if (existingMaterial != null)
+                        {
+                            existingMaterial.MaterialSectionId = material.MaterialSectionId;
+                        }
+                        else
+                        {
+                            existingPackageDetail.PackageMaterials.Add(new PackageMaterial
+                            {
+                                Id = Guid.NewGuid(),
+                                MaterialSectionId = material.MaterialSectionId,
+                                InsDate = DateTime.Now
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    existingPackage.PackageDetails.Add(new PackageDetail
+                    {
+                        Id = Guid.NewGuid(),
+                        Action = pd.Action,
+                        Type = pd.Type,
                         InsDate = DateTime.Now,
-                    }).ToList() ?? new List<PackageMaterial>()
-                };
-                existingPackage.PackageDetails.Add(newPackageDetail);
+                        PackageLabors = pd.PackageLabors.Select(labor => new PackageLabor
+                        {
+                            Id = Guid.NewGuid(),
+                            LaborId = labor.LaborId,
+                            Price = labor.TotalPrice,
+                            Quantity = labor.Quantity,
+                            InsDate = DateTime.Now
+                        }).ToList(),
+                        PackageMaterials = pd.PackageMaterials.Select(material => new PackageMaterial
+                        {
+                            Id = Guid.NewGuid(),
+                            MaterialSectionId = material.MaterialSectionId,
+                            InsDate = DateTime.Now
+                        }).ToList()
+                    });
+                }
             }
 
-            existingPackage.PackageHouses.Clear();
             foreach (var ph in packageRequest.PackageHouses)
             {
-                var newPackageHouse = new PackageHouse
+                var existingPackageHouse = existingPackage.PackageHouses.FirstOrDefault(h => h.PackageId == packageRequest.Id);
+                if (existingPackageHouse != null)
                 {
-                    DesignTemplateId = ph.DesignTemplateId,
-                    ImgUrl = ph.ImgUrl,
-                    InsDate = DateTime.Now
-                };
-                existingPackage.PackageHouses.Add(newPackageHouse);
+                    existingPackageHouse.DesignTemplateId = ph.DesignTemplateId;
+                    existingPackageHouse.ImgUrl = ph.ImgUrl;
+                }
+                else
+                {
+                    existingPackage.PackageHouses.Add(new PackageHouse
+                    {
+                        Id = Guid.NewGuid(),
+                        DesignTemplateId = ph.DesignTemplateId,
+                        ImgUrl = ph.ImgUrl,
+                        InsDate = DateTime.Now
+                    });
+                }
             }
 
             packageRepo.UpdateAsync(existingPackage);
@@ -302,7 +361,6 @@ namespace RHCQS_Services.Implement
 
             return existingPackage;
         }
-
     }
 
 }
