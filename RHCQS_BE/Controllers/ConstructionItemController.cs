@@ -28,6 +28,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of construction in the system</returns>
         #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListConstruction(int page, int size)
@@ -68,6 +69,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">If the `type` is invalid or not provided.</response>
         /// <response code="500">If there is an internal server error while processing the request.</response>
         #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionRoughEndpoint)]
         [ProducesResponseType(typeof(List<ConstructionItemResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

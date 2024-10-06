@@ -9,13 +9,13 @@ public partial class HouseDesignVersion
 
     public string? Name { get; set; }
 
-    public double? Version { get; set; }
+    public double Version { get; set; }
 
-    public string? Status { get; set; }
+    public string Status { get; set; } = null!;
 
     public DateTime? InsDate { get; set; }
 
-    public Guid? HouseDesignDrawingId { get; set; }
+    public Guid HouseDesignDrawingId { get; set; }
 
     public string? Note { get; set; }
 
@@ -27,5 +27,9 @@ public partial class HouseDesignVersion
 
     public Guid? PreviousDrawingId { get; set; }
 
-    public virtual HouseDesignDrawing? HouseDesignDrawing { get; set; }
+    public string? Reason { get; set; }
+
+    public bool Deflag { get; set; }
+
+    public virtual HouseDesignDrawing HouseDesignDrawing { get; set; } = null!;
 }

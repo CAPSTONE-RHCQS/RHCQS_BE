@@ -1,4 +1,4 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
@@ -16,5 +16,6 @@ namespace RHCQS_Services.Interface
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type);
         Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId);
         Task<bool> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item);
+        
     }
 }

@@ -2,7 +2,6 @@
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -14,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 
 namespace RHCQS_Services.Implement
 {
@@ -58,6 +58,7 @@ namespace RHCQS_Services.Implement
                     PreviousDrawingId = request.PreviousDrawingId ?? null,
                     RelatedDrawingId = request.RelatedDrawingId ?? null,
                     UpsDate = DateTime.Now,
+                    Deflag = false,
                 };
 
                 await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesign);
@@ -145,6 +146,29 @@ namespace RHCQS_Services.Implement
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;
             return isUpdate;
+        }
+
+        public async Task<bool> AssignHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
+        {
+            var drawingItem = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(x => x.Id == Id);
+
+            if (drawingItem == null) throw new AppConstant.MessageError((int)(AppConstant.ErrCode.Not_Found),
+                                               AppConstant.ErrMessage.HouseDesignDrawing);
+
+            if (request.Type == AppConstant.HouseDesignStatus.APPROVED)
+            {
+                drawingItem.Status = AppConstant.HouseDesignStatus.APPROVED;
+                drawingItem.Deflag = true;
+            }
+            else
+            {
+                drawingItem.Status = AppConstant.HouseDesignStatus.UPDATED;
+                drawingItem.Reason = request.Reason;
+            }
+            _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+
+            return isSuccessful;
         }
     }
 }

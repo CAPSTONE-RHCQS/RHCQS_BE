@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +12,6 @@ namespace RHCQS_Services.Interface
     {
         Task<bool> CreateHouseDesignVersion(HouseDesignVersionRequest request);
         Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId);
+        Task<bool> AssignHouseDrawing(Guid Id, AssignHouseDrawingRequest request);
     }
 }

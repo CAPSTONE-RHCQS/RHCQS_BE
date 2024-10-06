@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RHCQS_BE.Extenstion;
-using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.HouseDesign;
+using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -111,6 +112,35 @@ namespace RHCQS_BE.Controllers
             }
             var isCreate = await _designVersionService.UploadDesignDrawing(files, versionId);
             return isCreate ? Ok(isCreate) : BadRequest();
+        }
+
+        #region
+        /// <summary>
+        /// Assigns a specific house drawing to a house design version.
+        /// </summary>
+        /// <remarks>
+        /// type = "Approved"  - Manager approved drawing -> Send to customer
+        /// type = "Updated" - Manager reject drawing -> Design Staff work again
+        /// </remarks>
+        /// <param name="Id">The ID of the house design version.</param>
+        /// <param name="request">Details of the house drawing to assign.</param>
+        /// <returns>True if successful, false otherwise.</returns>
+        /// <response code="200">If the house drawing was assigned successfully.</response>
+        /// <response code="400">If the request is invalid.</response>
+        /// <response code="401">If the user is unauthorized.</response>
+        /// <response code="404">If the house design version or drawing was not found.</response>
+        /// <response code="500">If an internal server error occurs.</response>
+        #endregion
+        [HttpPut(ApiEndPointConstant.HouseDesignVersion.AssignHouseDesignVersionEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AssignHouseDrawing([FromQuery] Guid Id, [FromBody] AssignHouseDrawingRequest request)
+        {
+            var isApprove = await _designVersionService.AssignHouseDrawing(Id, request);
+            return Ok(isApprove ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
         }
     }
 }

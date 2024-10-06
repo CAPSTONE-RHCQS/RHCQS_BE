@@ -164,7 +164,6 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.FinalQuotation).WithMany(p => p.BactchPayments)
                 .HasForeignKey(d => d.FinalQuotationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_FinalQuotation");
 
             entity.HasOne(d => d.IntitialQuotation).WithMany(p => p.BactchPayments)
@@ -336,6 +335,7 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.HouseDesignDrawing).WithMany(p => p.HouseDesignVersions)
                 .HasForeignKey(d => d.HouseDesignDrawingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_HouseDesignVersion_HouseDesignDrawing");
         });
 

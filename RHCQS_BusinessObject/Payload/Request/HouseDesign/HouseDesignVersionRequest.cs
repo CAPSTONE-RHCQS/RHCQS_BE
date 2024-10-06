@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RHCQS_BusinessObject.Payload.Request
+namespace RHCQS_BusinessObject.Payload.Request.HouseDesign
 {
     using System.ComponentModel.DataAnnotations;
 
@@ -17,7 +17,7 @@ namespace RHCQS_BusinessObject.Payload.Request
         public string? Name { get; set; }
 
         [Required(ErrorMessage = "HouseDesignDrawingId is required")]
-        public Guid? HouseDesignDrawingId { get; set; }
+        public Guid HouseDesignDrawingId { get; set; }
 
         [Url(ErrorMessage = "FileUrl must be a valid URL")]
         public string? FileUrl { get; set; }
@@ -39,6 +39,6 @@ namespace RHCQS_BusinessObject.Payload.Request
         [Required(ErrorMessage = "Id is required!")]
         public Guid HouseDesignVersionId { get; set; }
 
-       
+
     }
 }
