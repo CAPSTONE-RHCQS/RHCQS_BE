@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RHCQS_BusinessObject.Payload.Request
+namespace RHCQS_BusinessObject.Payload.Request.ConstructionItem
 {
     public class ConstructionItemRequest
     {
@@ -22,7 +22,7 @@ namespace RHCQS_BusinessObject.Payload.Request
         public string? Unit { get; set; }
 
         [Required(ErrorMessage = "Type is required.")]
-        public string Type { get; set; }    
+        public string Type { get; set; }
         public List<SubConstructionRequest>? subConstructionRequests { get; set; }
 
     }

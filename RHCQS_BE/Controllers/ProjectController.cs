@@ -41,6 +41,32 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region
+        /// <summary>
+        /// Retrieve a list of projects for a specific customer by their email.
+        /// </summary>
+        /// <param name="email">The email of the customer whose projects are being requested.</param>
+        /// <returns>A list of projects associated with the given customer's email.</returns>
+        /// <response code="200">Returns the list of projects.</response>
+        /// <response code="401">If the user is not authenticated or does not have the necessary role.</response>
+        /// <response code="403">If the user is forbidden from accessing this resource.</response>
+        /// <response code="404">If no projects are found for the provided email.</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Project.ProjectListForCustomerEndpoint)]
+        [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListProjectForCustomer(string email)
+        {
+            var listProjects = await _projectService.GetListProjectByEmail(email);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetDetailProjectById
         /// <summary>
         /// Retrieves the details of a specific project by its ID.

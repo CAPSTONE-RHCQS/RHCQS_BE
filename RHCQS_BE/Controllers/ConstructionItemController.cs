@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
-using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Implement;
@@ -180,6 +180,44 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> CreateConstructionItem([FromBody] ConstructionItemRequest item)
         {
             var isCreate = await _constructionService.CreateConstructionItem(item);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
+
+        #region
+        /// <summary>
+        /// Updates an existing construction item along with its sub-construction items.
+        /// Requires Manager role for authorization.
+        /// </summary>
+        /// <param name="id">The unique identifier of the construction item to be updated.</param>
+        /// <param name="request">The request body containing the updated construction details.</param>
+        /// <returns>A boolean value indicating the success or failure of the update operation.</returns>
+        /// <response code="200">Returns true if the update is successful.</response>
+        /// <response code="400">Returns BadRequest if the update fails or if validation issues occur.</response>
+        /// <remarks>
+        /// Example of a request body:
+        /// 
+        ///     {
+        ///         "name": "Mái che",
+        ///         "coefficient": 0.2,
+        ///         "subRequests": [
+        ///             {
+        ///                 "id": "CD3D06CC-1F01-4010-B908-FC5D3EF244E9",
+        ///                 "name": "Mái ngói kèo thép (nghiêng 45 độ)",
+        ///                 "coefficient": 0.98,
+        ///                 "unit": "m2"
+        ///             }
+        ///         ]
+        ///     }
+        /// 
+        /// </remarks>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Construction.ConstructionEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateConstruction([FromQuery]Guid id, [FromBody]UpdateConstructionRequest request)
+        {
+            var isCreate = await _constructionService.UpdateConstruction(id, request);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
     }

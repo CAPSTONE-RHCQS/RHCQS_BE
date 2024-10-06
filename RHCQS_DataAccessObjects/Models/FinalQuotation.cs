@@ -29,6 +29,8 @@ public partial class FinalQuotation
 
     public Guid AccountId { get; set; }
 
+    public string? ReasonReject { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();

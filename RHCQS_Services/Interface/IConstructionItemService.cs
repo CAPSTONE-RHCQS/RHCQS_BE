@@ -1,4 +1,4 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
@@ -17,5 +17,6 @@ namespace RHCQS_Services.Interface
         Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name);
 
         Task<bool> CreateConstructionItem(ConstructionItemRequest item);
+        Task<bool> UpdateConstruction(Guid id, UpdateConstructionRequest request);
     }
 }

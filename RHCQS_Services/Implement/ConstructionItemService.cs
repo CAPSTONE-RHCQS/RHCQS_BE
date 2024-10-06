@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -171,6 +171,63 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionExit);
             }
+        }
+
+        public async Task<bool> UpdateConstruction(Guid id, UpdateConstructionRequest request)
+        {
+            var constructionItem = await _unitOfWork.GetRepository<ConstructionItem>().FirstOrDefaultAsync(
+                x => x.Id == id,
+                include: x => x.Include(x => x.SubConstructionItems)
+            );
+
+            if (constructionItem == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionNoExit);
+            }
+
+            var existingItems = await _unitOfWork.GetRepository<ConstructionItem>()
+                .GetList(x => new { x.Id, x.Name }, x => x.Name == request.Name);
+
+            var existingItemsList = existingItems.Items.ToList();
+
+            if (existingItemsList.Any(item => item.Id != constructionItem.Id))
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionNameExit);
+            }
+
+            // Update 
+            constructionItem.Name = request.Name;
+
+            if (constructionItem.SubConstructionItems == null || !constructionItem.SubConstructionItems.Any())
+            {
+                constructionItem.Coefficient = request.Coefficient;
+            }
+
+            _unitOfWork.GetRepository<ConstructionItem>().UpdateAsync(constructionItem);
+
+            if (request.SubRequests != null && request.SubRequests.Any())
+            {
+                foreach (var subRequest in request.SubRequests)
+                {
+                    var existingSubItem = constructionItem.SubConstructionItems.FirstOrDefault(x => x.Id == subRequest.Id);
+
+                    if (existingSubItem != null && existingSubItem.Name != subRequest.Name)
+                    {
+                        existingSubItem.Name = subRequest.Name;
+                        existingSubItem.Coefficient = subRequest.Coefficient;
+                    }
+                    else
+                    {
+                        continue;
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionNameExit);
+                    }
+                    _unitOfWork.GetRepository<SubConstructionItem>().UpdateAsync(existingSubItem);
+                }
+            }
+
+            await _unitOfWork.CommitAsync();
+
+            return true;
         }
     }
 }

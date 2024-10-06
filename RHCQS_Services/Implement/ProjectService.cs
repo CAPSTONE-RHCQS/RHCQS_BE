@@ -119,6 +119,27 @@ namespace RHCQS_Services.Implement
             return projectDetailItem;
         }
 
+        public async Task<List<ProjectResponse>> GetListProjectByEmail(string email)
+        {
+            var listProject = await _unitOfWork.GetRepository<Project>()
+                .GetList(
+                    predicate: p => p.Customer.Email == email,  
+                    selector: p => new ProjectResponse(
+                        p.Id,
+                        p.Customer.Username,  
+                        p.Name,
+                        p.Type,
+                        p.Status,
+                        p.InsDate,
+                        p.UpsDate,
+                        p.ProjectCode
+                    ),
+                    include: p => p.Include(p => p.Customer) 
+                );
+
+            return listProject.Items.ToList();
+        }
+
         public async Task<List<ProjectResponse>> SearchProjectByPhone(string phoneNumber)
         {
             if (phoneNumber == null)

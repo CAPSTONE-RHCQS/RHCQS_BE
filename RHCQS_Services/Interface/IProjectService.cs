@@ -16,6 +16,7 @@ namespace RHCQS_Services.Interface
         Task<List<ProjectResponse>> SearchProjectByPhone(string phoneNumber);
 
         Task<bool> CreateProjectQuotation(ProjectRequest projectRequest);
+        Task<List<ProjectResponse>> GetListProjectByEmail(string email);
 
     }
 }

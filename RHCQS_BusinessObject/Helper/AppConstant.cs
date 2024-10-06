@@ -131,7 +131,10 @@ public static class AppConstant
         public const string PromotionIllegal = "Khuyến mãi không hợp lệ";
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
+        //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
+        public const string ConstructionNoExit = "Hạng mục xây dựng không tồn tại!";
+        public const string ConstructionNameExit = "Tên hạng mục đã tồn tại! Hãy nhập tên khác!";
 
         //Login
         public const string EmailExists = "Email đã tồn tại!";

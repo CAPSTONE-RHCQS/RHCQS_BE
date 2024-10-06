@@ -152,9 +152,18 @@ namespace RHCQS_Services.Implement
             {
                 initialItem.AccountId = accountId;
                 initialItem.Deflag = true;
+                var finalQuotation = new FinalQuotation()
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = initialItem.ProjectId,
+                    AccountId = accountId,
+                    Deflag = false
+                };
+                await _unitOfWork.GetRepository<FinalQuotation>().InsertAsync(finalQuotation);
             }
 
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+            
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
