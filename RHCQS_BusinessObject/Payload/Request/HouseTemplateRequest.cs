@@ -7,8 +7,6 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class HouseTemplateRequest
     {
-        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
-        public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;

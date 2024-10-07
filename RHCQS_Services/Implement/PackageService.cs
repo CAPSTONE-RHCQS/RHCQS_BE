@@ -103,6 +103,25 @@ namespace RHCQS_Services.Implement
 
             return listPackage;
         }
+        public async Task<List<PackageResponse>> GetListPackage()
+        {
+            var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
+                selector: x => MapPackageToResponse(x),
+                include: x => x.Include(x => x.PackageHouses)
+                               .Include(x => x.PackageDetails)
+                               .ThenInclude(pd => pd.PackageLabors)
+                               .ThenInclude(lb => lb.Labor)
+                               .Include(x => x.PackageDetails)
+                               .ThenInclude(pd => pd.PackageMaterials)
+                               .ThenInclude(pm => pm.MaterialSection)
+                               .ThenInclude(ms => ms.Material)
+                               .Include(x => x.PackageType),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                predicate: x => x.Status == "Active"
+            );
+
+            return listPackage.ToList(); // Return as List
+        }
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(

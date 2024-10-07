@@ -42,6 +42,27 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+        #region GetListPackage
+        /// <summary>
+        /// Retrieves package list without entering page and size.
+        /// </summary>
+        /// <returns>List of packages in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Package.PackageListEndpoint)]
+        [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<PackageType>>> GetListPackage()
+        {
+            var package = await _packageService.GetListPackage();
+            var response = JsonConvert.SerializeObject(package, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
         #region PackageDetail
         /// <summary>
         /// Get detailpackage by id.

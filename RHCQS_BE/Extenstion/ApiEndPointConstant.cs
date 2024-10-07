@@ -31,6 +31,7 @@ namespace RHCQS_BE.Extenstion
         public static class Package
         {
             public const string PackageEndpoint = ApiEndpoint + "/package";
+            public const string PackageListEndpoint = ApiEndpoint + "/allpackage";
             public const string PackageDetailEndpoint = PackageEndpoint + "/id";
             public const string PackageByNameEndpoint = PackageEndpoint + "/name";
         }
