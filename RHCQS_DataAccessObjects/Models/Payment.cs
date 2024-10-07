@@ -21,7 +21,7 @@ public partial class Payment
 
     public double? TotalPrice { get; set; }
 
-    public virtual BactchPayment BatchPayment { get; set; } = null!;
+    public virtual BatchPayment BatchPayment { get; set; } = null!;
 
     public virtual PaymentType PaymentType { get; set; } = null!;
 }

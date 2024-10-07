@@ -233,7 +233,7 @@ namespace RHCQS_Services.Implement
                     var utlItem = new QuotationUtility
                     {
                         Id = Guid.NewGuid(),
-                        UltilitiesItemId = utl.UltilitiesItemId,
+                        UtilitiesItemId = utl.UltilitiesItemId,
                         FinalQuotationId = null,
                         InitialQuotationId = initialItem.Id,
                         Name = "",

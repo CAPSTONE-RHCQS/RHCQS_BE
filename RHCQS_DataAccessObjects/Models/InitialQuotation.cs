@@ -45,7 +45,7 @@ public partial class InitialQuotation
 
     public virtual Account? Account { get; set; }
 
-    public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
+    public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
 

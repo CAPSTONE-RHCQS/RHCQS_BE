@@ -33,9 +33,11 @@ public partial class FinalQuotation
 
     public virtual Account Account { get; set; } = null!;
 
-    public virtual ICollection<BactchPayment> BactchPayments { get; set; } = new List<BactchPayment>();
+    public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
-    public virtual ICollection<EquimentItem> EquimentItems { get; set; } = new List<EquimentItem>();
+    public virtual ICollection<EquipmentItem> EquipmentItems { get; set; } = new List<EquipmentItem>();
+
+    public virtual ICollection<FinalQuotationItem> FinalQuotationItems { get; set; } = new List<FinalQuotationItem>();
 
     public virtual Project Project { get; set; } = null!;
 

@@ -7,7 +7,7 @@ public partial class UtilitiesSection
 {
     public Guid Id { get; set; }
 
-    public Guid UltilitiesId { get; set; }
+    public Guid UtilitiesId { get; set; }
 
     public string? Name { get; set; }
 
@@ -19,7 +19,7 @@ public partial class UtilitiesSection
 
     public string? Description { get; set; }
 
-    public virtual Utility Ultilities { get; set; } = null!;
+    public virtual Utility Utilities { get; set; } = null!;
 
     public virtual ICollection<UtilitiesItem> UtilitiesItems { get; set; } = new List<UtilitiesItem>();
 }

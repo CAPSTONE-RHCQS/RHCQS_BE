@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RHCQS_DataAccessObjects.Models;
 
-public partial class BactchPayment
+public partial class BatchPayment
 {
     public Guid Id { get; set; }
 

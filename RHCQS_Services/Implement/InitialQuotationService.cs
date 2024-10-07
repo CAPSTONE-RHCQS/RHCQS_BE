@@ -52,8 +52,8 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(x => x.Package)
                                        .Include(x => x.Promotion)
                                        .Include(x => x.QuotationUtilities)
-                                            .ThenInclude(x => x.UltilitiesItem)
-                                       .Include(x => x.BactchPayments)
+                                            .ThenInclude(x => x.UtilitiesItem)
+                                       .Include(x => x.BatchPayments)
                 );
 
             var roughPackage = initialQuotation.PackageQuotations
@@ -98,7 +98,7 @@ namespace RHCQS_Services.Implement
                             initialQuotation.Promotion.Value);
 
             var batchPaymentResponse =
-                            initialQuotation.BactchPayments.Select(item => new BatchPaymentInfo(
+                            initialQuotation.BatchPayments.Select(item => new BatchPaymentInfo(
                                 item.Id,
                                 item.Description,
                                 item.Percents,
@@ -255,7 +255,7 @@ namespace RHCQS_Services.Implement
                     var utlItem = new QuotationUtility
                     {
                         Id = Guid.NewGuid(),
-                        UltilitiesItemId = utl.UtilitiesItemId,
+                        UtilitiesItemId = utl.UtilitiesItemId,
                         FinalQuotationId = null,
                         InitialQuotationId = initialItem.Id,
                         Name = utl.Description,
@@ -267,6 +267,10 @@ namespace RHCQS_Services.Implement
                     };
                     await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                 }
+
+                //foreach (var item in request.BatchPayment)
+                //{
+                //}
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;

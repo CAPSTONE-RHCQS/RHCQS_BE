@@ -20,7 +20,7 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<AssignTask> AssignTasks { get; set; }
 
-    public virtual DbSet<BactchPayment> BactchPayments { get; set; }
+    public virtual DbSet<BatchPayment> BatchPayments { get; set; }
 
     public virtual DbSet<Blog> Blogs { get; set; }
 
@@ -32,7 +32,7 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<DesignTemplate> DesignTemplates { get; set; }
 
-    public virtual DbSet<EquimentItem> EquimentItems { get; set; }
+    public virtual DbSet<EquipmentItem> EquipmentItems { get; set; }
 
     public virtual DbSet<FinalQuotation> FinalQuotations { get; set; }
 
@@ -143,11 +143,11 @@ public partial class RhcqsContext : DbContext
                 .HasConstraintName("FK_AssignTask_Account");
         });
 
-        modelBuilder.Entity<BactchPayment>(entity =>
+        modelBuilder.Entity<BatchPayment>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_InstallmentPayment");
 
-            entity.ToTable("BactchPayment");
+            entity.ToTable("BatchPayment");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Description).HasMaxLength(200);
@@ -157,16 +157,16 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Percents).HasMaxLength(5);
             entity.Property(e => e.Unit).HasMaxLength(10);
 
-            entity.HasOne(d => d.Contract).WithMany(p => p.BactchPayments)
+            entity.HasOne(d => d.Contract).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.ContractId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_Contract");
 
-            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.BactchPayments)
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.FinalQuotationId)
                 .HasConstraintName("FK_BactchPayment_FinalQuotation");
 
-            entity.HasOne(d => d.IntitialQuotation).WithMany(p => p.BactchPayments)
+            entity.HasOne(d => d.IntitialQuotation).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.IntitialQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_InitialQuotation");
@@ -243,9 +243,11 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
         });
 
-        modelBuilder.Entity<EquimentItem>(entity =>
+        modelBuilder.Entity<EquipmentItem>(entity =>
         {
-            entity.ToTable("EquimentItem");
+            entity.HasKey(e => e.Id).HasName("PK_EquimentItem");
+
+            entity.ToTable("EquipmentItem");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Name).HasMaxLength(100);
@@ -254,7 +256,7 @@ public partial class RhcqsContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.Unit).HasMaxLength(50);
 
-            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.EquimentItems)
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.EquipmentItems)
                 .HasForeignKey(d => d.FinalQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_EquimentItem_FinalQuotation");
@@ -301,6 +303,11 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.Weight).HasMaxLength(50);
+
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.FinalQuotationItems)
+                .HasForeignKey(d => d.FinalQuotationId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FinalQuotationItem_FinalQuotation");
         });
 
         modelBuilder.Entity<HouseDesignDrawing>(entity =>
@@ -722,8 +729,8 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.InitialQuotationId)
                 .HasConstraintName("FK_QuotationUtilities_InitialQuotation");
 
-            entity.HasOne(d => d.UltilitiesItem).WithMany(p => p.QuotationUtilities)
-                .HasForeignKey(d => d.UltilitiesItemId)
+            entity.HasOne(d => d.UtilitiesItem).WithMany(p => p.QuotationUtilities)
+                .HasForeignKey(d => d.UtilitiesItemId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_QuoationUltities_UltilitiesItem");
         });
@@ -833,8 +840,8 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Ultilities).WithMany(p => p.UtilitiesSections)
-                .HasForeignKey(d => d.UltilitiesId)
+            entity.HasOne(d => d.Utilities).WithMany(p => p.UtilitiesSections)
+                .HasForeignKey(d => d.UtilitiesId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_UltilitiesSection_Ultilities");
         });

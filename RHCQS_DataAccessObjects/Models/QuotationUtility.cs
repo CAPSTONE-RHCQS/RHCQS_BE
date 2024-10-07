@@ -7,7 +7,7 @@ public partial class QuotationUtility
 {
     public Guid Id { get; set; }
 
-    public Guid UltilitiesItemId { get; set; }
+    public Guid UtilitiesItemId { get; set; }
 
     public Guid? FinalQuotationId { get; set; }
 
@@ -29,5 +29,5 @@ public partial class QuotationUtility
 
     public virtual InitialQuotation? InitialQuotation { get; set; }
 
-    public virtual UtilitiesItem UltilitiesItem { get; set; } = null!;
+    public virtual UtilitiesItem UtilitiesItem { get; set; } = null!;
 }
