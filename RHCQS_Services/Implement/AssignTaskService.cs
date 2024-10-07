@@ -27,49 +27,49 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        public async Task<IPaginate<AssignTaskResponse>> GetListAssignTaskAll(int page, int size)
-        {
-            var listTask = await _unitOfWork.GetRepository<AssignTask>().GetList(
-                selector: a => new AssignTaskResponse (a.Id, a.AccountId, a.Account.Username, a.Name, a.Status, a.InsDate),
-                include: a => a.Include( a => a.Account),
-                page: page,
-                size: size
-                );
-            return listTask;
-        }
+        //public async Task<IPaginate<AssignTaskResponse>> GetListAssignTaskAll(int page, int size)
+        //{
+        //    var listTask = await _unitOfWork.GetRepository<AssignTask>().GetList(
+        //        selector: a => new AssignTaskResponse (a.Id, a.AccountId, a.Account.Username, a.Name, a.Status, a.InsDate),
+        //        include: a => a.Include( a => a.Account),
+        //        page: page,
+        //        size: size
+        //        );
+        //    return listTask;
+        //}
 
-        public async Task<bool> AssignWork(List<AssignTaskRequest> request)
-        {
-            foreach(var itemTask in request)
-            {
-                var task = new AssignTask
-                {
-                    Id = Guid.NewGuid(),
-                    AccountId = itemTask.AccountId,
-                    Name = "",
-                    Status = "Pending",
-                    InsDate = DateTime.Now
-                };
-                await _unitOfWork.GetRepository<AssignTask>().InsertAsync(task);
+        //public async Task<bool> AssignWork(List<AssignTaskRequest> request)
+        //{
+        //    foreach(var itemTask in request)
+        //    {
+        //        var task = new AssignTask
+        //        {
+        //            Id = Guid.NewGuid(),
+        //            AccountId = itemTask.AccountId,
+        //            Name = "",
+        //            Status = "Pending",
+        //            InsDate = DateTime.Now
+        //        };
+        //        await _unitOfWork.GetRepository<AssignTask>().InsertAsync(task);
 
-                var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                    .FirstOrDefaultAsync(x => x.Id.Equals(itemTask.HouseDesignDrawingId));
+        //        var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+        //            .FirstOrDefaultAsync(x => x.Id.Equals(itemTask.HouseDesignDrawingId));
 
-                //Update AssignTaskId in table HouseDesignDrawing
-                if (drawingItem != null)
-                {
-                    drawingItem.AssignTaskId = task.Id;
-                    _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(drawingItem);
-                }
-            }
+        //        //Update AssignTaskId in table HouseDesignDrawing
+        //        if (drawingItem != null)
+        //        {
+        //            drawingItem.AssignTaskId = task.Id;
+        //            _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(drawingItem);
+        //        }
+        //    }
 
 
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            if (isSuccessful)
-            {
-                return true;
-            }
-            return false;
-        }
+        //    bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+        //    if (isSuccessful)
+        //    {
+        //        return true;
+        //    }
+        //    return false;
+        //}
     }
 }

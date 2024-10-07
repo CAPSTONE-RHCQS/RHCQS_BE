@@ -52,7 +52,6 @@ namespace RHCQS_Services.Implement
                                                 .Include(p => p.HouseDesignDrawings)
                                                     .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
-                                                    .ThenInclude(h => h.AssignTask!)
                                                 .Include(p => p.Contracts));
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 

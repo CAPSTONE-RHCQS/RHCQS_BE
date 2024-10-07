@@ -11,7 +11,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IAssignTaskService
     {
-        Task<IPaginate<AssignTaskResponse>> GetListAssignTaskAll(int page, int size);
-        Task<bool> AssignWork(List<AssignTaskRequest> request);
+        //Task<IPaginate<AssignTaskResponse>> GetListAssignTaskAll(int page, int size);
+        //Task<bool> AssignWork(List<AssignTaskRequest> request);
     }
 }

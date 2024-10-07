@@ -55,7 +55,7 @@ namespace RHCQS_Services.Implement
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
                 predicate: x => x.Id.Equals(id),
                 include: x => x.Include(x => x.HouseDesignVersions)
-                                .Include(x => x.AssignTask)
+                                .Include(x => x.Account!)
                 );
 
             if (drawingItem != null)
@@ -90,7 +90,7 @@ namespace RHCQS_Services.Implement
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
                 predicate: x => x.Type.Equals(type),
                 include: x => x.Include(x => x.HouseDesignVersions)
-                                .Include(x => x.AssignTask)
+                                .Include(x => x.Account!)
             );
 
             if (drawingItem == null)
@@ -155,13 +155,52 @@ namespace RHCQS_Services.Implement
         //}
 
 
-        public async Task<bool> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item)
+        public async Task<(bool IsSuccess, string Message)> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item)
         {
             int stepDrawing = 1;
             var statusDrawing = "Pending";
+            Guid designerId = Guid.Empty;
+
+            int existingDrawingsCount = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                                                         .CountAsync(d => d.ProjectId == item.ProjectId);
+
+            if (existingDrawingsCount >= 4)
+            {
+                return (false, AppConstant.ErrMessage.OverloadProjectDrawing);
+            }
+
             foreach (DesignDrawing designType in Enum.GetValues(typeof(DesignDrawing)))
             {
-                statusDrawing = designType.GetEnumDescription() == "Phối cảnh" ? "Proccessing" : "Pending";
+                switch (designType)
+                {
+                    case DesignDrawing.Perspective:
+                        statusDrawing = "Processing";
+                        designerId = item.DesignerPerspective;
+                        break;
+
+                    case DesignDrawing.Architecture:
+                        statusDrawing = "Pending";
+                        designerId = item.DesignerArchitecture;
+                        break;
+
+                    case DesignDrawing.Structure:
+                        statusDrawing = "Pending";
+                        designerId = item.DesignerStructure;
+                        break;
+
+                    case DesignDrawing.ElectricityWater:
+                        statusDrawing = "Pending";
+                        designerId = item.DesignerElectricityWater;
+                        break;
+                }
+
+                int existingDesigns = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                    .CountAsync(d => d.AccountId == designerId && d.Status != "Accepted");
+
+                if (existingDesigns >= 2)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.OverloadStaff);
+                }
 
                 var houseDrawing = new HouseDesignDrawing
                 {
@@ -172,23 +211,23 @@ namespace RHCQS_Services.Implement
                     Status = statusDrawing,
                     Type = designType.ToTypeString(),
                     IsCompany = false,
-                    InsDate = DateTime.Now
+                    InsDate = DateTime.Now,
+                    AccountId = designerId
                 };
+
                 await _unitOfWork.GetRepository<HouseDesignDrawing>().InsertAsync(houseDrawing);
             }
 
+
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            if (!isSuccessful)
-            {
-                return false;
-            }
-            return true;
+            return isSuccessful ? (true, AppConstant.Message.APPROVED) : (false, "Error occurred during saving.");
         }
+
 
         public async Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId)
         {
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
-                predicate: x => x.AssignTask.Account.Id == accountId,
+                predicate: x => x.Account.Id == accountId,
                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
                                                           x.Type, x.IsCompany, x.InsDate,
                                                           x.HouseDesignVersions.Select(
@@ -200,8 +239,7 @@ namespace RHCQS_Services.Implement
                                                                   v.InsDate,
                                                                   v.PreviousDrawingId,
                                                                   v.Note)).ToList()),
-                include: x => x.Include(x => x.AssignTask)
-                               .ThenInclude(a => a.Account)
+                include: x => x.Include(x => x.Account!)
             )).Items.ToList();
             return listTask;
         }

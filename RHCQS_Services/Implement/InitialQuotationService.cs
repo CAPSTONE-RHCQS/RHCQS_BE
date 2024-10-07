@@ -268,6 +268,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                 }
 
+                //Create a batch payments
                 //foreach (var item in request.BatchPayment)
                 //{
                 //}

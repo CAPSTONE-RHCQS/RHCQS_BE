@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -150,21 +151,29 @@ namespace RHCQS_BE.Controllers
 
         #region CreateHouseDesignDrawing
         /// <summary>
-        /// Creates a new house design drawing in the system.
+        /// Creates a new set of house design drawings in the system for the specified project.
         /// </summary>
         /// <remarks>
         /// Sample request:
         /// 
         ///     POST /api/v1/housedesigndrawing
         ///     {
-        ///       "projectId": "b21a5a33-0b24-4c1a-8a55-6f29d6ef9e12"
+        ///       "projectId": "B81935A8-4482-43F5-AD68-558ABDE58D58",
+        ///       "designerPerspective": "BF339E88-5303-45C4-A6F4-33A79681766C",
+        ///       "designerArchitecture": "990773A2-1817-47F5-9116-301E97435C44",
+        ///       "designerStructure": "28247CD1-67CA-439D-BEF5-FCA9A9A777C5",
+        ///       "designerElectricityWater": "28247CD1-67CA-439D-BEF5-FCA9A9A777C6"
         ///     }
         /// 
+        /// This API creates multiple design drawings (Perspective, Architecture, Structure, and ElectricityWater)
+        /// for a given project based on the provided designer details. It checks if a maximum of 4 drawings already exist 
+        /// for the project, and prevents creating more. It also ensures that no designer has more than 2 drawings that are not accepted.
         /// </remarks>
-        /// <param name="item">Request model containing the house design drawing details</param>
-        /// <returns>Returns true if the house design drawing is created successfully, otherwise false.</returns>
-        /// <response code="200">House design drawing created successfully</response>
-        /// <response code="400">Failed to create the house design drawing</response>
+        /// <param name="item">Request model containing the house design drawing and designer details</param>
+        /// <returns>Returns success message if the house design drawing is created successfully, otherwise returns an error message.</returns>
+        /// <response code="200">House design drawings created successfully</response>
+        /// <response code="400">Failed to create house design drawings, either because the project has reached its limit or designers are overloaded</response>
+        /// <response code="409">Conflict error if a designer is overloaded with pending drawings</response>
         #endregion
         [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingEndpoint)]
@@ -172,8 +181,16 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHouseDesignDrawing([FromBody] HouseDesignDrawingRequest item)
         {
-            var isCreate = await _houseService.CreateListTaskHouseDesignDrawing(item);
-            return isCreate ? Ok(isCreate) : BadRequest();
+            var result = await _houseService.CreateListTaskHouseDesignDrawing(item);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Message);
+            }
+            else
+            {
+                return BadRequest(result.Message); 
+            }
         }
     }
 }

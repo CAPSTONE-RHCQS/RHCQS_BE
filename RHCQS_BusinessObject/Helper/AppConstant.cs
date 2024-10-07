@@ -166,6 +166,7 @@ public static class AppConstant
         public const string PackageTypeExists = "PackageType đã tồn tại.";
         //House Design Drawing Version
         public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
+        public const string OverloadProjectDrawing = "Dự án đã khởi tạo 4 bản vẽ thiết kế!";
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
         public const string QuotationHasStaff = "Báo giá đã có nhân viên đảm nhận!";
