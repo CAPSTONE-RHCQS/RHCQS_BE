@@ -46,6 +46,7 @@ namespace RHCQS_Services.Implement
                         pl.Id,
                         pl.LaborId,
                         pl.Labor?.Name,
+                        pl.Labor?.Type,
                         pl.Price,
                         pl.Quantity,
                         pl.InsDate
@@ -102,6 +103,25 @@ namespace RHCQS_Services.Implement
 
             return listPackage;
         }
+        public async Task<List<PackageResponse>> GetListPackage()
+        {
+            var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
+                selector: x => MapPackageToResponse(x),
+                include: x => x.Include(x => x.PackageHouses)
+                               .Include(x => x.PackageDetails)
+                               .ThenInclude(pd => pd.PackageLabors)
+                               .ThenInclude(lb => lb.Labor)
+                               .Include(x => x.PackageDetails)
+                               .ThenInclude(pd => pd.PackageMaterials)
+                               .ThenInclude(pm => pm.MaterialSection)
+                               .ThenInclude(ms => ms.Material)
+                               .Include(x => x.PackageType),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                predicate: x => x.Status == "Active"
+            );
+
+            return listPackage.ToList(); // Return as List
+        }
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
@@ -157,11 +177,11 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
-            if (await packageRepo.AnyAsync(p => p.Id == packageRequest.Id))
+            if (await packageRepo.AnyAsync(p => p.PackageName.Contains(packageRequest.PackageName)))
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Package với Id này đã tồn tại."
+                    AppConstant.ErrMessage.PackageExists
                 );
             }
 
@@ -211,13 +231,13 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Tạo package thất bại"
+                    AppConstant.ErrMessage.CreatePackage
                 );
             }
             return isSuccessful;
         }
 
-        public async Task<Package> UpdatePackage(PackageRequest packageRequest)
+        public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageid)
         {
             if (packageRequest == null)
             {
@@ -230,7 +250,7 @@ namespace RHCQS_Services.Implement
             var packageRepo = _unitOfWork.GetRepository<Package>();
 
             var existingPackage = await packageRepo.FirstOrDefaultAsync(
-                predicate: p => p.Id == packageRequest.Id,
+                predicate: p => p.Id == packageid,
                 include: p => p.Include(pd => pd.PackageDetails)
                                .ThenInclude(pl => pl.PackageLabors)
                                .Include(pd => pd.PackageDetails)
@@ -242,7 +262,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Not_Found,
-                    "Không tìm thấy package với Id này."
+                    AppConstant.ErrMessage.PackageNotFound
                 );
             }
 
@@ -255,7 +275,7 @@ namespace RHCQS_Services.Implement
 
             foreach (var pd in packageRequest.PackageDetails)
             {
-                var existingPackageDetail = existingPackage.PackageDetails.FirstOrDefault(detail => detail.PackageId == packageRequest.Id);
+                var existingPackageDetail = existingPackage.PackageDetails.FirstOrDefault(detail => detail.PackageId == packageid);
 
                 if (existingPackageDetail != null)
                 {
@@ -330,7 +350,7 @@ namespace RHCQS_Services.Implement
 
             foreach (var ph in packageRequest.PackageHouses)
             {
-                var existingPackageHouse = existingPackage.PackageHouses.FirstOrDefault(h => h.PackageId == packageRequest.Id);
+                var existingPackageHouse = existingPackage.PackageHouses.FirstOrDefault(h => h.PackageId == packageid);
                 if (existingPackageHouse != null)
                 {
                     existingPackageHouse.DesignTemplateId = ph.DesignTemplateId;
@@ -355,7 +375,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Cập nhật package thất bại."
+                    AppConstant.ErrMessage.UpdatePackage
                 );
             }
 

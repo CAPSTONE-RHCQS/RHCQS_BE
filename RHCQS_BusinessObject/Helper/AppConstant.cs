@@ -157,6 +157,9 @@ public static class AppConstant
         public const string Not_Found_DesignDrawing = "Không tìm thấy bản vẽ!";
         public const string UpdateTempalte = "Cập nhật mẫu nhà thất bại!";
         public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
+        public const string DesignTemplate = "Mẫu nhà này đã tồn tại!";
+        public const string TemplateItem = "Tempalate item này đã tồn tại!";
+        public const string SubTemplateItem = "SubTempalate item này đã tồn tại!";
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
         //Role
@@ -170,6 +173,11 @@ public static class AppConstant
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
         public const string QuotationHasStaff = "Báo giá đã có nhân viên đảm nhận!";
+        //Package
+        public const string CreatePackage = "Tạo packaget thất bại.";
+        public const string UpdatePackage = "Cập nhật packaget thất bại.";
+        public const string PackageExists = "Package đã tồn tại.";
+        public const string PackageNotFound = "Package không tìm thấy.";
     }
 }
 

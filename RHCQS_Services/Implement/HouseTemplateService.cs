@@ -39,11 +39,11 @@ namespace RHCQS_Services.Implement
 
             var templateRepo = _unitOfWork.GetRepository<DesignTemplate>();
 
-            if (await templateRepo.AnyAsync(x => x.Id == templ.Id))
+            if (await templateRepo.AnyAsync(x => x.Name == templ.Name))
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "A house template with the same ID already exists."
+                    AppConstant.ErrMessage.DesignTemplate
                 );
             }
             foreach (var sub in templ.SubTemplates)
@@ -56,7 +56,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
-                        $"A sub-template with ID {sub.Id} already exists."
+                        AppConstant.ErrMessage.SubTemplateItem
                     );
                 }
 
@@ -70,7 +70,7 @@ namespace RHCQS_Services.Implement
                     {
                         throw new AppConstant.MessageError(
                             (int)AppConstant.ErrCode.Conflict,
-                            $"A template item with ID {item.Id} already exists."
+                             AppConstant.ErrMessage.TemplateItem
                         );
                     }
                 }
@@ -78,7 +78,7 @@ namespace RHCQS_Services.Implement
 
             var houseTemplate = new DesignTemplate
             {
-                Id = templ.Id,
+                Id = Guid.NewGuid(),
                 Name = templ.Name,
                 Description = templ.Description,
                 NumberOfFloor = templ.NumberOfFloor,
@@ -232,7 +232,7 @@ namespace RHCQS_Services.Implement
             return houseTemplate;
         }
 
-        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequest templ)
+        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequest templ, Guid templateId)
         {
             if (templ == null)
             {
@@ -245,7 +245,7 @@ namespace RHCQS_Services.Implement
             var templateRepo = _unitOfWork.GetRepository<DesignTemplate>();
 
             var houseTemplate = await templateRepo.FirstOrDefaultAsync(
-                x => x.Id == templ.Id,
+                x => x.Id == templateId,
                 include: x => x
                     .Include(x => x.SubTemplates)
                     .ThenInclude(st => st.TemplateItems)

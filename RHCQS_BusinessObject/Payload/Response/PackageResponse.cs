@@ -74,11 +74,13 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageLaborResponse
     {
-        public PackageLaborResponse(Guid id, Guid laborId, string? nameOfLabor, double? totalPrice, int? quantity, DateTime? insDate)
+
+        public PackageLaborResponse(Guid id, Guid laborId, string? nameOfLabor, string? type, double? totalPrice, int? quantity, DateTime? insDate)
         {
             Id = id;
             LaborId = laborId;
             NameOfLabor = nameOfLabor;
+            Type = type;
             TotalPrice = totalPrice;
             Quantity = quantity;
             InsDate = insDate;
@@ -89,6 +91,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid LaborId { get; set; }
 
         public string? NameOfLabor { get; set; }
+        public string? Type { get; set; }
 
         public double? TotalPrice { get; set; }
 

@@ -114,9 +114,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequest templ)
+        public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequest templ, Guid id)
         {
-            var update = await _houseService.UpdateHouseTemplate(templ);
+            var update = await _houseService.UpdateHouseTemplate(templ, id);
             return Ok(update);
         }
     }
