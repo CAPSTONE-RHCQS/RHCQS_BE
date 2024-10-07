@@ -10,6 +10,14 @@ namespace RHCQS_BusinessObject.Payload.Request.HouseDesign
     {
         public Guid ProjectId { get; set; }
 
+        public Guid DesignerPerspective {get; set;}
+
+        public Guid DesignerArchitecture {  get; set;}
+
+        public Guid DesignerStructure { get; set;}
+
+        public Guid DesignerElectricityWater { get; set;}
+
         //public bool? IsCompany { get; set; }
     }
 }

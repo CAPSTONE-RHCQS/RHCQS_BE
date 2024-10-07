@@ -33,9 +33,8 @@ namespace RHCQS_Services.Implement
         public async Task<bool> CreateHouseDesignVersion(HouseDesignVersionRequest request)
         {
             var staffInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                .FirstOrDefaultAsync(x => x.AssignTask.Account.Id == request.AccountId && x.Id == request.HouseDesignDrawingId,
-                include: x => x.Include(x => x.AssignTask)
-                                .ThenInclude(x => x.Account));
+                .FirstOrDefaultAsync(x => x.Account.Id == request.AccountId && x.Id == request.HouseDesignDrawingId,
+                include: x => x.Include(x => x.Account!));
             if (staffInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Access_DesignDrawing);
@@ -148,7 +147,7 @@ namespace RHCQS_Services.Implement
             return isUpdate;
         }
 
-        public async Task<bool> AssignHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
+        public async Task<bool> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
         {
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(x => x.Id == Id);
 
@@ -170,5 +169,7 @@ namespace RHCQS_Services.Implement
 
             return isSuccessful;
         }
+
+
     }
 }

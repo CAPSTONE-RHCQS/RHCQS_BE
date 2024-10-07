@@ -27,11 +27,13 @@ public partial class Account
 
     public bool? Deflag { get; set; }
 
-    public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
-
     public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 
+    public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
+
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
+
+    public virtual ICollection<HouseDesignDrawing> HouseDesignDrawings { get; set; } = new List<HouseDesignDrawing>();
 
     public virtual ICollection<InitialQuotation> InitialQuotations { get; set; } = new List<InitialQuotation>();
 

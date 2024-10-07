@@ -21,9 +21,9 @@ public partial class HouseDesignDrawing
 
     public DateTime? InsDate { get; set; }
 
-    public Guid? AssignTaskId { get; set; }
+    public Guid? AccountId { get; set; }
 
-    public virtual AssignTask? AssignTask { get; set; }
+    public virtual Account? Account { get; set; }
 
     public virtual ICollection<HouseDesignVersion> HouseDesignVersions { get; set; } = new List<HouseDesignVersion>();
 
