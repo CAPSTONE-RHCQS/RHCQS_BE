@@ -185,7 +185,6 @@ namespace RHCQS_Services.Implement
                     _customer.Username = account.Username != default ? account.Username : _customer.Username;
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
-                    _customer.PasswordHash = !string.IsNullOrEmpty(account.PasswordHash) ? PasswordHash.HashPassword(account.PasswordHash) : _customer.PasswordHash;
                     _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
                     _customer.ImgUrl = account.ImageUrl == default ? null : account.ImageUrl;
                     _customer.UpsDate = DateTime.UtcNow;

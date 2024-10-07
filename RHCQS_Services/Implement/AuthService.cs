@@ -126,7 +126,6 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Email = registerRequest.Email,
-                    PasswordHash = PasswordHash.HashPassword(registerRequest.Password),
                     Username = registerRequest.Email,
                     InsDate = DateTime.UtcNow,
                     UpsDate = DateTime.UtcNow,
