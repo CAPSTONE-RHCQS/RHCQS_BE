@@ -169,6 +169,11 @@ public static class AppConstant
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
         public const string QuotationHasStaff = "Báo giá đã có nhân viên đảm nhận!";
+        //Package
+        public const string CreatePackage = "Tạo packaget thất bại.";
+        public const string UpdatePackage = "Cập nhật packaget thất bại.";
+        public const string PackageExists = "Package đã tồn tại.";
+        public const string PackageNotFound = "Package không tìm thấy.";
     }
 }
 

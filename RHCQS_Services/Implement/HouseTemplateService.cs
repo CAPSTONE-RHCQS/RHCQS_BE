@@ -232,7 +232,7 @@ namespace RHCQS_Services.Implement
             return houseTemplate;
         }
 
-        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequest templ)
+        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequest templ, Guid templateId)
         {
             if (templ == null)
             {
@@ -245,7 +245,7 @@ namespace RHCQS_Services.Implement
             var templateRepo = _unitOfWork.GetRepository<DesignTemplate>();
 
             var houseTemplate = await templateRepo.FirstOrDefaultAsync(
-                x => x.Id == templ.Id,
+                x => x.Id == templateId,
                 include: x => x
                     .Include(x => x.SubTemplates)
                     .ThenInclude(st => st.TemplateItems)

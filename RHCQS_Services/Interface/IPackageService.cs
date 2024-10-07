@@ -16,6 +16,6 @@ namespace RHCQS_Services.Interface
         Task<PackageResponse> GetPackageDetail(Guid id);
         Task<PackageResponse> GetPackageByName(string name);
         Task<bool> CreatePackage(PackageRequest package);
-        Task<Package> UpdatePackage(PackageRequest package);
+        Task<Package> UpdatePackage(PackageRequest package, Guid id);
     }
 }

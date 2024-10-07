@@ -103,9 +103,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Package.PackageEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateHouseTemplate([FromBody] PackageRequest package)
+        public async Task<IActionResult> UpdateHouseTemplate([FromBody] PackageRequest package, Guid packageid)
         {
-            var update = await _packageService.UpdatePackage(package);
+            var update = await _packageService.UpdatePackage(package, packageid);
             return Ok(update);
         }
     }

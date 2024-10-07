@@ -13,8 +13,6 @@ public partial class Customer
 
     public string? ImgUrl { get; set; }
 
-    public string? PasswordHash { get; set; }
-
     public string? PhoneNumber { get; set; }
 
     public DateTime? DateOfBirth { get; set; }
@@ -24,6 +22,10 @@ public partial class Customer
     public DateTime? UpsDate { get; set; }
 
     public bool? Deflag { get; set; }
+
+    public Guid? AccountId { get; set; }
+
+    public virtual Account? Account { get; set; }
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }

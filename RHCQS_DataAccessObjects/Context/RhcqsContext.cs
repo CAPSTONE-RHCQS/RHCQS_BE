@@ -136,11 +136,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
-
-            entity.HasOne(d => d.Account).WithMany(p => p.AssignTasks)
-                .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_AssignTask_Account");
         });
 
         modelBuilder.Entity<BatchPayment>(entity =>
@@ -226,12 +221,15 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.PasswordHash).HasMaxLength(60);
             entity.Property(e => e.PhoneNumber)
                 .HasMaxLength(11)
                 .IsFixedLength();
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
             entity.Property(e => e.Username).HasMaxLength(50);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.Customers)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_Customer_Account");
         });
 
         modelBuilder.Entity<DesignTemplate>(entity =>
@@ -320,9 +318,9 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
 
-            entity.HasOne(d => d.AssignTask).WithMany(p => p.HouseDesignDrawings)
-                .HasForeignKey(d => d.AssignTaskId)
-                .HasConstraintName("FK_HouseDesignDrawing_AssignTask");
+            entity.HasOne(d => d.Account).WithMany(p => p.HouseDesignDrawings)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_HouseDesignDrawing_Account");
 
             entity.HasOne(d => d.Project).WithMany(p => p.HouseDesignDrawings)
                 .HasForeignKey(d => d.ProjectId)
@@ -399,6 +397,9 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .IsUnicode(false);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
         });
 

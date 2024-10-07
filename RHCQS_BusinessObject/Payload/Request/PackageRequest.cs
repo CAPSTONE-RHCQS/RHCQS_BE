@@ -11,8 +11,6 @@ namespace RHCQS_BusinessObject.Payload.Request
     public class PackageRequest
     {
         [Required(ErrorMessage = "Id là bắt buộc phải có.")]
-        public Guid Id { get; set; }
-        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid PackageTypeId { get; set; }
 
         public string? PackageName { get; set; }

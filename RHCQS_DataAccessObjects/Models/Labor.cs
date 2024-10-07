@@ -19,6 +19,8 @@ public partial class Labor
 
     public bool? Deflag { get; set; }
 
+    public string? Type { get; set; }
+
     public virtual ICollection<PackageLabor> PackageLabors { get; set; } = new List<PackageLabor>();
 
     public virtual ICollection<QuotationLabor> QuotationLabors { get; set; } = new List<QuotationLabor>();

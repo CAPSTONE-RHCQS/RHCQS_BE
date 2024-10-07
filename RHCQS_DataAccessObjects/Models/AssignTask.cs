@@ -14,8 +14,4 @@ public partial class AssignTask
     public string? Status { get; set; }
 
     public DateTime? InsDate { get; set; }
-
-    public virtual Account Account { get; set; } = null!;
-
-    public virtual ICollection<HouseDesignDrawing> HouseDesignDrawings { get; set; } = new List<HouseDesignDrawing>();
 }
