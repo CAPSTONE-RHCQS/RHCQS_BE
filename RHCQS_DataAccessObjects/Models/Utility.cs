@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RHCQS_DataAccessObjects.Models;
 
-public partial class Utility
+public partial class Utilities
 {
     public Guid Id { get; set; }
 
@@ -11,7 +11,7 @@ public partial class Utility
 
     public string? Type { get; set; }
 
-    public string? Status { get; set; }
+    public bool? Deflag { get; set; }
 
     public DateTime? InsDate { get; set; }
 

@@ -10,13 +10,13 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class UtilityResponse
     {
         public UtilityResponse() { }
-        public UtilityResponse(Guid id, string? name, string? type, string? status, 
+        public UtilityResponse(Guid id, string? name, string? type, bool? deflag, 
             DateTime? insDate, DateTime? upsDate, List<UtilitiesSectionResponse> sections)
         { 
             Id = id;
             Name = name;
             Type = type;
-            Status = status;
+            Deflag = deflag;
             InsDate = insDate;
             UpsDate = upsDate;
             Sections = sections;
@@ -27,7 +27,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Type { get; set; }
 
-        public string? Status { get; set; }
+        public bool? Deflag { get; set; }
 
         public DateTime? InsDate { get; set; }
 
@@ -40,23 +40,23 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class UtilitiesSectionResponse
     {
         public UtilitiesSectionResponse() { }
-        public UtilitiesSectionResponse(Guid id, string? name, string? status, DateTime? insDate,
+        public UtilitiesSectionResponse(Guid id, string? name, bool? deflag, DateTime? insDate,
             DateTime? upsDate, string? description)
         {
             Id = id;
             Name = name;
-            Status = status;
+            Deflag = deflag;
             InsDate = insDate;
             UpsDate = upsDate;
             Description = description;
         }
 
-        public UtilitiesSectionResponse(Guid id, string? name, string? status, DateTime? insDate,
+        public UtilitiesSectionResponse(Guid id, string? name, bool? deflag, DateTime? insDate,
             DateTime? upsDate, string? description, List<UtilityItemResponse> items)
         {
             Id = id;
             Name = name;
-            Status = status;
+            Deflag = deflag;
             InsDate = insDate;
             UpsDate = upsDate;
             Description = description;
@@ -67,7 +67,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Name { get; set; }
 
-        public string? Status { get; set; }
+        public bool? Deflag { get; set; }
 
         public DateTime? InsDate { get; set; }
 

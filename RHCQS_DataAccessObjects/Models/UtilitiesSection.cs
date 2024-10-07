@@ -11,7 +11,7 @@ public partial class UtilitiesSection
 
     public string? Name { get; set; }
 
-    public string? Status { get; set; }
+    public bool? Deflag { get; set; }
 
     public DateTime? InsDate { get; set; }
 
@@ -19,7 +19,11 @@ public partial class UtilitiesSection
 
     public string? Description { get; set; }
 
-    public virtual Utility Utilities { get; set; } = null!;
+    public double? UnitPrice { get; set; }
+
+    public string? Unit { get; set; }
+
+    public virtual Utilities Utilities { get; set; } = null!;
 
     public virtual ICollection<UtilitiesItem> UtilitiesItems { get; set; } = new List<UtilitiesItem>();
 }

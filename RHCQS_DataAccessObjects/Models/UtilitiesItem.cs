@@ -17,6 +17,8 @@ public partial class UtilitiesItem
 
     public DateTime? UpsDate { get; set; }
 
+    public bool? Deflag { get; set; }
+
     public virtual ICollection<QuotationUtility> QuotationUtilities { get; set; } = new List<QuotationUtility>();
 
     public virtual UtilitiesSection Section { get; set; } = null!;

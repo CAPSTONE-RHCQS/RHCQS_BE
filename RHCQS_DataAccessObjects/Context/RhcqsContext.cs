@@ -104,7 +104,7 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
-    public virtual DbSet<Utility> Utilities { get; set; }
+    public virtual DbSet<Utilities> Utilities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -838,7 +838,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Unit).HasMaxLength(10);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Utilities).WithMany(p => p.UtilitiesSections)
@@ -847,14 +847,13 @@ public partial class RhcqsContext : DbContext
                 .HasConstraintName("FK_UltilitiesSection_Ultilities");
         });
 
-        modelBuilder.Entity<Utility>(entity =>
+        modelBuilder.Entity<Utilities>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Ultilities");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
-            entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
         });

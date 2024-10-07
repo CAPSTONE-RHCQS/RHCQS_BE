@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Response;
+﻿using RHCQS_BusinessObject.Payload.Request.Utility;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,6 @@ namespace RHCQS_Services.Interface
         Task<List<UtilityResponse>> GetListUtilitiesByType(string type);
         Task<UtilityResponse> GetDetailUtilityItem(Guid id);
         Task<UtilitiesSectionResponse> GetDetailUtilitySection(Guid idUtilitySection);
+        Task<bool> CreateUtility(UtilityRequest request);
     }
 }

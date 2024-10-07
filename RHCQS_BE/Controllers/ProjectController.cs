@@ -77,7 +77,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If the project is not found.</response>
         /// <response code="400">If the input is invalid.</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectDetailEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailProjectById(Guid id)

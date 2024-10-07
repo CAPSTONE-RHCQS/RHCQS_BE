@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request.Utility;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
@@ -135,6 +136,46 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        #region
+        /// <summary>
+        /// Creates or updates a utility along with its sections and items.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /api/utility/create
+        ///     {
+        ///       "id": "2367DEC1-E649-4549-B81B-701F2DBC1A7B",
+        ///       "name": "string",
+        ///       "type": "string",
+        ///       "sections": [
+        ///         {
+        ///           "id": null,
+        ///           "name": "Chuyển đổi phần vách hầm nổi trên mặt đất từ xây gạch đinh sang vách đổ bê tông, cốt thép",
+        ///           "description": "Chuyển đổi phần vách hầm nổi trên mặt đất từ xây gạch đinh sang vách đổ bê tông, cốt thép",
+        ///           "unitPrice": 1000000,
+        ///           "unit": "đ"
+        ///         }
+        ///       ],
+        ///       "items": null
+        ///     }
+        /// </remarks>
+        /// <param name="request">The request body containing the utility details.</param>
+        /// <returns>A JSON response with the created or updated utility details.</returns>
+        /// <response code="200">Returns the newly created or updated utility</response>
+        /// <response code="400">If the request is invalid</response>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Utility.UtilityEndpoint)]
+        [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateUtility([FromBody] UtilityRequest request)
+        {
+            var utilityItem = await _utilitiesService.CreateUtility(request);
+            var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
+            return Ok(result);
         }
     }
 }
