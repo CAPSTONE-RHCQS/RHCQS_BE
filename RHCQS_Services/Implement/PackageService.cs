@@ -292,14 +292,11 @@ namespace RHCQS_Services.Implement
                         }
                         else
                         {
-                            existingPackageDetail.PackageLabors.Add(new PackageLabor
-                            {
-                                Id = Guid.NewGuid(),
-                                LaborId = labor.LaborId,
-                                Price = labor.TotalPrice,
-                                Quantity = labor.Quantity,
-                                InsDate = DateTime.Now
-                            });
+                            continue;
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Conflict,
+                                AppConstant.ErrMessage.PackageLaborNotFound
+                            );
                         }
                     }
 
@@ -312,38 +309,17 @@ namespace RHCQS_Services.Implement
                         }
                         else
                         {
-                            existingPackageDetail.PackageMaterials.Add(new PackageMaterial
-                            {
-                                Id = Guid.NewGuid(),
-                                MaterialSectionId = material.MaterialSectionId,
-                                InsDate = DateTime.Now
-                            });
+                            continue;
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Conflict,
+                                AppConstant.ErrMessage.PackagematerialNotFound
+                            );
                         }
                     }
                 }
                 else
                 {
-                    existingPackage.PackageDetails.Add(new PackageDetail
-                    {
-                        Id = Guid.NewGuid(),
-                        Action = pd.Action,
-                        Type = pd.Type,
-                        InsDate = DateTime.Now,
-                        PackageLabors = pd.PackageLabors.Select(labor => new PackageLabor
-                        {
-                            Id = Guid.NewGuid(),
-                            LaborId = labor.LaborId,
-                            Price = labor.TotalPrice,
-                            Quantity = labor.Quantity,
-                            InsDate = DateTime.Now
-                        }).ToList(),
-                        PackageMaterials = pd.PackageMaterials.Select(material => new PackageMaterial
-                        {
-                            Id = Guid.NewGuid(),
-                            MaterialSectionId = material.MaterialSectionId,
-                            InsDate = DateTime.Now
-                        }).ToList()
-                    });
+
                 }
             }
 
@@ -357,13 +333,11 @@ namespace RHCQS_Services.Implement
                 }
                 else
                 {
-                    existingPackage.PackageHouses.Add(new PackageHouse
-                    {
-                        Id = Guid.NewGuid(),
-                        DesignTemplateId = ph.DesignTemplateId,
-                        ImgUrl = ph.ImgUrl,
-                        InsDate = DateTime.Now
-                    });
+                    continue;
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.PackageHouseNotFound
+                    );
                 }
             }
 

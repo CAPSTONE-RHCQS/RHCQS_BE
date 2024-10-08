@@ -286,36 +286,21 @@ namespace RHCQS_Services.Implement
                         }
                         else
                         {
-                            existingSubTemplate.TemplateItems.Add(new TemplateItem
-                            {
-                                Id = item.Id,
-                                Area = item.Area,
-                                Unit = item.Unit,
-                                InsDate = DateTime.Now,
-                                ConstructionItemId = item.ConstructionItemId,
-                                SubConstructionId = item.SubConstructionItemId
-                            });
+                            continue;
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Conflict,
+                                AppConstant.ErrMessage.TemplateItemNotFound
+                            );
                         }
                     }
                 }
                 else
                 {
-                    houseTemplate.SubTemplates.Add(new SubTemplate
-                    {
-                        Id = sub.Id,
-                        BuildingArea = sub.BuildingArea,
-                        FloorArea = sub.FloorArea,
-                        Size = sub.Size,
-                        InsDate = DateTime.Now,
-                        TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
-                        {
-                            Id = item.Id,
-                            Area = item.Area,
-                            Unit = item.Unit,
-                            InsDate = DateTime.Now,
-                            ConstructionItemId = item.ConstructionItemId
-                        }).ToList()
-                    });
+                    continue;
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.SubTemplateNotFound
+                    );
                 }
             }
 

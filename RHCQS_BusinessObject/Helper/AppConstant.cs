@@ -160,6 +160,8 @@ public static class AppConstant
         public const string DesignTemplate = "Mẫu nhà này đã tồn tại!";
         public const string TemplateItem = "Tempalate item này đã tồn tại!";
         public const string SubTemplateItem = "SubTempalate item này đã tồn tại!";
+        public const string TemplateItemNotFound = "TemplateItem không tìm thấy.";
+        public const string SubTemplateNotFound = "SubTemplate không tìm thấy.";
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
         //Role
@@ -178,6 +180,9 @@ public static class AppConstant
         public const string UpdatePackage = "Cập nhật packaget thất bại.";
         public const string PackageExists = "Package đã tồn tại.";
         public const string PackageNotFound = "Package không tìm thấy.";
+        public const string PackageLaborNotFound = "Package labor không tìm thấy.";
+        public const string PackageHouseNotFound = "Package house không tìm thấy.";
+        public const string PackagematerialNotFound = "Package material không tìm thấy.";
     }
 }
 
