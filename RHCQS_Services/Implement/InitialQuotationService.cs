@@ -90,12 +90,15 @@ namespace RHCQS_Services.Implement
                             item.Description ?? string.Empty,
                             item.Coefiicient ?? 0,
                             item.Price ?? 0
-                )).ToList();
+                )).ToList() ?? new List<UtilityInfo>();
 
-            var promotionResponse = new PromotionInfo(
-                            initialQuotation.Promotion.Id,
-                            initialQuotation.Promotion.Name,
-                            initialQuotation.Promotion.Value);
+            var promotionResponse = initialQuotation?.Promotion != null
+                                              ? new PromotionInfo(
+                                                  initialQuotation.Promotion.Id,
+                                                  initialQuotation.Promotion.Name,
+                                                  initialQuotation.Promotion.Value
+                                               )
+                                              : new PromotionInfo();
 
             var batchPaymentResponse =
                             initialQuotation.BatchPayments.Select(item => new BatchPaymentInfo(
@@ -103,7 +106,7 @@ namespace RHCQS_Services.Implement
                                 item.Description,
                                 item.Percents,
                                 item.Price,
-                                item.Unit)).ToList();
+                                item.Unit)).ToList() ?? new List<BatchPaymentInfo>();
 
             var result = new InitialQuotationResponse
             {
@@ -269,9 +272,24 @@ namespace RHCQS_Services.Implement
                 }
 
                 //Create a batch payments
-                //foreach (var item in request.BatchPayment)
-                //{
-                //}
+                foreach (var item in request.BatchPayments)
+                {
+                    var payItem = new BatchPayment
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = null,
+                        Price = item.Price,
+                        PaymentDate = null,
+                        PaymentPhase = null,
+                        IntitialQuotationId = initialItem.Id,
+                        Percents = item.Percents,
+                        InsDate = DateTime.Now,
+                        FinalQuotationId = null,
+                        Description = item.Description,
+                        Unit = AppConstant.Unit.UnitPrice
+                    };
+                    await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
+                }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;

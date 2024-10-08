@@ -79,8 +79,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? ReasonReject { get; set; }
         public PackageQuotationList PackageQuotationList { get; set; }
         public List<InitialQuotationItemResponse> ItemInitial { get; set; }
-        public List<UtilityInfo> UtilityInfos { get; set; }
-        public PromotionInfo PromotionInfo { get; set; }
+        public List<UtilityInfo>? UtilityInfos { get; set; }
+        public PromotionInfo? PromotionInfo { get; set; }
         public List<BatchPaymentInfo> BatchPaymentInfos { get; set; }
     }
 
@@ -141,6 +141,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class PromotionInfo
     {
+        public PromotionInfo() { }
         public PromotionInfo(Guid idPromotion, string? name, int? value)
         {
             Id = idPromotion;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -269,7 +270,12 @@ namespace RHCQS_BE.Controllers
         {
             bool quotation = await _initialService.ApproveInitialFromManager(initialId, request);
 
-            return Ok(quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR);
+            return new ContentResult()
+            {
+                Content = quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region
@@ -350,7 +356,12 @@ namespace RHCQS_BE.Controllers
         {
             bool quotation = await _initialService.UpdateInitialQuotation(request);
 
-            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
+            return new ContentResult()
+            {
+                Content = quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }

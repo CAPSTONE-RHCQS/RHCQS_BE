@@ -41,6 +41,7 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
 
         public List<UtilitiesUpdateRequest>? Utilities { get; set; }
         public PromotionUpdateRequest? Promotions { get; set; }
+        public List<BatchPaymentUpdateRequest> BatchPayments { get; set; }
     }
 
     public class InitialQuotaionItemUpdateRequest
@@ -92,5 +93,10 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
     public class BatchPaymentUpdateRequest
     {
 
+        public double? Price { get; set; }
+
+        public string? Percents { get; set; }
+
+        public string? Description { get; set; }
     }
 }

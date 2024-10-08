@@ -7,7 +7,7 @@ public partial class BatchPayment
 {
     public Guid Id { get; set; }
 
-    public Guid ContractId { get; set; }
+    public Guid? ContractId { get; set; }
 
     public double? Price { get; set; }
 

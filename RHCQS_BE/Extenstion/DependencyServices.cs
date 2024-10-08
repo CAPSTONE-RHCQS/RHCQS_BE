@@ -15,6 +15,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Mvc;
 using RHCQS_DataAccessObjects.Context;
 using CloudinaryDotNet;
+using DinkToPdf;
+using DinkToPdf.Contracts;
 
 
 namespace RHCQS_BE.Extenstion
@@ -78,6 +80,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IHouseDesignVersionService, HouseDesignVersionService>();
             services.AddScoped<IInitialQuotationService, InitialQuotationService>();
             services.AddApiBehavior();
+            services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             return services;
         }
 
@@ -209,6 +212,13 @@ namespace RHCQS_BE.Extenstion
 
             return services;
         }
+
+        public static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSingleton(typeof(IConverter),new SynchronizedConverter(new PdfTools()));
+            services.AddControllers();
+        }
+
     }
 }
 
