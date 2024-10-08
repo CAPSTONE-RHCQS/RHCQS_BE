@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
@@ -20,11 +24,16 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<InitialQuotationService> _logger;
+        private readonly IConverter _converter;
+        private readonly Cloudinary _cloudinary;
 
-        public InitialQuotationService(IUnitOfWork unitOfWork, ILogger<InitialQuotationService> logger)
+        public InitialQuotationService(IUnitOfWork unitOfWork, ILogger<InitialQuotationService> logger, 
+            IConverter converter, Cloudinary cloudinary)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _converter = converter;
+            _cloudinary = cloudinary;
         }
 
         public async Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotation(int page, int size)
@@ -138,7 +147,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId)
         {
-            var infoStaff = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(a => a.Id == accountId,
+            var infoStaff = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Account>().FirstOrDefaultAsync(a => a.Id == accountId,
                             include: a => a.Include(a => a.InitialQuotations));
 
             if (infoStaff.InitialQuotations.Count > 2)
@@ -166,12 +175,12 @@ namespace RHCQS_Services.Implement
             }
 
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
-            
+
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
 
-        public async Task<bool> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
+        public async Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
         {
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
 
@@ -181,17 +190,324 @@ namespace RHCQS_Services.Implement
             if (request.Type == AppConstant.InitialQuotationStatus.APPROVED)
             {
                 initialItem.Status = AppConstant.InitialQuotationStatus.APPROVED;
+                _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+                var data = await GetDetailInitialQuotationById(initialItem.Id);
+                try
+                {
+                    // Tạo HTML dựa trên dữ liệu nhận được
+                    var htmlContent = GenerateHtmlContent(data);
+
+                    var doc = new HtmlToPdfDocument()
+                    {
+                        GlobalSettings = {
+                        ColorMode = ColorMode.Color,
+                        Orientation = Orientation.Portrait,
+                        PaperSize = PaperKind.A4
+                    },
+                        Objects = {
+                        new ObjectSettings() {
+                            PagesCount = true,
+                            HtmlContent = htmlContent,
+                            WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = null }
+                        }
+                    }
+                    };
+
+                    var pdf = _converter.Convert(doc);
+                    //Upload cloudinary
+                    using (var pdfStream = new MemoryStream(pdf))
+                    {
+                        // Tạo tham số để upload lên Cloudinary
+                        var uploadParams = new RawUploadParams()
+                        {
+                            File = new FileDescription($"{data.AccountName}_Quotation.pdf", pdfStream),
+                            Folder = "InitialQuotation",  
+                            PublicId = $"Bao_gia_so_bo_{data.AccountName}_{data.Version}", 
+                            UseFilename = true,
+                            UniqueFilename = true,
+                            Overwrite = true
+                        };
+
+                        // Upload file lên Cloudinary
+                        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                        // Kiểm tra nếu upload không thành công
+                        if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                        }
+
+                        return uploadResult.SecureUrl.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
             }
             else
             {
                 initialItem.Status = AppConstant.InitialQuotationStatus.REJECTED;
                 initialItem.ReasonReject = request.Reason;
+                _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
             }
 
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return isSuccessful;
+            return null;
         }
+
+        private string GenerateHtmlContent(InitialQuotationResponse request)
+        {
+            var sb = new StringBuilder();
+            sb.Append(@"
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        @page {
+            margin: 30px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            padding-left: 30px;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            color: black;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 30px;
+        }
+        h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            text-align: left;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .center {
+            text-align: right;
+        }
+        .signature-block {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 0;
+        }
+        .signature {
+            width: 50%;
+            text-align: center;
+        }
+        .left {
+            text-align: left; 
+        }
+
+        .right {
+            text-align: right; 
+        }
+    </style>
+</head>
+<body>
+    <h1><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></h1>
+    <p><strong>CÔNG TRÌNH:</strong> NHÀ Ở RIÊNG LẺ</p>
+    <p><strong>ĐỊA ĐIỂM:</strong> " + request.AccountName + @"</p>
+    <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
+
+    <h2>ĐIỀU 1. QUY MÔ CÔNG TRÌNH</h2>
+    <p>Bổ sung</p>
+
+    <h2>ĐIỀU 2. GIÁ TRỊ HỢP ĐỒNG</h2>
+    <h3>2.1. Đơn giá thi công phần thô trước thuế: " + request.PackageQuotationList.PackageRough + @" đồng/m²</h3>
+
+    <h3>2.2. Diện tích xây dựng theo phương án thiết kế:</h3>
+    <table>
+        <tr>
+            <th>STT</th>
+            <th>Hạng mục</th>
+            <th>Diện tích (m²)</th>
+            <th>Hệ số</th>
+            <th>Diện tích tổng (m²)</th>
+        </tr>");
+
+            int noCount = 1;
+            foreach (var item in request.ItemInitial)
+            {
+                sb.Append($@"
+        <tr>
+            <td>{noCount}</td>
+            <td>{item.Name}</td>
+            <td>{request.Area}</td>
+            <td>{item.Coefficient}</td>
+            <td>{item.Area}</td>
+        </tr>");
+                noCount++;
+            }
+
+            sb.Append($@"
+        <tr>
+            <td colspan='4' style='text-align:right;'><strong>Tổng diện tích xây dựng theo thiết kế:</strong></td>
+            <td>{request.Area}</td>
+        </tr>
+    </table>
+
+    <h3>2.3. Giá trị thi công phần thô trước thuế:</h3>
+    <table>
+        <tr>
+            <th>Tổng diện tích xây dựng</th>
+            <th>x</th>
+            <th>Đơn giá</th>
+            <th>=</th>
+            <th>Thành tiền</th>
+        </tr>
+        <tr>
+            <td>" + request.Area + @" m²</td>
+            <td>x</td>
+            <td>" + request.PackageQuotationList.UnitPackageRough + @"</td>
+            <td>=</td>
+            <td>" + request.TotalRough + @"</td>
+        </tr>
+    </table>
+
+    <h3>2.4. Các chi phí khác:</h3>
+        <table>
+            <tr>
+                <th>Hạng mục</th>
+                <th>Hệ số</th>
+                <th>Đơn giá (VND)</th>
+                <th>=</th>
+                <th>Thành tiền (VND)</th>
+            </tr>");
+
+            foreach (var utility in request.UtilityInfos)
+            {
+                    sb.Append($@"
+            <tr>
+                <td>{utility.Description}</td>
+                <td>{utility.Coefficient}</td>
+                <td>{utility.Price:N0}</td>
+                <td>=</td>
+                <td>{(utility.Coefficient * utility.Price):N0}</td>
+            </tr>");
+            }
+
+            sb.Append("</table>");
+
+            sb.Append($@"
+    <h3>2.5. Tổng hợp giá trị hợp đồng:</h3>
+        <table>
+            <tr>
+                <th>Hạng mục</th>
+                <th>x</th>
+                <th>Thành tiền</th>
+                <th>Đơn giá</th>
+            </tr>
+            <tr>
+                <td>Phần thô</td>
+                <td>x</td>
+                <td>{request.TotalRough}</td>
+                <td>{request.Unit}</td>
+            </tr>
+        </table>
+
+    <h3>2.6. Tổng giá trị hợp đồng:</h3>
+    <p>Giá trị hợp đồng trước thuế: " + request.TotalRough + @"</p>
+    <p>Giá trị hợp đồng sau khuyến mãi: " + request.PromotionInfo.Value + @"</p>
+    
+    <h2>ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</h2>
+    <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
+    <table>
+        <tr>
+            <th>Đợt</th>
+            <th>Nội dung thanh toán</th>
+            <th>Giá trị (%)</th>
+            <th>Giá trị (VND)</th>
+        </tr>");
+
+            int stageCounter = 1;
+            foreach (var payment in request.BatchPaymentInfos)
+            {
+                sb.Append($@"
+        <tr>
+            <td>{stageCounter}</td>
+            <td>{payment.Description}</td>
+            <td>{payment.Percents}</td>
+            <td>{payment.Price}</td>
+        </tr>");
+                stageCounter++;
+            }
+
+            sb.Append(@"
+    </table>
+
+    <h2>ĐIỀU 4. THỜI GIAN THI CÔNG</h2>
+    <p>Thời gian hoàn thành công trình là: <strong>" + request.TimeProcessing + @"</strong> ngày</p>
+    <p>Thời gian thi công phần thô: <strong>" + request.TimeOthers + @"</strong> ngày</p>");
+
+            sb.Append(@"
+    <h2>ĐIỀU 5. CÁC THỎA THUẬN KHÁC</h2>
+    <ul>");
+
+
+            if (!string.IsNullOrEmpty(request.OthersAgreement))
+            {
+                var agreements = request.OthersAgreement.Split('-')
+                                    .Where(a => !string.IsNullOrWhiteSpace(a))
+                                    .Select(a => a.Trim());
+
+                foreach (var agreement in agreements)
+                {
+                    sb.Append($@"
+            <li>{agreement}</li>");
+                }
+            }
+
+            sb.Append("</ul>");
+
+            sb.Append(@"
+    <p class='center'>Ngày …… tháng …… năm ……</p>
+
+    <div class='signature-block'>
+        <div class='signature left'>
+            <p><strong>Chủ đầu tư</strong></p>
+        </div>
+
+    <div class='signature right'>
+        <p><strong>Nhà thầu</strong></p>
+    </div>
+</div>
+</body>
+</html>");
+
+            return sb.ToString();
+        }
+
+
 
         public async Task<bool> UpdateInitialQuotation(UpdateInitialRequest request)
         {

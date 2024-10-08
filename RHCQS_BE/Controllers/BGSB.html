@@ -1,0 +1,258 @@
+<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        @page {
+            margin: 30px;
+            /* Căn lề trang PDF */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            color: black;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            text-align: left;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .signature-block {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 0;
+        }
+
+        .signature {
+            text-align: center;
+            width: 60%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>PHỤ LỤC HỢP ĐỒNG SỐ 01</h1>
+    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
+    <p><strong>CÔNG TRÌNH:</strong> NHÀ Ở RIÊNG LẺ</p>
+    <p><strong>ĐỊA ĐIỂM:</strong> Q2</p>
+    <p><strong>CHỦ ĐẦU TƯ:</strong> ANH NHÂN</p>
+
+    <h2>ĐIỀU 1. QUY MÔ CÔNG TRÌNH</h2>
+    <p>- 1 Trệt - 2 Lầu - Sân thượng - Mái BTCT</p>
+    <p>- Móng công trình là móng cọc ép.</p>
+    <p>- Mẫu nhà 1 mặt tiền.</p>
+
+    <h2>ĐIỀU 2. GIÁ TRỊ HỢP ĐỒNG</h2>
+    <p><strong>2.1. Đơn giá thi công phần thô trước thuế:</strong> " + request.BasePrice + @" đồng/m²</p>
+
+    <h3>2.2. Diện tích xây dựng theo phương án thiết kế:</h3>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+            <th>STT</th>
+            <th>Hạng mục</th>
+            <th>D-Tích</th>
+            <th>Hệ số</th>
+            <th>Diện tích</th>
+            <th>Đơn vị</th>
+        </tr>
+        @foreach (var item in request.Items)
+        {
+        sb.Append($@"
+        <tr>
+            <td>{item.Index}</td>
+            <td>{item.Description}</td>
+            <td>{item.Area}</td>
+            <td>{item.Coefficient}</td>
+            <td>{item.TotalArea}</td>
+            <td>{item.Unit}</td>
+        </tr>");
+        }
+        sb.Append($@"
+        <tr>
+            <td colspan='4' style='text-align:right;'><strong>Tổng diện tích xây dựng theo thiết kế:</strong></td>
+            <td>{request.TotalConstructionArea}</td>
+            <td>m²</td>
+        </tr>
+    </table>
+    <h3>2.3. Giá trị thi công phần thô trước thuế:</h3>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+            <th>Tổng diện tích xây dựng</th>
+            <th>x</th>
+            <th>Đơn giá</th>
+            <th>=</th>
+            <th>Thành tiền</th>
+        </tr>
+        <tr>
+            <td>" + request.TotalArea + @" m²</td>
+            <td>x</td>
+            <td>" + request.UnitPrice + @"</td>
+            <td>=</td>
+            <td>" + request.GrossPrice + @"</td>
+        </tr>
+    </table>
+
+    <h3>2.4. Các chi phí khác:</h3>
+    <ul>
+        <li><strong>2.4.1. Chi phí đổ bê tông gia cố nền trệt:</strong>
+            <table>
+                <tr>
+                    <th>Hạng mục</th>
+                    <th>x</th>
+                    <th>Đơn giá</th>
+                    <th>=</th>
+                    <th>Thành tiền</th>
+                </tr>
+                <tr>
+                    <td>request.ConcreteReinforcementCost</td>
+                    <td>x</td>
+                    <td>request.UnitOthers</td>
+                    <td>=</td>
+                    <td>81900000</td>
+                </tr>
+            </table>
+        </li>
+        <li><strong>2.4.2. Khuyến mãi thành viên THIET THACH Group</strong>
+            <table>
+                <tr>
+                    <th>Hạng mục</th>
+                    <th>x</th>
+                    <th>Đơn giá</th>
+                    <th>=</th>
+                    <th>Thành tiền</th>
+                </tr>
+                <tr>
+                    <td>request.ConcreteReinforcementCost</td>
+                    <td>x</td>
+                    <td>request.UnitOthers</td>
+                    <td>=</td>
+                    <td>81900000</td>
+                </tr>
+            </table>
+        </li>
+    </ul>
+
+    <h3>2.5. Tổng hợp giá trị hợp đồng:</h3>
+    <table>
+        <tr>
+            <th>Hạng mục</th>
+            <th>x</th>
+            <th>Thành tiền</th>
+            <th>Đơn giá</th>
+        </tr>
+        <tr>
+            <td>request.TotalPrice</td>
+            <td>x</td>
+            <td>request.TotalPrice</td>
+            <td>VND</td>
+        </tr>
+    </table>
+    <p>Giá trị hợp đồng trước thuế: " + request.ContractValueBeforeTax + @"</p>
+    <p>Giá trị hợp đồng sau khuyến mãi: " + request.ContractValueAfterDiscount + @"</p>
+
+    <h2>ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</h2>
+    <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
+    <table>
+        <tr>
+            <th>Đợt</th>
+            <th>Nội dung thanh toán</th>
+            <th>Giá trị (%)</th>
+            <th>Giá trị (VND)</th>
+        </tr>");
+
+        foreach (var payment in request.PaymentSchedule)
+        {
+        sb.Append($@"
+        <tr>
+            <td>{payment.Stage}</td>
+            <td>{payment.Description}</td>
+            <td>{payment.Percentage}</td>
+            <td>{payment.Amount}</td>
+        </tr>");
+        }
+
+        sb.Append(@"
+    </table>
+
+    <h2>ĐIỀU 4. THỜI GIAN THI CÔNG</h2>
+    <div style="margin-left: 40px;">
+        <p>Thời gian hoàn thành công trình là: <strong>" + request.ConstructionDuration + @"</strong> ngày</p>
+        <p>Trong đó:</p>
+        <p style="margin-left: 20px;">
+            Thời gian thi công phần thô: <strong>" + request.RoughConstructionDuration + @"</strong> Ngày
+        </p>
+        <p style="margin-left: 20px; font-style: italic;">
+            Phối hợp với CDT hoàn thiện công trình: <strong>" + request.FinishingCoordinationDuration + @"</strong> Ngày
+        </p>
+    </div>
+
+
+    <h2>ĐIỀU 5. CÁC THỎA THUẬN KHÁC</h2>
+    <ul>
+        <li>Giá trị hợp đồng chưa bao gồm thuế VAT.</li>
+        <li>Chưa bao gồm tiểu cảnh, bể bơi, sân vườn.</li>
+        <li>Hỗ trợ nâng nền cao +300mm so với cote tự nhiên.</li>
+    </ul>
+    <p class="center">Ngày …… tháng …… năm ……</p>
+
+    <div class="signature-block">
+        <div class="signature">
+            <p><strong>Chủ đầu tư</strong></p>
+            <p>(Investor's Name)</p>
+        </div>
+
+        <div class="signature">
+            <p><strong>Nhà thầu</strong></p>
+            <p>(Contractor's Name)</p>
+        </div>
+    </div>
+</body>
+
+</html>");

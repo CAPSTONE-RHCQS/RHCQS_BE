@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace RHCQS_BE.Controllers
 {
@@ -268,14 +269,21 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ApproveInitialFromManager([FromQuery] Guid initialId, [FromBody] ApproveQuotationRequest request)
         {
-            bool quotation = await _initialService.ApproveInitialFromManager(initialId, request);
+            var pdfUrl = await _initialService.ApproveInitialFromManager(initialId, request);
 
-            return new ContentResult()
+            if (!string.IsNullOrEmpty(pdfUrl))
             {
-                Content = quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR,
-                StatusCode = StatusCodes.Status200OK,
-                ContentType = "application/json"
-            };
+                return Ok(new { Url = pdfUrl }); 
+            }
+
+            return BadRequest(AppConstant.Message.ERROR);
+
+            //return new ContentResult()
+            //{
+            //    Content = quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR,
+            //    StatusCode = StatusCodes.Status200OK,
+            //    ContentType = "application/json"
+            //};
         }
 
         #region
