@@ -154,7 +154,6 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.Contract).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.ContractId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_Contract");
 
             entity.HasOne(d => d.FinalQuotation).WithMany(p => p.BatchPayments)
@@ -416,6 +415,10 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.UnitPrice).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
+            entity.HasOne(d => d.MaterialSection).WithMany(p => p.Materials)
+                .HasForeignKey(d => d.MaterialSectionId)
+                .HasConstraintName("Material_MaterialSection_FK");
+
             entity.HasOne(d => d.MaterialType).WithMany(p => p.Materials)
                 .HasForeignKey(d => d.MaterialTypeId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -434,11 +437,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
-
-            entity.HasOne(d => d.Material).WithMany(p => p.MaterialSections)
-                .HasForeignKey(d => d.MaterialId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MaterialSection_Material");
         });
 
         modelBuilder.Entity<MaterialType>(entity =>
@@ -838,7 +836,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Unit).HasMaxLength(10);
+            entity.Property(e => e.Unit).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.Utilities).WithMany(p => p.UtilitiesSections)

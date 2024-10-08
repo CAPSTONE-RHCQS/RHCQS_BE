@@ -25,7 +25,6 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        // Tách phần logic ánh xạ đối tượng Package sang PackageResponse thành phương thức riêng
         private static PackageResponse MapPackageToResponse(Package package)
         {
             return new PackageResponse(
@@ -55,14 +54,14 @@ namespace RHCQS_Services.Implement
                         pm.Id,
                         pm.MaterialSectionId,
                         pm.MaterialSection?.Name,
-                        pm.MaterialSection?.Material?.Name,
-                        pm.MaterialSection?.Material?.InventoryQuantity ?? 0,
-                        (double?)((decimal?)pm.MaterialSection?.Material?.Price ?? 0.0m),
-                        pm.MaterialSection?.Material?.Unit,
-                        pm.MaterialSection?.Material?.Size,
-                        pm.MaterialSection?.Material?.Shape,
-                        pm.MaterialSection?.Material?.ImgUrl,
-                        pm.MaterialSection?.Material?.Description,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.Name,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.InventoryQuantity ?? 0,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.Price ?? 0.0,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.Unit,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.Size,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.Shape,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.ImgUrl,
+                        pm.MaterialSection?.Materials.FirstOrDefault()?.Description,
                         pm.InsDate
                     )).ToList() ?? new List<PackageMaterialResponse>()
                 )).ToList() ?? new List<PackageDetailsResponse>(),
@@ -93,7 +92,7 @@ namespace RHCQS_Services.Implement
                            .Include(x => x.PackageDetails)
                            .ThenInclude(pd => pd.PackageMaterials)
                            .ThenInclude(pm => pm.MaterialSection)
-                           .ThenInclude(ms => ms.Material)
+                           .ThenInclude(ms => ms.Materials)
                            .Include(x => x.PackageType),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active",
@@ -114,13 +113,13 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.PackageDetails)
                                .ThenInclude(pd => pd.PackageMaterials)
                                .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Material)
+                               .ThenInclude(ms => ms.Materials)
                                .Include(x => x.PackageType),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active"
             );
 
-            return listPackage.ToList(); // Return as List
+            return listPackage.ToList();
         }
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
@@ -133,7 +132,7 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.PackageDetails)
                                .ThenInclude(pd => pd.PackageMaterials)
                                .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Material)
+                               .ThenInclude(ms => ms.Materials)
                                .Include(x => x.PackageType)
             );
 
@@ -155,7 +154,7 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.PackageDetails)
                                .ThenInclude(pd => pd.PackageMaterials)
                                .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Material)
+                               .ThenInclude(ms => ms.Materials)
                                .Include(x => x.PackageType)
             );
 

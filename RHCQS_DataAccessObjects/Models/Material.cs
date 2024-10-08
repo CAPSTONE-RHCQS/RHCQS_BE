@@ -35,7 +35,9 @@ public partial class Material
 
     public bool? IsAvailable { get; set; }
 
-    public virtual ICollection<MaterialSection> MaterialSections { get; set; } = new List<MaterialSection>();
+    public Guid? MaterialSectionId { get; set; }
+
+    public virtual MaterialSection? MaterialSection { get; set; }
 
     public virtual MaterialType MaterialType { get; set; } = null!;
 

@@ -102,13 +102,13 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class PackageMaterialResponse
     {
 
-        public PackageMaterialResponse(Guid id, Guid materialSectionId, string? materialSectionName, string? materialnName,
+        public PackageMaterialResponse(Guid id, Guid materialSectionId, string? materialSectionName, string? materialName,
             int? inventoryQuantity, double? price, string? unit, string? size, string? shape, string? imgUrl, string? description, DateTime? insDate)
         {
             Id = id;
             MaterialSectionId = materialSectionId;
             MaterialSectionName = materialSectionName;
-            MaterialnName = materialnName;
+            MaterialName = materialName;
             InventoryQuantity = inventoryQuantity;
             Price = price;
             Unit = unit;
@@ -123,7 +123,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid MaterialSectionId { get; set; }
         public string? MaterialSectionName { get; set; }
-        public string? MaterialnName { get; set; }
+        public string? MaterialName { get; set; }
         public int? InventoryQuantity { get; set; }
 
         public double? Price { get; set; }
