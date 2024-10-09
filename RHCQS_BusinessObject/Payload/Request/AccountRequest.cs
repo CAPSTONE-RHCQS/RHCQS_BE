@@ -44,4 +44,9 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public bool? Deflag { get; set; }
     }
+
+    public class DeTokenRequest
+    {
+        public string Token;
+    }
 }

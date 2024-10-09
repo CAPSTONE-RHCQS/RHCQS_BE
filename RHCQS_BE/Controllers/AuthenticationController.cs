@@ -9,6 +9,7 @@ using RHCQS_Services.Interface;
 using static RHCQS_BusinessObjects.AppConstant;
 using System.ComponentModel.DataAnnotations;
 using RHCQS_BusinessObjects;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace RHCQS_BE.Controllers
 {
@@ -85,5 +86,24 @@ namespace RHCQS_BE.Controllers
 
             return Ok(new { message = "Logout successful" });
         }
+
+        //[HttpPost("decode")]
+        //public IActionResult DecodeToken([FromBody] TokenRequest request)
+        //{
+        //    if (string.IsNullOrEmpty(request.Token))
+        //    {
+        //        return BadRequest("Token is required.");
+        //    }
+
+        //    // Gọi hàm DecodeToken của AuthService để lấy thông tin
+        //    var info = _authService.DecodeToken(request.Token);
+
+        //    if (info == null)
+        //    {
+        //        return BadRequest("Invalid token.");
+        //    }
+
+        //    return Ok(info);
+        //}
     }
 }

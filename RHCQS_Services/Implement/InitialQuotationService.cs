@@ -145,6 +145,104 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+        public async Task<InitialQuotationResponse> GetDetailInitialQuotationByCustomerName(string name)
+        {
+            var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                        x => x.Project.Customer.Username.Equals(name),
+                        include: x => x.Include(x => x.InitialQuotationItems)
+                                       .ThenInclude(x => x.ConstructionItem)
+                                       .ThenInclude(x => x.SubConstructionItems!)
+                                       .Include(x => x.Project)
+                                       .ThenInclude(x => x.Customer!)
+                                       .Include(x => x.PackageQuotations)
+                                       .ThenInclude(x => x.Package)
+                                       .Include(x => x.Promotion)
+                                       .Include(x => x.QuotationUtilities)
+                                            .ThenInclude(x => x.UtilitiesItem)
+                                       .Include(x => x.BatchPayments)
+                );
+            if (initialQuotation == null) { throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, 
+                                                      AppConstant.ErrMessage.Not_Found_InitialQuotaion); }
+            var roughPackage = initialQuotation.PackageQuotations
+                .FirstOrDefault(item => item.Type == "ROUGH");
+
+            var finishedPackage = initialQuotation.PackageQuotations
+                .FirstOrDefault(item => item.Type == "FINISHED");
+
+            var packageInfo = new PackageQuotationList(
+                roughPackage?.PackageId ?? Guid.Empty,
+                roughPackage?.Package.PackageName ?? string.Empty,
+                roughPackage?.Package.Price ?? 0,
+                finishedPackage?.PackageId ?? Guid.Empty,
+                finishedPackage?.Package.PackageName ?? string.Empty,
+                finishedPackage?.Package.Price ?? 0,
+                finishedPackage?.Package.Unit ?? string.Empty
+            );
+            var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
+                            item.Id,
+                            item.ConstructionItem?.Name,
+                            item.SubConstructionId.HasValue ?
+                              item.ConstructionItem?.SubConstructionItems
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem.Name,
+                            item.Area,
+                            item.Price,
+                            item.UnitPrice,
+                                item.ConstructionItem?.SubConstructionItems
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
+                            item.ConstructionItem.Coefficient
+                            )).ToList();
+
+            var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
+                            item.Id,
+                            item.Description ?? string.Empty,
+                            item.Coefiicient ?? 0,
+                            item.Price ?? 0
+                )).ToList() ?? new List<UtilityInfo>();
+
+            var promotionResponse = initialQuotation?.Promotion != null
+                                              ? new PromotionInfo(
+                                                  initialQuotation.Promotion.Id,
+                                                  initialQuotation.Promotion.Name,
+                                                  initialQuotation.Promotion.Value
+                                               )
+                                              : new PromotionInfo();
+
+            var batchPaymentResponse =
+                            initialQuotation.BatchPayments.Select(item => new BatchPaymentInfo(
+                                item.Id,
+                                item.Description,
+                                item.Percents,
+                                item.Price,
+                                item.Unit)).ToList() ?? new List<BatchPaymentInfo>();
+
+            var result = new InitialQuotationResponse
+            {
+                Id = initialQuotation.Id,
+                AccountName = initialQuotation.Project.Customer.Username,
+                ProjectId = initialQuotation.Project.Id,
+                PromotionId = initialQuotation.PromotionId,
+                Area = initialQuotation.Area,
+                TimeProcessing = initialQuotation.TimeProcessing,
+                TimeOthers = initialQuotation.TimeOthers,
+                OthersAgreement = initialQuotation.OthersAgreement,
+                InsDate = initialQuotation.InsDate,
+                Status = initialQuotation.Status,
+                Version = initialQuotation.Version,
+                Deflag = (bool)initialQuotation.Deflag,
+                Note = initialQuotation.Note,
+                TotalRough = initialQuotation.TotalRough,
+                TotalUtilities = initialQuotation.TotalUtilities,
+                Unit = initialQuotation.Unit,
+                PackageQuotationList = packageInfo,
+                ItemInitial = itemInitialResponses,
+                UtilityInfos = utiResponse,
+                PromotionInfo = promotionResponse,
+                BatchPaymentInfos = batchPaymentResponse
+            };
+
+            return result;
+        }
+
         public async Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId)
         {
             var infoStaff = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Account>().FirstOrDefaultAsync(a => a.Id == accountId,

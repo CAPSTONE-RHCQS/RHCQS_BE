@@ -43,6 +43,36 @@ namespace RHCQS_BE.Controllers
 
         #region
         /// <summary>
+        /// Gets a list of projects for a sales staff member.
+        /// </summary>
+        /// <remarks>
+        /// This API returns a list of projects managed by the sales staff member, with pagination support.
+        /// </remarks>
+        /// <param name="token">JWT token of the sales staff member.</param>
+        /// <param name="page">The page number for pagination (required).</param>
+        /// <param name="size">The number of records per page (required).</param>
+        /// <returns>A list of projects related to the sales staff member.</returns>
+        /// <response code="200">Returns the list of projects successfully.</response>
+        /// <response code="400">Returns an error message if parameters are invalid.</response>
+        /// <response code="401">Returns an error message if the token is invalid.</response>
+        /// <response code="500">Returns an error message if an error occurs on the server.</response>
+        #endregion
+        [HttpPost(ApiEndPointConstant.Project.ProjectSalesStaffEndpoint)]
+        [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListProjectBySalesStaff([FromBody] TokenRequest request,[FromQuery]int page, int size)
+        {
+            var listProjects = await _projectService.GetListProjectBySalesStaff(request.Token, page, size);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region
+        /// <summary>
         /// Retrieve a list of projects for a specific customer by their email.
         /// </summary>
         /// <param name="email">The email of the customer whose projects are being requested.</param>
@@ -198,5 +228,10 @@ namespace RHCQS_BE.Controllers
             var isCreate = await _projectService.CreateProjectQuotation(request);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
+    }
+
+    public class TokenRequest
+    {
+        public string Token { get; set; }
     }
 }

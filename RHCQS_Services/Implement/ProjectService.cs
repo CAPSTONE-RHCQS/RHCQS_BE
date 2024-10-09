@@ -20,11 +20,13 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ProjectService> _logger;
+        public IAuthService _authService { get; private set; }
 
-        public ProjectService(IUnitOfWork unitOfWork, ILogger<ProjectService> logger)
+        public ProjectService(IUnitOfWork unitOfWork, ILogger<ProjectService> logger, IAuthService authService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _authService = authService;
         }
 
         public async Task<IPaginate<ProjectResponse>> GetProjects(int page, int size)
@@ -39,6 +41,42 @@ namespace RHCQS_Services.Implement
                 size: size
                 );
             return listProjects;
+        }
+
+        public async Task<IPaginate<ProjectResponse>> GetListProjectBySalesStaff(string token, int page, int size)
+        {
+            var infoSales = _authService.DecodeToken(token);
+
+            IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<InitialQuotation>().GetList(
+                predicate: x => x.AccountId == Guid.Parse(infoSales.NameIdentifier),
+                selector: x => new ProjectResponse(x.Id, x.Project.Customer.Username, x.Project.Name, x.Project.Type,
+                                                    x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
+                include: x => x.Include(x => x.Project!)
+                                .ThenInclude(x => x.Customer!),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+                               .ThenBy(x => x.Status == AppConstant.ProjectStatus.PROCCESSING),
+                page: page,
+                size: size
+            );
+
+
+            List<ProjectResponse> lists = paginatedProjects.Items.ToList();
+
+            //IPaginate<ProjectResponse> listProjects = await _unitOfWork.GetRepository<Project>()
+            //                    .GetList(
+            //    //predicate: x => x.Id == Guid.Parse(infoSales.NameIdentifier),
+            //    predicate: x => x.InitialQuotations.Any(w => w.Id == Guid.Parse(infoSales.NameIdentifier)),
+            //    selector: x => new ProjectResponse(x.Id, x.Customer.Username, x.Name, x.Type,
+            //                                        x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
+            //    include: x =>
+            //                   //x.Include(w => w.Customer)
+            //                   x.Include(x => x.InitialQuotations)
+            //                   .Include(x => x.FinalQuotations)
+            //                   .Include(x => x.Contracts),
+            //    orderBy: x => x.OrderBy(x => x.InsDate),
+            //    page: page,
+            //    size: size);
+            return paginatedProjects;
         }
 
         public async Task<ProjectDetail> GetDetailProjectById(Guid id)
@@ -90,11 +128,12 @@ namespace RHCQS_Services.Implement
                                                                      }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
 
             var contractItem = projectItem.Contracts?.Select(c => new ContractInfo
-                                                    {
-                                                        Name = c.Name,
-                                                        Status = c.Status,
-                                                        Note = c.Note
-                                                    }).ToList() ?? new List<ContractInfo>();
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Status = c.Status,
+                Note = c.Note
+            }).ToList() ?? new List<ContractInfo>();
 
 
             var projectDetailItem = new ProjectDetail
@@ -122,10 +161,10 @@ namespace RHCQS_Services.Implement
         {
             var listProject = await _unitOfWork.GetRepository<Project>()
                 .GetList(
-                    predicate: p => p.Customer.Email == email,  
+                    predicate: p => p.Customer.Email == email,
                     selector: p => new ProjectResponse(
                         p.Id,
-                        p.Customer.Username,  
+                        p.Customer.Username,
                         p.Name,
                         p.Type,
                         p.Status,
@@ -133,7 +172,7 @@ namespace RHCQS_Services.Implement
                         p.UpsDate,
                         p.ProjectCode
                     ),
-                    include: p => p.Include(p => p.Customer) 
+                    include: p => p.Include(p => p.Customer)
                 );
 
             return listProject.Items.ToList();
@@ -164,7 +203,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     CustomerId = projectRequest.CustomerId,
-                    Name = "Báo giá sơ bộ " +  DateTime.Now,
+                    Name = "Báo giá sơ bộ " + DateTime.Now,
                     Type = projectRequest.Type,
                     Status = AppConstant.ProjectStatus.PROCCESSING,
                     InsDate = DateTime.Now,

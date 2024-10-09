@@ -96,6 +96,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class ContractInfo
     {
+        public Guid Id { get; set; }
         public string? Name { get; set; }
         public string Status { get; set; }
         public string? Note { get; set; }

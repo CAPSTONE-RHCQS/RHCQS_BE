@@ -17,6 +17,7 @@ namespace RHCQS_BE.Extenstion
             public const string RegisterEndpoint = ApiEndpoint + "/register";
             public const string LoginEndpoint = ApiEndpoint + "/login";
             public const string LogoutEndpoint = ApiEndpoint + "/logout";
+            public const string DesTokenEndpoin = ApiEndpoint + "/des";
         }
 
         public static class Role
@@ -65,6 +66,7 @@ namespace RHCQS_BE.Extenstion
         public static class Project
         {
             public const string ProjectEndpoint = ApiEndpoint + "/project";
+            public const string ProjectSalesStaffEndpoint = ProjectEndpoint + "/sales";
             public const string ProjectDetailEndpoint = ProjectEndpoint + "/id";
             public const string ProjectByNumberPhone = ProjectEndpoint + "/phone";
             public const string ProjectListForCustomerEndpoint = ProjectEndpoint + "/email";
@@ -107,6 +109,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string InitialQuotationEndpoint = ApiEndpoint + "/quotation" + "/initial";
             public const string InitialQuotationDetailEndpoint = InitialQuotationEndpoint + "/id";
+            public const string InitialQuotationDetailByCustomerEndpoint = InitialQuotationEndpoint + "/customer/name";
             public const string AssignInitialQuotationEndpoint = InitialQuotationEndpoint + "/assign";
             public const string ApproveInitialEndpoint = InitialQuotationEndpoint + "/approve";
             public const string InitialQuotationUpdateEndpoibt = InitialQuotationEndpoint + "/update";

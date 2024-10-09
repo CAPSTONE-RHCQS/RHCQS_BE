@@ -167,7 +167,7 @@ namespace RHCQS_Services.Implement
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionExit);
             }
