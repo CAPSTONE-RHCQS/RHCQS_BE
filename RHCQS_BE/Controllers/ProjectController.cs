@@ -57,6 +57,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="401">Returns an error message if the token is invalid.</response>
         /// <response code="500">Returns an error message if an error occurs on the server.</response>
         #endregion
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectSalesStaffEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListProjectBySalesStaff([FromBody] TokenRequest request,[FromQuery]int page, int size)
