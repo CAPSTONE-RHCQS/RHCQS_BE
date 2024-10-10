@@ -47,14 +47,14 @@ namespace RHCQS_Services.Implement
         {
             var infoSales = _authService.DecodeToken(token);
 
-            IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<InitialQuotation>().GetList(
+            IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<AssignTask>().GetList(
                 predicate: x => x.AccountId == Guid.Parse(infoSales.NameIdentifier),
                 selector: x => new ProjectResponse(x.Id, x.Project.Customer.Username, x.Project.Name, x.Project.Type,
                                                     x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
                 include: x => x.Include(x => x.Project!)
                                 .ThenInclude(x => x.Customer!),
                 orderBy: x => x.OrderBy(x => x.InsDate)
-                               .ThenBy(x => x.Status == AppConstant.ProjectStatus.PROCCESSING),
+                               .ThenBy(x => x.Project.Status == AppConstant.ProjectStatus.PROCCESSING),
                 page: page,
                 size: size
             );
@@ -86,7 +86,7 @@ namespace RHCQS_Services.Implement
                                         .Select(i => new InitialInfo
                                         {
                                             Id = i.Id,
-                                            AccountName = i.Account?.Username,
+                                            AccountName = projectItem.AssignTasks.FirstOrDefault()?.Account.Username,
                                             Version = i.Version,
                                             InsDate = i.InsDate,
                                             Status = i.Status
@@ -284,7 +284,6 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> AssignQuotation(Guid accountId, Guid projectId)
         {
-            // Count how many projects are assigned to this account (staff)
             var projectCount = await _unitOfWork.GetRepository<AssignTask>()
                                                 .CountAsync(a => a.AccountId == accountId);
 

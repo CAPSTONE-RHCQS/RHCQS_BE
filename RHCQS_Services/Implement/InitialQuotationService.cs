@@ -590,7 +590,7 @@ namespace RHCQS_Services.Implement
                     TimeOthers = request.TimeOthers,
                     OthersAgreement = request.OthersAgreement,
                     InsDate = DateTime.Now,
-                    Status = AppConstant.QuotationStatus.UNDER_REVIEW,
+                    Status = AppConstant.QuotationStatus.REVIEWING,
                     Version = request.VersionPresent + 1,
                     IsTemplate = false,
                     Deflag = true,
