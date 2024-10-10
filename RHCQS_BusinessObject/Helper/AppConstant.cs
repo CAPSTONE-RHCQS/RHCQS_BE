@@ -46,42 +46,44 @@ public static class AppConstant
     {
         public const string PROCCESSING = "Proccessing";
         public const string DESIGNED = "Designed";
-        public const string UNDER_REVIEW = "Under Review";
+        public const string UNDER_REVIEW = "Reviewing";
         public const string SIGNED_DESIGN_CONTRACT = "Signed Design Contract";
         public const string SIGNED_CONTRACT = "Signed Contract";
         public const string FINALIZED = "Finalized";
-        public const string TERMINATED = "Terminated";
+        public const string ENDED = "Ended";
     }
 
-    public class InitialQuotationStatus
+    public class QuotationStatus
     {
         public const string PENDING = "Pending";
         public const string PROCESSING = "Processing";
         public const string REJECTED = "Rejected";
-        public const string UNDER_REVIEW = "Under Review";
+        public const string REVIEWING = "Reviewing";
         public const string APPROVED = "Approved";
-        public const string SEND_TO_CUSTOMER = "Send To Customer";
         public const string FINALIZED = "Finalized";
         public const string CANCELED = "Canceled";
     }
 
     public class HouseDesignStatus
     {
-        public const string PENDING = "Pending";
-        public const string DESIGN_PAYMENT_PENDING = "Design Payment Pending";
-        public const string DESIGN_PAYMENT_VERIFIED = "Design Payment Verified";
         public const string PROCESSING = "Processing";
-        public const string TASK_ASSIGNED = "Task Assigned";
-        public const string FINISHED = "Finished";
-        public const string UNDER_REVIEW = "Under Review";
+        public const string REVIEWING = "Reviewing";
+        public const string REJECTED = "Rejected";
+        public const string UPDATING = "Updating";
         public const string APPROVED = "Approved";
-        public const string SEND_TO_CUSTOMER = "Send To Customer";
         public const string FINALIZED = "Finalized";
         public const string CANCELED = "Canceled";
-        public const string UPDATED = "Updated";
         public const string ACCEPTED = "Accepted";
-
     }
+
+    public class ConstractStatus
+    {
+        public const string PROCESSING = "Processing";
+        public const string COMPLETED = "Completed";
+        public const string FINISHED = "Finished";
+        public const string ENDED = "Ended";
+    }
+
     public class Status
     {
         public const string PROCESSING = "Processing";

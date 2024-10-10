@@ -252,9 +252,9 @@ namespace RHCQS_Services.Implement
             if (initialItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
                                                AppConstant.ErrMessage.Not_Found_InitialQuotaion);
 
-            if (request.Type == AppConstant.InitialQuotationStatus.APPROVED)
+            if (request.Type == AppConstant.QuotationStatus.APPROVED)
             {
-                initialItem.Status = AppConstant.InitialQuotationStatus.APPROVED;
+                initialItem.Status = AppConstant.QuotationStatus.APPROVED;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
                 var data = await GetDetailInitialQuotationById(initialItem.Id);
                 try
@@ -312,7 +312,7 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                initialItem.Status = AppConstant.InitialQuotationStatus.REJECTED;
+                initialItem.Status = AppConstant.QuotationStatus.REJECTED;
                 initialItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
             }
@@ -590,7 +590,7 @@ namespace RHCQS_Services.Implement
                     TimeOthers = request.TimeOthers,
                     OthersAgreement = request.OthersAgreement,
                     InsDate = DateTime.Now,
-                    Status = AppConstant.InitialQuotationStatus.UNDER_REVIEW,
+                    Status = AppConstant.QuotationStatus.REVIEWING,
                     Version = request.VersionPresent + 1,
                     IsTemplate = false,
                     Deflag = true,

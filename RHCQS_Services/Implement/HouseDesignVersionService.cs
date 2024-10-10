@@ -161,7 +161,7 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                drawingItem.Status = AppConstant.HouseDesignStatus.UPDATED;
+                drawingItem.Status = AppConstant.HouseDesignStatus.UPDATING;
                 drawingItem.Reason = request.Reason;
             }
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
