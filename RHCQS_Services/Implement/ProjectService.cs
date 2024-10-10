@@ -62,20 +62,6 @@ namespace RHCQS_Services.Implement
 
             List<ProjectResponse> lists = paginatedProjects.Items.ToList();
 
-            //IPaginate<ProjectResponse> listProjects = await _unitOfWork.GetRepository<Project>()
-            //                    .GetList(
-            //    //predicate: x => x.Id == Guid.Parse(infoSales.NameIdentifier),
-            //    predicate: x => x.InitialQuotations.Any(w => w.Id == Guid.Parse(infoSales.NameIdentifier)),
-            //    selector: x => new ProjectResponse(x.Id, x.Customer.Username, x.Name, x.Type,
-            //                                        x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
-            //    include: x =>
-            //                   //x.Include(w => w.Customer)
-            //                   x.Include(x => x.InitialQuotations)
-            //                   .Include(x => x.FinalQuotations)
-            //                   .Include(x => x.Contracts),
-            //    orderBy: x => x.OrderBy(x => x.InsDate),
-            //    page: page,
-            //    size: size);
             return paginatedProjects;
         }
 
@@ -83,10 +69,11 @@ namespace RHCQS_Services.Implement
         {
             var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id,
                                 include: w => w.Include(p => p.Customer)
+                                                .Include(p => p.AssignTasks)
+                                                .ThenInclude(p => p.Account)
                                                 .Include(p => p.InitialQuotations)
                                                     .ThenInclude(p => p.Account)
                                                 .Include(p => p.FinalQuotations)
-                                                    .ThenInclude(p => p.Account)
                                                 .Include(p => p.HouseDesignDrawings)
                                                     .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
@@ -106,14 +93,15 @@ namespace RHCQS_Services.Implement
                                         }).ToList() ?? new List<InitialInfo>();
 
             var finalItem = projectItem.FinalQuotations?
-                                        .Select(d => new FinalInfo
-                                        {
-                                            Id = d.Id,
-                                            AccountName = d.Account?.Username,
-                                            Version = d.Version,
-                                            InsDate = d.InsDate,
-                                            Status = d.Status
-                                        }).ToList() ?? new List<FinalInfo>();
+                              .Select(d => new FinalInfo
+                              {
+                                  Id = d.Id,
+                                  AccountName = projectItem.AssignTasks.FirstOrDefault()?.Account.Username, 
+                                  Version = d.Version,
+                                  InsDate = d.InsDate,
+                                  Status = d.Status
+                              }).ToList() ?? new List<FinalInfo>();
+
 
             var houseDesignItem = projectItem.HouseDesignDrawings?
                                                                      .Select(h => new HouseDesignDrawingInfo
@@ -292,6 +280,31 @@ namespace RHCQS_Services.Implement
                 Console.WriteLine($"Error occurred: {ex.Message}");
                 return false;
             }
+        }
+
+        public async Task<string> AssignQuotation(Guid accountId, Guid projectId)
+        {
+            // Count how many projects are assigned to this account (staff)
+            var projectCount = await _unitOfWork.GetRepository<AssignTask>()
+                                                .CountAsync(a => a.AccountId == accountId);
+
+            if (projectCount > 2)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
+            }
+
+            var assignItem = new AssignTask
+            {
+                Id = Guid.NewGuid(),
+                AccountId = accountId,
+                ProjectId = projectId,
+                InsDate = DateTime.Now
+            };
+
+            await _unitOfWork.GetRepository<AssignTask>().InsertAsync(assignItem);
+
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
 
     }

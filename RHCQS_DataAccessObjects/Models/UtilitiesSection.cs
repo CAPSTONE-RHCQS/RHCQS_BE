@@ -23,7 +23,7 @@ public partial class UtilitiesSection
 
     public string? Unit { get; set; }
 
-    public virtual Utilities Utilities { get; set; } = null!;
+    public virtual UtilityOption Utilities { get; set; } = null!;
 
     public virtual ICollection<UtilitiesItem> UtilitiesItems { get; set; } = new List<UtilitiesItem>();
 }

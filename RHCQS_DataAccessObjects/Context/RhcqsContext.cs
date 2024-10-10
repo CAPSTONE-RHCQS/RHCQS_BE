@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects.Context;
+namespace RHCQS_DataAccessObjects;
 
 public partial class RhcqsContext : DbContext
 {
@@ -104,7 +104,7 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
-    public virtual DbSet<Utilities> Utilities { get; set; }
+    public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -134,8 +134,15 @@ public partial class RhcqsContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Status).HasMaxLength(50);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.AssignTasks)
+                .HasForeignKey(d => d.AccountId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_AssignTask_Account");
+
+            entity.HasOne(d => d.Project).WithMany(p => p.AssignTasks)
+                .HasForeignKey(d => d.ProjectId)
+                .HasConstraintName("FK_AssignTask_Project");
         });
 
         modelBuilder.Entity<BatchPayment>(entity =>
@@ -251,6 +258,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Note)
                 .HasMaxLength(10)
                 .IsFixedLength();
+            entity.Property(e => e.Type).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
 
             entity.HasOne(d => d.FinalQuotation).WithMany(p => p.EquipmentItems)
@@ -269,11 +277,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.Account).WithMany(p => p.FinalQuotations)
-                .HasForeignKey(d => d.AccountId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FinalQuotation_Account");
 
             entity.HasOne(d => d.Project).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.ProjectId)
@@ -300,6 +303,11 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.Weight).HasMaxLength(50);
+
+            entity.HasOne(d => d.ConstructionItem).WithMany(p => p.FinalQuotationItems)
+                .HasForeignKey(d => d.ConstructionItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_FinalQuotationItem_ConstructionItems");
 
             entity.HasOne(d => d.FinalQuotation).WithMany(p => p.FinalQuotationItems)
                 .HasForeignKey(d => d.FinalQuotationId)
@@ -845,9 +853,11 @@ public partial class RhcqsContext : DbContext
                 .HasConstraintName("FK_UltilitiesSection_Ultilities");
         });
 
-        modelBuilder.Entity<Utilities>(entity =>
+        modelBuilder.Entity<UtilityOption>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK_Ultilities");
+
+            entity.ToTable("UtilityOption");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");

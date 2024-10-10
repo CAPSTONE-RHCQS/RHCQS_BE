@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RHCQS_DataAccessObjects.Models;
 
-public partial class Utilities
+public partial class UtilityOption
 {
     public Guid Id { get; set; }
 

@@ -19,5 +19,7 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateProjectQuotation(ProjectRequest projectRequest);
         Task<List<ProjectResponse>> GetListProjectByEmail(string email);
 
+        Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId);
+
     }
 }

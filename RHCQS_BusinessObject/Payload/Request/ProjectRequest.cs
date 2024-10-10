@@ -46,4 +46,12 @@ namespace RHCQS_BusinessObject.Payload.Request
         [RegularExpression("ROUGH|FINISHED", ErrorMessage = "Loại gói phải là 'Thô' hoặc 'Hoàn thiện'.")]
         public string? Type { get; set; }
     }
+
+    public class AssignProject
+    {
+        [Required(ErrorMessage = "AccountId là bắt buộc.")]
+        public Guid accountId { get; set; }
+        [Required(ErrorMessage = "Báo giá sơ bộ là bắt buộc.")]
+        public Guid projectId { get; set; }
+    }
 }

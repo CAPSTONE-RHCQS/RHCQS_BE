@@ -9,9 +9,11 @@ public partial class AssignTask
 
     public Guid AccountId { get; set; }
 
-    public string? Name { get; set; }
-
-    public string? Status { get; set; }
+    public Guid? ProjectId { get; set; }
 
     public DateTime? InsDate { get; set; }
+
+    public virtual Account Account { get; set; } = null!;
+
+    public virtual Project? Project { get; set; }
 }
