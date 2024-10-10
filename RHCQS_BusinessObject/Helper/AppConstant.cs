@@ -53,7 +53,7 @@ public static class AppConstant
         public const string TERMINATED = "Terminated";
     }
 
-    public class InitialQuotationStatus
+    public class QuotationStatus
     {
         public const string PENDING = "Pending";
         public const string PROCESSING = "Processing";

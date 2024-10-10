@@ -213,7 +213,7 @@ namespace RHCQS_Services.Implement
                     TimeRough = null,
                     TimeOthers = null,
                     InsDate = DateTime.Now,
-                    Status = AppConstant.InitialQuotationStatus.PENDING,
+                    Status = AppConstant.QuotationStatus.PENDING,
                     Version = 1.0,
                     IsTemplate = false,
                     Deflag = false,

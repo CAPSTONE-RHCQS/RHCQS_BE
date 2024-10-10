@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
@@ -291,6 +292,16 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+/*        [Authorize(Roles = "SalesStaff")]*/
+        [HttpPost(ApiEndPointConstant.FinalQuotation.FinalQuotationUpdateEndpoibt)]
+        [ProducesResponseType(typeof(UpdateFinalRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateFinalQuotation([FromBody] UpdateFinalRequest request)
+        {
+            bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
+
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
         }
     }
 }
