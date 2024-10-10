@@ -19,6 +19,10 @@ public partial class ConstructionItem
 
     public string? Type { get; set; }
 
+    public bool? IsFinalQuotation { get; set; }
+
+    public virtual ICollection<FinalQuotationItem> FinalQuotationItems { get; set; } = new List<FinalQuotationItem>();
+
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
 
     public virtual ICollection<SubConstructionItem> SubConstructionItems { get; set; } = new List<SubConstructionItem>();

@@ -29,7 +29,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<IPaginate<UtilityResponse>> GetListUtilities(int page, int size)
         {
-            var list = await _unitOfWork.GetRepository<Utilities>().GetList(
+            var list = await _unitOfWork.GetRepository<UtilityOption>().GetList(
                     selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate, x.UpsDate,
                                                        x.UtilitiesSections.Select(s => new UtilitiesSectionResponse(
                                                            s.Id,
@@ -46,7 +46,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<List<UtilityResponse>> GetListUtilitiesByType(string type)
         {
-            var listConstruction = await _unitOfWork.GetRepository<Utilities>().GetList(
+            var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
                 predicate: x => x.Type.Equals(type.ToUpper()),
                 selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate,
                                                             x.UpsDate,
@@ -65,7 +65,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<UtilityResponse> GetDetailUtilityItem(Guid id)
         {
-            var utiItem = await _unitOfWork.GetRepository<Utilities>().FirstOrDefaultAsync(
+            var utiItem = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(
                 predicate: con => con.Id == id,
                 include: con => con.Include(con => con.UtilitiesSections)
             );
@@ -129,8 +129,8 @@ namespace RHCQS_Services.Implement
             try
             {
                 //Create all utility - section - item
-                Utilities utility = request.Id.HasValue ? await _unitOfWork.GetRepository<Utilities>().FirstOrDefaultAsync(x => x.Id == request.Id)
-                   : new Utilities
+                UtilityOption utility = request.Id.HasValue ? await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(x => x.Id == request.Id)
+                   : new UtilityOption
                    {
                        Id = Guid.NewGuid(),
                        Name = request.Name,
@@ -141,7 +141,7 @@ namespace RHCQS_Services.Implement
                    };
                 if (!request.Id.HasValue)
                 {
-                    await _unitOfWork.GetRepository<Utilities>().InsertAsync(utility);
+                    await _unitOfWork.GetRepository<UtilityOption>().InsertAsync(utility);
                 }
 
                 foreach (var s in request.Sections)

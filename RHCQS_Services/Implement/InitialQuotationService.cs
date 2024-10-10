@@ -243,41 +243,7 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
-        public async Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId)
-        {
-            var infoStaff = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Account>().FirstOrDefaultAsync(a => a.Id == accountId,
-                            include: a => a.Include(a => a.InitialQuotations));
-
-            //if (infoStaff.InitialQuotations.Count > 2)
-            //{
-            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
-            //}
-
-            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(i => i.Id == initialQuotationId);
-            if (initialItem.Deflag == true)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.QuotationHasStaff);
-            }
-            if (initialItem != null)
-            {
-                initialItem.AccountId = accountId;
-                initialItem.Deflag = true;
-                var finalQuotation = new FinalQuotation()
-                {
-                    Id = Guid.NewGuid(),
-                    ProjectId = initialItem.ProjectId,
-                    AccountId = accountId,
-                    Deflag = false,
-                    InsDate = DateTime.Now,
-                };
-                await _unitOfWork.GetRepository<FinalQuotation>().InsertAsync(finalQuotation);
-            }
-
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
-
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
-        }
+        
 
         public async Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
         {

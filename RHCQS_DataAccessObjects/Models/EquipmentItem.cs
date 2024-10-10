@@ -21,5 +21,7 @@ public partial class EquipmentItem
 
     public Guid FinalQuotationId { get; set; }
 
+    public string? Type { get; set; }
+
     public virtual FinalQuotation FinalQuotation { get; set; } = null!;
 }
