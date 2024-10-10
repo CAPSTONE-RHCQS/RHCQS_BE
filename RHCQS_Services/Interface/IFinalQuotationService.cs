@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +10,8 @@ namespace RHCQS_Services.Interface
 {
     public interface IFinalQuotationService
     {
+        Task<IPaginate<FinalQuotationListResponse>> GetListFinalQuotation(int page, int size);
+        Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id);
+        Task<FinalQuotationResponse> GetDetailFinalQuotationByCustomerName(string name);
     }
 }

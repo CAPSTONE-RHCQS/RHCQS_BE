@@ -164,6 +164,7 @@ public static class AppConstant
         public const string SubTemplateNotFound = "SubTemplate không tìm thấy.";
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
+        public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
         //PackageType
