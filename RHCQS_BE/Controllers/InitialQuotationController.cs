@@ -376,6 +376,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="request">The request body containing the reason for approval or rejection.</param>
         /// <returns>Returns a success or error message based on the approval result.</returns>
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.InitialQuotation.ApproveInitialEndpoint)]
         [ProducesResponseType(typeof(ApproveQuotationRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -389,13 +390,6 @@ namespace RHCQS_BE.Controllers
             }
 
             return BadRequest(AppConstant.Message.ERROR);
-
-            //return new ContentResult()
-            //{
-            //    Content = quotation ? AppConstant.Message.APPROVED : AppConstant.Message.ERROR,
-            //    StatusCode = StatusCodes.Status200OK,
-            //    ContentType = "application/json"
-            //};
         }
 
         #region
@@ -469,6 +463,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns success message if the update was successful.</response>
         /// <response code="404">Returns if the specified quotation was not found.</response>
         #endregion
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.InitialQuotation.InitialQuotationUpdateEndpoibt)]
         [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -476,12 +471,7 @@ namespace RHCQS_BE.Controllers
         {
             bool quotation = await _initialService.UpdateInitialQuotation(request);
 
-            return new ContentResult()
-            {
-                Content = quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR,
-                StatusCode = StatusCodes.Status200OK,
-                ContentType = "application/json"
-            };
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
         }
     }
 }

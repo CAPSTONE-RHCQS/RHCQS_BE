@@ -248,10 +248,10 @@ namespace RHCQS_Services.Implement
             var infoStaff = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Account>().FirstOrDefaultAsync(a => a.Id == accountId,
                             include: a => a.Include(a => a.InitialQuotations));
 
-            if (infoStaff.InitialQuotations.Count > 2)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
-            }
+            //if (infoStaff.InitialQuotations.Count > 2)
+            //{
+            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
+            //}
 
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(i => i.Id == initialQuotationId);
             if (initialItem.Deflag == true)
@@ -267,7 +267,8 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     ProjectId = initialItem.ProjectId,
                     AccountId = accountId,
-                    Deflag = false
+                    Deflag = false,
+                    InsDate = DateTime.Now,
                 };
                 await _unitOfWork.GetRepository<FinalQuotation>().InsertAsync(finalQuotation);
             }
