@@ -58,6 +58,10 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? ProjectCode { get; set; }
 
+        public string StaffName { get; set; }
+        public string StaffPhone { get; set; }
+        public string StaffAvatar { get; set; }
+
         public List<InitialInfo>? InitialInfo { get; set; }
         public List<HouseDesignDrawingInfo>? HouseDesignDrawingInfo { get; set; }
         public List<FinalInfo>? FinalInfo { get; set; }
