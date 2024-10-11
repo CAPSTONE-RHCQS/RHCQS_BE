@@ -293,7 +293,12 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-/*        [Authorize(Roles = "SalesStaff")]*/
+        #region UpdateFinalQuotation
+        /// <summary>
+        /// Update a final quotation.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
         [HttpPut(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
         [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -303,7 +308,12 @@ namespace RHCQS_BE.Controllers
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);
         }
-/*        [Authorize(Roles = "SalesStaff")]*/
+        #region CreateFinalQuotation
+        /// <summary>
+        /// Create a final quotation.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
         [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
