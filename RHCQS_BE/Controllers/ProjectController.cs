@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
+using System.Security.Claims;
 
 namespace RHCQS_BE.Controllers
 {
@@ -60,11 +61,12 @@ namespace RHCQS_BE.Controllers
         /// <response code="500">Returns an error message if an error occurs on the server.</response>
         #endregion
         [Authorize(Roles = "SalesStaff")]
-        [HttpPost(ApiEndPointConstant.Project.ProjectSalesStaffEndpoint)]
+        [HttpGet(ApiEndPointConstant.Project.ProjectSalesStaffEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetListProjectBySalesStaff([FromBody] TokenRequest request,[FromQuery]int page, int size)
+        public async Task<IActionResult> GetListProjectBySalesStaff([FromQuery]int page, int size)
         {
-            var listProjects = await _projectService.GetListProjectBySalesStaff(request.Token, page, size);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var listProjects = await _projectService.GetListProjectBySalesStaff(accountId, page, size);
             var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
             return new ContentResult()
             {
@@ -110,7 +112,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If the project is not found.</response>
         /// <response code="400">If the input is invalid.</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectDetailEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailProjectById(Guid id)
@@ -251,7 +253,7 @@ namespace RHCQS_BE.Controllers
         ///     
         /// </remarks>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Project.ProjectAssignEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

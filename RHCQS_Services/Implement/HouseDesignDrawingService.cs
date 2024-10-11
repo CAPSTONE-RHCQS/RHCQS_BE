@@ -50,6 +50,29 @@ namespace RHCQS_Services.Implement
             return list;
         }
 
+        public async Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId)
+        {
+            var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
+                        predicate: x => x.Account.Id == accountId,
+                        selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.HouseDesignVersions.Select(
+                                                                          v => new HouseDesignVersionResponse(
+                                                                              v.Id,
+                                                                              v.Name,
+                                                                              v.Version,
+                                                                              v.Status,
+                                                                              v.InsDate,
+                                                                              v.PreviousDrawingId,
+                                                                              v.Note)).ToList()),
+                        include: x => x.Include(x => x.HouseDesignVersions),
+                        orderBy: x => x.OrderBy(x => x.InsDate),
+                        page: page,
+                        size: size
+                );
+            return list;
+        }
+
         public async Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawing(Guid id)
         {
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
