@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
+using System.Security.Claims;
 
 namespace RHCQS_BE.Controllers
 {
@@ -43,13 +44,35 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetListHouseDesignDrawingsForDesignStaff
+        /// <summary>
+        /// Retrieves the list of all house design drawing item.
+        /// </summary>
+        /// <returns>List of house design drawing in the system</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff")]
+        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingDesignStaffEndpont)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListHouseDesignDrawingsForDesignStaff(int page, int size)
+        {
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var listHouseDesignDrawings = await _houseService.GetListHouseDesignDrawingsForDesignStaff(page, size, accountId);
+            var result = JsonConvert.SerializeObject(listHouseDesignDrawings, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetDetailHouseDesignDrawing
         /// <summary>
         /// Retrieves the house design drawing item.
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingDetailEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailHouseDesignDrawing(Guid id)

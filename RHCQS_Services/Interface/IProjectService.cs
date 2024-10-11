@@ -12,7 +12,7 @@ namespace RHCQS_Services.Interface
     public interface IProjectService
     {
         Task<IPaginate<ProjectResponse>> GetProjects(int page, int size);
-        Task<IPaginate<ProjectResponse>> GetListProjectBySalesStaff(string token, int page, int size);
+        Task<IPaginate<ProjectResponse>> GetListProjectBySalesStaff(Guid accountId, int page, int size);
         Task<ProjectDetail> GetDetailProjectById(Guid id);
         Task<List<ProjectResponse>> SearchProjectByPhone(string phoneNumber);
 

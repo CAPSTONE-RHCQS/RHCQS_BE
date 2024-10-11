@@ -93,6 +93,7 @@ namespace RHCQS_BE.Extenstion
         public static class HouseDesignDrawing
         {
             public const string HouseDesignDrawingEndpoint = ApiEndpoint + "/housedesign";
+            public const string HouseDesignDrawingDesignStaffEndpont = HouseDesignDrawingEndpoint + "/design";
             public const string HouseDesignDrawingDetailEndpoint = HouseDesignDrawingEndpoint + "/id";
             public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
             public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task/id";

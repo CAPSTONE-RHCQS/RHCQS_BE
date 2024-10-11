@@ -43,12 +43,10 @@ namespace RHCQS_Services.Implement
             return listProjects;
         }
 
-        public async Task<IPaginate<ProjectResponse>> GetListProjectBySalesStaff(string token, int page, int size)
+        public async Task<IPaginate<ProjectResponse>> GetListProjectBySalesStaff(Guid accountId, int page, int size)
         {
-            var infoSales = _authService.DecodeToken(token);
-
             IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<AssignTask>().GetList(
-                predicate: x => x.AccountId == Guid.Parse(infoSales.NameIdentifier),
+                predicate: x => x.AccountId == accountId,
                 selector: x => new ProjectResponse(x.Id, x.Project.Customer.Username, x.Project.Name, x.Project.Type,
                                                     x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
                 include: x => x.Include(x => x.Project!)
@@ -96,7 +94,7 @@ namespace RHCQS_Services.Implement
                               .Select(d => new FinalInfo
                               {
                                   Id = d.Id,
-                                  AccountName = projectItem.AssignTasks.FirstOrDefault()?.Account.Username, 
+                                  AccountName = projectItem.AssignTasks.FirstOrDefault()?.Account.Username,
                                   Version = d.Version,
                                   InsDate = d.InsDate,
                                   Status = d.Status
@@ -287,10 +285,13 @@ namespace RHCQS_Services.Implement
             var projectCount = await _unitOfWork.GetRepository<AssignTask>()
                                                 .CountAsync(a => a.AccountId == accountId);
 
-            if (projectCount > 2)
+            var projectAval = await _unitOfWork.GetRepository<AssignTask>().CountAsync(a => a.ProjectId == projectId);
+            if (projectAval >= 1) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.QuotationHasStaff);
+            if (projectCount >= 2)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
             }
+
 
             var assignItem = new AssignTask
             {

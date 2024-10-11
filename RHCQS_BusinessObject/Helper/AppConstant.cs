@@ -135,6 +135,7 @@ public static class AppConstant
         public const string PromotionIllegal = "Khuyến mãi không hợp lệ";
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
+
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
         public const string ConstructionNoExit = "Hạng mục xây dựng không tồn tại!";
@@ -149,12 +150,14 @@ public static class AppConstant
         public const string RoleNotFound = "Role này không tồn tại!";
         public const string CreateAccountError = "Tạo tài khoản thất bại!";
         public const string NullValue = "Invalid input: Field cannot be empty";
+
         //Acount
         public const string AccountIdError = "AccounntId không hợp lệ (phải theo kiểu Gui)!";
         public const string PageAndSizeError = "Page and size must be greater than 0!";
         public const string FailedToGetList = "Lấy danh sách account thất bại!";
         public const string BanAccount = "Ban tài khoản thất bại!";
         public const string UpdateAccount = "Cập nhật tài khoản thất bại!";
+
         //HouseTemplate
         public const string Not_Found_HouseTemplate = "Không tìm thấy mẫu nhà!";
         public const string Not_Access_DesignDrawing = "Tài khoản này không có quyền truy cập bản vẽ này!";
@@ -166,23 +169,29 @@ public static class AppConstant
         public const string SubTemplateItem = "SubTempalate item này đã tồn tại!";
         public const string TemplateItemNotFound = "TemplateItem không tìm thấy.";
         public const string SubTemplateNotFound = "SubTemplate không tìm thấy.";
+
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
         public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
+
         public const string FinalQuotaionExists = "FinalQuotaion đã tồn tại.";
         public const string CreateFinalQuotaion = "Tạo FinalQuotaion thất bại.";
 
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
+
         //PackageType
         public const string CreatePackageType = "Tạo packagetype thất bại.";
         public const string PackageTypeExists = "PackageType đã tồn tại.";
+
         //House Design Drawing Version
         public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
         public const string OverloadProjectDrawing = "Dự án đã khởi tạo 4 bản vẽ thiết kế!";
+
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
-        public const string QuotationHasStaff = "Báo giá đã có nhân viên đảm nhận!";
+        public const string QuotationHasStaff = "Dự án đã có nhân viên đảm nhận!";
+
         //Package
         public const string CreatePackage = "Tạo packaget thất bại.";
         public const string UpdatePackage = "Cập nhật packaget thất bại.";
