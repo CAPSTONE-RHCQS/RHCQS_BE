@@ -293,15 +293,35 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-/*        [Authorize(Roles = "SalesStaff")]*/
-        [HttpPost(ApiEndPointConstant.FinalQuotation.FinalQuotationUpdateEndpoibt)]
-        [ProducesResponseType(typeof(UpdateFinalRequest), StatusCodes.Status200OK)]
+        #region UpdateFinalQuotation
+        /// <summary>
+        /// Update a final quotation.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
+        [HttpPut(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
+        [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateFinalQuotation([FromBody] UpdateFinalRequest request)
+        public async Task<IActionResult> UpdateFinalQuotation([FromBody] FinalRequest request)
         {
             bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
 
-            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);
+        }
+        #region CreateFinalQuotation
+        /// <summary>
+        /// Create a final quotation.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
+        [HttpPost(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
+        [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> CreateFinalQuotation([FromBody] FinalRequest request)
+        {
+            bool quotation = await _finalQuotationService.CreateFinalQuotation(request);
+
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);
         }
     }
 }
