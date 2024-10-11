@@ -73,7 +73,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">If the `type` is invalid or not provided.</response>
         /// <response code="500">If there is an internal server error while processing the request.</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityByTypeEndpoint)]
         [ProducesResponseType(typeof(List<UtilityResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
