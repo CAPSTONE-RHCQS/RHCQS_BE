@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
+using RHCQS_BusinessObject.Payload.Request;
 
 namespace RHCQS_Services.Implement
 {
@@ -37,6 +38,87 @@ namespace RHCQS_Services.Implement
         public Task<string> ApproveFinalFromManager(Guid initialId, ApproveQuotationRequest request)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> CreateFinalQuotation(FinalRequest request)
+        {
+            if (request == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
+            if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == request.ProjectId && p.Version == request.VersionPresent))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.PackageExists
+                );
+            }
+            var finalQuotation = new FinalQuotation
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = request.ProjectId,
+                PromotionId = request.PromotionId,
+                TotalPrice = request.TotalPrice,
+                Note = request.Note,
+                Version = request.VersionPresent,
+                InsDate = DateTime.UtcNow,
+                UpsDate = DateTime.UtcNow,
+                Status = request.Status,
+                Deflag = true,
+                BatchPayments = request.BatchPaymentInfos.Select(bp => new BatchPayment
+                {
+                    Id = Guid.NewGuid(),
+                    Price = bp.Price,
+                    IntitialQuotationId = bp.InitIntitialQuotationId,
+                    Percents = bp.Percents,
+                    Description = bp.Description,
+                    InsDate = DateTime.Now,
+                    Unit = AppConstant.Unit.UnitPrice
+                }).ToList(),
+
+                EquipmentItems = request.EquipmentItems.Select(ei => new EquipmentItem
+                {
+                    Id = Guid.NewGuid(),
+                    Name = ei.Name,
+                    Unit = ei.Unit,
+                    Quantity = ei.Quantity,
+                    UnitOfMaterial = ei.UnitOfMaterial,
+                    TotalOfMaterial = ei.TotalOfMaterial,
+                    Note = ei.Note
+                }).ToList(),
+
+                FinalQuotationItems = request.FinalQuotationItems.Select(fqi => new FinalQuotationItem
+                {
+                    Id = Guid.NewGuid(),
+                    ConstructionItemId = fqi.ConstructionItemId,
+                    Name = fqi.Name,
+                    Unit = fqi.Unit,
+                    Weight = fqi.Weight,
+                    UnitPriceLabor = fqi.UnitPriceLabor,
+                    UnitPriceRough = fqi.UnitPriceRough,
+                    UnitPriceFinished = fqi.UnitPriceFinished,
+                    TotalPriceLabor = fqi.TotalPriceLabor,
+                    TotalPriceRough = fqi.TotalPriceRough,
+                    TotalPriceFinished = fqi.TotalPriceFinished
+                }).ToList()
+            };
+
+            await finalQuotationRepo.InsertAsync(finalQuotation);
+
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.CreatePackage
+                );
+            }
+            return isSuccessful;
         }
 
         /*        public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
@@ -292,7 +374,7 @@ namespace RHCQS_Services.Implement
             return list;
         }
 
-        public async Task<bool> UpdateFinalQuotation(UpdateFinalRequest request)
+        public async Task<bool> UpdateFinalQuotation(FinalRequest request)
         {
             try
             {
@@ -303,7 +385,7 @@ namespace RHCQS_Services.Implement
                     PromotionId = request.PromotionId,
                     TotalPrice = request.TotalPrice,
                     Note = request.Note,
-                    Version = request.VersionPresent,
+                    Version = request.VersionPresent + 1,
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
                     Status = request.Status,
@@ -321,6 +403,7 @@ namespace RHCQS_Services.Implement
                         Percents = payment.Percents,
                         Description = payment.Description,
                         InsDate = DateTime.Now,
+                        IntitialQuotationId = payment.InitIntitialQuotationId,
                         FinalQuotationId = finalQuotation.Id,
                         Unit = AppConstant.Unit.UnitPrice
                     };
@@ -348,6 +431,7 @@ namespace RHCQS_Services.Implement
                     var finalQuotationItem = new FinalQuotationItem
                     {
                         Id = Guid.NewGuid(),
+                        ConstructionItemId = finalItem.ConstructionItemId,
                         Name = finalItem.Name,
                         Unit = finalItem.Unit,
                         Weight = finalItem.Weight,

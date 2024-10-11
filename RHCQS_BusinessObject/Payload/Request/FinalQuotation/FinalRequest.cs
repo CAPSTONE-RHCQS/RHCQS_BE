@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 {
-    public class UpdateFinalRequest
+    public class FinalRequest
     {
         [Required(ErrorMessage = "VersionPresent là bắt buộc.")]
         [Range(1, double.MaxValue, ErrorMessage = "VersionPresent phải lớn hơn 0.")]
@@ -33,6 +33,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
     public class BatchPaymentInfoRequest
     {
+        [Required(ErrorMessage = "InitIntitialQuotationId là bắt buộc.")]
+        public Guid InitIntitialQuotationId { get; set; }
         [Required(ErrorMessage = "Giá là bắt buộc.")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
@@ -65,6 +67,9 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
     public class FinalQuotationItemRequest
     {
+        [Required(ErrorMessage = "ConstructionItemId là bắt buộc.")]
+        public Guid ConstructionItemId { get; set; }
+
         [Required(ErrorMessage = "Tên hạng mục là bắt buộc.")]
         public string? Name { get; set; }
 

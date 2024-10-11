@@ -122,6 +122,8 @@ public static class AppConstant
         public const string REJECTED = "Báo giá đã bị từ chối!";
         public const string ERROR = "Có lỗi xảy ra trong quá trình lưu!";
         public const string SUCCESSFUL_INITIAL = "Cập nhập báo giá sơ bộ thành công";
+        public const string SUCCESSFUL_FINAL = "Cập nhập báo giá chi tiết thành công";
+        public const string SUCCESSFUL_CREATEFINAL = "Tạo báo giá chi tiết thành công";
     }
     public class ErrMessage
     {
@@ -167,6 +169,9 @@ public static class AppConstant
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
         public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
+        public const string FinalQuotaionExists = "FinalQuotaion đã tồn tại.";
+        public const string CreateFinalQuotaion = "Tạo FinalQuotaion thất bại.";
+
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
         //PackageType
