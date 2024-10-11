@@ -307,5 +307,6 @@ namespace RHCQS_Services.Implement
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
 
+        //Cancel project
     }
 }
