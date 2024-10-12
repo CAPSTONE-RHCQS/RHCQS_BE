@@ -97,9 +97,10 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingTask)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetListTaskByAccount(Guid id)
+        public async Task<IActionResult> GetListTaskByAccount()
         {
-            var design = await _houseService.GetListTaskByAccount(id);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var design = await _houseService.GetListTaskByAccount(accountId);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
             return new ContentResult()

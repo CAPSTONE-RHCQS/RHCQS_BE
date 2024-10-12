@@ -17,6 +17,7 @@ namespace RHCQS_Services.Interface
         Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId);
         Task<(bool IsSuccess, string Message)> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item);
         Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId);
+        Task<List<HouseDesignDrawingResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId);
 
     }
 }

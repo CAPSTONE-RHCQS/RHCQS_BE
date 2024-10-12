@@ -144,40 +144,6 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
-
-        //private async Task<List<HouseDesignVersionResponse>> GetHouseDesignVersionResponses(IEnumerable<HouseDesignVersion> versions)
-        //{
-        //    var versionResponses = new List<HouseDesignVersionResponse>();
-
-        //    var previousIds = versions.Select(v => v.PreviousDrawingId).Where(id => id.HasValue).Distinct().ToList();
-        //    var previousVersions = await _unitOfWork.GetRepository<HouseDesignVersion>()
-        //        .GetList(x => previousIds.Contains(x.Id));
-
-        //    var previousVersionsList = previousVersions.Items;
-
-        //    //var previousVersionsDict = previousVersionsList.ToDictionary(v => v.Id);
-
-
-        //    foreach (var version in previousVersionsList)
-        //    {
-        //        string? namePrevious = null;
-
-        //        namePrevious = $"{version.Name} {previousVersion.Version}";
-        //        versionResponses.Add(new HouseDesignVersionResponse(
-        //            version.Id,
-        //            version.Name,
-        //            version.Version,
-        //            version.Status,
-        //            version.InsDate,
-        //            namePrevious,
-        //            version.Note
-        //        ));
-        //    }
-
-        //    return versionResponses;
-        //}
-
-
         public async Task<(bool IsSuccess, string Message)> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item)
         {
             int stepDrawing = 1;
@@ -271,5 +237,26 @@ namespace RHCQS_Services.Implement
         //{
 
         //}
+
+        public async Task<List<HouseDesignDrawingResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId)
+        {
+            var listDrawingPrevious = _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(predicate: x => x.Account.Id == accountId 
+                                                                                                    && x.ProjectId == projectId,
+                        selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.HouseDesignVersions.Select(
+                                                                          v => new HouseDesignVersionResponse(
+                                                                              v.Id,
+                                                                              v.Name,
+                                                                              v.Version,
+                                                                              v.Status,
+                                                                              v.InsDate,
+                                                                              v.PreviousDrawingId,
+                                                                              v.Note)).ToList()),
+                        include: x => x.Include(x => x.HouseDesignVersions),
+                        orderBy: x => x.OrderBy(x => x.InsDate));
+
+            return listDrawingPrevious.Result.ToList();
+        }
     }
 }
