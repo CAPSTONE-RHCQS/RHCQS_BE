@@ -311,5 +311,46 @@ namespace RHCQS_Services.Implement
         }
 
         //Cancel project
+        public async Task<bool> CancelProject(Guid projectId)
+        {
+            var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                            predicate: x => x.Id == projectId,
+                            include: x => x.Include(x => x.InitialQuotations)
+                                           .Include(x => x.FinalQuotations)
+                                           .Include(x => x.HouseDesignDrawings)
+                );
+            if (infoProject == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+            }
+            else
+            {
+                //Cancel Initial Quotation
+                foreach (var item in infoProject.InitialQuotations) {
+                    var itemInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == item.Id);
+                    itemInitial.Deflag = false;
+                    _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(itemInitial);
+                }
+
+                //Cancel Final Quotation
+                foreach(var item in infoProject.FinalQuotations)
+                {
+                    var itemFinal = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == item.Id);
+                    itemFinal.Deflag = false;
+                    _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(itemFinal);
+                }
+
+                //Cancel HouseDesignDrawing
+                foreach(var item in infoProject.HouseDesignDrawings)
+                {
+                    var itemDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(x => x.ProjectId == infoProject.Id);
+                    itemDrawing.Status = AppConstant.HouseDesignStatus.CANCELED;
+                    _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(itemDrawing);
+                }
+
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                return isSuccessful;
+            }
+        }
     }
 }

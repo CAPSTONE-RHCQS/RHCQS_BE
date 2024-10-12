@@ -269,10 +269,25 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-    }
 
-    public class TokenRequest
-    {
-        public string Token { get; set; }
+        #region CancelProject
+        /// <summary>
+        /// Creates a new project along with its initial quotation and optional utilities.
+        /// </summary>
+        /// <remarks>
+        /// **Sample request:**
+        /// 
+        /// ```json
+        
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Project.ProjectCancelEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CancelProject([FromQuery] Guid projectId)
+        {
+            var isCreate = await _projectService.CancelProject(projectId);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
     }
 }

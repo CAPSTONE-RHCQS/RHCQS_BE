@@ -71,6 +71,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectByNumberPhone = ProjectEndpoint + "/phone";
             public const string ProjectListForCustomerEndpoint = ProjectEndpoint + "/email";
             public const string ProjectAssignEndpoint = ProjectEndpoint + "/assign";
+            public const string ProjectCancelEndpoint = ProjectEndpoint + "/cancel";
         }
 
         public static class Construction
@@ -94,6 +95,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string HouseDesignDrawingEndpoint = ApiEndpoint + "/housedesign";
             public const string HouseDesignDrawingDesignStaffEndpont = HouseDesignDrawingEndpoint + "/design";
+            public const string HouseDesignDrawingPreviousEndpoint = HouseDesignDrawingEndpoint + "/previous";
             public const string HouseDesignDrawingDetailEndpoint = HouseDesignDrawingEndpoint + "/id";
             public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
             public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task";

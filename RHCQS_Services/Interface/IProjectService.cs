@@ -21,5 +21,7 @@ namespace RHCQS_Services.Interface
 
         Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId);
 
+        Task<bool> CancelProject(Guid projectId);
+
     }
 }
