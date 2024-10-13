@@ -308,6 +308,21 @@ namespace RHCQS_BE.Controllers
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);
         }
+        #region CancelFinalQuotation
+        /// <summary>
+        /// cancel final quotation.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.FinalQuotation.CancelFinalQuotationEndpoint)]
+        [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> CancelFinalQuotationFromManager([FromQuery] Guid finalQuotationId,[FromBody] CancelQuotation reason)
+        {
+            bool quotation = await _finalQuotationService.CancelFinalQuotation(finalQuotationId,reason);
+
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CANCELFINAL : AppConstant.Message.ERROR);
+        }
         #region CreateFinalQuotation
         /// <summary>
         /// Create a final quotation.
