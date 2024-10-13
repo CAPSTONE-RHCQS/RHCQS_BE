@@ -310,7 +310,7 @@ namespace RHCQS_Services.Implement
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
 
-        //Cancel project
+        //Cancel project    
         public async Task<bool> CancelProject(Guid projectId)
         {
             var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
@@ -325,31 +325,42 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                //Cancel Initial Quotation
-                foreach (var item in infoProject.InitialQuotations) {
-                    var itemInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == item.Id);
-                    itemInitial.Deflag = false;
-                    _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(itemInitial);
-                }
-
-                //Cancel Final Quotation
-                foreach(var item in infoProject.FinalQuotations)
+                try
                 {
-                    var itemFinal = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == item.Id);
-                    itemFinal.Deflag = false;
-                    _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(itemFinal);
-                }
+                    //Cancel Project
+                    infoProject.Status = AppConstant.ProjectStatus.ENDED;
+                    _unitOfWork.GetRepository<Project>().UpdateAsync(infoProject);
 
-                //Cancel HouseDesignDrawing
-                foreach(var item in infoProject.HouseDesignDrawings)
+                    //Cancel Initial Quotation
+                    foreach (var item in infoProject.InitialQuotations)
+                    {
+                        item.Deflag = false;
+                        item.Status = AppConstant.QuotationStatus.CANCELED;
+                        _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(item);
+                    }
+
+                    //Cancel Final Quotation
+                    foreach (var item in infoProject.FinalQuotations)
+                    {
+                        item.Deflag = false;
+                        item.Status = AppConstant.QuotationStatus.CANCELED;
+                        _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(item);
+                    }
+
+                    //Cancel HouseDesignDrawing
+                    foreach (var item in infoProject.HouseDesignDrawings)
+                    {
+                        item.Status = AppConstant.HouseDesignStatus.CANCELED;
+                        _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(item);
+                    }
+
+                    bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                    return isSuccessful;
+                }
+                catch(Exception ex)
                 {
-                    var itemDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(x => x.ProjectId == infoProject.Id);
-                    itemDrawing.Status = AppConstant.HouseDesignStatus.CANCELED;
-                    _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(itemDrawing);
+                    throw new Exception(ex.Message);
                 }
-
-                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-                return isSuccessful;
             }
         }
     }

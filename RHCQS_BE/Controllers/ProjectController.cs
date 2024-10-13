@@ -234,7 +234,7 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
-        #region
+        #region AssignQuotation
         /// <summary>
         /// Assign a quotation to a customer based on the request payload.
         /// </summary>
@@ -272,13 +272,39 @@ namespace RHCQS_BE.Controllers
 
         #region CancelProject
         /// <summary>
-        /// Creates a new project along with its initial quotation and optional utilities.
+        /// Cancels an existing project along with its associated initial quotations, final quotations, and house design drawings.
         /// </summary>
         /// <remarks>
-        /// **Sample request:**
+        /// **Description:**
+        /// 
+        /// This endpoint allows a manager to cancel a project by updating its status to "ENDED" and also canceling its related entities such as initial quotations, final quotations, and house design drawings. Once canceled, these items will be marked as inactive or canceled.
+        /// 
+        /// **Sample Request:**
         /// 
         /// ```json
-        
+        /// PUT /api/projects/cancel?projectId=123e4567-e89b-12d3-a456-426614174000
+        /// ```
+        /// 
+        /// **Request Parameters:**
+        /// - `projectId` (Guid, required): The unique identifier of the project to be canceled.
+        /// 
+        /// **Sample Response:**
+        /// 
+        /// - **Success (200 OK):**
+        /// ```json
+        /// true
+        /// ```
+        /// - **Failure (400 Bad Request):**
+        /// ```json
+        /// false
+        /// ```
+        /// 
+        /// **Authorization:**
+        /// 
+        /// This endpoint requires the user to have the role of `Manager`.
+        /// </remarks>
+        /// <param name="projectId">The ID of the project to be canceled.</param>
+        /// <returns>Returns a boolean indicating whether the project was successfully canceled or not.</returns>
         #endregion
         [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.Project.ProjectCancelEndpoint)]

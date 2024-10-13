@@ -163,12 +163,17 @@ public static class AppConstant
         public const string Not_Access_DesignDrawing = "Tài khoản này không có quyền truy cập bản vẽ này!";
         public const string Not_Found_DesignDrawing = "Không tìm thấy bản vẽ!";
         public const string UpdateTempalte = "Cập nhật mẫu nhà thất bại!";
-        public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
         public const string DesignTemplate = "Mẫu nhà này đã tồn tại!";
         public const string TemplateItem = "Tempalate item này đã tồn tại!";
         public const string SubTemplateItem = "SubTempalate item này đã tồn tại!";
         public const string TemplateItemNotFound = "TemplateItem không tìm thấy.";
         public const string SubTemplateNotFound = "SubTemplate không tìm thấy.";
+
+        //House Design Drawing Version
+        public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
+        public const string OverloadProjectDrawing = "Dự án đã khởi tạo 4 bản vẽ thiết kế!";
+        public const string DesignNoAccess = "Không có quyền truy cập dự án này!";
+        public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
 
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
@@ -183,10 +188,6 @@ public static class AppConstant
         //PackageType
         public const string CreatePackageType = "Tạo packagetype thất bại.";
         public const string PackageTypeExists = "PackageType đã tồn tại.";
-
-        //House Design Drawing Version
-        public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
-        public const string OverloadProjectDrawing = "Dự án đã khởi tạo 4 bản vẽ thiết kế!";
 
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";

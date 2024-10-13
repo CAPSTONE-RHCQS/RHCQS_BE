@@ -240,9 +240,22 @@ namespace RHCQS_Services.Implement
 
         public async Task<List<HouseDesignDrawingResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId)
         {
-            var listDrawingPrevious = _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(predicate: x => x.Account.Id == accountId 
-                                                                                                    && x.ProjectId == projectId,
-                        selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+            //Check design staff in step?
+            var infoDesign = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                                        .FirstOrDefaultAsync(predicate: x => x.Account.Id == accountId && x.ProjectId == projectId,
+                                        include: x => x.Include(x => x.HouseDesignVersions));
+            if (infoDesign is null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.DesignNoAccess);
+            //Case Drawing "Phối cảnh"
+            if (infoDesign.Step == 1)
+            {
+                return new List<HouseDesignDrawingResponse>();
+            }
+            //Case other...
+            else
+            {
+                var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                                                .GetList(predicate: x => x.ProjectId == projectId && x.Step < infoDesign.Step,
+                                                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
                                                                       x.Type, x.IsCompany, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
                                                                           v => new HouseDesignVersionResponse(
@@ -254,9 +267,10 @@ namespace RHCQS_Services.Implement
                                                                               v.PreviousDrawingId,
                                                                               v.Note)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions),
-                        orderBy: x => x.OrderBy(x => x.InsDate));
+                        orderBy: x => x.OrderBy(x => x.Step));
+                return listDrawingPrevious.Items.ToList();
 
-            return listDrawingPrevious.Result.ToList();
+            }
         }
     }
 }

@@ -79,14 +79,25 @@ namespace RHCQS_BE.Controllers
         {
             var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var listHouseDesignDrawings = await _houseService.ViewDrawingPreviousStep(accountId, projectId);
-            var result = JsonConvert.SerializeObject(listHouseDesignDrawings, Formatting.Indented);
+            object result;
+
+            if (listHouseDesignDrawings == null || !listHouseDesignDrawings.Any())
+            {
+                result = new { message = AppConstant.ErrMessage.DesignNoAccess };
+            }
+            else
+            {
+                result = listHouseDesignDrawings;
+            }
+
             return new ContentResult()
             {
-                Content = result,
+                Content = JsonConvert.SerializeObject(result, Formatting.Indented),
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
         }
+
 
         #region GetDetailHouseDesignDrawing
         /// <summary>
@@ -235,7 +246,7 @@ namespace RHCQS_BE.Controllers
             }
             else
             {
-                return BadRequest(result.Message); 
+                return BadRequest(result.Message);
             }
         }
     }
