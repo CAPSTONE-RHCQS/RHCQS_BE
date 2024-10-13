@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
 using RHCQS_BusinessObject.Payload.Request;
+using static RHCQS_BusinessObjects.AppConstant;
 
 namespace RHCQS_Services.Implement
 {
@@ -35,9 +36,58 @@ namespace RHCQS_Services.Implement
             _cloudinary = cloudinary;
         }
 
-        public Task<string> ApproveFinalFromManager(Guid initialId, ApproveQuotationRequest request)
+        public Task<string> ApproveFinalFromManager(Guid Id, ApproveQuotationRequest request)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<bool> CancelFinalQuotation(Guid Id, CancelQuotation reason)
+        {
+            if (reason == null || Id == Guid.Empty || string.IsNullOrEmpty(reason.ReasonCancel))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
+
+            var finalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(x => x.Id == Id);
+
+            if (finalQuotation == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Resource
+                );
+            }
+
+            if (finalQuotation.Status.Equals(AppConstant.QuotationStatus.CANCELED)
+                || finalQuotation.Status.Equals(AppConstant.QuotationStatus.FINALIZED))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.CancelFinalQuotaionAlready
+                );
+            }
+
+            finalQuotation.Status = AppConstant.QuotationStatus.CANCELED;
+            finalQuotation.ReasonReject = reason.ReasonCancel;
+            finalQuotation.UpsDate = DateTime.UtcNow;
+
+            finalQuotationRepo.UpdateAsync(finalQuotation);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.CancelFinalQuotaion
+                );
+            }
+
+            return true;
         }
 
         public async Task<bool> CreateFinalQuotation(FinalRequest request)

@@ -124,6 +124,7 @@ namespace RHCQS_BE.Extenstion
             public const string FinalQuotationDetailEndpoint = FinalQuotationEndpoint + "/id";
             public const string FinalQuotationDetailByCustomerEndpoint = FinalQuotationEndpoint + "/customer/name";
             public const string AssignFinalQuotationEndpoint = FinalQuotationEndpoint + "/assign";
+            public const string CancelFinalQuotationEndpoint = FinalQuotationEndpoint + "/cancel";
             public const string ApproveFinalQuotationEndpoint = FinalQuotationEndpoint + "/approve";
         }
     }
