@@ -66,6 +66,28 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region ViewDrawingPreviousStep
+        /// <summary>
+        /// Retrieves the list of all house design drawing item.
+        /// </summary>
+        /// <returns>List of house design drawing in the system</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff")]
+        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingPreviousEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ViewDrawingPreviousStep(Guid projectId)
+        {
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var listHouseDesignDrawings = await _houseService.ViewDrawingPreviousStep(accountId, projectId);
+            var result = JsonConvert.SerializeObject(listHouseDesignDrawings, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetDetailHouseDesignDrawing
         /// <summary>
         /// Retrieves the house design drawing item.
@@ -97,9 +119,10 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingTask)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetListTaskByAccount(Guid id)
+        public async Task<IActionResult> GetListTaskByAccount()
         {
-            var design = await _houseService.GetListTaskByAccount(id);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var design = await _houseService.GetListTaskByAccount(accountId);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
             return new ContentResult()

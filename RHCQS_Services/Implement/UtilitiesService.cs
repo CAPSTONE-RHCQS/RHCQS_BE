@@ -46,21 +46,42 @@ namespace RHCQS_Services.Implement
 
         public async Task<List<UtilityResponse>> GetListUtilitiesByType(string type)
         {
-            var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
-                predicate: x => x.Type.Equals(type.ToUpper()),
-                selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate,
-                                                            x.UpsDate,
-                                                            x.UtilitiesSections.Select(
-                                                                s => new UtilitiesSectionResponse(
-                                                                    s.Id,
-                                                                    s.Name,
-                                                                    s.Deflag,
-                                                                    s.InsDate,
-                                                                    s.UpsDate,
-                                                                    s.Description)).ToList()),
-                include: x => x.Include(x => x.UtilitiesSections),
-                orderBy: x => x.OrderBy(x => x.InsDate));
-            return listConstruction.Items.ToList();
+            if (AppConstant.Type.ROUGH == type || AppConstant.Type.FINISHED == type)
+            {
+                var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
+               predicate: x => x.Type.Equals(type.ToUpper()),
+               selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate,
+                                                           x.UpsDate,
+                                                           x.UtilitiesSections.Select(
+                                                               s => new UtilitiesSectionResponse(
+                                                                   s.Id,
+                                                                   s.Name,
+                                                                   s.Deflag,
+                                                                   s.InsDate,
+                                                                   s.UpsDate,
+                                                                   s.Description)).ToList()),
+               include: x => x.Include(x => x.UtilitiesSections),
+               orderBy: x => x.OrderBy(x => x.InsDate));
+                return listConstruction.Items.ToList();
+            }
+            else
+            {
+                var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
+               selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate,
+                                                           x.UpsDate,
+                                                           x.UtilitiesSections.Select(
+                                                               s => new UtilitiesSectionResponse(
+                                                                   s.Id,
+                                                                   s.Name,
+                                                                   s.Deflag,
+                                                                   s.InsDate,
+                                                                   s.UpsDate,
+                                                                   s.Description)).ToList()),
+               include: x => x.Include(x => x.UtilitiesSections),
+               orderBy: x => x.OrderBy(x => x.InsDate));
+                return listConstruction.Items.ToList();
+            }
+           
         }
 
         public async Task<UtilityResponse> GetDetailUtilityItem(Guid id)
