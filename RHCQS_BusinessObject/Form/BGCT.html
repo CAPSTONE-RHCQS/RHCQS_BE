@@ -249,6 +249,32 @@
         </tbody>
     </table>
 
+    <h2>KHUYẾN MÃI</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>KHUYẾN MÃI</th>
+                <th>GÍA TRỊ (VND)</th>
+                <th>THÀNH TIỀN</th>
+            </tr>
+        </thead>
+        <tbody>
+            int noPro = 0;
+            @foreach (var item in items)
+            {
+
+            <tr>
+                <td>@noPro++</td>
+                <td>@item.Name</td>
+                <td>@item.Value</td>
+                <td>@item.Price</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+
     <h2>PHƯƠNG THỨC THANH TOÁN</h2>
     <h3><i>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau</i></h3>
     <table>

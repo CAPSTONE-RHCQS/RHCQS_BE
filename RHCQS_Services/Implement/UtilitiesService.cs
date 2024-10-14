@@ -49,7 +49,7 @@ namespace RHCQS_Services.Implement
             if (AppConstant.Type.ROUGH == type || AppConstant.Type.FINISHED == type)
             {
                 var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
-               predicate: x => x.Type.Equals(type.ToUpper()),
+               predicate: x => x.Type!.Equals(type.ToUpper()),
                selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate,
                                                            x.UpsDate,
                                                            x.UtilitiesSections.Select(
@@ -165,7 +165,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<UtilityOption>().InsertAsync(utility);
                 }
 
-                foreach (var s in request.Sections)
+                foreach (var s in request.Sections!)
                 {
                     UtilitiesSection section = s.Id.HasValue ? await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(x => x.Id == s.Id)
                         : new UtilitiesSection

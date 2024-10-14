@@ -145,9 +145,13 @@ namespace RHCQS_BE.Controllers
         /// <remarks>
         /// Sample request:
         /// 
+        ///     //002E459A-E010-493F-8585-D729D3CF357B  - 1 - Điều kiện thi công không thuận lợi
+        ///     //2367DEC1-E649-4549-B81B-701F2DBC1A7B  - 2 - Nâng cao chất lượng phần thô
+        ///     //04F30A66-9758-45DB-88A7-6F098EDC4837  - 3 - Dịch vụ tiện ích thêm
+        ///     //05430765-97FE-4186-900D-D5DC850E8CDB  - 4 - Tiện ích công trình
         ///     POST /api/utility/create
         ///     {
-        ///       "id": "2367DEC1-E649-4549-B81B-701F2DBC1A7B",
+        ///       "id": "2367DEC1-E649-4549-B81B-701F2DBC1A7B",     If Id null -> Create new utility 
         ///       "name": "string",
         ///       "type": "string",
         ///       "sections": [
