@@ -48,15 +48,18 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class SubTemplatesResponse
     {
-        public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea, string? size, DateTime? insDate, List<TemplateItemReponse> templateItems)
+        public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea,
+            DateTime? insDate, string? size, List<TemplateItemReponse> templateItems, List<MediaResponse> media)
         {
             Id = id;
             BuildingArea = buildingArea;
             FloorArea = floorArea;
-            Size = size;
             InsDate = insDate;
+            Size = size;
             TemplateItems = templateItems;
+            Media = media;
         }
+
         public Guid Id { get; set; }
 
         public double? BuildingArea { get; set; }
@@ -68,6 +71,28 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Size { get; set; }
 
         public List<TemplateItemReponse> TemplateItems { get; set; }
+        public List<MediaResponse> Media { get; set; }
+    }
+    public class MediaResponse
+    {
+        public MediaResponse(Guid id, string? name, string? url, DateTime? insDate, DateTime? upsDate)
+        {
+            Id = id;
+            Name = name;
+            Url = url;
+            InsDate = insDate;
+            UpsDate = upsDate;
+        }
+
+        public Guid Id { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? Url { get; set; }
+
+        public DateTime? InsDate { get; set; }
+
+        public DateTime? UpsDate { get; set; }
     }
     public class TemplateItemReponse
     {

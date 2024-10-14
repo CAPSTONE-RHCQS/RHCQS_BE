@@ -467,6 +467,10 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.HouseDesignVersion).WithMany(p => p.Media)
                 .HasForeignKey(d => d.HouseDesignVersionId)
                 .HasConstraintName("FK_Media_HouseDesignVersion");
+
+            entity.HasOne(d => d.SubTemplate).WithMany(p => p.Media)
+                .HasForeignKey(d => d.SubTemplateId)
+                .HasConstraintName("Media_SubTemplate_FK");
         });
 
         modelBuilder.Entity<Message>(entity =>

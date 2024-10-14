@@ -38,8 +38,14 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequest> TemplateItems { get; set; } = new List<TemplateItemRequest>();
+        public List<MediaRequest> Media { get; set; } = new List<MediaRequest>();
     }
+    public class MediaRequest
+    {
+        public string? Name { get; set; }
 
+        public string? Url { get; set; }
+    }
     public class TemplateItemRequest
     {
         [Required(ErrorMessage = "Id là bắt buộc phải có.")]

@@ -17,5 +17,9 @@ public partial class Medium
 
     public DateTime? UpsDate { get; set; }
 
+    public Guid? SubTemplateId { get; set; }
+
     public virtual HouseDesignVersion? HouseDesignVersion { get; set; }
+
+    public virtual SubTemplate? SubTemplate { get; set; }
 }

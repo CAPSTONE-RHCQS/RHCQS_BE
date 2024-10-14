@@ -41,6 +41,27 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+        #region GetListHouseTemplate
+        /// <summary>
+        /// Retrieves housetemplate list without entering page and size.
+        /// </summary>
+        /// <returns>List of housetemplate in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.HouseTemplate.HouseTemplateListEndpoint)]
+        [ProducesResponseType(typeof(IEnumerable<HouseTemplateResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<DesignTemplate>>> GetListPackage()
+        {
+            var listHouseTemplates = await _houseService.GetListHouseTemplate();
+            var response = JsonConvert.SerializeObject(listHouseTemplates, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
         #region SearchHouseTemplate
         /// <summary>
         /// Search housetemplate by name.

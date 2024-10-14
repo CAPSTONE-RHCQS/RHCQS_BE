@@ -31,7 +31,7 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.Package.PackageEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<PackageType>>> GetListPackageAsync(int page, int size)
+        public async Task<ActionResult<IEnumerable<Package>>> GetListPackageAsync(int page, int size)
         {
             var package = await _packageService.GetListPackageAsync(page, size);
             var response = JsonConvert.SerializeObject(package, Formatting.Indented);
@@ -52,7 +52,7 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.Package.PackageListEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<PackageType>>> GetListPackage()
+        public async Task<ActionResult<IEnumerable<Package>>> GetListPackage()
         {
             var package = await _packageService.GetListPackage();
             var response = JsonConvert.SerializeObject(package, Formatting.Indented);

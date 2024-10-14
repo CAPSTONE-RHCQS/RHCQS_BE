@@ -26,6 +26,63 @@ namespace RHCQS_Services.Implement
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
+        public async Task<List<HouseTemplateResponse>> GetListHouseTemplate()
+        {
+            var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetListAsync(
+                selector: x => new HouseTemplateResponse(
+                    x.Id,
+                    x.Name,
+                    x.Description,
+                    x.NumberOfFloor,
+                    x.NumberOfBed,
+                    x.NumberOfFront,
+                    x.ImgUrl,
+                    x.InsDate,
+                    x.PackageHouses.Select(
+                        pgk => new PackageHouseResponse(
+                            pgk.Id,
+                            pgk.DesignTemplateId,
+                            pgk.ImgUrl,
+                            pgk.InsDate
+                        )).ToList(),
+                    x.SubTemplates.Select(
+                        sub => new SubTemplatesResponse(
+                            sub.Id,
+                            sub.BuildingArea,
+                            sub.FloorArea,
+                            sub.InsDate,
+                            sub.Size,
+                            sub.TemplateItems.Select(
+                                item => new TemplateItemReponse(
+                                    item.Id,
+                                    item.SubConstructionId == null
+                                        ? item.ConstructionItem.Name
+                                        : item.SubConstruction.Name,
+                                    item.ConstructionItem.Id,
+                                    item.SubConstructionId,
+                                    item.SubConstructionId == null
+                                        ? item.ConstructionItem.Coefficient
+                                        : item.SubConstruction.Coefficient,
+                                    item.Area,
+                                    item.Unit,
+                                    item.InsDate
+                                )
+                            ).ToList(),
+                            sub.Media.Select(media => new MediaResponse(
+                                media.Id,
+                                media.Name,
+                                media.Url,
+                                media.InsDate,
+                                media.UpsDate
+                            )).ToList()
+                        )
+                    ).ToList()
+                ),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            );
+
+            return listHouseTemplate.ToList();
+        }
 
         public async Task<bool> CreateHouseTemplate(HouseTemplateRequest templ)
         {
@@ -101,6 +158,14 @@ namespace RHCQS_Services.Implement
                         Area = item.Area,
                         Unit = item.Unit,
                         InsDate = DateTime.Now,
+                    }).ToList(),
+                    Media = sub.Media.Select(media => new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = media.Name,
+                        Url = media.Url,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now
                     }).ToList()
                 }).ToList()
             };
@@ -141,8 +206,8 @@ namespace RHCQS_Services.Implement
                         sub.Id,
                         sub.BuildingArea,
                         sub.FloorArea,
-                        sub.Size,
                         sub.InsDate,
+                        sub.Size,
                         sub.TemplateItems.Select(item => new TemplateItemReponse(
                             item.Id,
                             item.SubConstructionId == null
@@ -156,7 +221,14 @@ namespace RHCQS_Services.Implement
                             item.Area,
                             item.Unit,
                             item.InsDate
-                        )).ToList()
+                        )).ToList(),
+                        sub.Media.Select(media => new MediaResponse(
+                        media.Id,
+                        media.Name,
+                        media.Url,
+                        media.InsDate,
+                        media.UpsDate
+                    )).ToList()
                     )).ToList()
                 );
                 return result;
@@ -188,8 +260,8 @@ namespace RHCQS_Services.Implement
                             sub.Id,
                             sub.BuildingArea,
                             sub.FloorArea,
-                            sub.Size,
                             sub.InsDate,
+                            sub.Size,
                             sub.TemplateItems.Select(
                                 item => new TemplateItemReponse(
                                     item.Id,
@@ -205,7 +277,14 @@ namespace RHCQS_Services.Implement
                                     item.Unit,
                                     item.InsDate
                                 )
-                            ).ToList()
+                            ).ToList(),
+                            sub.Media.Select(media => new MediaResponse(
+                                    media.Id,
+                                    media.Name,
+                                    media.Url,
+                                    media.InsDate,
+                                    media.UpsDate
+                            )).ToList()
                         )
                     ).ToList()
                 ),
@@ -290,6 +369,24 @@ namespace RHCQS_Services.Implement
                             throw new AppConstant.MessageError(
                                 (int)AppConstant.ErrCode.Conflict,
                                 AppConstant.ErrMessage.TemplateItemNotFound
+                            );
+                        }
+                    }
+                    foreach (var media in sub.Media)
+                    {
+                        var existingMedia = existingSubTemplate.Media.FirstOrDefault(m => m.SubTemplateId == sub.Id);
+                        if (existingMedia != null)
+                        {
+                            existingMedia.Name = media.Name;
+                            existingMedia.Url = media.Url;
+                            existingMedia.UpsDate = DateTime.Now;
+                        }
+                        else
+                        {
+                            continue;
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Conflict,
+                                AppConstant.ErrMessage.Not_Found_Media
                             );
                         }
                     }

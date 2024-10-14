@@ -19,5 +19,7 @@ public partial class SubTemplate
 
     public virtual DesignTemplate DesignTemplate { get; set; } = null!;
 
+    public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
+
     public virtual ICollection<TemplateItem> TemplateItems { get; set; } = new List<TemplateItem>();
 }
