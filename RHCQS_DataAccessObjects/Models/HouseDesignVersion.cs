@@ -19,8 +19,6 @@ public partial class HouseDesignVersion
 
     public string? Note { get; set; }
 
-    public string? FileUrl { get; set; }
-
     public DateTime? UpsDate { get; set; }
 
     public Guid? RelatedDrawingId { get; set; }
@@ -32,4 +30,6 @@ public partial class HouseDesignVersion
     public bool Deflag { get; set; }
 
     public virtual HouseDesignDrawing HouseDesignDrawing { get; set; } = null!;
+
+    public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
 }

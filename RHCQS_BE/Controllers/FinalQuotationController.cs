@@ -319,7 +319,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CancelFinalQuotationFromManager([FromQuery] Guid finalQuotationId,[FromBody] CancelQuotation reason)
         {
-            bool quotation = await _finalQuotationService.CancelFinalQuotation(finalQuotationId,reason);
+            bool quotation = await _finalQuotationService.CancelFinalQuotation(finalQuotationId, reason);
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CANCELFINAL : AppConstant.Message.ERROR);
         }

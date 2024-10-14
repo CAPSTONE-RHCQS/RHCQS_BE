@@ -17,6 +17,7 @@ using CloudinaryDotNet;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using RHCQS_DataAccessObjects;
+using RHCQS_DataAccessObjects.Context;
 
 
 namespace RHCQS_BE.Extenstion

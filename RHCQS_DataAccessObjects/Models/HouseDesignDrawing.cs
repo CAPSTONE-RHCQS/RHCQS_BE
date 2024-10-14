@@ -27,7 +27,5 @@ public partial class HouseDesignDrawing
 
     public virtual ICollection<HouseDesignVersion> HouseDesignVersions { get; set; } = new List<HouseDesignVersion>();
 
-    public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
-
     public virtual Project Project { get; set; } = null!;
 }

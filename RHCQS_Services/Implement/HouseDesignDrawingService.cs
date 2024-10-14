@@ -38,11 +38,13 @@ namespace RHCQS_Services.Implement
                                                                               v.Id,
                                                                               v.Name,
                                                                               v.Version,
+                                                                              v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                               v.Status,
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
                                                                               v.Note)).ToList()),
-                        include: x => x.Include(x => x.HouseDesignVersions),
+                        include: x => x.Include(x => x.HouseDesignVersions)
+                                               .ThenInclude(x => x.Media),
                         orderBy: x => x.OrderBy(x => x.InsDate),
                         page: page,
                         size: size
@@ -62,10 +64,12 @@ namespace RHCQS_Services.Implement
                                                                               v.Name,
                                                                               v.Version,
                                                                               v.Status,
+                                                                              v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
                                                                               v.Note)).ToList()),
-                        include: x => x.Include(x => x.HouseDesignVersions),
+                        include: x => x.Include(x => x.HouseDesignVersions)
+                                            .ThenInclude(x => x.Media),
                         orderBy: x => x.OrderBy(x => x.InsDate),
                         page: page,
                         size: size
@@ -78,6 +82,7 @@ namespace RHCQS_Services.Implement
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
                 predicate: x => x.Id.Equals(id),
                 include: x => x.Include(x => x.HouseDesignVersions)
+                                    .ThenInclude(x => x.Media)
                                 .Include(x => x.Account!)
                 );
 
@@ -96,6 +101,7 @@ namespace RHCQS_Services.Implement
                             version.Id,
                             version.Name,
                             version.Version,
+                            version.Media.Select(m => m.Url).FirstOrDefault(),
                             version.Status,
                             version.InsDate,
                             version.PreviousDrawingId,
@@ -111,8 +117,9 @@ namespace RHCQS_Services.Implement
         public async Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type)
         {
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
-                predicate: x => x.Type.Equals(type),
+                predicate: x => x.Type!.Equals(type),
                 include: x => x.Include(x => x.HouseDesignVersions)
+                                .ThenInclude(x => x.Media)
                                 .Include(x => x.Account!)
             );
 
@@ -134,6 +141,7 @@ namespace RHCQS_Services.Implement
                         version.Id,
                         version.Name,
                         version.Version,
+                        version.Media.Select(m => m.Url).FirstOrDefault(),
                         version.Status,
                         version.InsDate,
                         version.PreviousDrawingId,
@@ -224,11 +232,14 @@ namespace RHCQS_Services.Implement
                                                                   v.Id,
                                                                   v.Name,
                                                                   v.Version,
+                                                                  v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                   v.Status,
                                                                   v.InsDate,
                                                                   v.PreviousDrawingId,
                                                                   v.Note)).ToList()),
                 include: x => x.Include(x => x.Account!)
+                                .Include(x => x.HouseDesignVersions)
+                                   .ThenInclude(x => x.Media)
             )).Items.ToList();
             return listTask;
         }
@@ -242,7 +253,7 @@ namespace RHCQS_Services.Implement
         {
             //Check design staff in step?
             var infoDesign = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                                        .FirstOrDefaultAsync(predicate: x => x.Account.Id == accountId && x.ProjectId == projectId,
+                                        .FirstOrDefaultAsync(predicate: x => x.Account!.Id == accountId && x.ProjectId == projectId,
                                         include: x => x.Include(x => x.HouseDesignVersions));
             if (infoDesign is null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.DesignNoAccess);
             //Case Drawing "Phối cảnh"
@@ -262,11 +273,13 @@ namespace RHCQS_Services.Implement
                                                                               v.Id,
                                                                               v.Name,
                                                                               v.Version,
+                                                                              v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                               v.Status,
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
                                                                               v.Note)).ToList()),
-                        include: x => x.Include(x => x.HouseDesignVersions),
+                        include: x => x.Include(x => x.HouseDesignVersions)
+                                        .ThenInclude(x => x.Media),
                         orderBy: x => x.OrderBy(x => x.Step));
                 return listDrawingPrevious.Items.ToList();
 

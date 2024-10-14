@@ -55,7 +55,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="401">Unauthorized, only managers are allowed to create design versions</response>
         /// <response code="500">Internal server error</response>
         #endregion
-        [Authorize(Roles = "Design Staff")]
+        [Authorize(Roles = "DesignStaff")]
         [HttpPost(ApiEndPointConstant.HouseDesignVersion.HouseDesignVersionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -97,7 +97,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">Not found, the house design version with the specified ID was not found</response>
         /// <response code="500">Internal server error</response>
         #endregion
-        [Authorize(Roles = "Design Staff")]
+        [Authorize(Roles = "DesignStaff")]
         [HttpPut(ApiEndPointConstant.HouseDesignVersion.HouseDesignVersionDetailEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -131,6 +131,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If the house design version or drawing was not found.</response>
         /// <response code="500">If an internal server error occurs.</response>
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.HouseDesignVersion.AssignHouseDesignVersionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

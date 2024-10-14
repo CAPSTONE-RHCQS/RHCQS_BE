@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
+using System.Net.Http.Headers;
 
 namespace RHCQS_Services.Implement
 {
@@ -53,7 +54,6 @@ namespace RHCQS_Services.Implement
                     InsDate = DateTime.Now,
                     HouseDesignDrawingId = request.HouseDesignDrawingId,
                     Note = "",
-                    FileUrl = request.FileUrl,
                     PreviousDrawingId = request.PreviousDrawingId ?? null,
                     RelatedDrawingId = request.RelatedDrawingId ?? null,
                     UpsDate = DateTime.Now,
@@ -61,6 +61,17 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesign);
+
+                var itemMedia = new Medium
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.Name,
+                    HouseDesignVersionId = itemDesign.Id,
+                    Url = request.FileUrl,
+                    InsDate = DateTime.Now, 
+                    UpsDate = DateTime.Now
+                };
+                await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
             }
             else
             {
@@ -73,18 +84,28 @@ namespace RHCQS_Services.Implement
                     InsDate = DateTime.Now,
                     HouseDesignDrawingId = availableDrawing.HouseDesignDrawingId,
                     Note = null,
-                    FileUrl = request.FileUrl,
                     UpsDate = DateTime.Now,
                     RelatedDrawingId = availableDrawing?.RelatedDrawingId,
                     PreviousDrawingId = availableDrawing?.PreviousDrawingId,
                 };
 
                 //Update status in house desgin draw previous
-                availableDrawing.Status = AppConstant.Status.UPDATED;
+                availableDrawing!.Status = AppConstant.Status.UPDATED;
 
                 _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
 
                 await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesignUpdate);
+
+                var itemMedia = new Medium
+                {
+                    Id = Guid.NewGuid(),
+                    Name = request.Name,
+                    HouseDesignVersionId = itemDesignUpdate.Id,
+                    Url = request.FileUrl,
+                    InsDate = DateTime.Now,
+                    UpsDate = DateTime.Now
+                };
+                await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
             }
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (isSuccessful)
@@ -96,6 +117,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId)
         {
+            Medium itemMedia = null;
             if (files == null || files.Count == 0)
             {
                 return false;
@@ -135,11 +157,21 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
                 }
 
-                itemDrawing.FileUrl = uploadResult.Url?.ToString() ?? itemDrawing.FileUrl;
+                itemMedia = new Medium()
+                {
+                    Id = Guid.NewGuid(),
+                    HouseDesignVersionId = itemDrawing.Id,
+                    Name = itemDrawing.Name,
+                    Url = uploadResult.Url?.ToString(),
+                    InsDate = DateTime.Now,
+                    UpsDate = DateTime.Now
+                };
+                await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
+                //itemDrawing.FileUrl = uploadResult.Url?.ToString() ?? itemDrawing.FileUrl;
                 itemDrawing.Status = "Processing"; 
             }
 
-            itemDrawing.Status = itemDrawing.FileUrl != null ? "Finished" : "Processing";
+            itemDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
             itemDrawing.UpsDate = DateTime.Now;
 
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);

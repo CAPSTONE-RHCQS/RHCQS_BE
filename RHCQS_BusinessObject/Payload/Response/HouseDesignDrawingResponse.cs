@@ -44,24 +44,26 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class HouseDesignVersionResponse
     {
         public HouseDesignVersionResponse() { }
-        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? status, 
+        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? fileUrl, string? status, 
             DateTime? insDate, string? note, string? namePrevious)
         {
             Id = id;
             Name = name;
             Version = version;
+            FileUrl = fileUrl;
             Status = status;
             InsDate = insDate;
             Note = note;
             NamePrevious = namePrevious;
         }
 
-        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? status,
+        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? fileUrl, string? status,
             DateTime? insDate,Guid? previousDrawingId, string? note)
         {
             Id = id;
             Name = name;
             Version = version;
+            FileUrl = fileUrl;
             Status = status;
             InsDate = insDate;
             PreviousDrawingId = previousDrawingId;
@@ -73,6 +75,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Name { get; set; }
 
         public double? Version { get; set; }
+        public string? FileUrl { get; set; }
 
         public string? Status { get; set; }
 

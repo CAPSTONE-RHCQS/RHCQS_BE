@@ -7,7 +7,7 @@ public partial class Medium
 {
     public Guid Id { get; set; }
 
-    public Guid HouseDesignDrawingId { get; set; }
+    public Guid? HouseDesignVersionId { get; set; }
 
     public string? Name { get; set; }
 
@@ -17,5 +17,5 @@ public partial class Medium
 
     public DateTime? UpsDate { get; set; }
 
-    public virtual HouseDesignDrawing HouseDesignDrawing { get; set; } = null!;
+    public virtual HouseDesignVersion? HouseDesignVersion { get; set; }
 }
