@@ -164,7 +164,8 @@ namespace RHCQS_BE.Controllers
         ///           "coefficient": 0.3,
         ///           "unit": "m2"
         ///         }
-        ///       ]
+        ///       ],
+        ///       "isFinalQuotation": true  //True (final quotation) - False(Initial quotation)
         ///     }
         /// </remarks>
         /// <param name="item">Construction item request model</param>

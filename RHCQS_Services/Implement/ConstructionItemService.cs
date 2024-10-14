@@ -195,7 +195,8 @@ namespace RHCQS_Services.Implement
                     Unit = item.Unit,
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
-                    Type = item.Type
+                    Type = item.Type,
+                    IsFinalQuotation = item.IsFinalQuotation
                 };
                 await _unitOfWork.GetRepository<ConstructionItem>().InsertAsync(constructionItem);
                 if (item.subConstructionRequests != null)
@@ -250,7 +251,7 @@ namespace RHCQS_Services.Implement
             }
 
             // Update 
-            constructionItem.Name = request.Name;
+            constructionItem.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : constructionItem.Name;
 
             if (constructionItem.SubConstructionItems == null || !constructionItem.SubConstructionItems.Any())
             {
@@ -268,6 +269,10 @@ namespace RHCQS_Services.Implement
                     if (existingSubItem != null && existingSubItem.Name != subRequest.Name)
                     {
                         existingSubItem.Name = subRequest.Name;
+                        existingSubItem.Coefficient = subRequest.Coefficient;
+                    } 
+                    else if(existingSubItem != null && existingSubItem.Name == subRequest.Name)
+                    {
                         existingSubItem.Coefficient = subRequest.Coefficient;
                     }
                     else

@@ -48,7 +48,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 var existingPackageType = await _unitOfWork.GetRepository<PackageType>().FirstOrDefaultAsync(
-                    x => x.Name.Equals(packageType.Name));
+                    x => x.Name!.Equals(packageType.Name));
 
                 if (existingPackageType != null)
                 {

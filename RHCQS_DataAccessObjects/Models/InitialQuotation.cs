@@ -7,8 +7,6 @@ public partial class InitialQuotation
 {
     public Guid Id { get; set; }
 
-    public Guid? AccountId { get; set; }
-
     public Guid ProjectId { get; set; }
 
     public Guid? PromotionId { get; set; }
@@ -42,8 +40,6 @@ public partial class InitialQuotation
     public string? Unit { get; set; }
 
     public string? ReasonReject { get; set; }
-
-    public virtual Account? Account { get; set; }
 
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 

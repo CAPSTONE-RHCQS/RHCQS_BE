@@ -39,7 +39,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotation(int page, int size)
         {
             var list = await _unitOfWork.GetRepository<InitialQuotation>().GetList(
-                selector: x => new InitialQuotationListResponse(x.Id, x.Project.Customer.Username, x.Version, x.Area, x.Status),
+                selector: x => new InitialQuotationListResponse(x.Id, x.Project.Customer!.Username!, x.Version, x.Area, x.Status),
                 include: x => x.Include(x => x.Project)
                                 .ThenInclude(x => x.Customer!),
                 page: page,
@@ -85,13 +85,13 @@ namespace RHCQS_Services.Implement
                             item.ConstructionItem?.Name,
                             item.SubConstructionId.HasValue ?
                               item.ConstructionItem?.SubConstructionItems
-                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem.Name,
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
                             item.Area,
                             item.Price,
                             item.UnitPrice,
                                 item.ConstructionItem?.SubConstructionItems
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
-                            item.ConstructionItem.Coefficient
+                            item.ConstructionItem!.Coefficient
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
@@ -110,7 +110,7 @@ namespace RHCQS_Services.Implement
                                               : new PromotionInfo();
 
             var batchPaymentResponse =
-                            initialQuotation.BatchPayments.Select(item => new BatchPaymentInfo(
+                            initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
                                 item.Id,
                                 item.Description,
                                 item.Percents,
@@ -120,7 +120,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project.Customer.Username,
+                AccountName = initialQuotation.Project!.Customer!.Username!,
                 ProjectId = initialQuotation.Project.Id,
                 PromotionId = initialQuotation.PromotionId,
                 Area = initialQuotation.Area,
@@ -130,7 +130,7 @@ namespace RHCQS_Services.Implement
                 InsDate = initialQuotation.InsDate,
                 Status = initialQuotation.Status,
                 Version = initialQuotation.Version,
-                Deflag = (bool)initialQuotation.Deflag,
+                Deflag = (bool)initialQuotation.Deflag!,
                 Note = initialQuotation.Note,
                 TotalRough = initialQuotation.TotalRough,
                 TotalUtilities = initialQuotation.TotalUtilities,
@@ -148,7 +148,7 @@ namespace RHCQS_Services.Implement
         public async Task<InitialQuotationResponse> GetDetailInitialQuotationByCustomerName(string name)
         {
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                        x => x.Project.Customer.Username.Equals(name),
+                        x => x.Project!.Customer!.Username!.Equals(name),
                         include: x => x.Include(x => x.InitialQuotationItems)
                                        .ThenInclude(x => x.ConstructionItem)
                                        .ThenInclude(x => x.SubConstructionItems!)
@@ -183,13 +183,13 @@ namespace RHCQS_Services.Implement
                             item.ConstructionItem?.Name,
                             item.SubConstructionId.HasValue ?
                               item.ConstructionItem?.SubConstructionItems
-                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem.Name,
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
                             item.Area,
                             item.Price,
                             item.UnitPrice,
                                 item.ConstructionItem?.SubConstructionItems
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
-                            item.ConstructionItem.Coefficient
+                            item.ConstructionItem!.Coefficient
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
@@ -208,7 +208,7 @@ namespace RHCQS_Services.Implement
                                               : new PromotionInfo();
 
             var batchPaymentResponse =
-                            initialQuotation.BatchPayments.Select(item => new BatchPaymentInfo(
+                            initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
                                 item.Id,
                                 item.Description,
                                 item.Percents,
@@ -218,7 +218,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project.Customer.Username,
+                AccountName = initialQuotation.Project.Customer!.Username!,
                 ProjectId = initialQuotation.Project.Id,
                 PromotionId = initialQuotation.PromotionId,
                 Area = initialQuotation.Area,
@@ -228,7 +228,7 @@ namespace RHCQS_Services.Implement
                 InsDate = initialQuotation.InsDate,
                 Status = initialQuotation.Status,
                 Version = initialQuotation.Version,
-                Deflag = (bool)initialQuotation.Deflag,
+                Deflag = (bool)initialQuotation.Deflag!,
                 Note = initialQuotation.Note,
                 TotalRough = initialQuotation.TotalRough,
                 TotalUtilities = initialQuotation.TotalUtilities,
@@ -242,8 +242,6 @@ namespace RHCQS_Services.Implement
 
             return result;
         }
-
-        
 
         public async Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
         {
@@ -318,7 +316,7 @@ namespace RHCQS_Services.Implement
             }
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return null;
+            return null!;
         }
 
         private string GenerateHtmlContent(InitialQuotationResponse request)
@@ -469,7 +467,7 @@ namespace RHCQS_Services.Implement
                 <th>Thành tiền (VND)</th>
             </tr>");
 
-            foreach (var utility in request.UtilityInfos)
+            foreach (var utility in request.UtilityInfos!)
             {
                     sb.Append($@"
             <tr>
@@ -502,7 +500,7 @@ namespace RHCQS_Services.Implement
 
     <h3>2.6. Tổng giá trị hợp đồng:</h3>
     <p>Giá trị hợp đồng trước thuế: " + request.TotalRough + @"</p>
-    <p>Giá trị hợp đồng sau khuyến mãi: " + request.PromotionInfo.Value + @"</p>
+    <p>Giá trị hợp đồng sau khuyến mãi: " + request.PromotionInfo!.Value + @"</p>
     
     <h2>ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</h2>
     <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
@@ -581,7 +579,6 @@ namespace RHCQS_Services.Implement
                 var initialItem = new InitialQuotation()
                 {
                     Id = Guid.NewGuid(),
-                    AccountId = request.AccountId,
                     ProjectId = request.ProjectId,
                     PromotionId = request.Promotions?.Id != null ? request.Promotions.Id : (Guid?)null,
                     Area = request.Area,
@@ -602,7 +599,7 @@ namespace RHCQS_Services.Implement
                 };
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
 
-                foreach (var item in request.Items)
+                foreach (var item in request.Items!)
                 {
                     var itemInitial = new InitialQuotationItem()
                     {
@@ -620,7 +617,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
                 }
 
-                foreach (var package in request.Packages)
+                foreach (var package in request.Packages!)
                 {
                     var packageQuotation = new PackageQuotation
                     {
@@ -634,7 +631,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
                 }
 
-                foreach (var utl in request.Utilities)
+                foreach (var utl in request.Utilities!)
                 {
                     var utlItem = new QuotationUtility
                     {
@@ -642,7 +639,7 @@ namespace RHCQS_Services.Implement
                         UtilitiesItemId = utl.UtilitiesItemId,
                         FinalQuotationId = null,
                         InitialQuotationId = initialItem.Id,
-                        Name = utl.Description,
+                        Name = utl.Description!,
                         Coefiicient = utl.Coefiicient,
                         Price = utl.Price,
                         Description = utl.Description,

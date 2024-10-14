@@ -33,9 +33,9 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<ProjectResponse> listProjects =
             await _unitOfWork.GetRepository<Project>().GetList(
-                selector: x => new ProjectResponse(x.Id, x.Customer.Username, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
-                include: x => x.Include(w => w.Customer),
+                include: x => x.Include(w => w.Customer!),
                 orderBy: x => x.OrderBy(w => w.InsDate),
                 page: page,
                 size: size
@@ -47,12 +47,12 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<AssignTask>().GetList(
                 predicate: x => x.AccountId == accountId,
-                selector: x => new ProjectResponse(x.Id, x.Project.Customer.Username, x.Project.Name, x.Project.Type,
+                selector: x => new ProjectResponse(x.Id, x.Project!.Customer!.Username!, x.Project.Name, x.Project.Type,
                                                     x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
                 include: x => x.Include(x => x.Project!)
                                 .ThenInclude(x => x.Customer!),
                 orderBy: x => x.OrderBy(x => x.InsDate)
-                               .ThenBy(x => x.Project.Status == AppConstant.ProjectStatus.PROCCESSING),
+                               .ThenBy(x => x.Project!.Status == AppConstant.ProjectStatus.PROCCESSING),
                 page: page,
                 size: size
             );
@@ -70,15 +70,12 @@ namespace RHCQS_Services.Implement
                                                 .Include(p => p.AssignTasks)
                                                 .ThenInclude(p => p.Account)
                                                 .Include(p => p.InitialQuotations)
-                                                    .ThenInclude(p => p.Account)
                                                 .Include(p => p.FinalQuotations)
                                                 .Include(p => p.HouseDesignDrawings)
                                                     .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
                                                 .Include(p => p.Contracts));
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
-
-            if (projectItem == null) return null;
 
             var initialItem = projectItem.InitialQuotations?
                                         .Select(i => new InitialInfo
@@ -107,8 +104,8 @@ namespace RHCQS_Services.Implement
                                                                          Id = h.Id,
                                                                          //Version = h.HouseDesignVersions,
                                                                          Step = h.Step,
-                                                                         Name = h.Name,
-                                                                         Type = h.Type,
+                                                                         Name = h.Name!,
+                                                                         Type = h.Type!,
                                                                          InsDate = h.InsDate,
                                                                          Status = h.Status
                                                                      }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
@@ -126,7 +123,7 @@ namespace RHCQS_Services.Implement
             {
                 Id = projectItem.Id,
                 Name = projectItem.Name,
-                AccountName = projectItem.Customer.Username,
+                AccountName = projectItem.Customer!.Username!,
                 Address = projectItem.Address,
                 Area = projectItem.Area,
                 Type = projectItem.Type,
@@ -150,10 +147,10 @@ namespace RHCQS_Services.Implement
         {
             var listProject = await _unitOfWork.GetRepository<Project>()
                 .GetList(
-                    predicate: p => p.Customer.Email == email,
+                    predicate: p => p.Customer!.Email == email,
                     selector: p => new ProjectResponse(
                         p.Id,
-                        p.Customer.Username,
+                        p.Customer!.Username!,
                         p.Name,
                         p.Type,
                         p.Status,
@@ -161,7 +158,7 @@ namespace RHCQS_Services.Implement
                         p.UpsDate,
                         p.ProjectCode
                     ),
-                    include: p => p.Include(p => p.Customer)
+                    include: p => p.Include(p => p.Customer!)
                 );
 
             return listProject.Items.ToList();
@@ -175,10 +172,10 @@ namespace RHCQS_Services.Implement
             }
 
             var projectPaginate = await _unitOfWork.GetRepository<Project>().GetList(
-                selector: x => new ProjectResponse(x.Id, x.Customer.Username, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
-                include: x => x.Include(w => w.Customer),
-                predicate: x => x.Customer.PhoneNumber == phoneNumber,
+                include: x => x.Include(w => w.Customer!),
+                predicate: x => x.Customer!.PhoneNumber == phoneNumber,
                 orderBy: x => x.OrderBy(w => w.InsDate));
 
             return projectPaginate.Items.ToList();
@@ -206,7 +203,6 @@ namespace RHCQS_Services.Implement
                 var initialItem = new InitialQuotation
                 {
                     Id = Guid.NewGuid(),
-                    AccountId = new Guid(),
                     ProjectId = projectItem.Id,
                     PromotionId = projectRequest.InitialQuotation.PromotionId,
                     Area = projectRequest.Area,
@@ -237,7 +233,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
                 }
 
-                foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests)
+                foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests!)
                 {
                     var initialQuotationItem = new InitialQuotationItem
                     {
@@ -255,7 +251,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
                 }
 
-                foreach (var utl in projectRequest.QuotationUtilitiesRequest)
+                foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
                 {
                     var utlItem = new QuotationUtility
                     {

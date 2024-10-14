@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects.Context;
+namespace RHCQS_DataAccessObjects.Models;
 
 public partial class RhcqsContext : DbContext
 {
@@ -361,10 +360,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Unit).HasMaxLength(5);
-
-            entity.HasOne(d => d.Account).WithMany(p => p.InitialQuotations)
-                .HasForeignKey(d => d.AccountId)
-                .HasConstraintName("FK_InitialQuotation_Account");
 
             entity.HasOne(d => d.Project).WithMany(p => p.InitialQuotations)
                 .HasForeignKey(d => d.ProjectId)

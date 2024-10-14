@@ -16,8 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 using CloudinaryDotNet;
 using DinkToPdf;
 using DinkToPdf.Contracts;
-using RHCQS_DataAccessObjects;
-using RHCQS_DataAccessObjects.Context;
+using RHCQS_DataAccessObjects.Models;
 
 
 namespace RHCQS_BE.Extenstion
@@ -61,7 +60,7 @@ namespace RHCQS_BE.Extenstion
                         .Build();
             var strConn = config["ConnectionStrings:DefaultConnection"];
 
-            return strConn;
+            return strConn!;
         }
 
         public static IServiceCollection AddServices(this IServiceCollection services)
@@ -101,7 +100,7 @@ namespace RHCQS_BE.Extenstion
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey =
                         new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!))
                 };
                 options.Events = new JwtBearerEvents
                 {

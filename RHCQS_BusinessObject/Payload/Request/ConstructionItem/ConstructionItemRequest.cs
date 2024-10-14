@@ -24,6 +24,9 @@ namespace RHCQS_BusinessObject.Payload.Request.ConstructionItem
         [Required(ErrorMessage = "Type is required.")]
         public string Type { get; set; }
         public List<SubConstructionRequest>? subConstructionRequests { get; set; }
+        [Required(ErrorMessage = "IsFinalQuotation is required.")]
+
+        public bool? IsFinalQuotation { get; set; }
 
     }
 
