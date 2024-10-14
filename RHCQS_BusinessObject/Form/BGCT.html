@@ -1,0 +1,295 @@
+﻿<html>
+
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        @page {
+            margin: 30px;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            color: black;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            text-align: left;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .signature {
+            margin-top: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-column {
+            width: 40%;
+            text-align: center;
+        }
+
+        .signature-column strong {
+            display: block;
+            margin-top: 50px;
+        }
+
+        .total {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>BÁO GIÁ CHI TIẾT NHÀ Ổ DÂN DỤNG</h1>
+    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
+    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
+    <p><strong>CHỦ ĐẦU TƯ:</strong> @AccountName</p>
+
+    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
+    <h4>HẠNG MỤC THI CÔNG: {{projectType}}</h4>
+    <h4>ĐỊA CHỈ XÂY DỰNG: {{projectAddress}}</h4>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>KHOẢN MỤC CHI PHÍ</th>
+                    <th>CHI PHÍ VẬT TƯ</th>
+                    <th>CHI PHÍ NHÂN CÔNG</th>
+                    <th>THÀNH TIỀN (VND)</th>
+                </tr>
+            </thead>
+            <tbody>
+                int noCount = 1;
+                @foreach (var item in request.FinalQuotationItems)
+                {
+                <tr>
+                    <td>@noCount++</td>
+                    <td>@item.ConstructionRough</td>
+                    <td>@item.TotalPriceRough</td>
+                    <td>@item.TotalPriceLabor</td>
+                    <td class="highlight">@item.TotalAmount</td>
+                </tr>
+                }
+                <tr class="total">
+                    <td colspan="4">Cộng (chưa VAT)</td>
+                    <td class="highlight">@Model.Total</td>
+                </tr>
+                <tr class="total">
+                    <td colspan="4">Làm tròn (chưa VAT)</td>
+                    <td class="highlight">@Model.RoundedTotal</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="signature">
+        <div class="signature-row">
+            <div class="signature-column">
+                NGƯỜI LẬP<br />
+                <strong>@AccountName</strong>
+            </div>
+            <div class="signature-column">
+                NGƯỜI CHỦ TRÌ<br />
+                <strong>@StaffInfo.Name</strong><br />
+            </div>
+        </div>
+    </div>
+
+    <h2>BẢNG BÁO CHI TIẾT</h2>
+    <h4>CHI PHÍ @Type - Project</h4>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>NỘI DUNG CÔNG VIỆC</th>
+                <th>DVT</th>
+                <th>KHỐI LƯỢNG</th>
+                <th>ĐƠN GIÁ<br />NHÂN CÔNG</th>
+                <th>ĐƠN GIÁ<br />VẬT TƯ THÔ</th>
+                <th>ĐƠN GIÁ<br />VẬT TƯ H.T</th>
+                <th>THÀNH TIỀN<br />NHÂN CÔNG</th>
+                <th>THÀNH TIỀN<br />VẬT TƯ THÔ</th>
+                <th>THÀNH TIỀN<br />VẬT TƯ H.T</th>
+                <th>GHI CHÚ</th>
+            </tr>
+        </thead>
+        <tbody>
+            int noCons = 0;
+            @foreach (var item in items)
+            {
+            <tr>
+                <td>@noCons++</td>
+                <td>@item.Name</td>
+                <td>@item.Unit</td>
+                <td>@item.Weight</td>
+                <td>@item.UnitPriceLabor</td>
+                <td>@item.UnitPriceRough</td>
+                <td>@item.UnitPriceFinished</td> <!-- VẬT TƯ H.T -->
+                <td>@item.TotalPriceLabor</td>
+                <td>@item.TotalPriceRough</td>
+                <td>@item.TotalPriceFinished</td> <!-- THÀNH TIỀN VẬT TƯ H.T -->
+                <td>@item.Note</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>CHI PHÍ THIẾT BỊ</h4>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>NỘI DUNG CÔNG VIỆC</th>
+                <th>DVT</th>
+                <th>KHỐI LƯỢNG</th>
+                <!-- <th>ĐƠN GIÁ<br />NHÂN CÔNG</th> -->
+                <th>ĐƠN GIÁ<br />VẬT TƯ HOÀN THIỆN</th>
+                <!-- <th>THÀNH TIỀN<br />NHÂN CÔNG</th> -->
+                <th>THÀNH TIỀN<br />VẬT TƯ HOÀN THIỆN</th>
+                <th>GHI CHÚ</th>
+            </tr>
+        </thead>
+        <tbody>
+            int noEqui = 0;
+            @foreach (var item in items)
+            {
+            <tr>
+                <td>@noEqui++</td>
+                <td>@item.Name</td>
+                <td>@item.Unit</td>
+                <td>@item.Quantity</td>
+                <td>@item.UnitOfMaterial</td>
+                <td>@item.TotalOfMaterial</td>
+                <td>@item.Note</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>CHI PHÍ KHÁC</h4>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>TIỆN ÍCH</th>
+                <th>HỆ SỐ</th>
+                <th>ĐƠN GIÁ</th>
+                <th>THÀNH TIỀN</th>
+            </tr>
+        </thead>
+        <tbody>
+            int noUti = 0;
+            @foreach (var item in items)
+            {
+            <tr>
+                <td>@noUti++</td>
+                <td>@item.Description</td>
+                <td>@item.Coefficient</td>
+                <td>@item.UnitPrice</td>
+                <td>@item.Price</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>PHƯƠNG THỨC THANH TOÁN</h2>
+    <h3><i>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau</i></h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ĐỢT</th>
+                <th>NỘI DUNG THANH TOÁN</th>
+                <th>GÍA TRỊ (%)</th>
+                <th>GÍA TRỊ (VND)</th>
+                <th>NGÀY THANH TOÁN</th>
+                <th>HẠN CHÓT</th>
+            </tr>
+        </thead>
+        <tbody>
+            int noPay = 0;
+            @foreach (var item in items)
+            {
+            <tr>
+                <td>@noPay++</td>
+                <td>@item.Description</td>
+                <td>@item.UnitPrice</td>
+                <td>@item.Price</td>
+                <td>@item.PaymentDate</td>
+                <td>@item.PaymentPhase</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+    <h2>THỜI GIAN THI CÔNG</h2>
+    <ul>
+        <li><strong>Thời gian thi công phần thô:</strong> {{constructionDuration}} ngày</li>
+        <li><strong>Thời gian hoàn thành toàn bộ công trình:</strong> {{finishingDuration}} ngày</li>
+    </ul>
+
+    <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
+    <ul>
+        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
+        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
+        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
+    </ul>
+</body>
+
+</html>
