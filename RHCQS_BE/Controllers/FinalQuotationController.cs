@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
+using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
@@ -69,6 +70,22 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.FinalQuotation.ApproveFinalQuotationEndpoint)]
+        [ProducesResponseType(typeof(ApproveQuotationRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ApproveFinalFromManager([FromQuery] Guid finalId, [FromBody] ApproveQuotationRequest request)
+        {
+            var pdfUrl = await _finalQuotationService.ApproveFinalFromManager(finalId, request);
+
+            if (!string.IsNullOrEmpty(pdfUrl))
+            {
+                return Ok(new { Url = pdfUrl });
+            }
+
+            return BadRequest(AppConstant.Message.ERROR);
         }
         #region GetDetailFinalQuotationById
         /// <summary>

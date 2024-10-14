@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
 using RHCQS_BusinessObject.Payload.Request;
 using static RHCQS_BusinessObjects.AppConstant;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace RHCQS_Services.Implement
 {
@@ -34,11 +35,6 @@ namespace RHCQS_Services.Implement
             _logger = logger;
             _converter = converter;
             _cloudinary = cloudinary;
-        }
-
-        public Task<string> ApproveFinalFromManager(Guid Id, ApproveQuotationRequest request)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<bool> CancelFinalQuotation(Guid Id, CancelQuotation reason)
@@ -171,176 +167,97 @@ namespace RHCQS_Services.Implement
             return isSuccessful;
         }
 
-        /*        public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
+        public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
+        {
+            var finalItem = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
+
+            if (finalItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                               AppConstant.ErrMessage.Not_Found_FinalQuotaion);
+
+            if (request.Type == AppConstant.QuotationStatus.APPROVED)
+            {
+                finalItem.Status = AppConstant.QuotationStatus.APPROVED;
+                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
+                var data = await GetDetailFinalQuotationById(finalItem.Id);
+                try
                 {
-                    var finalItem = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
+                    // Tạo HTML dựa trên dữ liệu nhận được
+                    var htmlContent = GenerateHtmlContent(data);
 
-                    if (finalItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                                                       AppConstant.ErrMessage.Not_Found_FinalQuotaion);
-
-                    if (request.Type == AppConstant.QuotationStatus.APPROVED)
+                    var doc = new HtmlToPdfDocument()
                     {
-                        finalItem.Status = AppConstant.QuotationStatus.APPROVED;
-                        _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
-                        var data = await GetDetailFinalQuotationById(finalItem.Id);
-                        try
-                        {
-                            // Tạo HTML dựa trên dữ liệu nhận được
-                            var htmlContent = GenerateHtmlContent(data);
-
-                            var doc = new HtmlToPdfDocument()
-                            {
-                                GlobalSettings = {
+                        GlobalSettings = {
                                 ColorMode = ColorMode.Color,
                                 Orientation = Orientation.Portrait,
                                 PaperSize = PaperKind.A4
                             },
-                                Objects = {
+                        Objects = {
                                 new ObjectSettings() {
                                     PagesCount = true,
                                     HtmlContent = htmlContent,
                                     WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = null }
                                 }
                             }
-                            };
+                    };
 
-                            var pdf = _converter.Convert(doc);
-                            //Upload cloudinary
-                            using (var pdfStream = new MemoryStream(pdf))
-                            {
-                                // Tạo tham số để upload lên Cloudinary
-                                var uploadParams = new RawUploadParams()
-                                {
-                                    File = new FileDescription($"{data.AccountName}_Quotation.pdf", pdfStream),
-                                    Folder = "FinalQuotation",
-                                    PublicId = $"Bao_gia_chi_tiet_{data.AccountName}_{data.Version}",
-                                    UseFilename = true,
-                                    UniqueFilename = true,
-                                    Overwrite = true
-                                };
-
-                                // Upload file lên Cloudinary
-                                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-                                // Kiểm tra nếu upload không thành công
-                                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
-                                {
-                                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
-                                }
-
-                                return uploadResult.SecureUrl.ToString();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new Exception(ex.Message);
-                        }
-                    }
-                    else
+                    var pdf = _converter.Convert(doc);
+                    //Upload cloudinary
+                    using (var pdfStream = new MemoryStream(pdf))
                     {
-                        finalItem.Status = AppConstant.QuotationStatus.REJECTED;
-                        finalItem.ReasonReject = request.Reason;
-                        _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
-                    }
+                        // Tạo tham số để upload lên Cloudinary
+                        var uploadParams = new RawUploadParams()
+                        {
+                            File = new FileDescription($"{data.AccountName}_Quotation.pdf", pdfStream),
+                            Folder = "FinalQuotation",
+                            PublicId = $"Bao_gia_chi_tiet_{data.AccountName}_{data.Version}",
+                            UseFilename = true,
+                            UniqueFilename = true,
+                            Overwrite = true
+                        };
 
-                    bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-                    return null;
-                }*/
+                        // Upload file lên Cloudinary
+                        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                        // Kiểm tra nếu upload không thành công
+                        if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                        }
+
+                        return uploadResult.SecureUrl.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
+            else
+            {
+                finalItem.Status = AppConstant.QuotationStatus.REJECTED;
+                finalItem.ReasonReject = request.Reason;
+                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
+            }
+
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            return null;
+        }
 
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationByCustomerName(string name)
         {
-            var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
-                x => x.Project.Customer.Username.Equals(name),
-                include: x => x.Include(x => x.Project)
-                                .ThenInclude(x => x.Customer)
-                               .Include(x => x.Promotion)
-                               .Include(x => x.QuotationUtilities)
-                                   .ThenInclude(qu => qu.UtilitiesItem)
-                               .Include(x => x.EquipmentItems)
-                               .Include(x => x.FinalQuotationItems)
-                               .Include(x => x.BatchPayments)
-            );
-
-            if (finalQuotation == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                                                   AppConstant.ErrMessage.Not_Found_FinalQuotaion);
-            }
-
-            var response = new FinalQuotationResponse(
-                finalQuotation.Id,
-                finalQuotation.Project.Customer.Username,
-                finalQuotation.ProjectId,
-                finalQuotation.PromotionId,
-                finalQuotation.TotalPrice,
-                finalQuotation.Note,
-                finalQuotation.Version,
-                finalQuotation.InsDate,
-                finalQuotation.UpsDate,
-                finalQuotation.Status,
-                finalQuotation.Deflag,
-                finalQuotation.QuotationUtilitiesId,
-                finalQuotation.ReasonReject,
-                finalQuotation.BatchPayments.Select(bp => new BatchPaymentInfo(
-                    bp.Id,
-                    bp.Description,
-                    bp.Percents,
-                    bp.Price,
-                    bp.Unit
-                )).ToList(),
-                finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
-                    ei.Id,
-                    ei.Name,
-                    ei.Unit,
-                    ei.Quantity,
-                    ei.UnitOfMaterial,
-                    ei.TotalOfMaterial,
-                    ei.Note
-                )).ToList(),
-                finalQuotation.FinalQuotationItems.Select(fqi => new FinalQuotationItemResponse(
-                    fqi.Id,
-                    fqi.Name,
-                    fqi.Unit,
-                    fqi.Weight,
-                    fqi.UnitPriceLabor,
-                    fqi.UnitPriceRough,
-                    fqi.UnitPriceFinished,
-                    fqi.TotalPriceLabor,
-                    fqi.TotalPriceRough,
-                    fqi.TotalPriceFinished,
-                    fqi.InsDate
-                )).ToList(),
-                finalQuotation.Promotion != null ? new PromotionInfo(
-                    finalQuotation.Promotion.Id,
-                    finalQuotation.Promotion.Name,
-                    finalQuotation.Promotion.Value
-                ) : null,
-                finalQuotation.QuotationUtilities != null ? new List<UtilityInfo> {
-                    new UtilityInfo(
-                    finalQuotation.QuotationUtilities.Id,
-                    finalQuotation.QuotationUtilities.Description,
-                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
-                    finalQuotation.QuotationUtilities.Price ?? 0
-                )} : new List<UtilityInfo>()
-            );
-
-            return response;
-        }
-
-        public async Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id)
-        {
             try
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
-                    x => x.Id == id,
+                    x => x.Project.Customer.Username.Equals(name),
                     include: x => x.Include(x => x.Project)
-                                    .ThenInclude(x => x.Customer)
+                                   .ThenInclude(x => x.Customer)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
                                    .Include(x => x.EquipmentItems)
                                    .Include(x => x.FinalQuotationItems)
+                                       .ThenInclude(co => co.ConstructionItem)
                                    .Include(x => x.BatchPayments)
                 );
 
@@ -350,10 +267,86 @@ namespace RHCQS_Services.Implement
                                                        AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
 
+                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
+                    bp.Id,
+                    bp.Description,
+                    bp.Percents,
+                    bp.Price,
+                    bp.Unit,
+                    bp.PaymentDate,
+                    bp.PaymentPhase
+                )).ToList();
+
+                var equipmentItemsList = finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
+                    ei.Id,
+                    ei.Name,
+                    ei.Unit,
+                    ei.Quantity,
+                    ei.UnitOfMaterial,
+                    ei.TotalOfMaterial,
+                    ei.Note
+                )).ToList();
+
+                var finalQuotationItemsList = finalQuotation.FinalQuotationItems.Select(fqi => new FinalQuotationItemResponse(
+                    fqi.Id,
+                    fqi.Name,
+                    fqi.ConstructionItem?.Type,
+                    fqi.Unit,
+                    fqi.Weight,
+                    fqi.UnitPriceLabor,
+                    fqi.UnitPriceRough,
+                    fqi.UnitPriceFinished,
+                    fqi.TotalPriceLabor,
+                    fqi.TotalPriceRough,
+                    fqi.TotalPriceFinished,
+                    fqi.InsDate
+                )).ToList();
+
+                var promotionInfo = finalQuotation.Promotion != null
+                    ? new PromotionInfo(
+                        finalQuotation.Promotion.Id,
+                        finalQuotation.Promotion.Name,
+                        finalQuotation.Promotion.Value
+                    )
+                    : null;
+
+                var utilityInfoList = finalQuotation.QuotationUtilities != null
+                    ? new List<UtilityInf>
+                    {
+                new UtilityInf(
+                    finalQuotation.QuotationUtilities.Id,
+                    finalQuotation.QuotationUtilities.Description,
+                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
+                    finalQuotation.QuotationUtilities.Price ?? 0,
+                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.UnitPrice ?? 0,
+                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.Unit
+                )
+                    }
+                    : new List<UtilityInf>();
+                var constructionRoughList = finalQuotationItemsList
+                    .Where(item => item.Type == "ROUGH")
+                    .GroupBy(item => item.Type)
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(item => item.TotalPriceRough ?? 0),
+                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+
+
+                var constructionFinishedList = finalQuotationItemsList
+                    .Where(item => item.Type == "FINISHED")
+                    .GroupBy(item => item.Type)
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(item => item.TotalPriceRough ?? 0),
+                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username,
                     finalQuotation.ProjectId,
+                    finalQuotation.Project.Type,
+                    finalQuotation.Project.Address,
                     finalQuotation.PromotionId,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
@@ -364,53 +357,153 @@ namespace RHCQS_Services.Implement
                     finalQuotation.Deflag,
                     finalQuotation.QuotationUtilitiesId,
                     finalQuotation.ReasonReject,
-                    finalQuotation.BatchPayments.Select(bp => new BatchPaymentInfo(
-                        bp.Id,
-                        bp.Description,
-                        bp.Percents,
-                        bp.Price,
-                        bp.Unit
-                    )).ToList(),
-                    finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
-                        ei.Id,
-                        ei.Name,
-                        ei.Unit,
-                        ei.Quantity,
-                        ei.UnitOfMaterial,
-                        ei.TotalOfMaterial,
-                        ei.Note
-                    )).ToList(),
-                    finalQuotation.FinalQuotationItems.Select(fqi => new FinalQuotationItemResponse(
-                        fqi.Id,
-                        fqi.Name,
-                        fqi.Unit,
-                        fqi.Weight,
-                        fqi.UnitPriceLabor,
-                        fqi.UnitPriceRough,
-                        fqi.UnitPriceFinished,
-                        fqi.TotalPriceLabor,
-                        fqi.TotalPriceRough,
-                        fqi.TotalPriceFinished,
-                        fqi.InsDate
-                    )).ToList(),
-                    finalQuotation.Promotion != null ? new PromotionInfo(
-                        finalQuotation.Promotion.Id,
-                        finalQuotation.Promotion.Name,
-                        finalQuotation.Promotion.Value
-                    ) : null,
-                    finalQuotation.QuotationUtilities != null ? new List<UtilityInfo> {
-                    new UtilityInfo(
-                    finalQuotation.QuotationUtilities.Id,
-                    finalQuotation.QuotationUtilities.Description,
-                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
-                    finalQuotation.QuotationUtilities.Price ?? 0
-                )} : new List<UtilityInfo>()
+                    batchPaymentsList,
+                    equipmentItemsList,
+                    finalQuotationItemsList,
+                    promotionInfo,
+                    utilityInfoList,
+                    constructionRoughList,
+                    constructionFinishedList
                 );
 
                 return response;
-            }catch(Exception ex) { throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message); }
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
         }
 
+        public async Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id)
+        {
+            try
+            {
+                var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+                    x => x.Id == id,
+                    include: x => x.Include(x => x.Project)
+                                   .ThenInclude(x => x.Customer)
+                                   .Include(x => x.Promotion)
+                                   .Include(x => x.QuotationUtilities)
+                                       .ThenInclude(qu => qu.UtilitiesItem)
+                                       .ThenInclude(qu => qu.Section)
+                                   .Include(x => x.EquipmentItems)
+                                   .Include(x => x.FinalQuotationItems)
+                                       .ThenInclude(co => co.ConstructionItem)
+                                   .Include(x => x.BatchPayments)
+                );
+
+                if (finalQuotation == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                                       AppConstant.ErrMessage.Not_Found_FinalQuotaion);
+                }
+
+                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
+                    bp.Id,
+                    bp.Description,
+                    bp.Percents,
+                    bp.Price,
+                    bp.Unit,
+                    bp.PaymentDate,
+                    bp.PaymentPhase
+                )).ToList();
+
+                var equipmentItemsList = finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
+                    ei.Id,
+                    ei.Name,
+                    ei.Unit,
+                    ei.Quantity,
+                    ei.UnitOfMaterial,
+                    ei.TotalOfMaterial,
+                    ei.Note
+                )).ToList();
+
+                var finalQuotationItemsList = finalQuotation.FinalQuotationItems.Select(fqi => new FinalQuotationItemResponse(
+                    fqi.Id,
+                    fqi.Name,
+                    fqi.ConstructionItem?.Type,
+                    fqi.Unit,
+                    fqi.Weight,
+                    fqi.UnitPriceLabor,
+                    fqi.UnitPriceRough,
+                    fqi.UnitPriceFinished,
+                    fqi.TotalPriceLabor,
+                    fqi.TotalPriceRough,
+                    fqi.TotalPriceFinished,
+                    fqi.InsDate
+                )).ToList();
+
+                var promotionInfo = finalQuotation.Promotion != null
+                    ? new PromotionInfo(
+                        finalQuotation.Promotion.Id,
+                        finalQuotation.Promotion.Name,
+                        finalQuotation.Promotion.Value
+                    )
+                    : null;
+
+                var utilityInfoList = finalQuotation.QuotationUtilities != null
+                    ? new List<UtilityInf>
+                    {
+                new UtilityInf(
+                    finalQuotation.QuotationUtilities.Id,
+                    finalQuotation.QuotationUtilities.Description,
+                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
+                    finalQuotation.QuotationUtilities.Price ?? 0,
+                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.UnitPrice ?? 0,
+                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.Unit
+                )
+                    }
+                    : new List<UtilityInf>();
+                var constructionRoughList = finalQuotationItemsList
+                    .Where(item => item.Type == "ROUGH")
+                    .GroupBy(item => item.Type)
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(item => item.TotalPriceRough ?? 0),
+                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+
+
+                var constructionFinishedList = finalQuotationItemsList
+                    .Where(item => item.Type == "FINISHED")
+                    .GroupBy(item => item.Type)
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(item => item.TotalPriceRough ?? 0),
+                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+                var response = new FinalQuotationResponse(
+                    finalQuotation.Id,
+                    finalQuotation.Project.Customer.Username,
+                    finalQuotation.ProjectId,
+                    finalQuotation.Project.Type,
+                    finalQuotation.Project.Address,
+                    finalQuotation.PromotionId,
+                    finalQuotation.TotalPrice,
+                    finalQuotation.Note,
+                    finalQuotation.Version,
+                    finalQuotation.InsDate,
+                    finalQuotation.UpsDate,
+                    finalQuotation.Status,
+                    finalQuotation.Deflag,
+                    finalQuotation.QuotationUtilitiesId,
+                    finalQuotation.ReasonReject,
+                    batchPaymentsList,
+                    equipmentItemsList,
+                    finalQuotationItemsList,
+                    promotionInfo,
+                    utilityInfoList,
+                    constructionRoughList,
+                    constructionFinishedList
+                );
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
+        }
 
         public async Task<IPaginate<FinalQuotationListResponse>> GetListFinalQuotation(int page, int size)
         {
@@ -507,7 +600,7 @@ namespace RHCQS_Services.Implement
         }
 
 
-        private string GenerateHtmlContent(InitialQuotationResponse request)
+        private string GenerateHtmlContent(FinalQuotationResponse request)
         {
             var sb = new StringBuilder();
             sb.Append(@"
@@ -521,7 +614,6 @@ namespace RHCQS_Services.Implement
         body {
             margin: 0;
             padding: 0;
-            padding-left: 30px;
             font-family: 'Arial', sans-serif;
             font-size: 14px;
             color: black;
@@ -554,8 +646,7 @@ namespace RHCQS_Services.Implement
             border-collapse: collapse;
             margin-top: 10px;
         }
-        th,
-        td {
+        th, td {
             border: 1px solid black;
             padding: 8px;
             text-align: left;
@@ -564,133 +655,271 @@ namespace RHCQS_Services.Implement
             background-color: #f0f0f0;
         }
         .center {
-            text-align: right;
-        }
-        .signature-block {
-            display: flex;
-            justify-content: space-between;
-            margin: 50px 0;
-        }
-        .signature {
-            width: 50%;
             text-align: center;
         }
-        .left {
-            text-align: left; 
+        .signature {
+            margin-top: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
         }
-
-        .right {
-            text-align: right; 
+        .signature-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-column {
+            width: 40%;
+            text-align: center;
+        }
+        .signature-column strong {
+            display: block;
+            margin-top: 50px;
+        }
+        .total {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: red;
         }
     </style>
 </head>
 <body>
-    <h1><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></h1>
-    <p><strong>CÔNG TRÌNH:</strong> NHÀ Ở RIÊNG LẺ</p>
-    <p><strong>ĐỊA ĐIỂM:</strong> " + request.AccountName + @"</p>
+    <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
+    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
+    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
     <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
 
-    <h2>ĐIỀU 1. QUY MÔ CÔNG TRÌNH</h2>
-    <p>Bổ sung</p>
+    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
+    <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
+    <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
 
-    <h2>ĐIỀU 2. GIÁ TRỊ HỢP ĐỒNG</h2>
-    <h3>2.1. Đơn giá thi công phần thô trước thuế: " + request.PackageQuotationList.PackageRough + @" đồng/m²</h3>
-
-    <h3>2.2. Diện tích xây dựng theo phương án thiết kế:</h3>
-    <table>
-        <tr>
-            <th>STT</th>
-            <th>Hạng mục</th>
-            <th>Diện tích (m²)</th>
-            <th>Hệ số</th>
-            <th>Diện tích tổng (m²)</th>
-        </tr>");
+    <div class='table-container'>
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>KHOẢN MỤC CHI PHÍ</th>
+                    <th>CHI PHÍ VẬT TƯ</th>
+                    <th>CHI PHÍ NHÂN CÔNG</th>
+                    <th>THÀNH TIỀN (VND)</th>
+                </tr>
+            </thead>
+            <tbody>");
 
             int noCount = 1;
-            foreach (var item in request.ItemInitial)
+            var rough = request.ConstructionRough;
+            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
+            string roughTypeDisplay = rough.Type == "ROUGH" ? "Phần thô" : rough.Type;
+            sb.Append($@"
+                <tr>
+                    <td>{noCount++}</td>
+                    <td>{roughTypeDisplay}</td>
+                    <td>{rough.TotalPriceRough:N0}</td>
+                    <td>{rough.TotalPriceLabor:N0}</td>
+                    <td class='highlight'>{roughTotalAmount:N0}</td>
+                </tr>");
+
+            var finished = request.ConstructionFinished;
+            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor);
+            string finishedTypeDisplay = finished.Type == "FINISHED" ? "Phần hoàn thiện" : finished.Type;
+            sb.Append($@"
+                <tr>
+                    <td>{noCount++}</td>
+                    <td>{finishedTypeDisplay}</td>
+                    <td>{finished.TotalPriceRough:N0}</td>
+                    <td>{finished.TotalPriceLabor:N0}</td>
+                    <td class='highlight'>{finishedTotalAmount:N0}</td>
+                    </tr>");
+
+            decimal utilityTotal = 0;
+
+            if (request.UtilityInfos != null && request.UtilityInfos.Count > 0)
             {
-                sb.Append($@"
+                foreach (var utility in request.UtilityInfos)
+                {
+                    decimal utilityAmount = (decimal)utility.Price;
+                    utilityTotal += utilityAmount;
+
+                    string utilityTypeDisplay = "Phần tiện ích";
+
+                    sb.Append($@"
         <tr>
-            <td>{noCount}</td>
-            <td>{item.Name}</td>
-            <td>{request.Area}</td>
-            <td>{item.Coefficient}</td>
-            <td>{item.Area}</td>
+            <td>{noCount++}</td>
+            <td>{utilityTypeDisplay}</td>
+            <td></td>
+            <td></td>
+            <td class='highlight'>{utilityAmount:N0}</td>
         </tr>");
-                noCount++;
+                }
             }
 
+            decimal total = roughTotalAmount + finishedTotalAmount + utilityTotal;
+            decimal roundedTotal = Math.Round(total);
             sb.Append($@"
-        <tr>
-            <td colspan='4' style='text-align:right;'><strong>Tổng diện tích xây dựng theo thiết kế:</strong></td>
-            <td>{request.Area}</td>
-        </tr>
-    </table>
+                <tr class='total'>
+                    <td colspan='4'>Cộng (chưa VAT)</td>
+                    <td class='highlight'>{total:N0}</td>
+                </tr>
+                <tr class='total'>
+                    <td colspan='4'>Làm tròn (chưa VAT)</td>
+                    <td class='highlight'>{roundedTotal:N0}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <h3>2.3. Giá trị thi công phần thô trước thuế:</h3>
-    <table>
-        <tr>
-            <th>Tổng diện tích xây dựng</th>
-            <th>x</th>
-            <th>Đơn giá</th>
-            <th>=</th>
-            <th>Thành tiền</th>
-        </tr>
-        <tr>
-            <td>" + request.Area + @" m²</td>
-            <td>x</td>
-            <td>" + request.PackageQuotationList.UnitPackageRough + @"</td>
-            <td>=</td>
-            <td>" + request.TotalRough + @"</td>
-        </tr>
-    </table>
+    <div class='signature'>
+        <div class='signature-row'>
+            <div class='signature-column'>
+                NGƯỜI LẬP
+                <strong></strong>
+            </div>
+            <div class='signature-column'>
+                NGƯỜI CHỦ TRÌ
+                <strong></strong>
+            </div>
+        </div>
+    </div>
 
-    <h3>2.4. Các chi phí khác:</h3>
-        <table>
+    <h2>BẢNG BÁO CHI TIẾT</h2>
+    <h4>CHI PHÍ " + request.ProjectType + @"</h4>
+    <table border='1' cellpadding='5' cellspacing='0'>
+        <thead>
             <tr>
-                <th>Hạng mục</th>
-                <th>Hệ số</th>
-                <th>Đơn giá (VND)</th>
-                <th>=</th>
-                <th>Thành tiền (VND)</th>
-            </tr>");
+                <th>STT</th>
+                <th>NỘI DUNG CÔNG VIỆC</th>
+                <th>DVT</th>
+                <th>KHỐI LƯỢNG</th>
+                <th>ĐƠN GIÁ NHÂN CÔNG</th>
+                <th>ĐƠN GIÁVẬT TƯ THÔ</th>
+                <th>ĐƠN GIÁVẬT TƯ H.T</th>
+                <th>THÀNH TIỀN NHÂN CÔNG</th>
+                <th>THÀNH TIỀN VẬT TƯ THÔ</th>
+                <th>THÀNH TIỀN VẬT TƯ H.T</th>
+            </tr>
+        </thead>
+        <tbody>");
 
-            foreach (var utility in request.UtilityInfos)
+            int noCons = 0;
+            foreach (var item in request.FinalQuotationItems)
             {
                 sb.Append($@"
             <tr>
-                <td>{utility.Description}</td>
-                <td>{utility.Coefficient}</td>
-                <td>{utility.Price:N0}</td>
-                <td>=</td>
-                <td>{(utility.Coefficient * utility.Price):N0}</td>
+                <td>{++noCons}</td>
+                <td>{item.Name}</td>
+                <td>{item.Unit}</td>
+                <td>{item.Weight:N0}</td>
+                <td>{item.UnitPriceLabor:N0}</td>
+                <td>{item.UnitPriceRough:N0}</td>
+                <td>{item.UnitPriceFinished:N0}</td>
+                <td>{item.TotalPriceLabor:N0}</td>
+                <td>{item.TotalPriceRough:N0}</td>
+                <td>{item.TotalPriceFinished:N0}</td>
             </tr>");
             }
 
-            sb.Append("</table>");
+            sb.Append($@"
+        </tbody>
+    </table>
+
+    <h4>CHI PHÍ THIẾT BỊ</h4>
+    <table border='1' cellpadding='5' cellspacing='0'>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>NỘI DUNG CÔNG VIỆC</th>
+                <th>DVT</th>
+                <th>KHỐI LƯỢNG</th>
+                <th>ĐƠN GIÁ<br />VẬT TƯ HOÀN THIỆN</th>
+                <th>THÀNH TIỀN<br />VẬT TƯ HOÀN THIỆN</th>
+                <th>GHI CHÚ</th>
+            </tr>
+        </thead>
+        <tbody>");
+
+            int noEqui = 0;
+            foreach (var item in request.EquipmentItems)
+            {
+                sb.Append($@"
+            <tr>
+                <td>{++noEqui}</td>
+                <td>{item.Name}</td>
+                <td>{item.Unit}</td>
+                <td>{item.Quantity:N0}</td>
+                <td>{item.UnitOfMaterial:N0}</td>
+                <td>{item.TotalOfMaterial:N0}</td>
+                <td>{item.Note}</td>
+            </tr>");
+            }
 
             sb.Append($@"
-    <h3>2.5. Tổng hợp giá trị hợp đồng:</h3>
-        <table>
-            <tr>
-                <th>Hạng mục</th>
-                <th>x</th>
-                <th>Thành tiền</th>
-                <th>Đơn giá</th>
-            </tr>
-            <tr>
-                <td>Phần thô</td>
-                <td>x</td>
-                <td>{request.TotalRough}</td>
-                <td>{request.Unit}</td>
-            </tr>
-        </table>
+        </tbody>
+    </table>
 
-    <h3>2.6. Tổng giá trị hợp đồng:</h3>
-    <p>Giá trị hợp đồng trước thuế: " + request.TotalRough + @"</p>
-    <p>Giá trị hợp đồng sau khuyến mãi: " + request.PromotionInfo.Value + @"</p>
-    
-    <h2>ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</h2>
+    <h4>CHI PHÍ KHÁC</h4>
+    <table border='1' cellpadding='5' cellspacing='0'>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>TIỆN ÍCH</th>
+                <th>HỆ SỐ</th>
+                <th>ĐƠN GIÁ</th>
+                <th>THÀNH TIỀN</th>
+            </tr>
+        </thead>
+        <tbody>");
+
+            int noUti = 0;
+            foreach (var item in request.UtilityInfos)
+            {
+                sb.Append($@"
+            <tr>
+                <td>{++noUti}</td>
+                <td>{item.Description}</td>
+                <td>{item.Coefficient:N0}</td>
+                <td>{item.UnitPrice:N0}</td>
+                <td>{item.Price:N0}</td>
+            </tr>");
+            }
+
+            sb.Append($@"
+        </tbody>
+    </table>
+
+    <h2>KHUYẾN MÃI</h2>
+    <table>
+            <tr>
+                <th>STT</th>
+                <th>KHUYẾN MÃI</th>
+                <th>GÍA TRỊ (VND)</th>
+                <th>THÀNH TIỀN</th>
+            </tr>
+            ");
+            int noPro = 0;
+            var promotion = request.PromotionInfo;
+            if (promotion != null)
+            {
+                sb.Append($@"
+                     <tr>
+                        <td>{noPro++}</td>
+                        <td>{promotion.Name}</td>
+                        <td>{promotion.Value}</td>
+                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
+                    </tr>");
+            }
+            else
+            {
+                sb.Append($@"
+                    <tr>
+                        <td colspan='4'>Không có khuyên mãi</td>
+                    </tr>");
+            }
+
+            sb.Append($@"
+        </tbody>
+    </table>
+
+    <h2>PHƯƠNG THỨC THANH TOÁN</h2>
     <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
     <table>
         <tr>
@@ -698,6 +927,8 @@ namespace RHCQS_Services.Implement
             <th>Nội dung thanh toán</th>
             <th>Giá trị (%)</th>
             <th>Giá trị (VND)</th>
+            <th>NGÀY THANH TOÁN</th>
+            <th>HẠN CHÓT</th>
         </tr>");
 
             int stageCounter = 1;
@@ -709,6 +940,8 @@ namespace RHCQS_Services.Implement
             <td>{payment.Description}</td>
             <td>{payment.Percents}</td>
             <td>{payment.Price}</td>
+            <td>{payment.PaymentDate}</td>
+            <td>{payment.PaymentPhase}</td>
         </tr>");
                 stageCounter++;
             }
@@ -716,42 +949,13 @@ namespace RHCQS_Services.Implement
             sb.Append(@"
     </table>
 
-    <h2>ĐIỀU 4. THỜI GIAN THI CÔNG</h2>
-    <p>Thời gian hoàn thành công trình là: <strong>" + request.TimeProcessing + @"</strong> ngày</p>
-    <p>Thời gian thi công phần thô: <strong>" + request.TimeOthers + @"</strong> ngày</p>");
+    <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
+    <ul>
+        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
+        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
+        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
+    </ul>
 
-            sb.Append(@"
-    <h2>ĐIỀU 5. CÁC THỎA THUẬN KHÁC</h2>
-    <ul>");
-
-
-            if (!string.IsNullOrEmpty(request.OthersAgreement))
-            {
-                var agreements = request.OthersAgreement.Split('-')
-                                    .Where(a => !string.IsNullOrWhiteSpace(a))
-                                    .Select(a => a.Trim());
-
-                foreach (var agreement in agreements)
-                {
-                    sb.Append($@"
-            <li>{agreement}</li>");
-                }
-            }
-
-            sb.Append("</ul>");
-
-            sb.Append(@"
-    <p class='center'>Ngày …… tháng …… năm ……</p>
-
-    <div class='signature-block'>
-        <div class='signature left'>
-            <p><strong>Chủ đầu tư</strong></p>
-        </div>
-
-    <div class='signature right'>
-        <p><strong>Nhà thầu</strong></p>
-    </div>
-</div>
 </body>
 </html>");
 
