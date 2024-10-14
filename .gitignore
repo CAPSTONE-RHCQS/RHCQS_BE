@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+!RHCQS_BE/bin/Debug/net8.0/libwkhtmltox.dll
+
+
