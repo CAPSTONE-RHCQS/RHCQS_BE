@@ -937,7 +937,7 @@ namespace RHCQS_Services.Implement
             <tr>
                 <th>STT</th>
                 <th>KHUYẾN MÃI</th>
-                <th>GÍA TRỊ (VND)</th>
+                <th>GIÁ TRỊ (VND)</th>
                 <th>THÀNH TIỀN</th>
             </tr>
             ");
@@ -969,10 +969,10 @@ namespace RHCQS_Services.Implement
     <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
     <table>
         <tr>
-            <th>Đợt</th>
-            <th>Nội dung thanh toán</th>
-            <th>Giá trị (%)</th>
-            <th>Giá trị (VND)</th>
+            <th>ĐỢT</th>
+            <th>NỘI DUNG THANH TOÁN</th>
+            <th>GIÁ TRỊ(%)</th>
+            <th>GIÁ TRỊ (VND)</th>
             <th>NGÀY THANH TOÁN</th>
             <th>HẠN CHÓT</th>
         </tr>");
@@ -985,7 +985,7 @@ namespace RHCQS_Services.Implement
             <td>{stageCounter}</td>
             <td>{payment.Description}</td>
             <td>{payment.Percents}</td>
-            <td>{payment.Price}</td>
+            <td>{payment.Price:N0}</td>
             <td>{payment.PaymentDate}</td>
             <td>{payment.PaymentPhase}</td>
         </tr>");

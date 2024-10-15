@@ -27,7 +27,7 @@ namespace RHCQS_Services.Implement
         private readonly IConverter _converter;
         private readonly Cloudinary _cloudinary;
 
-        public InitialQuotationService(IUnitOfWork unitOfWork, ILogger<InitialQuotationService> logger, 
+        public InitialQuotationService(IUnitOfWork unitOfWork, ILogger<InitialQuotationService> logger,
             IConverter converter, Cloudinary cloudinary)
         {
             _unitOfWork = unitOfWork;
@@ -161,8 +161,11 @@ namespace RHCQS_Services.Implement
                                             .ThenInclude(x => x.UtilitiesItem)
                                        .Include(x => x.BatchPayments)
                 );
-            if (initialQuotation == null) { throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, 
-                                                      AppConstant.ErrMessage.Not_Found_InitialQuotaion); }
+            if (initialQuotation == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                                      AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+            }
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == "ROUGH");
 
@@ -284,8 +287,8 @@ namespace RHCQS_Services.Implement
                         var uploadParams = new RawUploadParams()
                         {
                             File = new FileDescription($"{data.AccountName}_Quotation.pdf", pdfStream),
-                            Folder = "InitialQuotation",  
-                            PublicId = $"Bao_gia_so_bo_{data.AccountName}_{data.Version}", 
+                            Folder = "InitialQuotation",
+                            PublicId = $"Bao_gia_so_bo_{data.AccountName}_{data.Version}",
                             UseFilename = true,
                             UniqueFilename = true,
                             Overwrite = true
@@ -380,14 +383,27 @@ namespace RHCQS_Services.Implement
         .center {
             text-align: right;
         }
-        .signature-block {
-            display: flex;
-            justify-content: space-between;
-            margin: 50px 0;
-        }
         .signature {
-            width: 50%;
+            margin-top: 50px;
+            width: 100%;
+        }
+        .signature-row {
+            width: 100%;
+            display: table;
+            margin-top: 20px;
+        }
+        .signature-column {
+            display: table-cell;
             text-align: center;
+        }
+        .signature-column strong {
+            display: block;
+            margin-top: 50px;
+        }
+        .total {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: red;
         }
         .left {
             text-align: left; 
@@ -399,7 +415,7 @@ namespace RHCQS_Services.Implement
     </style>
 </head>
 <body>
-    <h1><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></h1>
+    <h1><strong>BẢNG BÁO GIÁ SƠ BỘ NHÀ Ở DÂN DỤNG</strong></h1>
     <p><strong>CÔNG TRÌNH:</strong> NHÀ Ở RIÊNG LẺ</p>
     <p><strong>ĐỊA ĐIỂM:</strong> " + request.AccountName + @"</p>
     <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
@@ -453,9 +469,9 @@ namespace RHCQS_Services.Implement
         <tr>
             <td>" + request.Area + @" m²</td>
             <td>x</td>
-            <td>" + request.PackageQuotationList.UnitPackageRough + @"</td>
+            <td>" + request.PackageQuotationList.UnitPackageRough.ToString("N0") + @"</td>
             <td>=</td>
-            <td>" + request.TotalRough + @"</td>
+            <td>" + (request.TotalRough?.ToString("N0") ?? "0") + @"</td>
         </tr>
     </table>
 
@@ -471,7 +487,7 @@ namespace RHCQS_Services.Implement
 
             foreach (var utility in request.UtilityInfos!)
             {
-                    sb.Append($@"
+                sb.Append($@"
             <tr>
                 <td>{utility.Description}</td>
                 <td>{utility.Coefficient}</td>
@@ -495,14 +511,14 @@ namespace RHCQS_Services.Implement
             <tr>
                 <td>Phần thô</td>
                 <td>x</td>
-                <td>{request.TotalRough}</td>
+                <td>{request.TotalRough:N0}</td>
                 <td>{request.Unit}</td>
             </tr>
         </table>
 
     <h3>2.6. Tổng giá trị hợp đồng:</h3>
-    <p>Giá trị hợp đồng trước thuế: " + request.TotalRough + @"</p>
-    <p>Giá trị hợp đồng sau khuyến mãi: " + request.PromotionInfo!.Value + @"</p>
+    <p>Giá trị hợp đồng trước thuế: " + (request.TotalRough?.ToString("N0") ?? "0") + "VNĐ" + @"</p>
+    <p>Giá trị hợp đồng sau khuyến mãi: " + (request.PromotionInfo?.Value?.ToString("N0") ?? "0") + "VNĐ" + @" </p>
     
     <h2>ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</h2>
     <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
@@ -522,7 +538,7 @@ namespace RHCQS_Services.Implement
             <td>{stageCounter}</td>
             <td>{payment.Description}</td>
             <td>{payment.Percents}</td>
-            <td>{payment.Price}</td>
+            <td>{payment.Price:N0}</td>
         </tr>");
                 stageCounter++;
             }
@@ -555,19 +571,22 @@ namespace RHCQS_Services.Implement
             sb.Append("</ul>");
 
             sb.Append(@"
-    <p class='center'>Ngày …… tháng …… năm ……</p>
+            <p class='center'>Ngày …… tháng …… năm ……</p>
 
-    <div class='signature-block'>
-        <div class='signature left'>
-            <p><strong>Chủ đầu tư</strong></p>
-        </div>
-
-    <div class='signature right'>
-        <p><strong>Nhà thầu</strong></p>
-    </div>
-</div>
-</body>
-</html>");
+            <div class='signature'>
+                <div class='signature-row'>
+                    <div class='signature-column'>
+                        CHỦ ĐẦU TƯ<br />
+                        <strong></strong>
+                    </div>
+                    <div class='signature-column'>
+                        NHÀ THẦU<br />
+                        <strong></strong>
+                    </div>
+                </div>
+            </div>
+            </body>
+            </html>");
 
             return sb.ToString();
         }
