@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=nuget_cache,target=/root/.nuget/packages \
 # Create a new stage for running the application.
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 
-# Install wkhtmltopdf and its dependencies
+# Install dependencies including ICU
 RUN apk add --no-cache \
     libxrender \
     libxext \
@@ -26,12 +26,13 @@ RUN apk add --no-cache \
     libgcc \
     musl \
     fontconfig \
-    ttf-dejavu
+    ttf-dejavu \
+    icu-libs
 
 # Download and install libwkhtmltox.so
 RUN wget https://github.com/rdvojmoc/DinkToPdf/raw/master/v0.12.4/64%20bit/libwkhtmltox.so -O /usr/lib/libwkhtmltox.so
 
-# Set environment variable
+# Set environment variable for globalization
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 WORKDIR /app
