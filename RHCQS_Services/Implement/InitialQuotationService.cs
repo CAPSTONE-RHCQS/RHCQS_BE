@@ -305,7 +305,9 @@ namespace RHCQS_Services.Implement
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception(ex.Message);
+                    Console.WriteLine($"Error converting HTML to PDF: {ex.Message}");
+                    var message = $"{ex.Message}\nStackTrace: {ex.StackTrace}\nInnerException: {ex.InnerException?.Message}";
+                    throw new Exception(message);
                 }
             }
             else

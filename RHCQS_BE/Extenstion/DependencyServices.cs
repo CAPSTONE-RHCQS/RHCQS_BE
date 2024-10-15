@@ -79,6 +79,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IHouseDesignVersionService, HouseDesignVersionService>();
             services.AddScoped<IInitialQuotationService, InitialQuotationService>();
             services.AddScoped<IFinalQuotationService, FinalQuotationService>();
+            services.AddScoped<IContractService, ContractService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             return services;
