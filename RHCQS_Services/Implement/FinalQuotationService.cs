@@ -784,8 +784,13 @@ namespace RHCQS_Services.Implement
         </div>
     </div>");
             sb.Append($@"
-    <h2>BẢNG BÁO CHI TIẾT</h2>
-    <h4>CHI PHÍ " + request.ProjectType + @"</h4>
+    <h2>BẢNG BÁO CHI TIẾT</h2>");
+
+            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "ROUGH").ToList();
+            if (roughItems.Any())
+            {
+                sb.Append($@"
+    <h4>CHI PHÍ THÔ</h4>
     <table border='1' cellpadding='5' cellspacing='0'>
         <thead>
             <tr>
@@ -794,31 +799,69 @@ namespace RHCQS_Services.Implement
                 <th>DVT</th>
                 <th>KHỐI LƯỢNG</th>
                 <th>ĐƠN GIÁ NHÂN CÔNG</th>
-                <th>ĐƠN GIÁVẬT TƯ THÔ</th>
-                <th>ĐƠN GIÁVẬT TƯ H.T</th>
+                <th>ĐƠN GIÁ VẬT TƯ</th>
                 <th>THÀNH TIỀN NHÂN CÔNG</th>
-                <th>THÀNH TIỀN VẬT TƯ THÔ</th>
-                <th>THÀNH TIỀN VẬT TƯ H.T</th>
+                <th>THÀNH TIỀN VẬT TƯ</th>
             </tr>
         </thead>
         <tbody>");
 
-            int noCons = 0;
-            foreach (var item in request.FinalQuotationItems)
+                int noCons = 0;
+                foreach (var item in roughItems)
+                {
+                    sb.Append($@"
+        <tr>
+            <td>{++noCons}</td>
+            <td>{item.Name}</td>
+            <td>{item.Unit}</td>
+            <td>{item.Weight:N0}</td>
+            <td>{item.UnitPriceLabor:N0}</td>
+            <td>{item.UnitPriceRough:N0}</td>
+            <td>{item.TotalPriceLabor:N0}</td>
+            <td>{item.TotalPriceRough:N0}</td>
+        </tr>");
+                }
+
+                sb.Append("</tbody></table>");
+            }
+
+            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "FINISHED").ToList();
+            if (finishedItems.Any())
             {
                 sb.Append($@"
+    <h4>CHI PHÍ HOÀN THIỆN</h4>
+    <table border='1' cellpadding='5' cellspacing='0'>
+        <thead>
             <tr>
-                <td>{++noCons}</td>
-                <td>{item.Name}</td>
-                <td>{item.Unit}</td>
-                <td>{item.Weight:N0}</td>
-                <td>{item.UnitPriceLabor:N0}</td>
-                <td>{item.UnitPriceRough:N0}</td>
-                <td>{item.UnitPriceFinished:N0}</td>
-                <td>{item.TotalPriceLabor:N0}</td>
-                <td>{item.TotalPriceRough:N0}</td>
-                <td>{item.TotalPriceFinished:N0}</td>
-            </tr>");
+                <th>STT</th>
+                <th>NỘI DUNG CÔNG VIỆC</th>
+                <th>DVT</th>
+                <th>KHỐI LƯỢNG</th>
+                <th>ĐƠN GIÁ NHÂN CÔNG</th>
+                <th>ĐƠN GIÁ VẬT TƯ</th>
+                <th>THÀNH TIỀN NHÂN CÔNG</th>
+                <th>THÀNH TIỀN VẬT TƯ</th>
+            </tr>
+        </thead>
+        <tbody>");
+
+                int noCons = roughItems.Count;
+                foreach (var item in finishedItems)
+                {
+                    sb.Append($@"
+        <tr>
+            <td>{++noCons}</td>
+            <td>{item.Name}</td>
+            <td>{item.Unit}</td>
+            <td>{item.Weight:N0}</td>
+            <td>{item.UnitPriceLabor:N0}</td>
+            <td>{item.UnitPriceFinished:N0}</td>
+            <td>{item.TotalPriceLabor:N0}</td>
+            <td>{item.TotalPriceFinished:N0}</td>
+        </tr>");
+                }
+
+                sb.Append("</tbody></table>");
             }
 
             sb.Append($@"

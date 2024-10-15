@@ -71,7 +71,50 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-
+        #region
+        /// <summary>
+        /// Approve or reject a final quotation by a Manager.
+        /// </summary>
+        /// <remarks>
+        /// This API allows a Manager to approve or reject a final quotation. 
+        /// 
+        /// ### Request Examples:
+        /// 
+        /// **PUT** `/api/quotation/final/approve?finalId=5e6321c8-fc09-4b45-8a64-d72f91c19b7f`
+        /// 
+        /// **Body**:
+        /// ```json
+        /// {
+        ///   "reason": "The quotation does not meet the necessary requirements."
+        /// }
+        /// ```
+        /// 
+        /// ### Responses:
+        /// 
+        /// **200 OK** - Quotation Approved or Rejected
+        /// 
+        /// Example success response (Approved):
+        /// ```json
+        /// {
+        ///   "Url": "http://example.com/quotation.pdf"
+        /// }
+        /// ```
+        /// 
+        /// Example success response (Rejected):
+        /// ```json
+        /// {
+        ///   "message": "An error occurred during approval."
+        /// }
+        /// ```
+        /// 
+        /// **404 Not Found** - The final quotation ID was not found.
+        /// 
+        /// **400 Bad Request** - An error occurred during approval or rejection.
+        /// </remarks>
+        /// <param name="finalId">The unique ID of the final quotation to be approved or rejected.</param>
+        /// <param name="request">The request body containing the reason for approval or rejection.</param>
+        /// <returns>Returns the PDF URL if successful, or an error message.</returns>
+        #endregion
         [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.FinalQuotation.ApproveFinalQuotationEndpoint)]
         [ProducesResponseType(typeof(ApproveQuotationRequest), StatusCodes.Status200OK)]
