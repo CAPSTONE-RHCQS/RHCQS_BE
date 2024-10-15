@@ -305,7 +305,7 @@ namespace RHCQS_Services.Implement
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception(ex.Message);
+                    throw new Exception(ex.StackTrace + ex.InnerException + ": Libs libwkhtmltox.dll");
                 }
             }
             else
