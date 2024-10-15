@@ -1,24 +1,24 @@
-# Create a stage for building the application.
+# Stage 1: Build the application
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 
-# Copy all files to the source directory
+# Copy all source files
 COPY . /source
 
-# Set working directory
+# Set the working directory
 WORKDIR /source/RHCQS_BE
 
+# Argument for target architecture
 ARG TARGETARCH
 
-# Build the application
+# Restore and publish the application
 RUN --mount=type=cache,id=nuget_cache,target=/root/.nuget/packages \
     dotnet restore \
     && dotnet publish -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
 
-# Create a new stage for running the application
+# Stage 2: Final runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 
-
-# Install dependencies including ICU
+# Install necessary dependencies for wkhtmltox and PDF generation
 RUN apk add --no-cache \
     libxrender \
     libxext \
@@ -28,21 +28,27 @@ RUN apk add --no-cache \
     musl \
     fontconfig \
     ttf-dejavu \
-    icu-libs
+    icu-libs \
+    gcompat \
+    zlib-dev
 
-# Copy libwkhtmltox.so from the external libraries folder
+# Copy your offline wkhtmltox binary from your local source to the container
 COPY ./ExternalLibraries/libwkhtmltox.so /usr/lib/libwkhtmltox.so
 
-# Set environment variable for globalization
+# Ensure the binaries have the correct permissions
+RUN chmod +x /usr/lib/libwkhtmltox.so
+
+# Verify the dependencies of the .so library
+RUN ldd /usr/lib/libwkhtmltox.so
+
+# Set environment variable for globalization support
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-# Set working directory for the app
+# Set the working directory for the app
 WORKDIR /app
 
-# Copy everything needed to run the app from the "build" stage
-COPY --from=build /app ./
+# Copy the app from the build stage
+COPY --from=build /app .
 
-# Uncomment if you need to run as a non-privileged user
-# USER $APP_UID
-
+# Set the entry point for the application
 ENTRYPOINT ["dotnet", "RHCQS_BE.dll"]
