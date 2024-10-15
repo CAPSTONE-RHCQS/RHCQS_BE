@@ -645,6 +645,11 @@ namespace RHCQS_Services.Implement
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
+            page-break-inside: auto;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
         th, td {
             border: 1px solid black;
@@ -660,16 +665,14 @@ namespace RHCQS_Services.Implement
         .signature {
             margin-top: 50px;
             width: 100%;
-            display: flex;
-            justify-content: space-between;
         }
         .signature-row {
             width: 100%;
-            display: flex;
-            justify-content: space-between;
+            display: table;
+            margin-top: 20px;
         }
         .signature-column {
-            width: 40%;
+            display: table-cell;
             text-align: center;
         }
         .signature-column strong {
@@ -766,21 +769,21 @@ namespace RHCQS_Services.Implement
                 </tr>
             </tbody>
         </table>
-    </div>
-
+    </div>");
+            sb.Append($@"
     <div class='signature'>
         <div class='signature-row'>
             <div class='signature-column'>
-                NGƯỜI LẬP
+                NGƯỜI LẬP<br />
                 <strong></strong>
             </div>
             <div class='signature-column'>
-                NGƯỜI CHỦ TRÌ
+                NGƯỜI CHỦ TRÌ<br />
                 <strong></strong>
             </div>
         </div>
-    </div>
-
+    </div>");
+            sb.Append($@"
     <h2>BẢNG BÁO CHI TIẾT</h2>
     <h4>CHI PHÍ " + request.ProjectType + @"</h4>
     <table border='1' cellpadding='5' cellspacing='0'>
