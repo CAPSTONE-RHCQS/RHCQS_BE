@@ -23,17 +23,17 @@ namespace RHCQS_Services.Implement
         }
 
         //Create design contract
-        public async Task<bool> CreateContractDeisgn(Guid projectId, string type)
-        {
-            var infoProjec = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                                predicate: x => x.Id == projectId,
-                                include: x => x.Include(x => x.InitialQuotations)
-                                                .ThenInclude(x => x.PackageQuotations)
-                                                .Include(x => x.Customer!)
-                );
+        //public async Task<bool> CreateContractDeisgn(Guid projectId, string type)
+        //{
+        //    var infoProjec = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+        //                        predicate: x => x.Id == projectId,
+        //                        include: x => x.Include(x => x.InitialQuotations)
+        //                                        .ThenInclude(x => x.PackageQuotations)
+        //                                        .Include(x => x.Customer!)
+        //        );
 
-            return true;    
-        }
+        //    return true;    
+        //}
 
         //Confirm design contract's payment of customer
     }
