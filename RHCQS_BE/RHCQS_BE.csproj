@@ -12,7 +12,6 @@
 	<ItemGroup>
 		<PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />
 		<PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
-		<PackageReference Include="DinkToPdf" Version="1.0.8" />
 		<PackageReference Include="itext7" Version="8.0.5" />
 		<PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.5" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
