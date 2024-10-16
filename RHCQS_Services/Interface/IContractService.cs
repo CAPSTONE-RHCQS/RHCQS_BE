@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RHCQS_BusinessObject.Payload.Request.Contract;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,6 @@ namespace RHCQS_Services.Interface
 {
     public interface IContractService
     {
+        Task<bool> CreateContractDeisgn(ContractDesignRequest request);
     }
 }

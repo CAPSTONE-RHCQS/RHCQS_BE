@@ -89,6 +89,15 @@ public static class AppConstant
         public const string PROCESSING = "Processing";
         public const string UPDATED = "Updated";
     }
+
+    public enum ContractType
+    {
+        [Description("Hợp đồng tư vấn và thiết kế")]
+        Design,
+        [Description("Hợp đồng thi công")]
+        Construction
+    }
+
     public enum DesignDrawing
     {
         [Description("Phối cảnh")]
@@ -113,7 +122,8 @@ public static class AppConstant
         Forbidden = 403,
         Not_Found = 404,
         Conflict = 409,
-        Too_Many_Requests = 429
+        Too_Many_Requests = 429,
+        Unprocessable_Entity = 422
     }
 
     public class Message
@@ -207,6 +217,9 @@ public static class AppConstant
 
         //Media
         public const string Not_Found_Media = "Không tìm thấy Media!";
+
+        //Contract
+        public const string Invail_Quotation = "Báo giá chưa chốt!";
     }
 }
 

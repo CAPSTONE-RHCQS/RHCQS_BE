@@ -17,6 +17,7 @@ namespace RHCQS_BusinessObject.Helper
         }
     }
 
+
     public static class DesignDrawingExtensions
     {
         public static string ToTypeString(this DesignDrawing designDrawing)

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects.Models;
+namespace RHCQS_DataAccessObjects.Context;
 
 public partial class RhcqsContext : DbContext
 {
@@ -210,6 +211,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.TaxCode).HasMaxLength(20);
+            entity.Property(e => e.Type).HasMaxLength(100);
             entity.Property(e => e.UnitPrice).HasMaxLength(50);
 
             entity.HasOne(d => d.Project).WithMany(p => p.Contracts)

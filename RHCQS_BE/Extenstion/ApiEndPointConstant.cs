@@ -1,4 +1,5 @@
-﻿using System.CodeDom;
+﻿using RHCQS_BusinessObject.Payload.Request.Contract;
+using System.CodeDom;
 
 namespace RHCQS_BE.Extenstion
 {
@@ -127,6 +128,15 @@ namespace RHCQS_BE.Extenstion
             public const string AssignFinalQuotationEndpoint = FinalQuotationEndpoint + "/assign";
             public const string CancelFinalQuotationEndpoint = FinalQuotationEndpoint + "/cancel";
             public const string ApproveFinalQuotationEndpoint = FinalQuotationEndpoint + "/approve";
+        }
+
+        public static class Contract
+        {
+            public const string ContractEndpoint = ApiEndpoint + "/contract";
+            public const string ContractDesignEndpoint = ContractEndpoint + "/design";
+            public const string ContractDesignDetailEndpoint = ContractDesignEndpoint + "/id";
+            public const string ContractConstructionEndpoint = ContractEndpoint + "/construction";
+            public const string ContractConstructionDetailEndpoint = ContractConstructionEndpoint + "/id";
         }
     }
 }

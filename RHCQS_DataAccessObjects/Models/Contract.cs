@@ -41,6 +41,8 @@ public partial class Contract
 
     public string Status { get; set; } = null!;
 
+    public string Type { get; set; } = null!;
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual Project Project { get; set; } = null!;
