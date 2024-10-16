@@ -35,5 +35,31 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
         public string? UrlFile { get; set; }
 
         public string? Note { get; set; }
+        public List<BatchPaymentRequest>? BatchPaymentRequests { get; set; }
+    }
+
+    public class BatchPaymentRequest
+    {
+        [Required(ErrorMessage = "Số đợt thanh toán là bắt buộc.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Số đợt thanh toán phải lớn hơn hoặc bằng 1.")]
+        public int NumberOfBatches { get; set; }
+
+        [Required(ErrorMessage = "Giá là bắt buộc.")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0.")]
+        public double Price { get; set; }
+
+        [Required(ErrorMessage = "Ngày thanh toán là bắt buộc.")]
+        [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
+        public DateTime? PaymentDate { get; set; }
+
+        [Required(ErrorMessage = "Giai đoạn thanh toán là bắt buộc.")]
+        [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
+        public DateTime? PaymentPhase { get; set; }
+        [Required(ErrorMessage = "Phần trăm số tiền thanh toán là bắt buộc.")]
+        public string? Percents { get; set; }
+
+        [Required(ErrorMessage = "Mô tả là bắt buộc.")]
+        [StringLength(1000, ErrorMessage = "Mô tả không được vượt quá 1000 ký tự.")]
+        public string? Description { get; set; }
     }
 }

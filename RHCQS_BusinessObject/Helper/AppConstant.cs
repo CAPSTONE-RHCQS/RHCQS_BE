@@ -23,6 +23,7 @@ public static class AppConstant
     {
         public const string UnitPrice = "VNĐ";
         public const string UnitPriceD = "đ";
+        public const string Percent = "%";
     }
     public class Role
     {
@@ -90,11 +91,17 @@ public static class AppConstant
         public const string UPDATED = "Updated";
     }
 
+    public class PaymentStatus
+    {
+        public const string PROGRESS = "Progress";
+        public const string PAID = "Paid";
+    }
+
     public enum ContractType
     {
-        [Description("Hợp đồng tư vấn và thiết kế")]
+        [Description("Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng")]
         Design,
-        [Description("Hợp đồng thi công")]
+        [Description("Hợp đồng thi công nhà ở dân dụng")]
         Construction
     }
 
