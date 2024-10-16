@@ -44,7 +44,7 @@ public static class AppConstant
 
     public class ProjectStatus
     {
-        public const string PROCCESSING = "Proccessing";
+        public const string PROCESSING = "Processing";
         public const string DESIGNED = "Designed";
         public const string UNDER_REVIEW = "Reviewing";
         public const string SIGNED_DESIGN_CONTRACT = "Signed Design Contract";
