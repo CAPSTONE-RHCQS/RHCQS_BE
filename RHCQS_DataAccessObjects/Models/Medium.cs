@@ -19,7 +19,11 @@ public partial class Medium
 
     public Guid? SubTemplateId { get; set; }
 
+    public Guid? PaymentId { get; set; }
+
     public virtual HouseDesignVersion? HouseDesignVersion { get; set; }
+
+    public virtual Payment? Payment { get; set; }
 
     public virtual SubTemplate? SubTemplate { get; set; }
 }

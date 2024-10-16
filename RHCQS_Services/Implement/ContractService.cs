@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static RHCQS_BusinessObjects.AppConstant;
+using Payment = RHCQS_DataAccessObjects.Models.Payment;
 
 namespace RHCQS_Services.Implement
 {
@@ -26,73 +27,133 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        //Create design contract
+        //Create design contract -  Create batch payment design drawing
         public async Task<bool> CreateContractDeisgn(ContractDesignRequest request)
         {
-            var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                                predicate: x => x.Id == request.ProjectId,
-                                include: x => x.Include(x => x.InitialQuotations)
-                                                .ThenInclude(x => x.PackageQuotations)
-                                                .ThenInclude(x => x.Package)
-                                                .ThenInclude(x => x.PackageType)
-                                                .Include(x => x.Customer!));
-
-            bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
-            if (isInitialFinalized)
+            try
             {
-                var packageInfo = infoProject.InitialQuotations
-                    .SelectMany(x => x.PackageQuotations)
-                    .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
-                              || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
-                    .Select(pq => new
-                    {
-                        TypeName = pq.Package.PackageType.Name,
-                        Price = pq.Package.Price
-                    })
-                    .ToList();
-                if (Enum.TryParse<ContractType>(request.Type, out var contractType))
+                var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                    predicate: x => x.Id == request.ProjectId,
+                                    include: x => x.Include(x => x.InitialQuotations)
+                                                    .ThenInclude(x => x.PackageQuotations)
+                                                    .ThenInclude(x => x.Package)
+                                                    .ThenInclude(x => x.PackageType)
+                                                    .Include(x => x.Customer!));
+
+                if (infoProject == null)
                 {
-                    // Create the contract
-                    var contractDrawing = new Contract
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+                }
+
+                bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
+
+                if (isInitialFinalized)
+                {
+                    var packageInfo = infoProject.InitialQuotations
+                        .SelectMany(x => x.PackageQuotations)
+                        .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
+                                  || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
+                        .Select(pq => new
+                        {
+                            TypeName = pq.Package.PackageType.Name,
+                            Price = pq.Package.Price
+                        })
+                        .ToList();
+
+                    if (Enum.TryParse<ContractType>(request.Type, out var contractType))
                     {
-                        Id = Guid.NewGuid(),
-                        ProjectId = infoProject.Id,
-                        Name = EnumExtensions.GetEnumDescription(contractType),
-                        CustomerName = infoProject.Customer!.Username,
-                        ContractCode = GenerateRandom.GenerateRandomString(10),
-                        StartDate = request.StartDate,
-                        EndDate = request.EndDate,
-                        ValidityPeriod = request.ValidityPeriod,
-                        TaxCode = request.TaxCode,
-                        Area = infoProject.Area,
-                        UnitPrice = AppConstant.Unit.UnitPrice,
-                        ContractValue = request.ContractValue,
-                        UrlFile = request.UrlFile,
-                        Note = request.Note,
-                        Deflag = true,
-                        RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
-                        FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
-                        Status = AppConstant.ConstractStatus.PROCESSING,
-                        Type = request.Type,
-                    };
+                        // Tạo hợp đồng
+                        var contractDrawing = new Contract
+                        {
+                            Id = Guid.NewGuid(),
+                            ProjectId = infoProject.Id,
+                            Name = EnumExtensions.GetEnumDescription(contractType),
+                            CustomerName = infoProject.Customer!.Username,
+                            ContractCode = GenerateRandom.GenerateRandomString(10),
+                            StartDate = request.StartDate,
+                            EndDate = request.EndDate,
+                            ValidityPeriod = request.ValidityPeriod,
+                            TaxCode = request.TaxCode,
+                            Area = infoProject.Area,
+                            UnitPrice = AppConstant.Unit.UnitPrice,
+                            ContractValue = request.ContractValue,
+                            UrlFile = request.UrlFile,
+                            Note = request.Note,
+                            Deflag = true,
+                            RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
+                            FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
+                            Status = AppConstant.ConstractStatus.PROCESSING,
+                            Type = request.Type,
+                        };
 
-                    await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+                        await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
 
+                        var initialInfo = infoProject.InitialQuotations.FirstOrDefault(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
 
-                    bool isSuccessful = _unitOfWork.Commit() > 0;
-                    return isSuccessful;
+                        // Tạo batch payment
+                        foreach (var pay in request.BatchPaymentRequests!)
+                        {
+                            var batchPay = new BatchPayment
+                            {
+                                Id = Guid.NewGuid(),
+                                ContractId = contractDrawing.Id,
+                                Price = pay.Price,
+                                PaymentDate = pay.PaymentDate,
+                                PaymentPhase = pay.PaymentPhase,
+                                IntitialQuotationId = initialInfo!.Id,
+                                Percents = pay.Percents,
+                                InsDate = DateTime.Now,
+                                FinalQuotationId = null,
+                                Description = pay.Description,
+                                Unit = AppConstant.Unit.UnitPrice
+                            };
+
+                            await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
+
+                            // Lấy PaymentType từ bảng PaymentType
+                            var paymentType = await _unitOfWork.GetRepository<PaymentType>()
+                                        .FirstOrDefaultAsync(pt => pt.Name == EnumExtensions.GetEnumDescription(contractType));
+
+                            var payInfo = new Payment
+                            {
+                                Id = Guid.NewGuid(),
+                                PaymentTypeId = paymentType.Id,
+                                BatchPaymentId = batchPay.Id,
+                                Status = AppConstant.PaymentStatus.PROGRESS,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                TotalPrice = request.ContractValue,
+                                Type = request.Type,
+                            };
+
+                            await _unitOfWork.GetRepository<Payment>().InsertAsync(payInfo);
+                        }
+
+                        bool isSuccessful = _unitOfWork.Commit() > 0;
+                        return isSuccessful;
+                    }
+                    else
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, "Invalid contract type.");
+                    }
                 }
                 else
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.Invail_Quotation);
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, "Initial quotation is not finalized.");
                 }
             }
-            else
+            catch (Exception ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.Invail_Quotation);
+                throw new Exception($"Error in CreateContractDeisgn: {ex.Message}", ex);
             }
         }
 
-        //Confirm design contract's payment of customer
+        //Manager approve bill payment in contract design
+
+        //Bill hóa đơn 
+        //public async Task<string> ApproveContractDesin(Guid contractId, )
+        //{
+
+        //}
     }
 }

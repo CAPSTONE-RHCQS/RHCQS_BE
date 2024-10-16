@@ -23,5 +23,7 @@ public partial class Payment
 
     public virtual BatchPayment BatchPayment { get; set; } = null!;
 
+    public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
+
     public virtual PaymentType PaymentType { get; set; } = null!;
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using RHCQS_DataAccessObjects.Models;
 
@@ -464,6 +463,10 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.HouseDesignVersion).WithMany(p => p.Media)
                 .HasForeignKey(d => d.HouseDesignVersionId)
                 .HasConstraintName("FK_Media_HouseDesignVersion");
+
+            entity.HasOne(d => d.Payment).WithMany(p => p.Media)
+                .HasForeignKey(d => d.PaymentId)
+                .HasConstraintName("FK_Media_Payment");
 
             entity.HasOne(d => d.SubTemplate).WithMany(p => p.Media)
                 .HasForeignKey(d => d.SubTemplateId)
