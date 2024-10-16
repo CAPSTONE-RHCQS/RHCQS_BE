@@ -52,7 +52,7 @@ namespace RHCQS_Services.Implement
                 include: x => x.Include(x => x.Project!)
                                 .ThenInclude(x => x.Customer!),
                 orderBy: x => x.OrderBy(x => x.InsDate)
-                               .ThenBy(x => x.Project!.Status == AppConstant.ProjectStatus.PROCCESSING),
+                               .ThenBy(x => x.Project!.Status == AppConstant.ProjectStatus.PROCESSING),
                 page: page,
                 size: size
             );
@@ -191,7 +191,7 @@ namespace RHCQS_Services.Implement
                     CustomerId = projectRequest.CustomerId,
                     Name = "Báo giá sơ bộ " + DateTime.Now,
                     Type = projectRequest.Type,
-                    Status = AppConstant.ProjectStatus.PROCCESSING,
+                    Status = AppConstant.ProjectStatus.PROCESSING,
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
                     ProjectCode = GenerateRandom.GenerateRandomString(5),
