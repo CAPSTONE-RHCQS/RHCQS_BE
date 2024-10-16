@@ -147,5 +147,13 @@ namespace RHCQS_Services.Implement
                 throw new Exception($"Error in CreateContractDeisgn: {ex.Message}", ex);
             }
         }
+
+        //Manager approve bill payment in contract design
+
+        //Bill hóa đơn 
+        //public async Task<string> ApproveContractDesin(Guid contractId, )
+        //{
+
+        //}
     }
 }

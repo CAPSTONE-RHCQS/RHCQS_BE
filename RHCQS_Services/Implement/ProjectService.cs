@@ -47,7 +47,7 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<AssignTask>().GetList(
                 predicate: x => x.AccountId == accountId,
-                selector: x => new ProjectResponse(x.Id, x.Project!.Customer!.Username!, x.Project.Name, x.Project.Type,
+                selector: x => new ProjectResponse(x.Project!.Id, x.Project!.Customer!.Username!, x.Project.Name, x.Project.Type,
                                                     x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
                 include: x => x.Include(x => x.Project!)
                                 .ThenInclude(x => x.Customer!),
