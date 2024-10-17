@@ -16,7 +16,7 @@ namespace RHCQS_Services.Interface
         public Task<List<HouseTemplateResponse>> GetListHouseTemplate();
         Task<DesignTemplate> SearchHouseTemplateByNameAsync(string name);
         Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id);
-        Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequest templ, Guid id);
-        Task<bool> CreateHouseTemplate(HouseTemplateRequest templ);
+        Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
+        Task<bool> CreateHouseTemplate(HouseTemplateRequestForCretae templ);
     }
 }

@@ -80,6 +80,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IInitialQuotationService, InitialQuotationService>();
             services.AddScoped<IFinalQuotationService, FinalQuotationService>();
             services.AddScoped<IContractService, ContractService>();
+            services.AddScoped<IUploadImgService, UploadImgService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             return services;

@@ -84,7 +84,7 @@ namespace RHCQS_Services.Implement
             return listHouseTemplate.ToList();
         }
 
-        public async Task<bool> CreateHouseTemplate(HouseTemplateRequest templ)
+        public async Task<bool> CreateHouseTemplate(HouseTemplateRequestForCretae templ)
         {
             if (templ == null)
             {
@@ -103,35 +103,6 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.DesignTemplate
                 );
             }
-            foreach (var sub in templ.SubTemplates)
-            {
-                bool subTemplateExists = await templateRepo.AnyAsync(
-                    x => x.SubTemplates.Any(st => st.Id == sub.Id)
-                );
-
-                if (subTemplateExists)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.SubTemplateItem
-                    );
-                }
-
-                foreach (var item in sub.TemplateItems)
-                {
-                    bool templateItemExists = await templateRepo.AnyAsync(
-                        x => x.SubTemplates.Any(st => st.TemplateItems.Any(ti => ti.Id == item.Id))
-                    );
-
-                    if (templateItemExists)
-                    {
-                        throw new AppConstant.MessageError(
-                            (int)AppConstant.ErrCode.Conflict,
-                             AppConstant.ErrMessage.TemplateItem
-                        );
-                    }
-                }
-            }
 
             var houseTemplate = new DesignTemplate
             {
@@ -141,18 +112,18 @@ namespace RHCQS_Services.Implement
                 NumberOfFloor = templ.NumberOfFloor,
                 NumberOfBed = templ.NumberOfBed,
                 NumberOfFront = templ.NumberOfFront,
-                ImgUrl = templ.ImgUrl,
+                ImgUrl = templ.ImgURL,
                 InsDate = DateTime.Now,
                 SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
                 {
-                    Id = sub.Id,
+                    Id = Guid.NewGuid(),
                     BuildingArea = sub.BuildingArea,
                     FloorArea = sub.FloorArea,
                     Size = sub.Size,
                     InsDate = DateTime.Now,
                     TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
                     {
-                        Id = item.Id,
+                        Id = Guid.NewGuid(),
                         ConstructionItemId = item.ConstructionItemId,
                         SubConstructionId = item.SubConstructionItemId,
                         Area = item.Area,
@@ -163,9 +134,8 @@ namespace RHCQS_Services.Implement
                     {
                         Id = Guid.NewGuid(),
                         Name = media.Name,
-                        Url = media.Url,
+                        Url = media.MediaImgURL,
                         InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now
                     }).ToList()
                 }).ToList()
             };
@@ -311,7 +281,7 @@ namespace RHCQS_Services.Implement
             return houseTemplate;
         }
 
-        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequest templ, Guid templateId)
+        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid templateId)
         {
             if (templ == null)
             {
@@ -343,7 +313,7 @@ namespace RHCQS_Services.Implement
             houseTemplate.NumberOfFloor = templ.NumberOfFloor;
             houseTemplate.NumberOfBed = templ.NumberOfBed;
             houseTemplate.NumberOfFront = templ.NumberOfFront;
-            houseTemplate.ImgUrl = templ.ImgUrl;
+            houseTemplate.ImgUrl = templ.ImgURL;
 
             foreach (var sub in templ.SubTemplates)
             {
@@ -378,7 +348,7 @@ namespace RHCQS_Services.Implement
                         if (existingMedia != null)
                         {
                             existingMedia.Name = media.Name;
-                            existingMedia.Url = media.Url;
+                            existingMedia.Url = media.MediaImgURL;
                             existingMedia.UpsDate = DateTime.Now;
                         }
                         else

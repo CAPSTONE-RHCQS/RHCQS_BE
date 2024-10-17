@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -8,6 +10,7 @@ using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
+using Account = CloudinaryDotNet.Account;
 
 namespace RHCQS_BE.Controllers
 {
@@ -16,10 +19,11 @@ namespace RHCQS_BE.Controllers
     public class HouseTemplateController : ControllerBase
     {
         private readonly IHouseTemplateService _houseService;
-
-        public HouseTemplateController(IHouseTemplateService houseService)
+        private readonly IUploadImgService _uploadImgService;
+        public HouseTemplateController(IHouseTemplateService houseService, IUploadImgService uploadImgService)
         {
             _houseService = houseService;
+            _uploadImgService = uploadImgService;
         }
         #region GetListHouseTemplates
         /// <summary>
@@ -122,8 +126,25 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPost(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequest templ)
+        public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequestForCretae templ)
         {
+            if (!string.IsNullOrEmpty(templ.ImgURL))
+            {
+                string imageUrl = await _uploadImgService.UploadImageAsync(templ.ImgURL, "DesignHouse");
+                templ.ImgURL = imageUrl;
+            }
+
+            foreach (var subTemplate in templ.SubTemplates)
+            {
+                foreach (var media in subTemplate.Media)
+                {
+                    if (!string.IsNullOrEmpty(media.Name))
+                    {
+                        string mediaUrl = await _uploadImgService.UploadImageAsync(media.MediaImgURL, "DesignHouse");
+                        media.MediaImgURL = mediaUrl;
+                    }
+                }
+            }
             var isCreate = await _houseService.CreateHouseTemplate(templ);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
@@ -135,8 +156,25 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequest templ, Guid id)
+        public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequestForUpdate templ, Guid id)
         {
+            if (!string.IsNullOrEmpty(templ.ImgURL))
+            {
+                string imageUrl = await _uploadImgService.UploadImageAsync(templ.ImgURL, "DesignHouse");
+                templ.ImgURL = imageUrl;
+            }
+
+            foreach (var subTemplate in templ.SubTemplates)
+            {
+                foreach (var media in subTemplate.Media)
+                {
+                    if (!string.IsNullOrEmpty(media.Name))
+                    {
+                        string mediaUrl = await _uploadImgService.UploadImageAsync(media.MediaImgURL, "DesignHouse");
+                        media.MediaImgURL = mediaUrl;
+                    }
+                }
+            }
             var update = await _houseService.UpdateHouseTemplate(templ, id);
             return Ok(update);
         }

@@ -7,6 +7,7 @@ using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -16,10 +17,11 @@ namespace RHCQS_BE.Controllers
     public class PackageController : ControllerBase
     {
         private readonly IPackageService _packageService;
-
-        public PackageController(IPackageService packageService)
+        private readonly IUploadImgService _uploadImgService;
+        public PackageController(IPackageService packageService, IUploadImgService uploadImgService)
         {
             _packageService = packageService;
+            _uploadImgService = uploadImgService;
         }
         #region GetListPackageAsync
         /// <summary>
@@ -113,6 +115,14 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreatePackage([FromBody] PackageRequest package)
         {
+            foreach (var packageHouse in package.PackageHouses)
+            {
+                if (!string.IsNullOrEmpty(packageHouse.ImgUrl))
+                {
+                    string packageURL = await _uploadImgService.UploadImageAsync(packageHouse.ImgUrl, "PackageHouse");
+                    packageHouse.ImgUrl = packageURL;
+                }
+            }
             var isCreate = await _packageService.CreatePackage(package);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
@@ -126,6 +136,14 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateHouseTemplate([FromBody] PackageRequest package, Guid packageid)
         {
+            foreach (var packageHouse in package.PackageHouses)
+            {
+                if (!string.IsNullOrEmpty(packageHouse.ImgUrl))
+                {
+                    string packageURL = await _uploadImgService.UploadImageAsync(packageHouse.ImgUrl, "PackageHouse");
+                    packageHouse.ImgUrl = packageURL;
+                }
+            }
             var update = await _packageService.UpdatePackage(package, packageid);
             return Ok(update);
         }

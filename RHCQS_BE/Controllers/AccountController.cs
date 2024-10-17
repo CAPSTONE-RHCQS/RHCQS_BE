@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using CloudinaryDotNet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Account = RHCQS_DataAccessObjects.Models.Account;
 
 namespace RHCQS_BE.Controllers
 {
@@ -20,10 +22,12 @@ namespace RHCQS_BE.Controllers
     {
         private readonly IAccountService _accountService;
         private readonly IRoleService _roleService;
-        public AccountController(IAccountService accountService, IRoleService roleService)
+        private readonly IUploadImgService _uploadImgService;
+        public AccountController(IAccountService accountService, IRoleService roleService, IUploadImgService uploadImgService)
         {
             _accountService = accountService;
             _roleService = roleService;
+            _uploadImgService = uploadImgService;
         }
         #region GetAccount
         /// <summary>
@@ -235,7 +239,11 @@ namespace RHCQS_BE.Controllers
                     accountRequest.RoleId = existingAccount.RoleId;
                 }
             }
-
+            if (accountRequest.ImageUrl != null)
+            {
+                var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
+                existingAccount.ImageUrl = imageUrl;
+            }
             var account = new Account
             {
                 Username = accountRequest.Username,
