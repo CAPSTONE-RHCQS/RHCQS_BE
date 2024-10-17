@@ -25,6 +25,7 @@ namespace RHCQS_BE.Controllers
 
         #region GetProjects
         /// <summary>
+        /// Role: MANAGER
         /// Retrieves the list of all project.
         /// </summary>
         /// <returns>List of project in the system</returns>
@@ -44,8 +45,9 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region
+        #region GetListProjectBySalesStaff
         /// <summary>
+        /// Role: SALE STAFF
         /// Gets a list of projects for a sales staff member.
         /// </summary>
         /// <remarks>
@@ -76,8 +78,9 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region
+        #region GetListProjectForCustomer
         /// <summary>
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// Retrieve a list of projects for a specific customer by their email.
         /// </summary>
         /// <param name="email">The email of the customer whose projects are being requested.</param>
@@ -104,6 +107,7 @@ namespace RHCQS_BE.Controllers
 
         #region GetDetailProjectById
         /// <summary>
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// Retrieves the details of a specific project by its ID.
         /// </summary>
         /// <param name="id">The unique identifier of the project.</param>
@@ -129,6 +133,7 @@ namespace RHCQS_BE.Controllers
 
         #region GetListProjectByPhone
         /// <summary>
+        /// Role: SALE STAFF - MANAGER
         /// Retrieves the list of projects associated with a customer's phone number.
         /// </summary>
         /// <param name="phone">The phone number of the customer.</param>
@@ -154,6 +159,7 @@ namespace RHCQS_BE.Controllers
 
         #region CreateProject
         /// <summary>
+        /// Role: CUSTOMER - SALE STAFF
         /// Creates a new project along with its initial quotation and optional utilities.
         /// </summary>
         /// <remarks>
@@ -236,6 +242,7 @@ namespace RHCQS_BE.Controllers
 
         #region AssignQuotation
         /// <summary>
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// Assign a quotation to a customer based on the request payload.
         /// </summary>
         /// <param name="request">The request payload containing accountId and initialQuotationId.</param>
@@ -272,6 +279,7 @@ namespace RHCQS_BE.Controllers
 
         #region CancelProject
         /// <summary>
+        /// Role: MANAGER
         /// Cancels an existing project along with its associated initial quotations, final quotations, and house design drawings.
         /// </summary>
         /// <remarks>

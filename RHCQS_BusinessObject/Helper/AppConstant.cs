@@ -19,6 +19,11 @@ public static class AppConstant
             Message = message;
         }
     }
+
+    public class General
+    {
+        public const string Bill = "Hóa đơn";
+    }
     public class Unit
     {
         public const string UnitPrice = "VNĐ";
@@ -142,6 +147,7 @@ public static class AppConstant
         public const string SUCCESSFUL_FINAL = "Cập nhập báo giá chi tiết thành công";
         public const string SUCCESSFUL_CANCELFINAL = "Hủy báo giá chi tiết thành công";
         public const string SUCCESSFUL_CREATEFINAL = "Tạo báo giá chi tiết thành công";
+        public const string SUCCESSFUL_SAVE = "Lưu thành công!";
     }
     public class ErrMessage
     {
@@ -153,6 +159,7 @@ public static class AppConstant
         public const string PromotionIllegal = "Khuyến mãi không hợp lệ";
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
+        public const string Fail_Save = "Lưu thất bại!";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";

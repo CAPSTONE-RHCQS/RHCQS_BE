@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Aspose.Words;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Request.Contract;
+using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Interface;
+using Xceed.Words.NET;
 
 namespace RHCQS_BE.Controllers
 {
@@ -21,6 +25,7 @@ namespace RHCQS_BE.Controllers
 
         #region CreateContractDesign
         /// <summary>
+        /// Role: MANAGER
         /// Creates a contract design for a specified project.
         /// </summary>
         /// <remarks>
@@ -46,6 +51,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to create the contract design due to invalid input</response>
         /// 
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.Contract.ContractDesignEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -55,5 +61,27 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
+        #region ApproveContractDesin
+        /// <summary>
+        /// Role: MANAGER
+        /// Manager approve payment contract design 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="request">Approve payment contract design</param>
+        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
+        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
+        /// <response code="400">Failed to approve contract due to invalid input</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Contract.ContractDesignApproveEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ApproveContractDesin(Guid paymentId, List<IFormFile> files)
+        {
+            var result = await _contractService.ApproveContractDesin(paymentId, files);
+            return Ok(result);
+        }
     }
 }

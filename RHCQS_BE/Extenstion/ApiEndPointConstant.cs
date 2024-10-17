@@ -134,6 +134,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string ContractEndpoint = ApiEndpoint + "/contract";
             public const string ContractDesignEndpoint = ContractEndpoint + "/design";
+            public const string ContractDesignApproveEndpoint = ContractDesignEndpoint + "/approve";
             public const string ContractDesignDetailEndpoint = ContractDesignEndpoint + "/id";
             public const string ContractConstructionEndpoint = ContractEndpoint + "/construction";
             public const string ContractConstructionDetailEndpoint = ContractConstructionEndpoint + "/id";

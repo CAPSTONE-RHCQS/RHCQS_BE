@@ -1,14 +1,11 @@
-﻿using iText.Kernel.Pdf;
+﻿using Microsoft.AspNetCore.Mvc;
+using CloudinaryDotNet.Core;
+using DocumentFormat.OpenXml.Packaging;
+using iText.Kernel.Pdf;
 using iText.Layout;
-using iText.Layout.Element;
-using iText.Kernel.Font;
-using Microsoft.AspNetCore.Mvc;
 using System.IO;
-using iText.IO.Font;
-using Microsoft.Azure.WebJobs;
-using DinkToPdf.Contracts;
-using DinkToPdf;
-using System.Text;
+using Aspose.Words;
+using Xceed.Words.NET;
 
 namespace RHCQS_BE.Controllers
 {
@@ -16,12 +13,98 @@ namespace RHCQS_BE.Controllers
     [ApiController]
     public class CreatePDFController : ControllerBase
     {
-        private readonly IConverter _converter;
+        //private readonly IConverter _converter;
 
-        public CreatePDFController(IConverter converter)
+        public CreatePDFController()
         {
-            _converter = converter;
+            //    _converter = converter;
         }
+
+
+
+        private void AddCustomerInfoToWord(string filePath, string customerName, string customerAddress, string customerPhone, decimal price)
+        {
+            using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(filePath, true))
+            {
+                var body = wordDoc.MainDocumentPart.Document.Body;
+
+                // Tìm và thay thế các placeholder trong file Word
+                foreach (var text in body.Descendants<DocumentFormat.OpenXml.Drawing.Text>())
+                {
+                    if (text.Text.Contains("{customer_name}"))
+                    {
+                        text.Text = text.Text.Replace("{customer_name}", customerName);
+                    }
+                    if (text.Text.Contains("{customer_address}"))
+                    {
+                        text.Text = text.Text.Replace("{customer_address}", customerAddress);
+                    }
+                    if (text.Text.Contains("{customer_phone}"))
+                    {
+                        text.Text = text.Text.Replace("{customer_phone}", customerPhone);
+                    }
+                    if (text.Text.Contains("{price}"))
+                    {
+                        text.Text = text.Text.Replace("{price}", price.ToString("N0"));
+                    }
+                }
+
+                wordDoc.MainDocumentPart.Document.Save();
+            }
+        }
+
+        //[HttpPost("generate-pdf")]
+        //public IActionResult GeneratePdf([FromBody] CustomerInfo request)
+        //{
+        //    // Đường dẫn đến file Word mẫu
+        //    string templatePath = @"D:\\hop-dong-thiet-ke-kien-truc_format.docx";
+
+        //    // Dùng MemoryStream để lưu file PDF trong bộ nhớ
+        //    using (MemoryStream pdfStream = new MemoryStream())
+        //    {
+        //        // Thêm thông tin vào file Word
+        //        AddCustomerInfoToWord(templatePath, request.CustomerName, request.CustomerAddress, request.CustomerPhone, request.Price);
+
+        //        // Chuyển đổi file Word sang PDF và lưu vào MemoryStream
+        //        ConvertWordToPdf(templatePath, pdfStream);
+
+        //        var pdfBytes = pdfStream.ToArray();
+
+
+        //        // Trả về file PDF trực tiếp từ MemoryStream
+        //        return File(pdfBytes, "application/pdf", "contract.pdf");
+        //    }
+        //}
+
+        //private void ConvertWordToPdf(string wordFilePath, MemoryStream pdfStream)
+        //{
+        //    using (PdfWriter writer = new PdfWriter(pdfStream))
+        //    {
+        //        using (PdfDocument pdf = new PdfDocument(writer)) // Sử dụng using cho PdfDocument
+        //        {
+        //            using (iText.Layout.Document pdfDoc = new iText.Layout.Document(pdf)) // Sử dụng using cho Document của iText
+        //            {
+        //                // Mở file Word
+        //                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(wordFilePath, false))
+        //                {
+        //                    var body = wordDoc.MainDocumentPart.Document.Body;
+
+        //                    // Lấy từng đoạn văn bản trong Word
+        //                    foreach (var para in body.Elements<DocumentFormat.OpenXml.Wordprocessing.Paragraph>())
+        //                    {
+        //                        var paragraphText = para.InnerText;
+
+        //                        // Thêm từng đoạn văn bản vào file PDF
+        //                        if (!string.IsNullOrWhiteSpace(paragraphText))
+        //                        {
+        //                            pdfDoc.Add(new iText.Layout.Element.Paragraph(paragraphText)); // iText Paragraph
+        //                        }
+        //                    }
+        //                }
+        //            } // Document sẽ tự động đóng tại đây
+        //        } // PdfDocument sẽ tự động đóng tại đây
+        //    } // PdfWriter sẽ tự động đóng tại đây
+        //}
 
         //[HttpPost("generate-drink")]
         //public IActionResult GeneratePdf([FromBody] QuotationRequest request)
@@ -55,49 +138,6 @@ namespace RHCQS_BE.Controllers
         //        throw new Exception(ex.Message);
         //    }
         //}
-
-
-
-
-
-        public class QuotationRequest
-        {
-            public string ProjectName { get; set; }
-            public string ClientName { get; set; }
-            public string ProjectLocation { get; set; }
-            public string ProjectScale { get; set; } // Quy mô công trình
-            public decimal BasePrice { get; set; } // Đơn giá thi công phần thô trước thuế
-            public List<Item> Items { get; set; } // Danh sách các hạng mục xây dựng
-            public decimal TotalArea { get; set; } // Tổng diện tích xây dựng
-            public decimal UnitPrice { get; set; } // Đơn giá trên m²
-            public decimal GrossPrice { get; set; } // Thành tiền tổng trước thuế
-            public decimal ConcreteReinforcementCost { get; set; } // Chi phí gia cố nền trệt
-            public decimal UnitOthers {  get; set; }
-            public decimal Discount { get; set; } // Khuyến mãi thành viên
-            public decimal ContractValueBeforeTax { get; set; } // Giá trị hợp đồng trước thuế
-            public decimal ContractValueAfterDiscount { get; set; } // Giá trị hợp đồng sau khuyến mãi
-            public List<PaymentRequest> PaymentSchedule { get; set; } // Lịch thanh toán
-            public int ConstructionDuration { get; set; } // Thời gian hoàn thành công trình
-            public int RoughConstructionDuration { get; set; } // Thời gian thi công phần thô
-        }
-
-        public class Item
-        {
-            public int Index { get; set; }
-            public string Description { get; set; }
-            public decimal Area { get; set; } // Diện tích m²
-            public decimal Coefficient { get; set; } // Hệ số
-            public decimal TotalArea { get; set; } // Diện tích tổng m²
-        }
-
-        public class PaymentRequest
-        {
-            public int Stage { get; set; } // Đợt thanh toán
-            public string Description { get; set; } // Nội dung thanh toán
-            public decimal Percentage { get; set; } // Giá trị thanh toán (%)
-            public decimal Amount { get; set; } // Giá trị thanh toán (VND)
-        }
-
 
         //[HttpGet("generate-itext")]
         //public IActionResult GeneratePdfIText()
@@ -186,5 +226,86 @@ namespace RHCQS_BE.Controllers
         //    // Return the PDF file as a stream
         //    return File(pdfBytes, "application/pdf", fileName);
         //}
+
+        //    [HttpPost("generate-pdf")]
+        //    public IActionResult GeneratePdf([FromBody] CustomerData data)
+        //    {
+        //        try
+        //        {
+        //            // Đường dẫn đến file Word template
+        //            string templatePath = @"D:\\hop-dong-thiet-ke-kien-truc_format.docx";
+
+        //            // Chuẩn bị dữ liệu
+        //            var placeholders = new Dictionary<string, string>
+        //    {
+        //        { "customer_name", data.CustomerName },
+        //        { "customer_address", data.CustomerAddress },
+        //        { "customer_phone", data.CustomerPhone },
+        //        { "price", data.Price.ToString("C") } // Convert price thành dạng tiền tệ
+        //    };
+
+        //            // Điền dữ liệu vào file Word và lưu vào MemoryStream
+        //            using (var outputDocxStream = new MemoryStream())
+        //            {
+        //                try
+        //                {
+        //                    FillTemplate(templatePath, outputDocxStream, placeholders);
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    return StatusCode(500, "Error filling Word template.");
+        //                }
+
+        //                outputDocxStream.Position = 0; // Reset vị trí của stream trước khi sử dụng
+
+        //                // Chuyển file Word thành PDF và lưu vào MemoryStream
+        //                using (var outputPdfStream = new MemoryStream())
+        //                {
+        //                    try
+        //                    {
+        //                        ConvertToPdf(outputDocxStream, outputPdfStream);
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        return StatusCode(500, "Error converting Word to PDF.");
+        //                    }
+
+        //                    outputPdfStream.Position = 0; // Reset vị trí của stream
+
+        //                    // Trả về file PDF cho client
+        //                    return File(outputPdfStream.ToArray(), "application/pdf", "output.pdf");
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            throw new Exception(ex.Message);
+        //        }
+        //    }
+
+        //    // Hàm thay thế các placeholder trong template Word
+        //    private void FillTemplate(string templatePath, Stream outputStream, Dictionary<string, string> data)
+        //    {
+        //        using (DocX document = DocX.Load(templatePath))
+        //        {
+        //            foreach (var item in data)
+        //            {
+        //                document.ReplaceText($"{{{{{item.Key}}}}}", item.Value); // Thay thế các placeholder
+        //            }
+
+        //            document.SaveAs(outputStream); // Lưu lại file đã được điền thông tin vào stream
+        //        }
+        //    }
+
+        //    // Hàm chuyển file Word sang PDF bằng Aspose.Words
+        //    private void ConvertToPdf(Stream docxStream, Stream pdfStream)
+        //    {
+        //        Document doc = new Document(docxStream); // Tạo Document từ MemoryStream
+        //        doc.Save(pdfStream, SaveFormat.Pdf); // Chuyển Word thành PDF và lưu vào stream
+        //    }
+        //}
+
+
+        // Model nhận dữ liệu từ request body
     }
 }

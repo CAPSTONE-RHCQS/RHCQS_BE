@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Contract;
@@ -20,11 +23,13 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<IContractService> _logger;
+        private readonly Cloudinary _cloudinary;
 
-        public ContractService(IUnitOfWork unitOfWork, ILogger<IContractService> logger)
+        public ContractService(IUnitOfWork unitOfWork, ILogger<IContractService> logger, Cloudinary cloudinary)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _cloudinary = cloudinary;
         }
 
         //Create design contract -  Create batch payment design drawing
@@ -73,12 +78,12 @@ namespace RHCQS_Services.Implement
                             StartDate = request.StartDate,
                             EndDate = request.EndDate,
                             ValidityPeriod = request.ValidityPeriod,
-                            TaxCode = request.TaxCode,
+                            TaxCode = null,
                             Area = infoProject.Area,
                             UnitPrice = AppConstant.Unit.UnitPrice,
                             ContractValue = request.ContractValue,
                             UrlFile = request.UrlFile,
-                            Note = request.Note,
+                            Note = null,
                             Deflag = true,
                             RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
                             FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
@@ -151,9 +156,57 @@ namespace RHCQS_Services.Implement
         //Manager approve bill payment in contract design
 
         //Bill hóa đơn 
-        //public async Task<string> ApproveContractDesin(Guid contractId, )
-        //{
+        public async Task<string> ApproveContractDesin(Guid paymentId, List<IFormFile> bills)
+        {
+            foreach (var file in bills)
+            {
+                if (file == null || file.Length == 0)
+                {
+                    continue;
+                }
 
-        //}
+                var publicId = "Hoa_don_thiet_ke_" + $"{paymentId}" ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = "Contract",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                }
+
+                //Save bill payment in Media table
+                var mediaInfo = new Medium
+                {
+                    Id = Guid.NewGuid(),
+                    HouseDesignVersionId = null,
+                    Name = AppConstant.General.Bill,
+                    Url = uploadResult.Url.ToString(),
+                    InsDate = DateTime.Now,
+                    UpsDate = DateTime.Now,
+                    SubTemplateId = null,
+                    PaymentId = paymentId
+                };
+
+                await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+            }
+
+            //Update status payyment
+            var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(x => x.Id == paymentId);
+            paymentInfo.Status = AppConstant.PaymentStatus.PAID;
+
+            _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
+            string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+            return result;
+        }
     }
 }
