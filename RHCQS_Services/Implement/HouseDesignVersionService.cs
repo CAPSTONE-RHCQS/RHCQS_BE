@@ -34,7 +34,7 @@ namespace RHCQS_Services.Implement
         public async Task<bool> CreateHouseDesignVersion(HouseDesignVersionRequest request)
         {
             var staffInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                .FirstOrDefaultAsync(x => x.Account.Id == request.AccountId && x.Id == request.HouseDesignDrawingId,
+                .FirstOrDefaultAsync(x => x.Account!.Id == request.AccountId && x.Id == request.HouseDesignDrawingId,
                 include: x => x.Include(x => x.Account!));
             if (staffInfo == null)
             {
