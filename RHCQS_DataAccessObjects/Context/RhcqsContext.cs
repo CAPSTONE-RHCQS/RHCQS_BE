@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using RHCQS_DataAccessObjects.Models;
 
@@ -650,12 +651,13 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Promotion");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.AvailableTime).HasColumnType("datetime");
             entity.Property(e => e.Code)
                 .HasMaxLength(10)
                 .IsFixedLength();
+            entity.Property(e => e.ExpTime).HasColumnType("datetime");
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.StartTime).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<QuotationItem>(entity =>

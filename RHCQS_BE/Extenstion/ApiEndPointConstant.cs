@@ -139,5 +139,12 @@ namespace RHCQS_BE.Extenstion
             public const string ContractConstructionEndpoint = ContractEndpoint + "/construction";
             public const string ContractConstructionDetailEndpoint = ContractConstructionEndpoint + "/id";
         }
+
+        public static class Promotion
+        {
+            public const string PromotionEndpoint = ApiEndpoint + "/promotion";
+            public const string PromotionDetailEndpoint = PromotionEndpoint + "/id";
+            public const string PromotionNameEndpoint = PromotionEndpoint + "/name";
+        }
     }
 }

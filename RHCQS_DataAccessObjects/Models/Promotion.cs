@@ -11,11 +11,13 @@ public partial class Promotion
 
     public int? Value { get; set; }
 
-    public DateTime? AvailableTime { get; set; }
-
     public DateTime? InsDate { get; set; }
 
+    public DateTime? StartTime { get; set; }
+
     public string? Name { get; set; }
+
+    public DateTime? ExpTime { get; set; }
 
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
 
