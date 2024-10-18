@@ -50,11 +50,11 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of packages in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer")]
         [HttpGet(ApiEndPointConstant.Package.PackageListEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Package>>> GetListPackage()
+        public async Task<ActionResult<IEnumerable<PackageResponseForMoblie>>> GetListPackage()
         {
             var package = await _packageService.GetListPackage();
             var response = JsonConvert.SerializeObject(package, Formatting.Indented);

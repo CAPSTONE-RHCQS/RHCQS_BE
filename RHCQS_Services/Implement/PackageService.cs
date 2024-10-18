@@ -102,25 +102,66 @@ namespace RHCQS_Services.Implement
 
             return listPackage;
         }
-        public async Task<List<PackageResponse>> GetListPackage()
+        public async Task<List<PackageResponseForMoblie>> GetListPackage()
         {
             var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
-                selector: x => MapPackageToResponse(x),
-                include: x => x.Include(x => x.PackageHouses)
+                selector: x => new PackageResponseForMoblie(
+                    x.Id,
+                    x.PackageTypeId,
+                    x.PackageType.Name,
+                    x.PackageName,
+                    x.Unit,
+                    x.Price,
+                    x.Status,
+                    x.InsDate,
+                    x.UpsDate,
+                    x.PackageDetails.Select(pd => new PackageDetailsResponseForMoblie(
+                        pd.Id,
+                        pd.Action,
+                        pd.Type,
+                        pd.InsDate,
+                        pd.PackageLabors.Select(pl => new PackageLaborResponseForMoblie(
+                            pl.Labor.Name,
+                            pl.Labor.Type
+                        )).ToList(),
+                        pd.PackageMaterials.Select(pm => new PackageMaterialResponse(
+                            pm.Id,
+                            pm.MaterialSectionId,
+                            pm.MaterialSection.Name,
+                            pm.MaterialSection.Materials.FirstOrDefault().Name,
+                            pm.MaterialSection.Materials.FirstOrDefault().InventoryQuantity ?? 0,
+                            pm.MaterialSection.Materials.FirstOrDefault().Price ?? 0.0,
+                            pm.MaterialSection.Materials.FirstOrDefault().Unit,
+                            pm.MaterialSection.Materials.FirstOrDefault().Size,
+                            pm.MaterialSection.Materials.FirstOrDefault().Shape,
+                            pm.MaterialSection.Materials.FirstOrDefault().ImgUrl,
+                            pm.MaterialSection.Materials.FirstOrDefault().Description,
+                            pm.InsDate
+                        )).ToList() ?? new List<PackageMaterialResponse>()
+                    )).ToList(),
+                    x.PackageHouses.Select(ph => new PackageHousesResponse(
+                        ph.Id,
+                        ph.DesignTemplateId,
+                        ph.ImgUrl,
+                        ph.InsDate
+                    )).ToList() ?? new List<PackageHousesResponse>()
+                ),
+                include: x => x.Include(x => x.PackageType)
                                .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageLabors)
-                               .ThenInclude(lb => lb.Labor)
+                                   .ThenInclude(pd => pd.PackageLabors)
+                                       .ThenInclude(lb => lb.Labor)
                                .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageMaterials)
-                               .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Materials)
-                               .Include(x => x.PackageType),
+                                   .ThenInclude(pd => pd.PackageMaterials)
+                                       .ThenInclude(pm => pm.MaterialSection)
+                                           .ThenInclude(ms => ms.Materials)
+                               .Include(x => x.PackageHouses),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active"
             );
 
             return listPackage.ToList();
         }
+
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
