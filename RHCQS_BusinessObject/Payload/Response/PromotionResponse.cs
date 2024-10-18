@@ -9,7 +9,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class PromotionResponse
     {
         public PromotionResponse(Guid id, string? name, string? code, int? value, DateTime? insDate, DateTime? startTime,
-             DateTime? expTime)
+             DateTime? expTime, bool? isRunning)
         {
             Id = id;
             Name = name;
@@ -18,6 +18,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             InsDate = insDate;
             StartTime = startTime;
             ExpTime = expTime;
+            IsRunning = isRunning;
         }
         public Guid Id { get; set; }
 
@@ -32,5 +33,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Name { get; set; }
 
         public DateTime? ExpTime { get; set; }
+
+        public bool? IsRunning { get; set; }
     }
 }

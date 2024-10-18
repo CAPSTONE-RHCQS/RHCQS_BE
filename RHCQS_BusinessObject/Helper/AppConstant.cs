@@ -236,10 +236,12 @@ public static class AppConstant
         public const string Invail_Quotation = "Báo giá chưa chốt!";
 
         //Promotion
-        public const string Invail_Start_Time = "Thời gian bắt đầu ở quá khứ hoặc trùng với thời gian hiện tại!";
-        public const string Invail_Exp_Time = "Thời gian kết thúc ở quá khứ!";
-        public const string Invail_Distance_Time = "Khoảng cách giữa thời gian bắt đầu và kết thúc phải lớn hơn 2 ngày!";
+        public const string Invalid_Start_Time = "Thời gian bắt đầu ở quá khứ hoặc trùng với thời gian hiện tại!";
+        public const string Invalid_Exp_Time = "Thời gian kết thúc ở quá khứ!";
+        public const string Invalid_Distance_Time = "Khoảng cách giữa thời gian bắt đầu và kết thúc phải lớn hơn 2 ngày!";
         public const string Not_Found_Promotion = "Không tìm thấy khuyến mãi này!";
+        public const string Promotion_No_Update = "Khuyến mãi đang được thực hiện, không thể thay đổi!";
+        public const string Invail_Time = "Thời gian không hợp lệ!";
     }
 }
 

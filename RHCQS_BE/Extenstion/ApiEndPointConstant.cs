@@ -143,8 +143,10 @@ namespace RHCQS_BE.Extenstion
         public static class Promotion
         {
             public const string PromotionEndpoint = ApiEndpoint + "/promotion";
+            public const string PromotionValidEndpoint = PromotionEndpoint + "/valid";
             public const string PromotionDetailEndpoint = PromotionEndpoint + "/id";
             public const string PromotionNameEndpoint = PromotionEndpoint + "/name";
+            public const string PromotionBanEndpoint = PromotionEndpoint + "/ban";
         }
     }
 }

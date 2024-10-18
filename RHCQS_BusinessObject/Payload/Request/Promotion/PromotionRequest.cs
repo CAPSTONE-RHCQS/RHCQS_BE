@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RHCQS_BusinessObject.Payload.Request
+namespace RHCQS_BusinessObject.Payload.Request.Promotion
 {
     public class PromotionRequest
     {
 
         [Required(ErrorMessage = "Giá trị là bắt buộc.")]
+        [Range(1, 100, ErrorMessage = "Khuyến mãi có giá trị > 0 và nhỏ hơn < 100")]
         public int? Value { get; set; }
 
         [Required(ErrorMessage = "Thời gian bắt đầu là bắt buộc.")]
