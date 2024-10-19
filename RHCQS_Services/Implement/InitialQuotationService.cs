@@ -63,6 +63,7 @@ namespace RHCQS_Services.Implement
                                        .Include(x => x.QuotationUtilities)
                                             .ThenInclude(x => x.UtilitiesItem)
                                        .Include(x => x.BatchPayments)
+                                        .ThenInclude(x => x.Payment!)
                 );
 
             var roughPackage = initialQuotation.PackageQuotations
@@ -109,13 +110,17 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse =
-                            initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
-                                item.Id,
-                                item.Description,
-                                item.Percents,
-                                item.Price,
-                                item.Unit)).ToList() ?? new List<BatchPaymentInfo>();
+            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+                                         item.Id,
+                                         item.Payment.Description,
+                                         item.Payment.Percents,
+                                         item.Payment.TotalPrice,
+                                         item.Payment.Unit,
+                                         item.Status,
+                                         item.Payment.PaymentDate,
+                                         item.Payment.PaymentPhase
+                                     )).ToList() ?? new List<BatchPaymentInfo>();
+
 
             var result = new InitialQuotationResponse
             {
@@ -210,13 +215,17 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse =
-                            initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
-                                item.Id,
-                                item.Description,
-                                item.Percents,
-                                item.Price,
-                                item.Unit)).ToList() ?? new List<BatchPaymentInfo>();
+            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+                                       item.Id,
+                                         item.Payment?.Description,
+                                         item.Payment!.Percents,
+                                         item.Payment!.TotalPrice,
+                                         item.Payment.Unit,
+                                         item.Status,
+                                         item.Payment.PaymentDate,
+                                         item.Payment.PaymentPhase
+                                   )).ToList() ?? new List<BatchPaymentInfo>();
+
 
             var result = new InitialQuotationResponse
             {
@@ -677,17 +686,13 @@ namespace RHCQS_Services.Implement
                     {
                         Id = Guid.NewGuid(),
                         ContractId = null,
-                        Price = item.Price,
-                        PaymentDate = null,
-                        PaymentPhase = null,
                         IntitialQuotationId = initialItem.Id,
-                        Percents = item.Percents,
                         InsDate = DateTime.Now,
-                        FinalQuotationId = null,
-                        Description = item.Description,
-                        Unit = AppConstant.Unit.UnitPrice
+                        FinalQuotationId = null
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
+
+                    //Create payment
                 }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;

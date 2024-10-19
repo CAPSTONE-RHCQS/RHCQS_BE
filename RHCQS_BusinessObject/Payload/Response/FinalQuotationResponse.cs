@@ -24,8 +24,8 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationResponse
     {
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId,string type,string adress,
-            Guid? promotionId, double? totalPrice,string? note, double? version, DateTime? insDate, DateTime? upsDate,
+        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, string type, string adress,
+            Guid? promotionId, double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
             string? status, bool? deflag, Guid? quotationUtilitiesId, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
             List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo, List<UtilityInf>? utilityInfos,
@@ -91,32 +91,48 @@ namespace RHCQS_BusinessObject.Payload.Response
         public PromotionInfo? PromotionInfo { get; set; }
 
         public List<UtilityInf>? UtilityInfos { get; set; }
-        public ConstructionSummary ConstructionRough { get; set; } 
+        public ConstructionSummary ConstructionRough { get; set; }
         public ConstructionSummary ConstructionFinished { get; set; }
     }
     public class BatchPaymentResponse
     {
-        public BatchPaymentResponse(Guid id, string? description, string? percents, double? price,
-            string? unit, DateTime? paymentDate, DateTime? paymentPhase)
+        public BatchPaymentResponse(
+            Guid paymentId,
+            DateTime? insDate,
+            string? status,
+            DateTime? upsDate,
+            double? totalPrice,
+            string? description,
+            string? percents,
+            double? price,
+            string? unit,
+            DateTime? paymentDate,
+            DateTime? paymentPhase)
         {
-            Id = id;
+            InsDate = insDate;
+            PaymentId = paymentId;
+            Status = status;
+            UpsDate = upsDate;
+            TotalPrice = totalPrice;
             Description = description;
             Percents = percents;
-            Price = price;
             Unit = unit;
             PaymentDate = paymentDate;
             PaymentPhase = paymentPhase;
         }
 
-        public Guid Id { get; set; }
-        public string? Description { get; set; }
-        public string? Percents { get; set; }
-        public double? Price { get; set; }
-        public string? Unit { get; set; }
+        public Guid PaymentId { get; set; }
+        public DateTime? InsDate { get; set; }
+        public string? Status { get; set; }
+        public DateTime? UpsDate { get; set; }
+        public double? TotalPrice { get; set; }
         public DateTime? PaymentDate { get; set; }
-
         public DateTime? PaymentPhase { get; set; }
+        public string? Unit { get; set; }
+        public string? Percents { get; set; }
+        public string? Description { get; set; }
     }
+
     public class EquipmentItemsResponse
     {
         public EquipmentItemsResponse(Guid id, string? name, string? unit, int? quantity,

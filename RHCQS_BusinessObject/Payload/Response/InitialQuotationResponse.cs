@@ -28,7 +28,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public InitialQuotationResponse() { }
 
-        public InitialQuotationResponse(Guid id, string accountName, Guid projectId, Guid? promotionId, Guid packageId,
+        public InitialQuotationResponse(Guid id, string accountName, Guid projectId, Guid? promotionId,
             double? area, int? timeProccessing, int? timeOthers, string? othersAgreement, DateTime? insDate, string? status,
             double? version, bool deflag, string? note, double? totalRough, double? totalUtilities, string? unit,
             PackageQuotationList packageQuotationList, List<InitialQuotationItemResponse> itemInitial,
@@ -38,7 +38,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             AccountName = accountName;
             ProjectId = projectId;
             PromotionId = promotionId;
-            PackageId = packageId;
             Area = area;
             TimeProcessing = timeProccessing;
             TimeOthers = timeOthers;
@@ -170,18 +169,26 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class BatchPaymentInfo
     {
-        public BatchPaymentInfo(Guid id, string? description, string? percents, double? price, string? unit)
+        public BatchPaymentInfo(Guid id,  string? description, string? percents, double? price, 
+            string? unit, string? status, DateTime? paymentDate, DateTime? paymentPhase)
         {
-            Id = id;
+            PaymentId = id;
             Description = description;
             Percents = percents;
             Price = price;
             Unit = unit;
+            Status = status;
+            PaymentDate = paymentDate;
+            PaymentPhase = paymentPhase;
         }
-        public Guid Id { get; set; }
+        public Guid PaymentId { get; set; }
+        public string? Status { get; set; }
         public string? Description { get; set; }
         public string? Percents { get; set; }
         public double? Price { get; set; }
         public string? Unit { get; set; }
+        public DateTime? InsDate { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public DateTime? PaymentPhase { get; set; }
     }
 }

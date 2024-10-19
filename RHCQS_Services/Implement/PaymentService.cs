@@ -28,7 +28,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
-                            selector: p => new PaymentResponse(p.Id, p.PaymentType!.Name, p.Status, p.InsDate, 
+                            selector: p => new PaymentResponse(p.Id, p.PaymentType!.Name, p.InsDate, 
                                                                p.UpsDate, p.TotalPrice),
                             include: p => p.Include(p => p.PaymentType),
                             page: page,

@@ -9,23 +9,15 @@ public partial class BatchPayment
 
     public Guid? ContractId { get; set; }
 
-    public double? Price { get; set; }
-
-    public DateTime? PaymentDate { get; set; }
-
-    public DateTime? PaymentPhase { get; set; }
-
     public Guid IntitialQuotationId { get; set; }
-
-    public string? Percents { get; set; }
 
     public DateTime? InsDate { get; set; }
 
     public Guid? FinalQuotationId { get; set; }
 
-    public string? Description { get; set; }
+    public Guid? PaymentId { get; set; }
 
-    public string? Unit { get; set; }
+    public string? Status { get; set; }
 
     public virtual Contract? Contract { get; set; }
 
@@ -33,5 +25,5 @@ public partial class BatchPayment
 
     public virtual InitialQuotation IntitialQuotation { get; set; } = null!;
 
-    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    public virtual Payment? Payment { get; set; }
 }

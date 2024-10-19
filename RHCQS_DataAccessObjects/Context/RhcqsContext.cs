@@ -152,12 +152,8 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("BatchPayment");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.PaymentDate).HasColumnType("datetime");
-            entity.Property(e => e.PaymentPhase).HasColumnType("datetime");
-            entity.Property(e => e.Percents).HasMaxLength(5);
-            entity.Property(e => e.Unit).HasMaxLength(10);
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Contract).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.ContractId)
@@ -171,6 +167,10 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.IntitialQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_InitialQuotation");
+
+            entity.HasOne(d => d.Payment).WithMany(p => p.BatchPayments)
+                .HasForeignKey(d => d.PaymentId)
+                .HasConstraintName("BatchPayment_Payment_FK");
         });
 
         modelBuilder.Entity<Blog>(entity =>
@@ -603,14 +603,13 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Payment");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Description).HasMaxLength(200);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.PaymentDate).HasColumnType("datetime");
+            entity.Property(e => e.PaymentPhase).HasColumnType("datetime");
+            entity.Property(e => e.Percents).HasMaxLength(5);
+            entity.Property(e => e.Unit).HasMaxLength(10);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.BatchPayment).WithMany(p => p.Payments)
-                .HasForeignKey(d => d.BatchPaymentId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Payment_BactchPayment");
 
             entity.HasOne(d => d.PaymentType).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.PaymentTypeId)

@@ -150,15 +150,9 @@ namespace RHCQS_Services.Implement
                             {
                                 Id = Guid.NewGuid(),
                                 ContractId = contractDrawing.Id,
-                                Price = pay.Price,
-                                PaymentDate = pay.PaymentDate,
-                                PaymentPhase = pay.PaymentPhase,
                                 IntitialQuotationId = initialInfo!.Id,
-                                Percents = pay.Percents,
                                 InsDate = DateTime.Now,
-                                FinalQuotationId = null,
-                                Description = pay.Description,
-                                Unit = AppConstant.Unit.UnitPrice
+                                FinalQuotationId = null
                             };
 
                             await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
@@ -171,8 +165,6 @@ namespace RHCQS_Services.Implement
                             {
                                 Id = Guid.NewGuid(),
                                 PaymentTypeId = paymentType.Id,
-                                BatchPaymentId = batchPay.Id,
-                                Status = AppConstant.PaymentStatus.PROGRESS,
                                 InsDate = DateTime.Now,
                                 UpsDate = DateTime.Now,
                                 TotalPrice = request.ContractValue
@@ -248,7 +240,7 @@ namespace RHCQS_Services.Implement
 
             //Update status payyment
             var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(x => x.Id == paymentId);
-            paymentInfo.Status = AppConstant.PaymentStatus.PAID;
+            //paymentInfo.Status = AppConstant.PaymentStatus.PAID;
 
             _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
             string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;

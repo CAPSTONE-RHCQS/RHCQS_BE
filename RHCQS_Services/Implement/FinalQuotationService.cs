@@ -116,16 +116,17 @@ namespace RHCQS_Services.Implement
                 UpsDate = DateTime.UtcNow,
                 Status = request.Status,
                 Deflag = true,
-                BatchPayments = request.BatchPaymentInfos.Select(bp => new BatchPayment
-                {
-                    Id = Guid.NewGuid(),
-                    Price = bp.Price,
-                    IntitialQuotationId = bp.InitIntitialQuotationId,
-                    Percents = bp.Percents,
-                    Description = bp.Description,
-                    InsDate = DateTime.Now,
-                    Unit = AppConstant.Unit.UnitPrice
-                }).ToList(),
+                //BatchPayments = request.BatchPaymentInfos.Select(bp => new BatchPayment
+                //{
+                //    Id = Guid.NewGuid(),
+                //    Price = bp.Price,
+                //    IntitialQuotationId = bp.InitIntitialQuotationId,
+                //    Percents = bp.Percents,
+                //    Description = bp.Description,
+                //    InsDate = DateTime.Now,
+                //    Unit = AppConstant.Unit.UnitPrice
+                //}).ToList(),
+
 
                 EquipmentItems = request.EquipmentItems.Select(ei => new EquipmentItem
                 {
@@ -267,15 +268,22 @@ namespace RHCQS_Services.Implement
                                                        AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
 
-                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
-                    bp.Id,
-                    bp.Description,
-                    bp.Percents,
-                    bp.Price,
-                    bp.Unit,
-                    bp.PaymentDate,
-                    bp.PaymentPhase
-                )).ToList();
+                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp =>
+                {
+                    return new BatchPaymentResponse(
+                        bp?.Id ?? Guid.Empty,               
+                        bp.InsDate,
+                        bp.Status,
+                        bp?.Payment?.UpsDate,
+                        bp?.Payment?.TotalPrice,
+                        bp?.Payment?.Description,  
+                        bp?.Payment?.Percents,
+                        bp?.Payment?.TotalPrice,
+                        bp?.Payment?.Unit,
+                        bp?.Payment?.PaymentDate,
+                        bp?.Payment?.PaymentPhase
+                    );
+                }).ToList();
 
                 var equipmentItemsList = finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
                     ei.Id,
@@ -398,15 +406,19 @@ namespace RHCQS_Services.Implement
                                                        AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
 
-                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
-                    bp.Id,
-                    bp.Description,
-                    bp.Percents,
-                    bp.Price,
-                    bp.Unit,
-                    bp.PaymentDate,
-                    bp.PaymentPhase
-                )).ToList();
+                //var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
+                //    bp.Payments.Select(bp => bp.Id),
+                //    bp.InsDate,
+                //    bp.Status,
+                //    bp.Payments.Select(bp => bp.UpsDate),
+                //    bp.Payments.Select(bp => bp.TotalPrice),
+                //    bp.Payments.Select(bp => bp.Description),
+                //    bp.Payments.Select(bp => bp.Percents),
+                //    bp.Payments.Select(bp => bp.Unit),
+                //    bp.Payments.Select(bp => bp.PaymentDate),
+                //    bp.Payments.Select(bp => bp.PaymentPhase)
+                //)).ToList();
+                var batchPaymentsList = new List<BatchPaymentResponse>();
 
                 var equipmentItemsList = finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
                     ei.Id,
@@ -542,13 +554,9 @@ namespace RHCQS_Services.Implement
                     var batchPayment = new BatchPayment
                     {
                         Id = Guid.NewGuid(),
-                        Price = payment.Price,
-                        Percents = payment.Percents,
-                        Description = payment.Description,
                         InsDate = DateTime.Now,
                         IntitialQuotationId = payment.InitIntitialQuotationId,
-                        FinalQuotationId = finalQuotation.Id,
-                        Unit = AppConstant.Unit.UnitPrice
+                        FinalQuotationId = finalQuotation.Id
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPayment);
                 }
@@ -985,7 +993,7 @@ namespace RHCQS_Services.Implement
             <td>{stageCounter}</td>
             <td>{payment.Description}</td>
             <td>{payment.Percents}</td>
-            <td>{payment.Price:N0}</td>
+            <td>{payment.TotalPrice:N0}</td>
             <td>{payment.PaymentDate}</td>
             <td>{payment.PaymentPhase}</td>
         </tr>");

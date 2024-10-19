@@ -9,17 +9,23 @@ public partial class Payment
 
     public Guid PaymentTypeId { get; set; }
 
-    public Guid BatchPaymentId { get; set; }
-
-    public string? Status { get; set; }
-
     public DateTime? InsDate { get; set; }
 
     public DateTime? UpsDate { get; set; }
 
     public double? TotalPrice { get; set; }
 
-    public virtual BatchPayment BatchPayment { get; set; } = null!;
+    public DateTime? PaymentDate { get; set; }
+
+    public DateTime? PaymentPhase { get; set; }
+
+    public string? Unit { get; set; }
+
+    public string? Percents { get; set; }
+
+    public string? Description { get; set; }
+
+    public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
 
