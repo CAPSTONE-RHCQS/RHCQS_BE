@@ -38,7 +38,12 @@ namespace RHCQS_BE.Extenstion
             public const string PackageDetailEndpoint = PackageEndpoint + "/id";
             public const string PackageByNameEndpoint = PackageEndpoint + "/name";
         }
-
+        public static class Blog
+        {
+            public const string BlogEndpoint = ApiEndpoint + "/blogs";
+            public const string BlogDetailEndpoint = BlogEndpoint + "/id";
+            public const string BlogByAccountEndpoint = BlogEndpoint + "/accountid";
+        }
         public static class Account
         {
             public const string AccountEndpoint = ApiEndpoint + "/account";
@@ -125,6 +130,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string FinalQuotationEndpoint = ApiEndpoint + "/quotation" + "/final";
             public const string FinalQuotationDetailEndpoint = FinalQuotationEndpoint + "/id";
+            public const string FinalQuotationDetailByProjectIdEndpoint = FinalQuotationEndpoint + "/projectid";
             public const string FinalQuotationDetailByCustomerEndpoint = FinalQuotationEndpoint + "/customer/name";
             public const string AssignFinalQuotationEndpoint = FinalQuotationEndpoint + "/assign";
             public const string CancelFinalQuotationEndpoint = FinalQuotationEndpoint + "/cancel";

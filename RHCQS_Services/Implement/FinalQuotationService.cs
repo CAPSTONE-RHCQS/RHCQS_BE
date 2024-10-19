@@ -535,6 +535,139 @@ namespace RHCQS_Services.Implement
             }
         }
 
+        public async Task<FinalQuotationResponse> GetDetailFinalQuotationByProjectId(Guid projectid)
+        {
+            try
+            {
+                var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+                    x => x.ProjectId == projectid,
+                    include: x => x.Include(x => x.Project)
+                                   .ThenInclude(x => x.Customer)
+                                   .Include(x => x.Promotion)
+                                   .Include(x => x.QuotationUtilities)
+                                       .ThenInclude(qu => qu.UtilitiesItem)
+                                       .ThenInclude(qu => qu.Section)
+                                   .Include(x => x.EquipmentItems)
+                                   .Include(x => x.FinalQuotationItems)
+                                       .ThenInclude(co => co.ConstructionItem)
+                                   .Include(x => x.BatchPayments)
+                                       .ThenInclude(p => p.Payment)
+                );
+
+                if (finalQuotation == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                                       AppConstant.ErrMessage.Not_Found_FinalQuotaion);
+                }
+
+                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
+                    bp?.Payment.Id ?? Guid.Empty,
+                    bp.InsDate,
+                    bp.Status,
+                    bp?.Payment?.UpsDate,
+                    bp?.Payment?.Description,
+                    bp?.Payment?.Percents,
+                    bp?.Payment?.TotalPrice,
+                    bp?.Payment?.Unit,
+                    bp?.Payment?.PaymentDate,
+                    bp?.Payment?.PaymentPhase
+                )).ToList();
+
+                var equipmentItemsList = finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
+                    ei.Id,
+                    ei.Name,
+                    ei.Unit,
+                    ei.Quantity,
+                    ei.UnitOfMaterial,
+                    ei.TotalOfMaterial,
+                    ei.Note
+                )).ToList();
+
+                var finalQuotationItemsList = finalQuotation.FinalQuotationItems.Select(fqi => new FinalQuotationItemResponse(
+                    fqi.Id,
+                    fqi.Name,
+                    fqi.ConstructionItem?.Type,
+                    fqi.Unit,
+                    fqi.Weight,
+                    fqi.UnitPriceLabor,
+                    fqi.UnitPriceRough,
+                    fqi.UnitPriceFinished,
+                    fqi.TotalPriceLabor,
+                    fqi.TotalPriceRough,
+                    fqi.TotalPriceFinished,
+                    fqi.InsDate
+                )).ToList();
+
+                var promotionInfo = finalQuotation.Promotion != null
+                    ? new PromotionInfo(
+                        finalQuotation.Promotion.Id,
+                        finalQuotation.Promotion.Name,
+                        finalQuotation.Promotion.Value
+                    )
+                    : null;
+
+                var utilityInfoList = finalQuotation.QuotationUtilities != null
+                    ? new List<UtilityInf>
+                    {
+                new UtilityInf(
+                    finalQuotation.QuotationUtilities.Id,
+                    finalQuotation.QuotationUtilities.Description,
+                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
+                    finalQuotation.QuotationUtilities.Price ?? 0,
+                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.UnitPrice ?? 0,
+                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.Unit
+                )
+                    }
+                    : new List<UtilityInf>();
+                var constructionRoughList = finalQuotationItemsList
+                    .Where(item => item.Type == "ROUGH")
+                    .GroupBy(item => item.Type)
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(item => item.TotalPriceRough ?? 0),
+                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+
+
+                var constructionFinishedList = finalQuotationItemsList
+                    .Where(item => item.Type == "FINISHED")
+                    .GroupBy(item => item.Type)
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(item => item.TotalPriceRough ?? 0),
+                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+                var response = new FinalQuotationResponse(
+                    finalQuotation.Id,
+                    finalQuotation.Project.Customer.Username,
+                    finalQuotation.ProjectId,
+                    finalQuotation.Project.Type,
+                    finalQuotation.Project.Address,
+                    finalQuotation.TotalPrice,
+                    finalQuotation.Note,
+                    finalQuotation.Version,
+                    finalQuotation.InsDate,
+                    finalQuotation.UpsDate,
+                    finalQuotation.Status,
+                    finalQuotation.Deflag,
+                    finalQuotation.QuotationUtilitiesId,
+                    finalQuotation.ReasonReject,
+                    batchPaymentsList,
+                    equipmentItemsList,
+                    finalQuotationItemsList,
+                    promotionInfo,
+                    utilityInfoList,
+                    constructionRoughList,
+                    constructionFinishedList
+                );
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
+        }
         public async Task<IPaginate<FinalQuotationListResponse>> GetListFinalQuotation(int page, int size)
         {
             var list = await _unitOfWork.GetRepository<FinalQuotation>().GetList(
