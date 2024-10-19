@@ -11,6 +11,6 @@ namespace RHCQS_Services.Interface
     public interface IPaymentService
     {
         Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size);
-        //Task<BatchResponse> GetDetailPayment(Guid paymentId);
+        Task<List<PaymentResponse>> GetDetailPayment(Guid projectId);
     }
 }

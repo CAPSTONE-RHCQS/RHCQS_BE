@@ -28,6 +28,8 @@ namespace RHCQS_BE.Controllers
         #region GetListContract
         /// <summary>
         /// Retrieves the list of all contract item.
+        /// 
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// </summary>
         /// <returns>List of contract in the system</returns>
         #endregion
@@ -49,6 +51,8 @@ namespace RHCQS_BE.Controllers
         #region GetDetailContract
         /// <summary>
         /// Retrieves the list of all contract item.
+        /// 
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// </summary>
         /// <returns>List of contract in the system</returns>
         #endregion
@@ -70,6 +74,8 @@ namespace RHCQS_BE.Controllers
         #region GetDetailContractByType
         /// <summary>
         /// Retrieves the contract details based on the contract type.
+        /// 
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// </summary>
         /// <param name="type">The type of contract. Valid values: 'Design' for design contracts, 'Construction' for construction contracts.</param>
         /// <returns>A contract item matching the specified contract type.</returns>
@@ -93,8 +99,9 @@ namespace RHCQS_BE.Controllers
 
         #region CreateContractDesign
         /// <summary>
-        /// Role: MANAGER
         /// Creates a contract design for a specified project.
+        /// 
+        /// Role: MANAGER
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -131,8 +138,9 @@ namespace RHCQS_BE.Controllers
 
         #region ApproveContractDesin
         /// <summary>
-        /// Role: MANAGER
         /// Manager approve payment contract design 
+        /// 
+        /// Role: MANAGER
         /// </summary>
         /// <remarks>
         /// </remarks>
