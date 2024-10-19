@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Contract;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -30,6 +31,53 @@ namespace RHCQS_Services.Implement
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cloudinary = cloudinary;
+        }
+
+        public async Task<IPaginate<ContractResponse>> GetListContract(int page, int size)
+        {
+            var listContract = await _unitOfWork.GetRepository<Contract>().GetList(
+                selector: c => new ContractResponse(c.ProjectId, c.Name, c.CustomerName, c.ContractCode, c.StartDate, c.EndDate,
+                                                    c.ValidityPeriod, c.TaxCode, c.Area, c.UnitPrice, c.ContractValue, c.UrlFile,
+                                                    c.Note, c.Deflag, c.RoughPackagePrice, c.FinishedPackagePrice, c.Status, c.Type),
+                include: c => c.Include(c => c.Project)
+                );
+            return listContract;
+        }
+
+        public async Task<ContractResponse> GetDetailContract(Guid contractId)
+        {
+            var contractItem = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                predicate: c => c.Id == contractId,
+                                include: c => c.Include(c => c.Project)
+                );
+
+            if (contractItem == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+            }
+
+            return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
+                                        contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice,contractItem.ContractValue, 
+                                        contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice, 
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type);
+        }
+
+        public async Task<ContractResponse> GetDetailContractByType(string type)
+        {
+            var contractItem = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                predicate: c => c.Type == type,
+                                include: c => c.Include(c => c.Project)
+                );
+
+            if (contractItem == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+            }
+
+            return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
+                                        contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
+                                        contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type);
         }
 
         //Create design contract -  Create batch payment design drawing
@@ -127,8 +175,7 @@ namespace RHCQS_Services.Implement
                                 Status = AppConstant.PaymentStatus.PROGRESS,
                                 InsDate = DateTime.Now,
                                 UpsDate = DateTime.Now,
-                                TotalPrice = request.ContractValue,
-                                Type = request.Type,
+                                TotalPrice = request.ContractValue
                             };
 
                             await _unitOfWork.GetRepository<Payment>().InsertAsync(payInfo);
@@ -154,7 +201,6 @@ namespace RHCQS_Services.Implement
         }
 
         //Manager approve bill payment in contract design
-
         //Bill hóa đơn 
         public async Task<string> ApproveContractDesin(Guid paymentId, List<IFormFile> bills)
         {

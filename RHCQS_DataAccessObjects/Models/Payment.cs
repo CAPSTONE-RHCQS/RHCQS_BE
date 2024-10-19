@@ -17,8 +17,6 @@ public partial class Payment
 
     public DateTime? UpsDate { get; set; }
 
-    public string? Type { get; set; }
-
     public double? TotalPrice { get; set; }
 
     public virtual BatchPayment BatchPayment { get; set; } = null!;

@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request.Contract;
+﻿using Microsoft.IdentityModel.Protocols;
+using RHCQS_BusinessObject.Payload.Request.Contract;
 using System.CodeDom;
 
 namespace RHCQS_BE.Extenstion
@@ -133,7 +134,9 @@ namespace RHCQS_BE.Extenstion
         public static class Contract
         {
             public const string ContractEndpoint = ApiEndpoint + "/contract";
+            public const string ContractDetailEndpoint = ContractEndpoint + "/id";
             public const string ContractDesignEndpoint = ContractEndpoint + "/design";
+            public const string ContractDesignTypeEndpoint = ContractEndpoint + "/type";
             public const string ContractDesignApproveEndpoint = ContractDesignEndpoint + "/approve";
             public const string ContractDesignDetailEndpoint = ContractDesignEndpoint + "/id";
             public const string ContractConstructionEndpoint = ContractEndpoint + "/construction";
@@ -147,6 +150,14 @@ namespace RHCQS_BE.Extenstion
             public const string PromotionDetailEndpoint = PromotionEndpoint + "/id";
             public const string PromotionNameEndpoint = PromotionEndpoint + "/name";
             public const string PromotionBanEndpoint = PromotionEndpoint + "/ban";
+        }
+
+        public static class Payment
+        {
+            public const string PaymentEndpoint = ApiEndpoint + "/payment";
+            public const string PaymentDetailEndpoint = PaymentEndpoint + "/id";
+            public const string PaymentTypeEndpoint = PaymentEndpoint + "/type";
+            public const string PaymnetBatchEndpoint = PaymentEndpoint + "/batch";
         }
     }
 }

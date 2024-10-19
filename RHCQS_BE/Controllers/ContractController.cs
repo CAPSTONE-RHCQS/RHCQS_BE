@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Request.Contract;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Interface;
 using Xceed.Words.NET;
@@ -21,6 +23,72 @@ namespace RHCQS_BE.Controllers
         public ContractController(IContractService contractService)
         {
             _contractService = contractService;
+        }
+
+        #region GetListContract
+        /// <summary>
+        /// Retrieves the list of all contract item.
+        /// </summary>
+        /// <returns>List of contract in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Contract.ContractEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListContract(int page, int size)
+        {
+            var listContract = await _contractService.GetListContract(page, size);
+            var result = JsonConvert.SerializeObject(listContract, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region GetDetailContract
+        /// <summary>
+        /// Retrieves the list of all contract item.
+        /// </summary>
+        /// <returns>List of contract in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Contract.ContractDesignDetailEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailContract(Guid contractId)
+        {
+            var contractItem = await _contractService.GetDetailContract(contractId);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region GetDetailContractByType
+        /// <summary>
+        /// Retrieves the contract details based on the contract type.
+        /// </summary>
+        /// <param name="type">The type of contract. Valid values: 'Design' for design contracts, 'Construction' for construction contracts.</param>
+        /// <returns>A contract item matching the specified contract type.</returns>
+        /// <response code="200">Returns the details of the contract for the specified type.</response>
+        /// <response code="400">If the provided type is invalid or not found.</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Contract.ContractDesignTypeEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailContractByType(string type)
+        {
+            var contractItem = await _contractService.GetDetailContractByType(type);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CreateContractDesign

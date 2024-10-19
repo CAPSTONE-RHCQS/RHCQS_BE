@@ -82,6 +82,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IContractService, ContractService>();
             services.AddScoped<IUploadImgService, UploadImgService>();
             services.AddScoped<IPromotionService, PromotionService>();
+            services.AddScoped<IPaymentService, PaymentService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             return services;

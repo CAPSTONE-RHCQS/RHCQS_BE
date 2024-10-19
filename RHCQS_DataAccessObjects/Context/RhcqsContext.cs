@@ -605,7 +605,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.Type).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.BatchPayment).WithMany(p => p.Payments)

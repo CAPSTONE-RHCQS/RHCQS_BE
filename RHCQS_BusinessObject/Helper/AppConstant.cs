@@ -234,6 +234,7 @@ public static class AppConstant
 
         //Contract
         public const string Invail_Quotation = "Báo giá chưa chốt!";
+        public const string Contract_Not_Found = "Không tìm thấy báo giá!";
 
         //Promotion
         public const string Invalid_Start_Time = "Thời gian bắt đầu ở quá khứ hoặc trùng với thời gian hiện tại!";
@@ -242,6 +243,9 @@ public static class AppConstant
         public const string Not_Found_Promotion = "Không tìm thấy khuyến mãi này!";
         public const string Promotion_No_Update = "Khuyến mãi đang được thực hiện, không thể thay đổi!";
         public const string Invail_Time = "Thời gian không hợp lệ!";
+
+        //Payment
+        public const string Invalid_Payment = "Thanh toán này không tìm thấy!";
     }
 }
 
