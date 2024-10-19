@@ -24,8 +24,8 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationResponse
     {
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, string type, string adress,
-            Guid? promotionId, double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
+        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, string type, string adress
+            , double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
             string? status, bool? deflag, Guid? quotationUtilitiesId, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
             List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo, List<UtilityInf>? utilityInfos,
@@ -36,7 +36,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             ProjectId = projectId;
             ProjectType = type;
             ProjectAddress = adress;
-            PromotionId = promotionId;
             TotalPrice = totalPrice;
             Note = note;
             Version = version;
@@ -57,7 +56,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
         public string AccountName { get; set; }
-        public string StaffName { get; set; }
         public Guid ProjectId { get; set; }
         public string? ProjectType { get; set; }
         public string? ProjectAddress { get; set; }

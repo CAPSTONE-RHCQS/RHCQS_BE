@@ -125,19 +125,23 @@ namespace RHCQS_Services.Implement
                 var payment = new Payment
                 {
                     Id = Guid.NewGuid(),
+                    PaymentTypeId = bp.PaymentTypeId,
                     InsDate = DateTime.UtcNow,
                     TotalPrice = bp.Price,
                     Percents = bp.Percents,
                     Description = bp.Description,
+                    Unit = AppConstant.Unit.UnitPrice
                 };
 
                 var batchPayment = new BatchPayment
                 {
                     Id = Guid.NewGuid(),
                     IntitialQuotationId = bp.InitIntitialQuotationId,
+                    ContractId = bp.ContractId,
                     InsDate = DateTime.UtcNow,
                     FinalQuotationId = finalQuotation.Id,
-                    Payment = payment
+                    Payment = payment,
+                    Status =  bp.Status
                 };
 
                 finalQuotation.BatchPayments.Add(batchPayment);
@@ -371,7 +375,6 @@ namespace RHCQS_Services.Implement
                     finalQuotation.ProjectId,
                     finalQuotation.Project.Type,
                     finalQuotation.Project.Address,
-                    finalQuotation.PromotionId,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
                     finalQuotation.Version,
@@ -506,7 +509,6 @@ namespace RHCQS_Services.Implement
                     finalQuotation.ProjectId,
                     finalQuotation.Project.Type,
                     finalQuotation.Project.Address,
-                    finalQuotation.PromotionId,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
                     finalQuotation.Version,
@@ -586,19 +588,22 @@ namespace RHCQS_Services.Implement
                     var payment = new Payment
                     {
                         Id = Guid.NewGuid(),
-                        InsDate = DateTime.UtcNow,
+                        UpsDate = DateTime.UtcNow,
                         TotalPrice = bp.Price,
                         Percents = bp.Percents,
                         Description = bp.Description,
+                        Unit = AppConstant.Unit.UnitPrice
                     };
 
                     var batchPayment = new BatchPayment
                     {
                         Id = Guid.NewGuid(),
                         IntitialQuotationId = bp.InitIntitialQuotationId,
+                        ContractId = bp.ContractId,
                         InsDate = DateTime.UtcNow,
                         FinalQuotationId = finalQuotation.Id,
-                        Payment = payment
+                        Payment = payment,
+                        Status = bp.Status
                     };
 
                     finalQuotation.BatchPayments.Add(batchPayment);

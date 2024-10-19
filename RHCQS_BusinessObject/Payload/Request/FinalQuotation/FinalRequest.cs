@@ -35,6 +35,11 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
     {
         [Required(ErrorMessage = "InitIntitialQuotationId là bắt buộc.")]
         public Guid InitIntitialQuotationId { get; set; }
+
+        [Required(ErrorMessage = "PaymentTypeId là bắt buộc.")]
+        public Guid PaymentTypeId { get; set; }
+        public Guid ContractId { get; set; }
+
         [Required(ErrorMessage = "Giá là bắt buộc.")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
@@ -42,6 +47,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public string? Percents { get; set; }
 
         public string? Description { get; set; }
+        public string? Status { get; set; }
     }
 
     public class EquipmentItemsRequest
