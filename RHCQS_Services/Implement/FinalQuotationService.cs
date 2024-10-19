@@ -104,6 +104,7 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.PackageExists
                 );
             }
+
             var finalQuotation = new FinalQuotation
             {
                 Id = Guid.NewGuid(),
@@ -116,44 +117,57 @@ namespace RHCQS_Services.Implement
                 UpsDate = DateTime.UtcNow,
                 Status = request.Status,
                 Deflag = true,
-                //BatchPayments = request.BatchPaymentInfos.Select(bp => new BatchPayment
-                //{
-                //    Id = Guid.NewGuid(),
-                //    Price = bp.Price,
-                //    IntitialQuotationId = bp.InitIntitialQuotationId,
-                //    Percents = bp.Percents,
-                //    Description = bp.Description,
-                //    InsDate = DateTime.Now,
-                //    Unit = AppConstant.Unit.UnitPrice
-                //}).ToList(),
-
-
-                EquipmentItems = request.EquipmentItems.Select(ei => new EquipmentItem
-                {
-                    Id = Guid.NewGuid(),
-                    Name = ei.Name,
-                    Unit = ei.Unit,
-                    Quantity = ei.Quantity,
-                    UnitOfMaterial = ei.UnitOfMaterial,
-                    TotalOfMaterial = ei.TotalOfMaterial,
-                    Note = ei.Note
-                }).ToList(),
-
-                FinalQuotationItems = request.FinalQuotationItems.Select(fqi => new FinalQuotationItem
-                {
-                    Id = Guid.NewGuid(),
-                    ConstructionItemId = fqi.ConstructionItemId,
-                    Name = fqi.Name,
-                    Unit = fqi.Unit,
-                    Weight = fqi.Weight,
-                    UnitPriceLabor = fqi.UnitPriceLabor,
-                    UnitPriceRough = fqi.UnitPriceRough,
-                    UnitPriceFinished = fqi.UnitPriceFinished,
-                    TotalPriceLabor = fqi.TotalPriceLabor,
-                    TotalPriceRough = fqi.TotalPriceRough,
-                    TotalPriceFinished = fqi.TotalPriceFinished
-                }).ToList()
+                BatchPayments = new List<BatchPayment>()
             };
+
+            foreach (var bp in request.BatchPaymentInfos)
+            {
+                var payment = new Payment
+                {
+                    Id = Guid.NewGuid(),
+                    InsDate = DateTime.UtcNow,
+                    TotalPrice = bp.Price,
+                    Percents = bp.Percents,
+                    Description = bp.Description,
+                };
+
+                var batchPayment = new BatchPayment
+                {
+                    Id = Guid.NewGuid(),
+                    IntitialQuotationId = bp.InitIntitialQuotationId,
+                    InsDate = DateTime.UtcNow,
+                    FinalQuotationId = finalQuotation.Id,
+                    Payment = payment
+                };
+
+                finalQuotation.BatchPayments.Add(batchPayment);
+            }
+
+            finalQuotation.EquipmentItems = request.EquipmentItems.Select(ei => new EquipmentItem
+            {
+                Id = Guid.NewGuid(),
+                Name = ei.Name,
+                Unit = ei.Unit,
+                Quantity = ei.Quantity,
+                UnitOfMaterial = ei.UnitOfMaterial,
+                TotalOfMaterial = ei.TotalOfMaterial,
+                Note = ei.Note
+            }).ToList();
+
+            finalQuotation.FinalQuotationItems = request.FinalQuotationItems.Select(fqi => new FinalQuotationItem
+            {
+                Id = Guid.NewGuid(),
+                ConstructionItemId = fqi.ConstructionItemId,
+                Name = fqi.Name,
+                Unit = fqi.Unit,
+                Weight = fqi.Weight,
+                UnitPriceLabor = fqi.UnitPriceLabor,
+                UnitPriceRough = fqi.UnitPriceRough,
+                UnitPriceFinished = fqi.UnitPriceFinished,
+                TotalPriceLabor = fqi.TotalPriceLabor,
+                TotalPriceRough = fqi.TotalPriceRough,
+                TotalPriceFinished = fqi.TotalPriceFinished
+            }).ToList();
 
             await finalQuotationRepo.InsertAsync(finalQuotation);
 
@@ -167,6 +181,8 @@ namespace RHCQS_Services.Implement
             }
             return isSuccessful;
         }
+
+
 
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
         {
@@ -260,6 +276,7 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.ConstructionItem)
                                    .Include(x => x.BatchPayments)
+                                       .ThenInclude(p => p.Payment)
                 );
 
                 if (finalQuotation == null)
@@ -271,11 +288,10 @@ namespace RHCQS_Services.Implement
                 var batchPaymentsList = finalQuotation.BatchPayments.Select(bp =>
                 {
                     return new BatchPaymentResponse(
-                        bp?.Id ?? Guid.Empty,               
+                        bp?.Payment.Id ?? Guid.Empty,               
                         bp.InsDate,
                         bp.Status,
                         bp?.Payment?.UpsDate,
-                        bp?.Payment?.TotalPrice,
                         bp?.Payment?.Description,  
                         bp?.Payment?.Percents,
                         bp?.Payment?.TotalPrice,
@@ -398,6 +414,7 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.ConstructionItem)
                                    .Include(x => x.BatchPayments)
+                                       .ThenInclude(p => p.Payment)
                 );
 
                 if (finalQuotation == null)
@@ -406,19 +423,18 @@ namespace RHCQS_Services.Implement
                                                        AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
 
-                //var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
-                //    bp.Payments.Select(bp => bp.Id),
-                //    bp.InsDate,
-                //    bp.Status,
-                //    bp.Payments.Select(bp => bp.UpsDate),
-                //    bp.Payments.Select(bp => bp.TotalPrice),
-                //    bp.Payments.Select(bp => bp.Description),
-                //    bp.Payments.Select(bp => bp.Percents),
-                //    bp.Payments.Select(bp => bp.Unit),
-                //    bp.Payments.Select(bp => bp.PaymentDate),
-                //    bp.Payments.Select(bp => bp.PaymentPhase)
-                //)).ToList();
-                var batchPaymentsList = new List<BatchPaymentResponse>();
+                var batchPaymentsList = finalQuotation.BatchPayments.Select(bp => new BatchPaymentResponse(
+                    bp?.Payment.Id ?? Guid.Empty,
+                    bp.InsDate,
+                    bp.Status,
+                    bp?.Payment?.UpsDate,
+                    bp?.Payment?.Description,
+                    bp?.Payment?.Percents,
+                    bp?.Payment?.TotalPrice,
+                    bp?.Payment?.Unit,
+                    bp?.Payment?.PaymentDate,
+                    bp?.Payment?.PaymentPhase
+                )).ToList();
 
                 var equipmentItemsList = finalQuotation.EquipmentItems.Select(ei => new EquipmentItemsResponse(
                     ei.Id,
@@ -533,72 +549,97 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var finalQuotation = new FinalQuotation()
+                if (request == null)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        AppConstant.ErrMessage.NullValue
+                    );
+                }
+
+                var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
+                if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == request.ProjectId && p.Version == request.VersionPresent))
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.PackageExists
+                    );
+                }
+
+                var finalQuotation = new FinalQuotation
                 {
                     Id = Guid.NewGuid(),
                     ProjectId = request.ProjectId,
                     PromotionId = request.PromotionId,
                     TotalPrice = request.TotalPrice,
                     Note = request.Note,
-                    Version = request.VersionPresent + 1,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    Version = request.VersionPresent +1,
+                    InsDate = DateTime.UtcNow,
+                    UpsDate = DateTime.UtcNow,
                     Status = request.Status,
-                    Deflag = true
+                    Deflag = true,
+                    BatchPayments = new List<BatchPayment>()
                 };
 
-                await _unitOfWork.GetRepository<FinalQuotation>().InsertAsync(finalQuotation);
-
-                foreach (var payment in request.BatchPaymentInfos)
+                foreach (var bp in request.BatchPaymentInfos)
                 {
+                    var payment = new Payment
+                    {
+                        Id = Guid.NewGuid(),
+                        InsDate = DateTime.UtcNow,
+                        TotalPrice = bp.Price,
+                        Percents = bp.Percents,
+                        Description = bp.Description,
+                    };
+
                     var batchPayment = new BatchPayment
                     {
                         Id = Guid.NewGuid(),
-                        InsDate = DateTime.Now,
-                        IntitialQuotationId = payment.InitIntitialQuotationId,
-                        FinalQuotationId = finalQuotation.Id
+                        IntitialQuotationId = bp.InitIntitialQuotationId,
+                        InsDate = DateTime.UtcNow,
+                        FinalQuotationId = finalQuotation.Id,
+                        Payment = payment
                     };
-                    await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPayment);
+
+                    finalQuotation.BatchPayments.Add(batchPayment);
                 }
 
-                foreach (var equipment in request.EquipmentItems)
+                finalQuotation.EquipmentItems = request.EquipmentItems.Select(ei => new EquipmentItem
                 {
-                    var equipmentItem = new EquipmentItem
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = equipment.Name,
-                        Unit = equipment.Unit,
-                        Quantity = equipment.Quantity,
-                        UnitOfMaterial = equipment.UnitOfMaterial,
-                        TotalOfMaterial = equipment.TotalOfMaterial,
-                        Note = equipment.Note,
-                        FinalQuotationId = finalQuotation.Id
-                    };
-                    await _unitOfWork.GetRepository<EquipmentItem>().InsertAsync(equipmentItem);
-                }
+                    Id = Guid.NewGuid(),
+                    Name = ei.Name,
+                    Unit = ei.Unit,
+                    Quantity = ei.Quantity,
+                    UnitOfMaterial = ei.UnitOfMaterial,
+                    TotalOfMaterial = ei.TotalOfMaterial,
+                    Note = ei.Note
+                }).ToList();
 
-                foreach (var finalItem in request.FinalQuotationItems)
+                finalQuotation.FinalQuotationItems = request.FinalQuotationItems.Select(fqi => new FinalQuotationItem
                 {
-                    var finalQuotationItem = new FinalQuotationItem
-                    {
-                        Id = Guid.NewGuid(),
-                        ConstructionItemId = finalItem.ConstructionItemId,
-                        Name = finalItem.Name,
-                        Unit = finalItem.Unit,
-                        Weight = finalItem.Weight,
-                        UnitPriceLabor = finalItem.UnitPriceLabor,
-                        UnitPriceRough = finalItem.UnitPriceRough,
-                        UnitPriceFinished = finalItem.UnitPriceFinished,
-                        TotalPriceLabor = finalItem.TotalPriceLabor,
-                        TotalPriceRough = finalItem.TotalPriceRough,
-                        TotalPriceFinished = finalItem.TotalPriceFinished,
-                        InsDate = DateTime.Now,
-                        FinalQuotationId = finalQuotation.Id
-                    };
-                    await _unitOfWork.GetRepository<FinalQuotationItem>().InsertAsync(finalQuotationItem);
-                }
+                    Id = Guid.NewGuid(),
+                    ConstructionItemId = fqi.ConstructionItemId,
+                    Name = fqi.Name,
+                    Unit = fqi.Unit,
+                    Weight = fqi.Weight,
+                    UnitPriceLabor = fqi.UnitPriceLabor,
+                    UnitPriceRough = fqi.UnitPriceRough,
+                    UnitPriceFinished = fqi.UnitPriceFinished,
+                    TotalPriceLabor = fqi.TotalPriceLabor,
+                    TotalPriceRough = fqi.TotalPriceRough,
+                    TotalPriceFinished = fqi.TotalPriceFinished
+                }).ToList();
+
+                await finalQuotationRepo.InsertAsync(finalQuotation);
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                if (!isSuccessful)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.CreatePackage
+                    );
+                }
                 return isSuccessful;
             }
             catch (Exception ex)
@@ -993,7 +1034,7 @@ namespace RHCQS_Services.Implement
             <td>{stageCounter}</td>
             <td>{payment.Description}</td>
             <td>{payment.Percents}</td>
-            <td>{payment.TotalPrice:N0}</td>
+            <td>{payment.Price:N0}</td>
             <td>{payment.PaymentDate}</td>
             <td>{payment.PaymentPhase}</td>
         </tr>");

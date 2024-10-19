@@ -101,7 +101,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             DateTime? insDate,
             string? status,
             DateTime? upsDate,
-            double? totalPrice,
             string? description,
             string? percents,
             double? price,
@@ -113,7 +112,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             PaymentId = paymentId;
             Status = status;
             UpsDate = upsDate;
-            TotalPrice = totalPrice;
+            Price = price;
             Description = description;
             Percents = percents;
             Unit = unit;
@@ -125,7 +124,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
         public DateTime? UpsDate { get; set; }
-        public double? TotalPrice { get; set; }
+        public double? Price { get; set; }
         public DateTime? PaymentDate { get; set; }
         public DateTime? PaymentPhase { get; set; }
         public string? Unit { get; set; }
