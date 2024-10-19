@@ -298,7 +298,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region
+        #region ApproveInitialFromManager
         /// <summary>
         /// Approve or reject an initial quotation by a Manager.
         /// </summary>
@@ -356,7 +356,7 @@ namespace RHCQS_BE.Controllers
             return BadRequest(AppConstant.Message.ERROR);
         }
 
-        #region
+        #region UpdateInitialQuotation
         /// <summary>
         /// Updates the initial quotation.
         /// </summary>

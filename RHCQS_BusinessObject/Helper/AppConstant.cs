@@ -23,6 +23,7 @@ public static class AppConstant
     public class General
     {
         public const string Bill = "Hóa đơn";
+        public const string PaymentDesign = "Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng";
     }
     public class Unit
     {
@@ -246,6 +247,7 @@ public static class AppConstant
 
         //Payment
         public const string Invalid_Payment = "Thanh toán này không tìm thấy!";
+        public const string Type_Not_Found = "Không tìm thấy kiểu hợp đồng!";
     }
 }
 

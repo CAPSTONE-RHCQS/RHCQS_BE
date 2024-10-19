@@ -661,7 +661,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
                 }
 
-                foreach (var utl in request.Utilities!)
+                foreach (var utl in request.Utilities)
                 {
                     var utlItem = new QuotationUtility
                     {
@@ -679,20 +679,41 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                 }
 
+                var paymentType = await _unitOfWork.GetRepository<PaymentType>().FirstOrDefaultAsync(x => x.Name == AppConstant.General.PaymentDesign);
+                if (paymentType == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Type_Not_Found);
+                }
+
                 //Create a batch payments
                 foreach (var item in request.BatchPayments)
                 {
+                    var payment = new Payment
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentTypeId =  paymentType.Id,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        TotalPrice = item.Price,
+                        //PaymentDate = DateTime.Now,
+                        //PaymentPhase = DateTime.Now,
+                        Percents = item.Percents,
+                        Description = item.Description,
+                        Unit = AppConstant.Unit.UnitPrice
+                    };
+                    await _unitOfWork.GetRepository<Payment>().InsertAsync(payment);
+
                     var payItem = new BatchPayment
                     {
                         Id = Guid.NewGuid(),
                         ContractId = null,
                         IntitialQuotationId = initialItem.Id,
                         InsDate = DateTime.Now,
-                        FinalQuotationId = null
+                        FinalQuotationId = null,
+                        PaymentId = payment.Id,
+                        Status = AppConstant.PaymentStatus.PROGRESS
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
-
-                    //Create payment
                 }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
