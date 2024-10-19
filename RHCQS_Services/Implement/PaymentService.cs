@@ -29,7 +29,8 @@ namespace RHCQS_Services.Implement
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
                             selector: p => new PaymentResponse(p.Id, p.PaymentType!.Name, p.InsDate, 
-                                                               p.UpsDate, p.TotalPrice),
+                                                               p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
+                                                               p.Unit, p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
                             page: page,
                             size: size
@@ -37,48 +38,32 @@ namespace RHCQS_Services.Implement
             return listPaymet;
         }
 
-        //public async Task<PaymentInfoResponse> GetDetailPayment(Guid paymentId)
-        //{
-        //    var paymentItem = await _unitOfWork.GetRepository<Payment>().GetListAsync(
-        //                       predicate: p => p.Id == paymentId,
-        //                       include: p => p.Include(p => p.BatchPayment)
-        //                                       .Include(p => p.PaymentType)
-        //         );
+        public async Task<List<PaymentResponse>> GetDetailPayment(Guid projectId)
+        {
+            var batchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                predicate: p => p.Contract!.Project.Id == projectId,
+                include: p => p.Include(p => p.Payment!)
+                                .ThenInclude(p => p.PaymentType)
+                                .Include(p => p.Contract!)
+                                .ThenInclude(p => p.Project!)
+            );
 
-        //    if (paymentItem == null || !paymentItem.Any())
-        //    {
-        //        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Payment);
-        //    }
+            var paymentResponses = batchInfo.Select(bp => new PaymentResponse(
+                bp.Payment.Id,                          
+                bp.Payment.PaymentType.Name,                         
+                bp.InsDate,
+                bp.Payment.UpsDate,
+                bp.Payment.TotalPrice,
+                bp.Payment.PaymentDate,
+                bp.Payment.PaymentPhase,
+                bp.Payment.Unit,                                 
+                bp.Payment.Percents,                             
+                bp.Payment.Description                            
+            )).ToList();
 
-        //    var payment = paymentItem.FirstOrDefault();
+            return paymentResponses;
+        }
 
-        //    // Create PaymentResponse object
-        //    var paymentResponse = new PaymentResponse(
-        //        payment.Id,
-        //        payment.PaymentType?.Name, // Assuming PaymentType has a Name property
-        //        payment.Status,
-        //        payment.InsDate,
-        //        payment.UpsDate,
-        //        payment.TotalPrice
-        //    );
-
-        //    // Assuming payment.BatchPayment is a collection, mapping multiple BatchPayment items to BatchResponse
-        //    var batchResponses = payment.BatchPayment.Select(batchPayment => new BatchResponse(
-        //        paymentResponse,
-        //        batchPayment.Id,
-        //        batchPayment.ContractId,
-        //        batchPayment.Price,
-        //        batchPayment.PaymentDate,
-        //        batchPayment.PaymentPhase,
-        //        batchPayment.Percents,
-        //        batchPayment.InsDate,
-        //        batchPayment.Description,
-        //        batchPayment.Unit
-        //    )).ToList();
-
-        //    // Returning the PaymentInfoResponse
-        //    return new PaymentInfoResponse(paymentResponse, batchResponses);
-        //}
 
 
         //public async Task<BatchResponse> GetPaymentForCustomer(Guid projectId)
