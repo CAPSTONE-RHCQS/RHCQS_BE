@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -103,7 +105,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="blogRequest">Blog creation details</param>
         /// <returns>Creation status</returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpPost(ApiEndPointConstant.Blog.BlogEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateBlog([FromBody] BlogRequest blogRequest)
@@ -117,7 +119,7 @@ namespace RHCQS_BE.Controllers
             }
 
             var isCreated = await _blogService.CreateBlogAsync(blogRequest);
-            return isCreated ? Ok(true) : BadRequest();
+            return Ok(isCreated ? AppConstant.Message.SUCCESSFUL_CREATE : AppConstant.Message.ERROR);
         }
 
         #region UpdateBlog
@@ -128,7 +130,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="blogId">Blog ID</param>
         /// <returns>Update status</returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Blog.BlogEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateBlog([FromBody] BlogRequest blogRequest, Guid blogId)
@@ -142,7 +144,22 @@ namespace RHCQS_BE.Controllers
             }
 
             var isUpdated = await _blogService.UpdateBlogAsync(blogId, blogRequest);
-            return Ok(isUpdated);
+            return Ok(isUpdated ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.Message.ERROR);
         }
+        #region DeleteBlog
+        /// <summary>
+        ///Delete a blog.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpDelete(ApiEndPointConstant.Blog.BlogEndpoint)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteBlog(Guid id)
+        {
+            var isDeleted = await _blogService.DeleteBlog(id);
+            return Ok(isDeleted ? AppConstant.Message.SUCCESSFUL_DELETE : AppConstant.Message.ERROR);
+        }
+
     }
 }

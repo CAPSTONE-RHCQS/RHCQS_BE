@@ -182,5 +182,21 @@ namespace RHCQS_Services.Implement
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful;
         }
+        public async Task<bool> DeleteBlog(Guid id)
+        {
+            var blog = await _unitOfWork.GetRepository<Blog>().FirstOrDefaultAsync(x => x.Id == id);
+            if (blog == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Blog
+                );
+            }
+
+            _unitOfWork.GetRepository<Blog>().DeleteAsync(blog);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            return isSuccessful;
+        }
+
     }
 }

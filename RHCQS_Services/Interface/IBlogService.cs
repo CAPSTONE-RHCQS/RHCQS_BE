@@ -18,5 +18,7 @@ namespace RHCQS_Services.Interface
         Task<BlogResponse> GetBlogByAccountName(string accountname);
         Task<bool> CreateBlogAsync(BlogRequest request);
         Task<bool> UpdateBlogAsync(Guid id, BlogRequest request);
+        Task<bool> DeleteBlog(Guid id);
+
     }
 }

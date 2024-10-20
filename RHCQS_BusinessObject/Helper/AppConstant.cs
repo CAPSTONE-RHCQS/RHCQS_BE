@@ -149,6 +149,9 @@ public static class AppConstant
         public const string SUCCESSFUL_CANCELFINAL = "Hủy báo giá chi tiết thành công";
         public const string SUCCESSFUL_CREATEFINAL = "Tạo báo giá chi tiết thành công";
         public const string SUCCESSFUL_SAVE = "Lưu thành công!";
+        public const string SUCCESSFUL_CREATE = "Tạo thành công";
+        public const string SUCCESSFUL_UPDATE = "Cập nhật thành công";
+        public const string SUCCESSFUL_DELETE = "Xóa thành công";
     }
     public class ErrMessage
     {
