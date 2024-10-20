@@ -10,9 +10,6 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         [Range(1, double.MaxValue, ErrorMessage = "VersionPresent phải lớn hơn 0.")]
         public double VersionPresent { get; set; }
 
-        [Required(ErrorMessage = "AccountId là bắt buộc.")]
-        public Guid? AccountId { get; set; }
-
         [Required(ErrorMessage = "ProjectId là bắt buộc.")]
         public Guid ProjectId { get; set; }
 

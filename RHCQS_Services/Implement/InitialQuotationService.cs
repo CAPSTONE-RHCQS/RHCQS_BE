@@ -663,10 +663,19 @@ namespace RHCQS_Services.Implement
 
                 foreach (var utl in request.Utilities)
                 {
+                    //Check UtilityItem or UtilitySection
+                    var utilitiesItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(x => x.Id == utl.UtilitiesItemId);
+
+                    //If utilitiesItem  == null => UtilitiesSectionId = utl.UtilitiesItemId
+                    //Else utilitiesItem  != null => UtilitiesSectionId = utilitiesItem
+                    var sectionId = utilitiesItem?.SectionId ?? utl.UtilitiesItemId;
+                    var itemId = utilitiesItem?.Id ?? null;
+
                     var utlItem = new QuotationUtility
                     {
                         Id = Guid.NewGuid(),
-                        UtilitiesItemId = utl.UtilitiesItemId,
+                        UtilitiesItemId = itemId,
+                        UtilitiesSectionId = sectionId,
                         FinalQuotationId = null,
                         InitialQuotationId = initialItem.Id,
                         Name = utl.Description!,
@@ -691,7 +700,7 @@ namespace RHCQS_Services.Implement
                     var payment = new Payment
                     {
                         Id = Guid.NewGuid(),
-                        PaymentTypeId =  paymentType.Id,
+                        PaymentTypeId = paymentType.Id,
                         InsDate = DateTime.Now,
                         UpsDate = DateTime.Now,
                         TotalPrice = item.Price,
