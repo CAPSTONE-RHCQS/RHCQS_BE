@@ -12,7 +12,8 @@ namespace RHCQS_Services.Interface
 {
     public interface IContractService
     {
-        Task<bool> CreateContractDeisgn(ContractDesignRequest request);
+        Task<bool> CreateContractDesign(ContractDesignRequest request);
+        Task<bool> CreateContractConstruction(ContractConstructionRequest request);
         Task<string> ApproveContractDesin(Guid paymentId, List<IFormFile> bills);
         Task<IPaginate<ContractResponse>> GetListContract(int page, int size);
         Task<ContractResponse> GetDetailContract(Guid contractId);

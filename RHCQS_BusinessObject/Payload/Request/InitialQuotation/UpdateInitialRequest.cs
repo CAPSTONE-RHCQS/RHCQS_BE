@@ -73,7 +73,7 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         public Guid UtilitiesItemId { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
-        public double? Coefiicient { get; set; }
+        public double? Coefficient { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }

@@ -132,7 +132,44 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateContractDesign(ContractDesignRequest request)
         {
-            var isCreate = await _contractService.CreateContractDeisgn(request);
+            var isCreate = await _contractService.CreateContractDesign(request);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
+
+        #region CreateContractConstruction
+        /// <summary>
+        /// Creates a contract construction for a specified project.
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /api/v1/contract/construction
+        ///     {
+        ///       "projectId": "fa91e187-b0c8-46c3-b6d5-747d32bd3540",
+        ///       "startDate": "2024-10-30T16:13:16.868Z",               // Time start for processing               Required
+        ///       "endDate": "2025-04-20T16:13:16.868Z",                 // Time end for processing                 Required
+        ///       "validityPeriod": 300,                                  // Validity period in days                Required
+        ///       "taxCode": null,                                       // Tax code (nullable)
+        ///       "contractValue": 1123500000,                           // Contract value                          Required
+        ///       "urlFile": "https://res.cloudinary.com/de7pulfdj/raw/upload/v1729439219/ppvcvg4h9wlzpsj0pu8b.docx", Required
+        ///       "note": null                                           // Additional notes (nullable)
+        ///     }
+        /// 
+        /// </remarks>
+        /// <param name="request">Contract construction request model</param>
+        /// <returns>Returns true if the contract construction is created successfully, otherwise false.</returns>
+        /// <response code="200">Contract construction created successfully</response>
+        /// <response code="400">Failed to create the contract construction due to invalid input</response>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.Contract.ContractConstructionEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateContractConstruction(ContractConstructionRequest request)
+        {
+            var isCreate = await _contractService.CreateContractConstruction(request);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 

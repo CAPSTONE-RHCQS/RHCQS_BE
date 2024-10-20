@@ -84,6 +84,7 @@ namespace RHCQS_Services.Implement
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
                             item.Id,
                             item.ConstructionItem?.Name,
+                            item.ConstructionItemId,
                             item.SubConstructionId.HasValue ?
                               item.ConstructionItem?.SubConstructionItems
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
@@ -190,6 +191,7 @@ namespace RHCQS_Services.Implement
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
                             item.Id,
                             item.ConstructionItem?.Name,
+                            item.ConstructionItemId,
                             item.SubConstructionId.HasValue ?
                               item.ConstructionItem?.SubConstructionItems
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
@@ -681,7 +683,7 @@ namespace RHCQS_Services.Implement
                         FinalQuotationId = null,
                         InitialQuotationId = initialItem.Id,
                         Name = utl.Description!,
-                        Coefiicient = utl.Coefiicient,
+                        Coefiicient = utl.Coefficient,
                         Price = utl.Price,
                         Description = utl.Description,
                         InsDate = DateTime.Now,

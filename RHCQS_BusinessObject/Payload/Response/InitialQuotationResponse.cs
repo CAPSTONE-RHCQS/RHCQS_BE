@@ -86,12 +86,16 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class InitialQuotationItemResponse
     {
-        public InitialQuotationItemResponse(Guid id, string? name, string? subConstruction, Guid? subConstructionId, double? area,
+        public InitialQuotationItemResponse(Guid id, string? name, 
+            Guid constructionItemId,
+            string? subConstruction, Guid? subConstructionId, 
+            double? area,
             double? price,
             string? unitPrice, double? subCoefficient, double? coefficient)
         {
             Id = id;
             Name = name;
+            ConstructionItemId = constructionItemId;
             SubConstruction = subConstruction;
             SubConstructionId = subConstructionId;
             Area = area;
@@ -103,6 +107,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
 
         public string? Name { get; set; }
+        public Guid ConstructionItemId { get; set; }
 
         public string? SubConstruction { get; set; }
         public Guid? SubConstructionId { get; set; }

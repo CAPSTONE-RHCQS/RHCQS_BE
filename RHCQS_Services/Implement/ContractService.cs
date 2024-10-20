@@ -80,8 +80,8 @@ namespace RHCQS_Services.Implement
                                         contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type);
         }
 
-        //Create design contract -  Create batch payment design drawing
-        public async Task<bool> CreateContractDeisgn(ContractDesignRequest request)
+        //Create design -  Create batch payment design drawing
+        public async Task<bool> CreateContractDesign(ContractDesignRequest request)
         {
 
             var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
@@ -142,7 +142,7 @@ namespace RHCQS_Services.Implement
 
                     var initialInfo = infoProject.InitialQuotations.FirstOrDefault(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
 
-                    // Tạo batch payment
+                    // Tạo payment thiết kế
                     foreach (var pay in request.BatchPaymentRequests!)
                     {
                         // Lấy PaymentType từ bảng PaymentType
@@ -177,8 +177,6 @@ namespace RHCQS_Services.Implement
                         };
 
                         await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
-
-
                     }
 
                     bool isSuccessful = _unitOfWork.Commit() > 0;
@@ -188,6 +186,96 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, "Invalid contract type.");
                 }
+            }
+            else
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, "Initial quotation is not finalized.");
+            }
+        }
+
+        public async Task<bool> CreateContractConstruction(ContractConstructionRequest request)
+        {
+
+            var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                predicate: x => x.Id == request.ProjectId,
+                                include: x => x.Include(x => x.InitialQuotations)
+                                                .ThenInclude(x => x.PackageQuotations)
+                                                .ThenInclude(x => x.Package)
+                                                .ThenInclude(x => x.PackageType)
+                                                .Include(x => x.FinalQuotations)
+                                                .Include(x => x.Customer!));
+
+            if (infoProject == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+            }
+
+            bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
+
+            if (isInitialFinalized)
+            {
+                var packageInfo = infoProject.InitialQuotations
+                    .SelectMany(x => x.PackageQuotations)
+                    .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
+                              || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
+                    .Select(pq => new
+                    {
+                        TypeName = pq.Package.PackageType.Name,
+                        Price = pq.Package.Price
+                    })
+                    .ToList();
+
+
+                // Tạo hợp đồng
+                var contractDrawing = new Contract
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = infoProject.Id,
+                    Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Construction),
+                    CustomerName = infoProject.Customer!.Username,
+                    ContractCode = GenerateRandom.GenerateRandomString(10),
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate,
+                    ValidityPeriod = request.ValidityPeriod,
+                    TaxCode = null,
+                    Area = infoProject.Area,
+                    UnitPrice = AppConstant.Unit.UnitPrice,
+                    ContractValue = request.ContractValue,
+                    UrlFile = request.UrlFile,
+                    Note = null,
+                    Deflag = true,
+                    RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
+                    FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
+                    Status = AppConstant.ConstractStatus.PROCESSING,
+                    Type = AppConstant.ContractType.Construction.ToString(),
+                };
+
+                await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+
+                var finalInfo = infoProject.FinalQuotations.FirstOrDefault(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
+
+                if (finalInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Finalized_Final_Quotation);
+                }
+                // Tìm batch payment - payment đã tạo -> Update batch paymet - contractId
+                var listPayment = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                predicate: p => p.FinalQuotationId == finalInfo.Id,
+                                include: p => p.Include(p => p.Payment!));
+
+                if (listPayment == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Payment);
+                }
+
+                foreach (var pay in listPayment)
+                {
+                    pay.ContractId = contractDrawing.Id;
+                    _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(pay);
+                }
+
+                bool isSuccessful = _unitOfWork.Commit() > 0;
+                return isSuccessful;
             }
             else
             {
@@ -207,6 +295,59 @@ namespace RHCQS_Services.Implement
                 }
 
                 var publicId = "Hoa_don_thiet_ke_" + $"{paymentId}" ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = "Contract",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                }
+
+                //Save bill payment in Media table
+                var mediaInfo = new Medium
+                {
+                    Id = Guid.NewGuid(),
+                    HouseDesignVersionId = null,
+                    Name = AppConstant.General.Bill,
+                    Url = uploadResult.Url.ToString(),
+                    InsDate = DateTime.Now,
+                    UpsDate = DateTime.Now,
+                    SubTemplateId = null,
+                    PaymentId = paymentId
+                };
+
+                await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+            }
+
+            //Update status payyment
+            var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(x => x.Id == paymentId);
+            //paymentInfo.Status = AppConstant.PaymentStatus.PAID;
+
+            _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
+            string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+            return result;
+        }
+
+        public async Task<string> ApproveContractContruction(Guid paymentId, List<IFormFile> bills)
+        {
+            foreach (var file in bills)
+            {
+                if (file == null || file.Length == 0)
+                {
+                    continue;
+                }
+
+                var publicId = "Hoa_don_thi_cong_" + $"{paymentId}" ?? Path.GetFileNameWithoutExtension(file.FileName);
 
                 var uploadParams = new ImageUploadParams()
                 {
