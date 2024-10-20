@@ -151,6 +151,7 @@ namespace RHCQS_BE.Extenstion
             public const string ContractDesignDetailEndpoint = ContractDesignEndpoint + "/id";
             public const string ContractConstructionEndpoint = ContractEndpoint + "/construction";
             public const string ContractConstructionDetailEndpoint = ContractConstructionEndpoint + "/id";
+            public const string ContractConstructionApproveEndpoint = ContractConstructionEndpoint + "/approve";
         }
 
         public static class Promotion

@@ -14,7 +14,8 @@ namespace RHCQS_Services.Interface
     {
         Task<bool> CreateContractDesign(ContractDesignRequest request);
         Task<bool> CreateContractConstruction(ContractConstructionRequest request);
-        Task<string> ApproveContractDesin(Guid paymentId, List<IFormFile> bills);
+        Task<string> ApproveContractDesign(Guid paymentId, List<IFormFile> bills);
+        Task<string> ApproveContractContruction(Guid paymentId, List<IFormFile> bills);
         Task<IPaginate<ContractResponse>> GetListContract(int page, int size);
         Task<ContractResponse> GetDetailContract(Guid contractId);
         Task<ContractResponse> GetDetailContractByType(string type);

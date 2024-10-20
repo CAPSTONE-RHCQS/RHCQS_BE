@@ -285,16 +285,27 @@ namespace RHCQS_Services.Implement
 
         //Manager approve bill payment in contract design
         //Bill hóa đơn 
-        public async Task<string> ApproveContractDesin(Guid paymentId, List<IFormFile> bills)
+        public async Task<string> ApproveContractDesign(Guid contractId, List<IFormFile> bills)
         {
-            foreach (var file in bills)
+            //Check list batch payment 
+            var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                predicate: c => c.ContractId == contractId);
+            if (payBatchInfo == null)
             {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+            }
+            int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
+
+            for (int i = 0; i < imageCount; i++)
+            {
+                var file = bills[i];
+
                 if (file == null || file.Length == 0)
                 {
-                    continue;
+                    continue; 
                 }
 
-                var publicId = "Hoa_don_thiet_ke_" + $"{paymentId}" ?? Path.GetFileNameWithoutExtension(file.FileName);
+                var publicId = $"Hoa_don_thiet_ke_{contractId}_{i}"; 
 
                 var uploadParams = new ImageUploadParams()
                 {
@@ -313,7 +324,7 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
                 }
 
-                //Save bill payment in Media table
+                // Tạo mới Media cho mỗi hình ảnh và gán PaymentId tương ứng
                 var mediaInfo = new Medium
                 {
                     Id = Guid.NewGuid(),
@@ -323,72 +334,88 @@ namespace RHCQS_Services.Implement
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
                     SubTemplateId = null,
-                    PaymentId = paymentId
+                    PaymentId = payBatchInfo.ElementAt(i).PaymentId 
                 };
 
                 await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+
+                payBatchInfo.ElementAt(i).Status = AppConstant.PaymentStatus.PAID;
             }
-
-            //Update status payyment
-            var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(x => x.Id == paymentId);
-            //paymentInfo.Status = AppConstant.PaymentStatus.PAID;
-
-            _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
             string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
             return result;
         }
 
-        public async Task<string> ApproveContractContruction(Guid paymentId, List<IFormFile> bills)
+        public async Task<string> ApproveContractContruction(Guid contractId, List<IFormFile> bills)
         {
-            foreach (var file in bills)
+            try
             {
-                if (file == null || file.Length == 0)
+                var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                       predicate: c => c.ContractId == contractId);
+                if (payBatchInfo == null)
                 {
-                    continue;
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
                 }
 
-                var publicId = "Hoa_don_thi_cong_" + $"{paymentId}" ?? Path.GetFileNameWithoutExtension(file.FileName);
+                int imageCount = Math.Min(bills.Count, payBatchInfo.Count);
 
-                var uploadParams = new ImageUploadParams()
+                var payBatchList = payBatchInfo.ToList();
+                for (int i = 0; i < imageCount; i++)
                 {
-                    File = new FileDescription(file.FileName, file.OpenReadStream()),
-                    PublicId = publicId,
-                    Folder = "Contract",
-                    UseFilename = true,
-                    UniqueFilename = false,
-                    Overwrite = true
-                };
+                    var file = bills[i];
 
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (file == null || file.Length == 0)
+                    {
+                        continue; 
+                    }
 
-                if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                    var publicId = $"Hoa_don_thi_cong_{contractId}_{i}"; 
+
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = publicId,
+                        Folder = "Contract",
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                    }
+
+                    // Tạo mới Media cho mỗi hình ảnh và gán PaymentId tương ứng
+                    var mediaInfo = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        HouseDesignVersionId = null,
+                        Name = AppConstant.General.Bill,
+                        Url = uploadResult.Url.ToString(),
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        SubTemplateId = null,
+                        PaymentId = payBatchList[i].PaymentId 
+                    };
+
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+
                 }
 
-                //Save bill payment in Media table
-                var mediaInfo = new Medium
-                {
-                    Id = Guid.NewGuid(),
-                    HouseDesignVersionId = null,
-                    Name = AppConstant.General.Bill,
-                    Url = uploadResult.Url.ToString(),
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
-                    SubTemplateId = null,
-                    PaymentId = paymentId
-                };
+                //Update batch payment status 
+                payBatchInfo.ToList().ForEach(pay => pay.Status = AppConstant.PaymentStatus.PAID);
+                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
 
-                await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+                string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
 
-            //Update status payyment
-            var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(x => x.Id == paymentId);
-            //paymentInfo.Status = AppConstant.PaymentStatus.PAID;
-
-            _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
-            string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
-            return result;
         }
     }
 }
