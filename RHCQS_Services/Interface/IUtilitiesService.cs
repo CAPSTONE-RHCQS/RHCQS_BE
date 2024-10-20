@@ -1,12 +1,6 @@
 ﻿using RHCQS_BusinessObject.Payload.Request.Utility;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static RHCQS_BusinessObject.Payload.Request.Utility.UpdateUtilityRequest;
 
 namespace RHCQS_Services.Interface
 {
@@ -17,6 +11,6 @@ namespace RHCQS_Services.Interface
         Task<UtilityResponse> GetDetailUtilityItem(Guid id);
         Task<UtilitiesSectionResponse> GetDetailUtilitySection(Guid idUtilitySection);
         Task<bool> CreateUtility(UtilityRequest request);
-        Task<bool> UpdateUtility(UpdateRequest request);
+        Task<bool> UpdateUtility(UpdateUtilityRequest request);
     }
 }

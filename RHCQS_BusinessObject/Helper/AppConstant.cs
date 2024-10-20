@@ -256,6 +256,7 @@ public static class AppConstant
 
         //Utility
         public const string Utility_Not_Found = "Không tìm thấy tiện ích!";
+        public const string Utility_Duplicate = "Tên tiện ích đã bị trùng! Hãy đổi tên khác!";
     }
 }
 

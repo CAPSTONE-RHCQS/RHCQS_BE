@@ -7,13 +7,7 @@ using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-using static RHCQS_BusinessObject.Payload.Request.Utility.UpdateUtilityRequest;
+
 
 namespace RHCQS_Services.Implement
 {
@@ -221,7 +215,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<bool> UpdateUtility(UpdateRequest request)
+        public async Task<bool> UpdateUtility(UpdateUtilityRequest request)
         {
             if (request.Utility != null) { 
                 var utility = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(u => u.Id == request.Utility.Id);
@@ -230,22 +224,81 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
                 }
                 var listNameUti = await _unitOfWork.GetRepository<UtilityOption>()
-                                    .GetList(u => u.Name == request.Utility.Name);
+                                  .GetList(predicate: u => u.Name!.ToLower() == request.Utility.Name!.ToLower(),
+                                  selector: u => new UpdateUtilityOptionRequest
+                                  {
+                                      Id = u.Id,
+                                      Name = u.Name
+                                  });
 
-                utility.Name = request.Utility.Name;
+
+                if (listNameUti.Items.Count > 0)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Duplicate);
+                }
+
+                utility.Name = request.Utility.Name ?? utility.Name;
                 utility.UpsDate = DateTime.Now;
+
+                _unitOfWork.GetRepository<UtilityOption> ().UpdateAsync(utility);
 
             }
             if (request.Sections != null)
             {
+                var section = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == request.Sections.Id);
+                if (section == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+                }
+                var listNameSection = await _unitOfWork.GetRepository<UtilitiesSection>()
+                                    .GetList(predicate: u => u.Name!.ToLower() == request.Sections.Name!.ToLower(),
+                                              selector: u => new UpdateUtilityOptionRequest
+                                              {
+                                                  Id = u.Id,
+                                                  Name = u.Name
+                                              });
+                if (listNameSection.Items.Count > 0)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Duplicate);
+                }
 
+                section.Name = request.Sections.Name ?? section.Name;
+                section.Description = request.Sections.Description ?? section.Description;
+                section.UpsDate = DateTime.Now;
+                section.UnitPrice = request.Sections.UnitPrice ?? section.UnitPrice;
+                section.Unit = request.Sections.Unit ?? section.Unit;
+
+                _unitOfWork.GetRepository<UtilitiesSection>().UpdateAsync(section);
             }
 
             if (request.Items != null)
             {
+                var item = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == request.Items.Id);
+                if (item == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+                }
+                var listNameItem = await _unitOfWork.GetRepository<UtilitiesItem>()
+                                    .GetList(predicate: u => u.Name!.ToLower() == request.Items.Name!.ToLower(),
+                                              selector: u => new UpdateUtilityOptionRequest
+                                              {
+                                                  Id = u.Id,
+                                                  Name = u.Name
+                                              });
+                if (listNameItem.Items.Count > 0)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Duplicate);
+                }
 
+                item.Name = request.Items.Name ?? item.Name;
+                item.Coefficient = request.Items.Coefficient ?? item.Coefficient;
+                item.UpsDate = DateTime.Now;
+
+                _unitOfWork.GetRepository<UtilitiesItem>().UpdateAsync(item);
             }
-            return true;
+
+            bool isUpdate = await _unitOfWork.CommitAsync() > 0;
+            return isUpdate;
         }
     }
 }

@@ -138,7 +138,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region
+        #region CreateUtility
         /// <summary>
         /// Creates or updates a utility along with its sections and items.
         /// </summary>
@@ -178,6 +178,55 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> CreateUtility([FromBody] UtilityRequest request)
         {
             var utilityItem = await _utilitiesService.CreateUtility(request);
+            var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
+            return Ok(result);
+        }
+
+        #region UpdateUtility
+        /// <summary>
+        /// Updates an existing utility or creates a new utility along with its associated sections and items.
+        /// </summary>
+        /// <remarks>
+        /// Sample request for creating or updating a utility:
+        /// 
+        ///     POST /api/utility/update
+        ///     {
+        ///       "utility": {
+        ///           "id": "2367DEC1-E649-4549-B81B-701F2DBC1A7B", 
+        ///           "name": "5 - Giấy phép",
+        ///           "type": "string"
+        ///       },
+        ///       "sections": null,
+        ///       "items": null
+        ///     }
+        ///
+        /// Another example when sections and items are not included:
+        /// 
+        ///     POST /api/utility/update
+        ///     {
+        ///       "utility":null,
+        ///       "sections": {
+        ///         "id": "D7F9C599-0BC4-46D8-8A2B-E288EFB98D68",
+        ///         "name": "Combo thi công thô Test",
+        ///         "description": null,
+        ///         "unitPrice": 81000000,
+        ///         "unit": "VNĐ"
+        ///       },
+        ///       "items":null
+        ///     }
+        /// </remarks>
+        /// <param name="request">The request body containing the details of the utility, sections, and items.</param>
+        /// <returns>A JSON response with the details of the created or updated utility.</returns>
+        /// <response code="200">Returns the created or updated utility details.</response>
+        /// <response code="400">If the request is invalid.</response>
+        #endregion
+        //[Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Utility.UtilityEndpoint)]
+        [ProducesResponseType(typeof(UpdateUtilityRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateUtility([FromBody] UpdateUtilityRequest request)
+        {
+            var utilityItem = await _utilitiesService.UpdateUtility(request);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
             return Ok(result);
         }
