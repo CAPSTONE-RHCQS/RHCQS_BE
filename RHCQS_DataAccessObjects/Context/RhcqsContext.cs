@@ -741,8 +741,7 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.UtilitiesItem).WithMany(p => p.QuotationUtilities)
                 .HasForeignKey(d => d.UtilitiesItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuoationUltities_UltilitiesItem");
+                .HasConstraintName("FK_QuotationUtilities_UtilitiesItem");
         });
 
         modelBuilder.Entity<Role>(entity =>
