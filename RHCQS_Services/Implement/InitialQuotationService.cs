@@ -87,6 +87,7 @@ namespace RHCQS_Services.Implement
                             item.SubConstructionId.HasValue ?
                               item.ConstructionItem?.SubConstructionItems
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
+                            item.SubConstructionId,
                             item.Area,
                             item.Price,
                             item.UnitPrice,
@@ -192,6 +193,7 @@ namespace RHCQS_Services.Implement
                             item.SubConstructionId.HasValue ?
                               item.ConstructionItem?.SubConstructionItems
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
+                            item.SubConstructionId,
                             item.Area,
                             item.Price,
                             item.UnitPrice,

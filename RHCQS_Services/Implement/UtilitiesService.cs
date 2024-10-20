@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using static RHCQS_BusinessObject.Payload.Request.Utility.UpdateUtilityRequest;
 
 namespace RHCQS_Services.Implement
 {
@@ -218,6 +219,33 @@ namespace RHCQS_Services.Implement
                 Console.WriteLine("Error: " + ex.Message);
                 return false;
             }
+        }
+
+        public async Task<bool> UpdateUtility(UpdateRequest request)
+        {
+            if (request.Utility != null) { 
+                var utility = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(u => u.Id == request.Utility.Id);
+                if (utility == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+                }
+                var listNameUti = await _unitOfWork.GetRepository<UtilityOption>()
+                                    .GetList(u => u.Name == request.Utility.Name);
+
+                utility.Name = request.Utility.Name;
+                utility.UpsDate = DateTime.Now;
+
+            }
+            if (request.Sections != null)
+            {
+
+            }
+
+            if (request.Items != null)
+            {
+
+            }
+            return true;
         }
     }
 }

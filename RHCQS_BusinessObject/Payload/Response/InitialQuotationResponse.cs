@@ -86,12 +86,14 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class InitialQuotationItemResponse
     {
-        public InitialQuotationItemResponse(Guid id, string? name, string? subConstruction, double? area, double? price,
+        public InitialQuotationItemResponse(Guid id, string? name, string? subConstruction, Guid? subConstructionId, double? area,
+            double? price,
             string? unitPrice, double? subCoefficient, double? coefficient)
         {
             Id = id;
             Name = name;
             SubConstruction = subConstruction;
+            SubConstructionId = subConstructionId;
             Area = area;
             Price = price;
             UnitPrice = unitPrice;
@@ -103,6 +105,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Name { get; set; }
 
         public string? SubConstruction { get; set; }
+        public Guid? SubConstructionId { get; set; }
 
         public double? Area { get; set; }
 
@@ -110,7 +113,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? UnitPrice { get; set; }
 
-        public double? SubCoefficient {  get; set; }
+        public double? SubCoefficient { get; set; }
 
         public double? Coefficient { get; set; }
     }
@@ -135,7 +138,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid IdPackageFinished { get; set; }
         public string PackageFinished { get; set; }
         public double UnitPackageFinished { get; set; }
-        public string Unit {  get; set; }
+        public string Unit { get; set; }
     }
 
     public class PromotionInfo
@@ -169,7 +172,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class BatchPaymentInfo
     {
-        public BatchPaymentInfo(Guid id,  string? description, string? percents, double? price, 
+        public BatchPaymentInfo(Guid id, string? description, string? percents, double? price,
             string? unit, string? status, DateTime? paymentDate, DateTime? paymentPhase)
         {
             PaymentId = id;

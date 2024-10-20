@@ -253,6 +253,9 @@ public static class AppConstant
         public const string Type_Not_Found = "Không tìm thấy kiểu hợp đồng!";
         //Blog
         public const string Not_Found_Blog = "Bài đăng này không tìm thấy!";
+
+        //Utility
+        public const string Utility_Not_Found = "Không tìm thấy tiện ích!";
     }
 }
 
