@@ -8,9 +8,11 @@ namespace RHCQS_Services.Interface
     {
         Task<IPaginate<UtilityResponse>> GetListUtilities(int page, int size);
         Task<List<UtilityResponse>> GetListUtilitiesByType(string type);
+        Task<UtilitiesSectionResponse> SearchUtilityItem(string name);
         Task<UtilityResponse> GetDetailUtilityItem(Guid id);
         Task<UtilitiesSectionResponse> GetDetailUtilitySection(Guid idUtilitySection);
         Task<bool> CreateUtility(UtilityRequest request);
         Task<bool> UpdateUtility(UpdateUtilityRequest request);
+        Task<string> BanUtility(Guid utilityId);
     }
 }

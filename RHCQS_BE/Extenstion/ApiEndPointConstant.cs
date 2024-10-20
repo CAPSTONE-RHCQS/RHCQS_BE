@@ -96,7 +96,11 @@ namespace RHCQS_BE.Extenstion
             public const string UtilityDetaidEndpoint = UtilityEndpoint + "/id";
             public const string UtilityByTypeEndpoint = UtilityEndpoint + "/type";
             public const string UtilitySectionEndpoint = UtilityEndpoint + "/section";
+            public const string UtilitySectionSearchEndpoint = UtilitySectionEndpoint + "/search";
             public const string UtilitySectionDEndpoint = UtilitySectionEndpoint + "/id";
+            public const string UtilityItemHiddenEndpoint = UtilityEndpoint + "/hidden/id";
+            public const string UtilityItemEndpoint = UtilityEndpoint + "/item";
+            public const string UtilityItemSearchEndpoint = UtilityItemEndpoint + "/search/name";
         }
 
         public static class HouseDesignDrawing

@@ -117,6 +117,35 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region SearchUtilityItem
+        /// <summary>
+        /// Search for a utility section by name.
+        /// </summary>
+        /// <remarks>
+        /// This API allows users with roles "Customer", "SalesStaff", or "Manager" to search for a utility section by name.
+        /// It returns a utility section along with its associated utility items. If no utility section is found, an error will be thrown.
+        /// </remarks>
+        /// <param name="name">The name of the utility section to search for.</param>
+        /// <response code="200">Returns the utility section and associated utility items.</response>
+        /// <response code="400">Bad Request. The search term is invalid.</response>
+        /// <response code="404">Not Found. No utility section with the given name was found.</response>
+        /// <returns>A utility section object with associated utility items.</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Utility.UtilitySectionSearchEndpoint)]
+        [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchUtilityItem(string name)
+        {
+            var utilityItem = await _utilitiesService.SearchUtilityItem(name);
+            var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetDetailUtilitySection
         /// <summary>
         /// Retrieves the utility section item.
@@ -220,13 +249,40 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns the created or updated utility details.</response>
         /// <response code="400">If the request is invalid.</response>
         #endregion
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.Utility.UtilityEndpoint)]
         [ProducesResponseType(typeof(UpdateUtilityRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateUtility([FromBody] UpdateUtilityRequest request)
         {
             var utilityItem = await _utilitiesService.UpdateUtility(request);
+            var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
+            return Ok(result);
+        }
+
+        #region BanUtility
+        /// <summary>
+        /// Toggle visibility hidden of a utility item.
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <remarks>
+        /// Change Deflag true -> false. Others, false -> true
+        /// This API allows a Manager to toggle the visibility of a utility item by banning (hiding) or unbanning (showing) it. 
+        /// If the utility is hidden, it will become visible, and vice versa.
+        /// </remarks>
+        /// <param name="utilityId">The unique identifier of the utility item to be toggled.</param>
+        /// <response code="200">Success. The utility item's visibility has been toggled.</response>
+        /// <response code="400">Bad Request. The request is invalid, or the utility ID provided is incorrect.</response>
+        /// <returns>The updated utility item information, including the current visibility status.</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Utility.UtilityItemHiddenEndpoint)]
+        [ProducesResponseType(typeof(UpdateUtilityRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BanUtility(Guid utilityId)
+        {
+            var utilityItem = await _utilitiesService.BanUtility(utilityId);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
             return Ok(result);
         }

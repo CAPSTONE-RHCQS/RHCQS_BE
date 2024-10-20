@@ -79,6 +79,40 @@ namespace RHCQS_Services.Implement
            
         }
 
+        public async Task<UtilitiesSectionResponse> SearchUtilityItem(string name)
+        {
+            var utiSection = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(
+                predicate: con => con.Name!.ToUpper() == name.ToUpper(),
+                include: con => con.Include(con => con.UtilitiesItems)
+            );
+
+            if (utiSection == null)
+            {
+                throw new AppConstant.MessageError((int) AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+                
+            }
+
+            var utilityItemsResponse = utiSection.UtilitiesItems.Select(item =>
+                                     new UtilityItemResponse(
+                                         item.Id,
+                                         item.Name,
+                                         item.Coefficient,
+                                         item.InsDate,
+                                         item.UpsDate
+                                     )
+                                 ).ToList();
+
+            return new UtilitiesSectionResponse(
+                utiSection.Id,
+                utiSection.Name,
+                utiSection.Deflag,
+                utiSection.InsDate,
+                utiSection.UpsDate,
+                utiSection.Description,
+                utilityItemsResponse 
+            );
+        }
+
         public async Task<UtilityResponse> GetDetailUtilityItem(Guid id)
         {
             var utiItem = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(
@@ -299,6 +333,22 @@ namespace RHCQS_Services.Implement
 
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;
             return isUpdate;
+        }
+
+        public async Task<string> BanUtility(Guid utilityId)
+        {
+            var utilityInfo = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utilityId);
+
+            if (utilityInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+            }
+            utilityInfo.Deflag = !utilityInfo.Deflag;
+
+            _unitOfWork.GetRepository<UtilitiesItem>().UpdateAsync(utilityInfo);
+
+            var save = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Fail_Save;
+            return save;
         }
     }
 }
