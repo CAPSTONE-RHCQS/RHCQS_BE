@@ -12,10 +12,6 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string Name { get; set; } = null!;
 
-        public double? Coefiicient { get; set; }
-
         public double? Price { get; set; }
-
-        public string? Description { get; set; }
     }
 }

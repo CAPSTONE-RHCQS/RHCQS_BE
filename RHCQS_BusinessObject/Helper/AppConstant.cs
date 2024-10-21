@@ -186,6 +186,7 @@ public static class AppConstant
         public const string FailedToGetList = "Lấy danh sách account thất bại!";
         public const string BanAccount = "Ban tài khoản thất bại!";
         public const string UpdateAccount = "Cập nhật tài khoản thất bại!";
+        public const string Invalid_Customer = "Khách hàng không tồn tại trong hệ thống!";
 
         //HouseTemplate
         public const string Not_Found_HouseTemplate = "Không tìm thấy mẫu nhà!";
