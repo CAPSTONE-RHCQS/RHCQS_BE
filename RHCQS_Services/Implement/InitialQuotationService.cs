@@ -259,6 +259,21 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+        public async Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotationByProjectId(int page, int size, Guid projectId)
+        {
+            var listInitial = await _unitOfWork.GetRepository<InitialQuotation>().GetList(
+                predicate: x => x.ProjectId == projectId,
+                selector: x => new InitialQuotationListResponse(x.Id, x.Project.Customer!.Username!, x.Version, x.Area, x.Status),
+                include: x => x.Include(x => x.Project)
+                               .ThenInclude(x => x.Customer!),
+                orderBy: x => x.OrderBy(x => x.Version),
+                page: page,
+                size: size
+            );
+
+            return listInitial;
+        }
+
         public async Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
         {
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
@@ -603,8 +618,6 @@ namespace RHCQS_Services.Implement
 
             return sb.ToString();
         }
-
-
 
         public async Task<bool> UpdateInitialQuotation(UpdateInitialRequest request)
         {
