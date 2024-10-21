@@ -168,59 +168,40 @@ namespace RHCQS_BE.Controllers
         /// ```json
         /// POST /api/v1/project
         /// {
-        ///     "customerId": "1E6FA320-6945-4B76-8426-AD6DFDB1AD74",
-        ///     "name": "Báo giá sơ bộ - TP.Thủ Đức",
-        ///     "type": "ALL",
-        ///     "address": "382 D2, Phường Tân Phú, TP.Thủ Đức",
-        ///     "area": 125,
-        ///     "packageQuotations": [
-        ///         {
-        ///             "packageId": "59F5FD78-B895-4D60-934A-4727C219B2D9",
-        ///             "type": "ROUGH"
-        ///         },
-        ///         {
-        ///             "packageId": "0BFB83DD-04AF-4F8C-A6D0-2CD8EE1FF0F5",
-        ///             "type": "FINISHED"
-        ///         }
-        ///     ],
-        ///     "initialQuotation": {
-        ///         "accountId": "D63A2A80-CDEA-46DF-8419-E5C70A7632EE",
-        ///         "promotionId": "00000000-0000-0000-0000-000000000000",
-        ///         "packageId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        ///         "initialQuotationItemRequests": [
-        ///             {
-        ///                 "name": null,
-        ///                 "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",
-        ///                 "subConstructionId": "06FF2D3D-2F14-4ACC-BA2E-0C4EE659CA81",
-        ///                 "area": 49.5,
-        ///                 "price": 66330000.0
-        ///             },
-        ///             {
-        ///                 "name": null,
-        ///                 "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
-        ///                 "subConstructionId": "06FF2D3D-2F14-4ACC-BA2E-0C4EE659CA81",
-        ///                 "area": 99,
-        ///                 "price": 331650000.0
-        ///             },
-        ///             {
-        ///                 "name": null,
-        ///                 "constructionItemId": "BD101AF5-AC48-43BA-A474-957A20A933BD",
-        ///                 "subConstructionId": "7E442652-EEFC-43B7-918B-A264A10E679D",
-        ///                 "area": 49.5,
-        ///                 "price": 66330000.0
-        ///             }
-        ///         ]
-        ///     },
-        ///     "quotationUtilitiesRequest": [
-        ///         {
-        ///             "ultilitiesItemId": "2EC103AA-AA83-4D58-9E85-22A6247F4CD6",
-        ///             "name": "Sàn từ 30m2 ~ 40m2",
-        ///             "coefficient": 0.05,
-        ///             "price": 110617000,
-        ///             "description": "Sàn từ 30m2 ~ 40m2"
-        ///         }
-        ///     ]
-        /// }
+        ///    "customerId": "08B10FF5-E37D-40BF-947C-80CBF78FA411",
+        ///    "name": "Test 1 báo giá",
+        ///    "type": "ALL",
+        ///    "address": "Vĩnh thuận, Long bình, Thủ đức",
+        ///    "area": 123,
+        ///    "packageQuotations": [
+        ///        {
+        ///            "packageId": "aa5057d8-9b30-4f17-a8ee-7aad655b63cc",
+        ///            "type": "ROUGH"
+        ///        },
+        ///        {
+        ///            "packageId": "abeeddf8-487d-4dea-afb9-173b3feb0338",
+        ///            "type": "FINISHED"
+        ///        }
+        ///    ],
+        ///    "initialQuotation": {
+        ///    "promotionId": null,
+        ///        "initialQuotationItemRequests": [
+        ///            {
+        ///        "constructionItemId": "a6ce35ee-d19c-40ac-8044-cbecdb54f8d9",
+        ///                "subConstructionId": "40a79928-c9bb-4338-a8fb-0b0e9389e40e",
+        ///                "area": 123,
+        ///                "price": 56160000
+        ///            }
+        ///        ]
+        ///    },
+        ///    "quotationUtilitiesRequest": [
+        ///        {
+        ///            "ultilitiesItemId": "0A76055D-3AA0-41BF-868F-637EF0C7B19B",
+        ///            "name": "Chi phí thi công trình hẻm nhỏ",
+        ///            "price": 1684800
+        ///        }
+        ///    ]
+        ///}
         /// ```
         /// </remarks>
         /// <param name="request">The request model for creating a project</param>
