@@ -74,6 +74,29 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetListInitialQuotationByProjectId
+        /// <summary>
+        /// Return list initial quotation by projectId
+        /// 
+        /// Role: SALES STAFF - MANAGER - CUSTOMER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationProjectEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListInitialQuotationByProjectId(int page, int size, Guid projectId)
+        {
+            var list = await _initialService.GetListInitialQuotationByProjectId(page, size, projectId);
+            if (list == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_InitialQuotaion });
+            var result = JsonConvert.SerializeObject(list, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetDetailInitialQuotation
         /// <summary>
         /// Retrieves the details of a specific initial quotation by its ID.
@@ -428,7 +451,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">Returns if the specified quotation was not found.</response>
         #endregion
         [Authorize(Roles = "SalesStaff")]
-        [HttpPost(ApiEndPointConstant.InitialQuotation.InitialQuotationUpdateEndpoibt)]
+        [HttpPost(ApiEndPointConstant.InitialQuotation.InitialQuotationUpdateEndpoint)]
         [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateInitialQuotation([FromBody] UpdateInitialRequest request)

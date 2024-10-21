@@ -128,7 +128,8 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationDetailByCustomerEndpoint = InitialQuotationEndpoint + "/customer/name";
             public const string AssignInitialQuotationEndpoint = InitialQuotationEndpoint + "/assign";
             public const string ApproveInitialEndpoint = InitialQuotationEndpoint + "/approve";
-            public const string InitialQuotationUpdateEndpoibt = InitialQuotationEndpoint + "/update";
+            public const string InitialQuotationUpdateEndpoint = InitialQuotationEndpoint + "/update";
+            public const string InitialQuotationProjectEndpoint = InitialQuotationEndpoint + "/list";
         }
         public static class FinalQuotation
         {

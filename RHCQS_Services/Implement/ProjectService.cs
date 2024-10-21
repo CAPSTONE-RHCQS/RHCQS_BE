@@ -78,6 +78,7 @@ namespace RHCQS_Services.Implement
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 
             var initialItem = projectItem.InitialQuotations?
+                                        .Where(i => i.Version > 0)
                                         .Select(i => new InitialInfo
                                         {
                                             Id = i.Id,
@@ -180,6 +181,7 @@ namespace RHCQS_Services.Implement
 
             return projectPaginate.Items.ToList();
         }
+
 
         public async Task<bool> CreateProjectQuotation(ProjectRequest projectRequest)
         {
