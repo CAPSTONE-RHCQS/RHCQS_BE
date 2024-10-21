@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RHCQS_DataAccessObjects.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -101,5 +102,68 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         [Range(0, double.MaxValue, ErrorMessage = "Tổng giá hoàn thiện phải là một số dương.")]
         public double? TotalPriceFinished { get; set; }
+
+        [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
+        public List<QuotationSectionRequest> QuotationSection { get; set; }
+    }
+    public class QuotationSectionRequest
+    {
+        public Guid PackageId { get; set; }
+
+        public string? Name { get; set; }
+
+        public string? Status { get; set; }
+
+        public string? Type { get; set; }
+
+        public string? Note { get; set; }
+
+        public int? ContractionTime { get; set; }
+
+        public List<QuotationItemRequest> QuotationItems { get; set; }
+    }
+    public class QuotationItemRequest
+    {
+        public string? ProjectComponent { get; set; }
+
+        public double? Area { get; set; }
+
+        public string? Unit { get; set; }
+
+        public double? Coefficient { get; set; }
+
+        public double? Weight { get; set; }
+
+        public double? LaborCost { get; set; }
+
+        public double? MaterialPrice { get; set; }
+
+        public List<QuotationLaborRequest> QuotationLabors { get; set; }
+
+        public List<QuotationMaterialRequest> QuotationMaterials { get; set; }
+
+    }
+    public class QuotationLaborRequest
+    {
+        [Required(ErrorMessage = "LaborId là bắt buộc.")]
+        public Guid LaborId { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị lao động phải là một số dương.")]
+        public double? LaborPrice { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
+        public int? Quantity { get; set; }
+
+    }
+    public class QuotationMaterialRequest
+    {
+        [Required(ErrorMessage = "MaterialId là bắt buộc.")]
+        public Guid MaterialId { get; set; }
+        [Required(ErrorMessage = "Đơn vị là bắt buộc.")]
+        public string? Unit { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị vật liệu phải là một số dương.")]
+        public double? MaterialPrice { get; set; }
+        [Range(0, double.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
+        public int? Quantity { get; set; }
+
     }
 }

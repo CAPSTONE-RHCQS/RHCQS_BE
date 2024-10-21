@@ -60,8 +60,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? ProjectType { get; set; }
         public string? ProjectAddress { get; set; }
 
-        public Guid? PromotionId { get; set; }
-
         public double? TotalPrice { get; set; }
 
         public string? Note { get; set; }
@@ -160,9 +158,9 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, string? name, string? type, string? unit, string? weight,
-            double? unitPriceLabor, double? unitPriceRough, double? unitPriceFinished, double? totalPriceLabor,
-            double? totalPriceRough, double? totalPriceFinished, DateTime? insDate)
+        public FinalQuotationItemResponse(Guid id, string? name, string? type, string? unit, string? weight, double? unitPriceLabor,
+            double? unitPriceRough, double? unitPriceFinished, double? totalPriceLabor, double? totalPriceRough,
+            double? totalPriceFinished, DateTime? insDate, List<QuotationSectionResponse> quotationSections)
         {
             Id = id;
             Name = name;
@@ -176,6 +174,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             TotalPriceRough = totalPriceRough;
             TotalPriceFinished = totalPriceFinished;
             InsDate = insDate;
+            QuotationSections = quotationSections;
         }
 
         public Guid Id { get; set; }
@@ -201,6 +200,130 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalPriceFinished { get; set; }
 
         public DateTime? InsDate { get; set; }
+
+        public  List<QuotationSectionResponse> QuotationSections { get; set; }
+    }
+    public class QuotationSectionResponse
+    {
+        public QuotationSectionResponse(Guid id, string packageName, string? sectionName, DateTime? insDate, DateTime? upsDate,
+            string? status, string? type, string? note, int? contractionTime, List<QuotationItemResponse> quotationItems)
+        {
+            Id = id;
+            PackageName = packageName;
+            SectionName = sectionName;
+            InsDate = insDate;
+            UpsDate = upsDate;
+            Status = status;
+            Type = type;
+            Note = note;
+            ContractionTime = contractionTime;
+            QuotationItems = quotationItems;
+        }
+
+        public Guid Id { get; set; }
+
+        public string PackageName { get; set; }
+
+        public string? SectionName { get; set; }
+
+        public DateTime? InsDate { get; set; }
+
+        public DateTime? UpsDate { get; set; }
+
+        public string? Status { get; set; }
+
+        public string? Type { get; set; }
+
+        public string? Note { get; set; }
+
+        public int? ContractionTime { get; set; }
+
+        public List<QuotationItemResponse> QuotationItems { get; set; }
+    }
+    public class QuotationItemResponse
+    {
+        public QuotationItemResponse(Guid id, string? projectComponent, double? area, string? unit, double? coefficient,
+            double? weight, double? laborCost, double? materialPrice, DateTime? insDate, DateTime? upsDate
+            , List<QuotationLaborResponse> quotationLabors, List<QuotationMaterialResponse> quotationMaterials)
+        {
+            Id = id;
+            ProjectComponent = projectComponent;
+            Area = area;
+            Unit = unit;
+            Coefficient = coefficient;
+            Weight = weight;
+            LaborCost = laborCost;
+            MaterialPrice = materialPrice;
+            InsDate = insDate;
+            UpsDate = upsDate;
+            QuotationLabors = quotationLabors;
+            QuotationMaterials = quotationMaterials;
+        }
+
+        public Guid Id { get; set; }
+
+        public string? ProjectComponent { get; set; }
+
+        public double? Area { get; set; }
+
+        public string? Unit { get; set; }
+
+        public double? Coefficient { get; set; }
+
+        public double? Weight { get; set; }
+
+        public double? LaborCost { get; set; }
+
+        public double? MaterialPrice { get; set; }
+
+        public DateTime? InsDate { get; set; }
+
+        public DateTime? UpsDate { get; set; }
+
+        public List<QuotationLaborResponse> QuotationLabors { get; set; } 
+
+        public List<QuotationMaterialResponse> QuotationMaterials { get; set; }
+    }
+    public class QuotationLaborResponse
+    {
+        public QuotationLaborResponse(Guid id, string? laborName, double? laborPrice, int? quantity)
+        {
+            Id = id;
+            LaborName = laborName;
+            LaborPrice = laborPrice;
+            Quantity = quantity;
+        }
+
+        public Guid Id { get; set; }
+
+        public string? LaborName { get; set; }
+
+        public double? LaborPrice { get; set; }
+
+        public int? Quantity { get; set; }
+
+    }
+    public class QuotationMaterialResponse
+    {
+        public QuotationMaterialResponse(Guid id, string? materialName, string? unit, double? materialPrice, int? quantity)
+        {
+            Id = id;
+            MaterialName = materialName;
+            Unit = unit;
+            MaterialPrice = materialPrice;
+            Quantity = quantity;
+        }
+
+        public Guid Id { get; set; }
+
+        public string? MaterialName { get; set; }
+
+        public string? Unit { get; set; }
+
+        public double? MaterialPrice { get; set; }
+
+        public int? Quantity { get; set; }
+
     }
     public class UtilityInf
     {

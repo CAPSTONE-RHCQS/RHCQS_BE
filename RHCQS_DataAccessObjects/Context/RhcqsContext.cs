@@ -720,6 +720,10 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
+            entity.HasOne(d => d.FinalQuotationItem).WithMany(p => p.QuotationSections)
+                .HasForeignKey(d => d.FinalQuotationItemId)
+                .HasConstraintName("QuotationSection_FinalQuotationItem_FK");
+
             entity.HasOne(d => d.Package).WithMany(p => p.QuotationSections)
                 .HasForeignKey(d => d.PackageId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

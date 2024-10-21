@@ -34,4 +34,6 @@ public partial class FinalQuotationItem
     public virtual ConstructionItem ConstructionItem { get; set; } = null!;
 
     public virtual FinalQuotation FinalQuotation { get; set; } = null!;
+
+    public virtual ICollection<QuotationSection> QuotationSections { get; set; } = new List<QuotationSection>();
 }
