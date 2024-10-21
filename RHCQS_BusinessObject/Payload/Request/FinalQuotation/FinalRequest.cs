@@ -23,6 +23,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public string? Status { get; set; }
 
+        [Required(ErrorMessage = "Danh sách các đợt thanh toán là bắt buộc.")]
         public List<BatchPaymentInfoRequest> BatchPaymentInfos { get; set; }
 
         [Required(ErrorMessage = "Danh sách các thiết bị là bắt buộc.")]
@@ -39,6 +40,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         [Required(ErrorMessage = "PaymentTypeId là bắt buộc.")]
         public Guid PaymentTypeId { get; set; }
+
+        [Required(ErrorMessage = "ContractId là bắt buộc.")]
         public Guid ContractId { get; set; }
 
         [Required(ErrorMessage = "Giá là bắt buộc.")]
@@ -48,6 +51,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public string? Percents { get; set; }
 
         public string? Description { get; set; }
+
         public string? Status { get; set; }
     }
 
@@ -103,13 +107,16 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Tổng giá hoàn thiện phải là một số dương.")]
         public double? TotalPriceFinished { get; set; }
 
-        [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
+        [Required(ErrorMessage = "Danh sách các phần báo giá là bắt buộc.")]
         public List<QuotationSectionRequest> QuotationSection { get; set; }
     }
+
     public class QuotationSectionRequest
     {
+        [Required(ErrorMessage = "PackageId là bắt buộc.")]
         public Guid PackageId { get; set; }
 
+        [Required(ErrorMessage = "Tên là bắt buộc.")]
         public string? Name { get; set; }
 
         public string? Status { get; set; }
@@ -118,52 +125,66 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public string? Note { get; set; }
 
+        [Range(1, int.MaxValue, ErrorMessage = "Thời gian co lại phải lớn hơn 0.")]
         public int? ContractionTime { get; set; }
 
+        [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
         public List<QuotationItemRequest> QuotationItems { get; set; }
     }
+
     public class QuotationItemRequest
     {
         public string? ProjectComponent { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Diện tích phải là một số dương.")]
         public double? Area { get; set; }
 
+        [Required(ErrorMessage = "Đơn vị là bắt buộc.")]
         public string? Unit { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
         public double? Coefficient { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Trọng lượng phải là một số dương.")]
         public double? Weight { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Chi phí lao động phải là một số dương.")]
         public double? LaborCost { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Giá vật liệu phải là một số dương.")]
         public double? MaterialPrice { get; set; }
 
+        [Required(ErrorMessage = "Danh sách lao động là bắt buộc.")]
         public List<QuotationLaborRequest> QuotationLabors { get; set; }
 
+        [Required(ErrorMessage = "Danh sách vật liệu là bắt buộc.")]
         public List<QuotationMaterialRequest> QuotationMaterials { get; set; }
-
     }
+
     public class QuotationLaborRequest
     {
         [Required(ErrorMessage = "LaborId là bắt buộc.")]
         public Guid LaborId { get; set; }
-        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị lao động phải là một số dương.")]
+
+        [Range(0, double.MaxValue, ErrorMessage = "Giá lao động phải là một số dương.")]
         public double? LaborPrice { get; set; }
+
         [Range(0, double.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
         public int? Quantity { get; set; }
-
     }
+
     public class QuotationMaterialRequest
     {
         [Required(ErrorMessage = "MaterialId là bắt buộc.")]
         public Guid MaterialId { get; set; }
+
         [Required(ErrorMessage = "Đơn vị là bắt buộc.")]
         public string? Unit { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị vật liệu phải là một số dương.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Giá vật liệu phải là một số dương.")]
         public double? MaterialPrice { get; set; }
+
         [Range(0, double.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
         public int? Quantity { get; set; }
-
     }
 }
