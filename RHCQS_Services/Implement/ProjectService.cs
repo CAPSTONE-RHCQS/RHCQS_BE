@@ -185,10 +185,15 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                var customerInfo = await _unitOfWork.GetRepository<Customer>().FirstOrDefaultAsync(x => x.AccountId == projectRequest.CustomerId);
+                if (customerInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Customer);
+                }
                 var projectItem = new Project
                 {
                     Id = Guid.NewGuid(),
-                    CustomerId = projectRequest.CustomerId,
+                    CustomerId = customerInfo.Id,
                     Name = "Báo giá sơ bộ " + DateTime.Now,
                     Type = projectRequest.Type,
                     Status = AppConstant.ProjectStatus.PROCESSING,
@@ -253,19 +258,50 @@ namespace RHCQS_Services.Implement
 
                 foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
                 {
-                    var utlItem = new QuotationUtility
+                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UltilitiesItemId);
+                    Guid? sectionId = null;
+                    QuotationUtility utlItem;
+                    //UtilityItem - null => utl.UtilitiesItem = SectionId
+                    //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
+                    if (utilityItem == null)
                     {
-                        Id = Guid.NewGuid(),
-                        UtilitiesItemId = utl.UltilitiesItemId,
-                        FinalQuotationId = null,
-                        InitialQuotationId = initialItem.Id,
-                        Name = "",
-                        Coefiicient = utl.Coefiicient,
-                        Price = utl.Price,
-                        Description = utl.Description,
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now,
-                    };
+                        sectionId = utl.UltilitiesItemId;
+                        var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
+                        utlItem = new QuotationUtility
+                        {
+                            Id = Guid.NewGuid(),
+                            UtilitiesItemId = null,
+                            FinalQuotationId = null,
+                            InitialQuotationId = initialItem.Id,
+                            Name = "",
+                            Coefiicient = utilityItem.Coefficient,
+                            Price = utl.Price,
+                            Description = sectionItem.Description,
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                            UtilitiesSectionId = sectionItem.Id
+                        };
+                    }
+                    else
+                    {
+                        sectionId = utilityItem.SectionId;
+                        utl.UltilitiesItemId = utilityItem.Id;
+                        utlItem = new QuotationUtility
+                        {
+                            Id = Guid.NewGuid(),
+                            UtilitiesItemId = utilityItem.Id,
+                            FinalQuotationId = null,
+                            InitialQuotationId = initialItem.Id,
+                            Name = "",
+                            Coefiicient = utilityItem.Coefficient,
+                            Price = utl.Price,
+                            Description = null,
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                            UtilitiesSectionId = utilityItem.SectionId
+                        };
+                    }
+                    
                     await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                 }
 

@@ -17,8 +17,8 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
     }
     public class InitialQuotationRequest
     {
-        [Required(ErrorMessage = "AccountId là bắt buộc.")]
-        public Guid AccountId { get; set; }
+        //[Required(ErrorMessage = "AccountId là bắt buộc.")]
+        //public Guid AccountId { get; set; }
 
         public Guid? PromotionId { get; set; }
 
