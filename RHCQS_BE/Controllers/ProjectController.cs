@@ -230,7 +230,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Project created successfully</response>
         /// <response code="400">Failed to create the project due to validation errors</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff")]
+        [Authorize(Roles = "Customer, SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
