@@ -469,6 +469,10 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.HouseDesignVersionId)
                 .HasConstraintName("FK_Media_HouseDesignVersion");
 
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.Media)
+                .HasForeignKey(d => d.InitialQuotationId)
+                .HasConstraintName("FK_Media_InitialQuotation");
+
             entity.HasOne(d => d.Payment).WithMany(p => p.Media)
                 .HasForeignKey(d => d.PaymentId)
                 .HasConstraintName("FK_Media_Payment");

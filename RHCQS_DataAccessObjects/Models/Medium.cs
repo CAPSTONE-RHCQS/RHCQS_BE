@@ -23,9 +23,13 @@ public partial class Medium
 
     public Guid? DesignTemplateId { get; set; }
 
+    public Guid? InitialQuotationId { get; set; }
+
     public virtual DesignTemplate? DesignTemplate { get; set; }
 
     public virtual HouseDesignVersion? HouseDesignVersion { get; set; }
+
+    public virtual InitialQuotation? InitialQuotation { get; set; }
 
     public virtual Payment? Payment { get; set; }
 

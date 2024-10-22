@@ -363,20 +363,27 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
-        public async Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotationByProjectId(int page, int size, Guid projectId)
+        public async Task<List<InitialQuotationAppResponse>> GetListInitialQuotationByProjectId(Guid projectId)
         {
-            var listInitial = await _unitOfWork.GetRepository<InitialQuotation>().GetList(
-                predicate: x => x.ProjectId == projectId,
-                selector: x => new InitialQuotationListResponse(x.Id, x.Project.Customer!.Username!, x.Version, x.Area, x.Status),
-                include: x => x.Include(x => x.Project)
-                               .ThenInclude(x => x.Customer!),
-                orderBy: x => x.OrderBy(x => x.Version),
-                page: page,
-                size: size
-            );
+            var paginatedList = await _unitOfWork.GetRepository<InitialQuotation>()
+                .GetList(
+                    predicate: x => x.ProjectId == projectId,
+                    selector: x => new InitialQuotationAppResponse(
+                        x.Id,
+                        x.Version,
+                         x.Media != null && x.Media.Any() ? x.Media.First().Url : string.Empty
+                    ),
+                    include: x => x.Include(x => x.Project)
+                                   .ThenInclude(x => x.Customer!)
+                                   .Include(x => x.Media),
+                    orderBy: x => x.OrderBy(x => x.Version)
+                );
 
-            return listInitial;
+
+            return paginatedList.Items.ToList(); 
         }
+
+
 
         public async Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
         {
@@ -434,6 +441,21 @@ namespace RHCQS_Services.Implement
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
                         }
+
+                        var mediaInfo = new Medium
+                        {
+                            Id = Guid.NewGuid(),
+                            HouseDesignVersionId = null,
+                            Name = AppConstant.General.Initial,
+                            Url = uploadResult.Url.ToString(),
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                            SubTemplateId = null,
+                            PaymentId = null,
+                            InitialQuotationId = initialItem.Id
+                        };
+
+                        await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
 
                         return uploadResult.SecureUrl.ToString();
                     }

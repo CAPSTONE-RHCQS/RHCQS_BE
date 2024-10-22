@@ -45,6 +45,8 @@ public partial class InitialQuotation
 
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
 
+    public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
+
     public virtual ICollection<PackageQuotation> PackageQuotations { get; set; } = new List<PackageQuotation>();
 
     public virtual Project Project { get; set; } = null!;

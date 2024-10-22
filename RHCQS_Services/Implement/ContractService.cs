@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Contract;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.App;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -416,6 +417,25 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
 
+        }
+
+        public async Task<ContractAppResponse> GetListContractApp(Guid projectId, string type)
+        {
+            string typeQuery = null;
+            if (type == AppConstant.ContractType.Design.ToString())
+            {
+                typeQuery = AppConstant.ContractType.Design.ToString();
+            }
+            else
+            {
+                typeQuery = AppConstant.ContractType.Construction.ToString();
+            }
+            var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(x => x.ProjectId == projectId 
+            && type == typeQuery);
+
+            var resutl = new ContractAppResponse(contractInfo.Id, contractInfo.UrlFile);
+
+            return resutl;
         }
     }
 }

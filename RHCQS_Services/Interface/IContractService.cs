@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using RHCQS_BusinessObject.Payload.Request.Contract;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.App;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -19,5 +20,6 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<ContractResponse>> GetListContract(int page, int size);
         Task<ContractResponse> GetDetailContract(Guid contractId);
         Task<ContractResponse> GetDetailContractByType(string type);
+        Task<ContractAppResponse> GetListContractApp(Guid projectId, string type);
     }
 }

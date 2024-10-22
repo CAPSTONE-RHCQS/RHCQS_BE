@@ -24,25 +24,18 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Status { get; set; }
     }
 
-    public class InitialQuotationTrackingResponse
+    public class InitialQuotationAppResponse
     {
-        public InitialQuotationTrackingResponse(Guid id, string customerName, string initialName,
-            double? version, double? area, string? status)
+        public InitialQuotationAppResponse(Guid id, double? version, string file)
         {
             Id = id;
-            CustomerName = customerName;
-            InitialName = initialName;
             Version = version;
-            Area = area;
-            Status = status;
+            File = file;
         }
 
         public Guid Id { get; set; }
-        public string CustomerName { get; set; }
-        public string InitialName { get; set; }
         public double? Version { get; set; }
-        public double? Area { get; set; }
-        public string? Status { get; set; }
+        public string File {  get; set; }
     }
 
     public class InitialQuotationResponse
