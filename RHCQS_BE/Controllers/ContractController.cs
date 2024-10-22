@@ -220,5 +220,52 @@ namespace RHCQS_BE.Controllers
             var result = await _contractService.ApproveContractContruction(paymentId, files);
             return Ok(result);
         }
+
+        #region GetListContractApp
+        /// <summary>
+        /// Retrieves the contract file associated with a specific project and type.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET /api/v1/contracts/files
+        ///
+        /// Request Example:
+        /// ```http
+        /// GET /api/v1/contracts/files?projectId=bd31c4e5-e549-42ea-aec7-0f08446f089d&type=Design
+        /// ```
+        ///
+        /// Response Example:
+        /// ```json
+        /// {
+        ///   "Id": "d5d29d51-d6e7-4c75-a9ff-dff7b63a828c",
+        ///   "File": "http://example.com/contracts/design-file.pdf"
+        /// }
+        /// ```
+        ///
+        /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' 
+        /// to retrieve contract files based on the project ID and contract type. 
+        /// The `type` parameter can be either 'Design' or 'Construction'.
+        /// </remarks>
+        /// <param name="projectId">The unique identifier of the project.</param>
+        /// <param name="type">The type of contract to retrieve (Design or Construction).</param>
+        /// <returns>Returns the contract file details associated with the specified project and type.</returns>
+        /// <response code="200">Contract file details retrieved successfully</response>
+        /// <response code="404">Contract not found for the specified project and type</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Contract.ContractFileEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListContractApp(Guid projectId, string type)
+        {
+            var contractItem = await _contractService.GetListContractApp(projectId, type);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

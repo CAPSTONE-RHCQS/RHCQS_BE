@@ -78,15 +78,15 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Return list initial quotation by projectId
         /// 
-        /// Role: SALES STAFF - MANAGER - CUSTOMER
+        /// Role: CUSTOMER
         /// </summary>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer")]
         [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationProjectEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetListInitialQuotationByProjectId(int page, int size, Guid projectId)
+        public async Task<IActionResult> GetListInitialQuotationByProjectId(Guid projectId)
         {
-            var list = await _initialService.GetListInitialQuotationByProjectId(page, size, projectId);
+            var list = await _initialService.GetListInitialQuotationByProjectId(projectId);
             if (list == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_InitialQuotaion });
             var result = JsonConvert.SerializeObject(list, Formatting.Indented);
             return new ContentResult()

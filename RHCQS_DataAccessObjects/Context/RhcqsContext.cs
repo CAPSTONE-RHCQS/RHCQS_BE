@@ -461,9 +461,17 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
+            entity.HasOne(d => d.DesignTemplate).WithMany(p => p.Media)
+                .HasForeignKey(d => d.DesignTemplateId)
+                .HasConstraintName("Media_DesignTemplate_FK");
+
             entity.HasOne(d => d.HouseDesignVersion).WithMany(p => p.Media)
                 .HasForeignKey(d => d.HouseDesignVersionId)
                 .HasConstraintName("FK_Media_HouseDesignVersion");
+
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.Media)
+                .HasForeignKey(d => d.InitialQuotationId)
+                .HasConstraintName("FK_Media_InitialQuotation");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.Media)
                 .HasForeignKey(d => d.PaymentId)

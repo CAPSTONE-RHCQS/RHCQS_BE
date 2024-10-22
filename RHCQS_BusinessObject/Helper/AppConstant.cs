@@ -24,6 +24,7 @@ public static class AppConstant
     {
         public const string Bill = "Hóa đơn";
         public const string PaymentDesign = "Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng";
+        public const string Initial = "Báo giá sơ bộ";
     }
     public class Unit
     {
