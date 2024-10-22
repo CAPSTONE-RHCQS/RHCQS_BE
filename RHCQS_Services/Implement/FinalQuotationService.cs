@@ -259,9 +259,9 @@ namespace RHCQS_Services.Implement
                         // Tạo tham số để upload lên Cloudinary
                         var uploadParams = new RawUploadParams()
                         {
-                            File = new FileDescription($"{data.AccountName}_Quotation.pdf", pdfStream),
+                            File = new FileDescription($"{data.ProjectId}_Quotation.pdf", pdfStream),
                             Folder = "FinalQuotation",
-                            PublicId = $"Bao_gia_chi_tiet_{data.AccountName}_{data.Version}",
+                            PublicId = $"Bao_gia_chi_tiet_{data.ProjectId}_{data.Version}",
                             UseFilename = true,
                             UniqueFilename = true,
                             Overwrite = true
@@ -275,6 +275,23 @@ namespace RHCQS_Services.Implement
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
                         }
+
+                        //Tạo Media lưu file
+                        var mediaInfo = new Medium
+                        {
+                            Id = Guid.NewGuid(),
+                            HouseDesignVersionId = null,
+                            Name = AppConstant.General.Final,
+                            Url = uploadResult.Url.ToString(),
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                            SubTemplateId = null,
+                            PaymentId = null,
+                            InitialQuotationId = finalItem.Id
+                        };
+
+                        await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+                        _unitOfWork.Commit();
 
                         return uploadResult.SecureUrl.ToString();
                     }

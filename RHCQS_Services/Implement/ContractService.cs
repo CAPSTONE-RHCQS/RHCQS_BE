@@ -432,7 +432,10 @@ namespace RHCQS_Services.Implement
             }
             var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(x => x.ProjectId == projectId 
             && type == typeQuery);
-
+            if (contractInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Waiting);
+            }
             var resutl = new ContractAppResponse(contractInfo.Id, contractInfo.UrlFile);
 
             return resutl;

@@ -106,6 +106,7 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -464,6 +465,10 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.DesignTemplate).WithMany(p => p.Media)
                 .HasForeignKey(d => d.DesignTemplateId)
                 .HasConstraintName("Media_DesignTemplate_FK");
+
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.Media)
+                .HasForeignKey(d => d.FinalQuotationId)
+                .HasConstraintName("FK_Media_FinalQuotation");
 
             entity.HasOne(d => d.HouseDesignVersion).WithMany(p => p.Media)
                 .HasForeignKey(d => d.HouseDesignVersionId)

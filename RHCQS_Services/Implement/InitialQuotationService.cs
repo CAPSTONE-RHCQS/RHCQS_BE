@@ -425,9 +425,9 @@ namespace RHCQS_Services.Implement
                         // Tạo tham số để upload lên Cloudinary
                         var uploadParams = new RawUploadParams()
                         {
-                            File = new FileDescription($"{data.AccountName}_Quotation.pdf", pdfStream),
+                            File = new FileDescription($"{data.ProjectId}_Quotation.pdf", pdfStream),
                             Folder = "InitialQuotation",
-                            PublicId = $"Bao_gia_so_bo_{data.AccountName}_{data.Version}",
+                            PublicId = $"Bao_gia_so_bo_{data.ProjectId}_{data.Version}",
                             UseFilename = true,
                             UniqueFilename = true,
                             Overwrite = true
@@ -456,6 +456,7 @@ namespace RHCQS_Services.Implement
                         };
 
                         await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+                        _unitOfWork.Commit();
 
                         return uploadResult.SecureUrl.ToString();
                     }
@@ -575,7 +576,7 @@ namespace RHCQS_Services.Implement
     <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
 
     <h2>ĐIỀU 1. QUY MÔ CÔNG TRÌNH</h2>
-    <p>Bổ sung</p>
+    <p>Nhà ở dân dụng</p>
 
     <h2>ĐIỀU 2. GIÁ TRỊ HỢP ĐỒNG</h2>
     <h3>2.1. Đơn giá thi công phần thô trước thuế: " + request.PackageQuotationList.PackageRough + @" đồng/m²</h3>

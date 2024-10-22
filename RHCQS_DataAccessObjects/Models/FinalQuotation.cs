@@ -35,6 +35,8 @@ public partial class FinalQuotation
 
     public virtual ICollection<FinalQuotationItem> FinalQuotationItems { get; set; } = new List<FinalQuotationItem>();
 
+    public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
+
     public virtual Project Project { get; set; } = null!;
 
     public virtual Promotion? Promotion { get; set; }
