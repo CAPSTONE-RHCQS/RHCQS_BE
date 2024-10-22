@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace RHCQS_Services.Implement
 {
@@ -70,22 +71,14 @@ namespace RHCQS_Services.Implement
                                     media.Url,
                                     media.InsDate,
                                     media.UpsDate
-                                )).ToList(),
-                            sub.Media
-                                .Where(media => media.Name == AppConstant.Template.Structuredrawings)
-                                .Select(media => new MediaResponse(
-                                    media.Id,
-                                    media.Name,
-                                    media.Url,
-                                    media.InsDate,
-                                    media.UpsDate
                                 )).ToList()
                         )
                     ).ToList(),
                     x.PackageHouses.Select(
                         pgk => new PackageHouseResponse(
                             pgk.Id,
-                            pgk.DesignTemplateId,
+                            pgk.PackageId,
+                            pgk.Package.PackageName,
                             pgk.ImgUrl,
                             pgk.InsDate
                         )
@@ -143,23 +136,31 @@ namespace RHCQS_Services.Implement
                     BuildingArea = sub.BuildingArea,
                     FloorArea = sub.FloorArea,
                     Size = sub.Size,
+                    ImgUrl = sub.ImgURL,
                     InsDate = DateTime.Now,
                     TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
                     {
                         Id = Guid.NewGuid(),
                         ConstructionItemId = item.ConstructionItemId,
-                        SubConstructionId = item.SubConstructionItemId,
+                        SubConstructionId = item.SubConstructionItemId != Guid.Empty ? item.SubConstructionItemId : (Guid?)null,
                         Area = item.Area,
                         Unit = item.Unit,
                         InsDate = DateTime.Now,
                     }).ToList(),
-                    Media = sub.Media.Select(media => new Medium
+                    Media = sub.Designdrawings.Select(media => new Medium
                     {
                         Id = Guid.NewGuid(),
-                        Name = media.Name,
+                        Name = AppConstant.Template.Drawing,
                         Url = media.MediaImgURL,
                         InsDate = DateTime.Now,
                     }).ToList()
+                }).ToList(),
+                Media = templ.ExteriorsUrls.Select(media => new Medium
+                {
+                    Id = Guid.NewGuid(),
+                    Name = AppConstant.Template.Exteriorsdrawings,
+                    Url = media.MediaImgURL,
+                    InsDate = DateTime.Now,
                 }).ToList()
             };
 
@@ -178,6 +179,7 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.SubTemplates)
                                .ThenInclude(st => st.Media)
                                .Include(x => x.PackageHouses)
+                               .ThenInclude(p => p.Package)
                                .Include(x => x.Media)
             );
 
@@ -221,20 +223,12 @@ namespace RHCQS_Services.Implement
                                 media.Url,
                                 media.InsDate,
                                 media.UpsDate
-                            )).ToList(), // Designdrawings
-                        sub.Media
-                            .Where(media => media.Name.Equals(AppConstant.Template.Structuredrawings))
-                            .Select(media => new MediaResponse(
-                                media.Id,
-                                media.Name,
-                                media.Url,
-                                media.InsDate,
-                                media.UpsDate
-                            )).ToList() // Structuredrawings
+                            )).ToList() // Designdrawings
                     )).ToList(),
                     template.PackageHouses.Select(pkg => new PackageHouseResponse(
                         pkg.Id,
-                        pkg.DesignTemplateId,
+                        pkg.PackageId,
+                        pkg.Package.PackageName,
                         pkg.ImgUrl,
                         pkg.InsDate
                     )).ToList(),
@@ -297,22 +291,14 @@ namespace RHCQS_Services.Implement
                                     media.Url,
                                     media.InsDate,
                                     media.UpsDate
-                                )).ToList(), // Designdrawings
-                            sub.Media
-                                .Where(media => media.Name == AppConstant.Template.Structuredrawings)
-                                .Select(media => new MediaResponse(
-                                    media.Id,
-                                    media.Name,
-                                    media.Url,
-                                    media.InsDate,
-                                    media.UpsDate
-                                )).ToList() // Structuredrawings
+                                )).ToList() // Designdrawings
                         )
                     ).ToList(),
                     x.PackageHouses.Select(
                         pgk => new PackageHouseResponse(
                             pgk.Id,
-                            pgk.DesignTemplateId,
+                            pgk.PackageId,
+                            pgk.Package.PackageName,
                             pgk.ImgUrl,
                             pgk.InsDate
                         )
@@ -328,6 +314,7 @@ namespace RHCQS_Services.Implement
                         )).ToList() // ExteriorsUrls
                 ),
                 include: x => x.Include(x => x.PackageHouses)
+                                .ThenInclude(p => p.Package)
                                .Include(x => x.Media)
                                .Include(x => x.SubTemplates)
                                .ThenInclude(st => st.Media)
@@ -354,6 +341,7 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.SubTemplates)
                                .ThenInclude(st => st.Media)
                                .Include(x => x.PackageHouses)
+                               .ThenInclude(p => p.Package)
                                .Include(x => x.Media)
             );
 
@@ -397,20 +385,12 @@ namespace RHCQS_Services.Implement
                                 media.Url,
                                 media.InsDate,
                                 media.UpsDate
-                            )).ToList(), // Designdrawings
-                        sub.Media
-                            .Where(media => media.Name == AppConstant.Template.Structuredrawings)
-                            .Select(media => new MediaResponse(
-                                media.Id,
-                                media.Name,
-                                media.Url,
-                                media.InsDate,
-                                media.UpsDate
-                            )).ToList() // Structuredrawings
+                            )).ToList() // Designdrawings
                     )).ToList(),
                     template.PackageHouses.Select(pkg => new PackageHouseResponse(
                         pkg.Id,
-                        pkg.DesignTemplateId,
+                        pkg.PackageId,
+                        pkg.Package.PackageName,
                         pkg.ImgUrl,
                         pkg.InsDate
                     )).ToList(),
@@ -446,6 +426,7 @@ namespace RHCQS_Services.Implement
                 include: x => x
                     .Include(x => x.SubTemplates)
                     .ThenInclude(st => st.TemplateItems)
+                    .Include(x => x.Media)
             );
 
             if (houseTemplate == null)
@@ -463,6 +444,24 @@ namespace RHCQS_Services.Implement
             houseTemplate.NumberOfFront = templ.NumberOfFront;
             houseTemplate.ImgUrl = templ.ImgURL;
 
+            foreach (var media in templ.ExteriorsUrls)
+            {
+                var existingMedia = houseTemplate.Media.FirstOrDefault(m => m.DesignTemplateId == templateId);
+                if (existingMedia != null)
+                {
+                    existingMedia.Url = media.MediaImgURL;
+                    existingMedia.UpsDate = DateTime.Now;
+                }
+                else
+                {
+                    continue;
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.Not_Found_Media
+                    );
+                }
+            }
+
             foreach (var sub in templ.SubTemplates)
             {
                 var existingSubTemplate = houseTemplate.SubTemplates.FirstOrDefault(st => st.Id == sub.Id);
@@ -471,6 +470,7 @@ namespace RHCQS_Services.Implement
                     existingSubTemplate.BuildingArea = sub.BuildingArea;
                     existingSubTemplate.FloorArea = sub.FloorArea;
                     existingSubTemplate.Size = sub.Size;
+                    existingSubTemplate.ImgUrl = sub.ImgURL;
 
                     foreach (var item in sub.TemplateItems)
                     {
@@ -490,12 +490,11 @@ namespace RHCQS_Services.Implement
                             );
                         }
                     }
-                    foreach (var media in sub.Media)
+                    foreach (var media in sub.Designdrawings)
                     {
                         var existingMedia = existingSubTemplate.Media.FirstOrDefault(m => m.SubTemplateId == sub.Id);
                         if (existingMedia != null)
                         {
-                            existingMedia.Name = media.Name;
                             existingMedia.Url = media.MediaImgURL;
                             existingMedia.UpsDate = DateTime.Now;
                         }
