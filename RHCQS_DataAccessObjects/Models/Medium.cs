@@ -25,7 +25,11 @@ public partial class Medium
 
     public Guid? InitialQuotationId { get; set; }
 
+    public Guid? FinalQuotationId { get; set; }
+
     public virtual DesignTemplate? DesignTemplate { get; set; }
+
+    public virtual FinalQuotation? FinalQuotation { get; set; }
 
     public virtual HouseDesignVersion? HouseDesignVersion { get; set; }
 

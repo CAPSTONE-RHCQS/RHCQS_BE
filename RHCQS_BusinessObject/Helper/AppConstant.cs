@@ -25,6 +25,7 @@ public static class AppConstant
         public const string Bill = "Hóa đơn";
         public const string PaymentDesign = "Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng";
         public const string Initial = "Báo giá sơ bộ";
+        public const string Final = "Báo giá chi tiết";
     }
     public class Unit
     {
@@ -247,6 +248,7 @@ public static class AppConstant
         //Contract
         public const string Invail_Quotation = "Báo giá chưa chốt!";
         public const string Contract_Not_Found = "Không tìm thấy báo giá!";
+        public const string Contract_Waiting = "Hợp đồng đang chờ duyệt";
 
         //Promotion
         public const string Invalid_Start_Time = "Thời gian bắt đầu ở quá khứ hoặc trùng với thời gian hiện tại!";
