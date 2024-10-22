@@ -14,7 +14,7 @@ namespace RHCQS_Services.Interface
     {
         public Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size);
         public Task<List<HouseTemplateResponse>> GetListHouseTemplate();
-        Task<DesignTemplate> SearchHouseTemplateByNameAsync(string name);
+        Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name);
         Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id);
         Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
         Task<bool> CreateHouseTemplate(HouseTemplateRequestForCretae templ);

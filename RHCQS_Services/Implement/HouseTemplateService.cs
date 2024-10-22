@@ -38,13 +38,6 @@ namespace RHCQS_Services.Implement
                     x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate,
-                    x.PackageHouses.Select(
-                        pgk => new PackageHouseResponse(
-                            pgk.Id,
-                            pgk.DesignTemplateId,
-                            pgk.ImgUrl,
-                            pgk.InsDate
-                        )).ToList(),
                     x.SubTemplates.Select(
                         sub => new SubTemplatesResponse(
                             sub.Id,
@@ -52,6 +45,7 @@ namespace RHCQS_Services.Implement
                             sub.FloorArea,
                             sub.InsDate,
                             sub.Size,
+                            sub.ImgUrl,
                             sub.TemplateItems.Select(
                                 item => new TemplateItemReponse(
                                     item.Id,
@@ -68,21 +62,50 @@ namespace RHCQS_Services.Implement
                                     item.InsDate
                                 )
                             ).ToList(),
-                            sub.Media.Select(media => new MediaResponse(
-                                media.Id,
-                                media.Name,
-                                media.Url,
-                                media.InsDate,
-                                media.UpsDate
-                            )).ToList()
+                            sub.Media
+                                .Where(media => media.Name == AppConstant.Template.Drawing)
+                                .Select(media => new MediaResponse(
+                                    media.Id,
+                                    media.Name,
+                                    media.Url,
+                                    media.InsDate,
+                                    media.UpsDate
+                                )).ToList(),
+                            sub.Media
+                                .Where(media => media.Name == AppConstant.Template.Structuredrawings)
+                                .Select(media => new MediaResponse(
+                                    media.Id,
+                                    media.Name,
+                                    media.Url,
+                                    media.InsDate,
+                                    media.UpsDate
+                                )).ToList()
                         )
-                    ).ToList()
+                    ).ToList(),
+                    x.PackageHouses.Select(
+                        pgk => new PackageHouseResponse(
+                            pgk.Id,
+                            pgk.DesignTemplateId,
+                            pgk.ImgUrl,
+                            pgk.InsDate
+                        )
+                    ).ToList(),
+                    x.Media
+                        .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
+                        .Select(media => new MediaResponse(
+                            media.Id,
+                            media.Name,
+                            media.Url,
+                            media.InsDate,
+                            media.UpsDate
+                        )).ToList()
                 ),
                 orderBy: x => x.OrderBy(x => x.InsDate)
             );
 
             return listHouseTemplate.ToList();
         }
+
 
         public async Task<bool> CreateHouseTemplate(HouseTemplateRequestForCretae templ)
         {
@@ -152,7 +175,10 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(st => st.TemplateItems)
                                .ThenInclude(ti => ti.ConstructionItem)
                                .ThenInclude(ti => ti.SubConstructionItems)
+                               .Include(x => x.SubTemplates)
+                               .ThenInclude(st => st.Media)
                                .Include(x => x.PackageHouses)
+                               .Include(x => x.Media)
             );
 
             if (template != null)
@@ -166,18 +192,13 @@ namespace RHCQS_Services.Implement
                     template.NumberOfFront,
                     template.ImgUrl,
                     template.InsDate,
-                    template.PackageHouses.Select(pkg => new PackageHouseResponse(
-                        pkg.Id,
-                        pkg.DesignTemplateId,
-                        pkg.ImgUrl,
-                        pkg.InsDate
-                    )).ToList(),
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
                         sub.Id,
                         sub.BuildingArea,
                         sub.FloorArea,
                         sub.InsDate,
                         sub.Size,
+                        sub.ImgUrl,
                         sub.TemplateItems.Select(item => new TemplateItemReponse(
                             item.Id,
                             item.SubConstructionId == null
@@ -192,14 +213,40 @@ namespace RHCQS_Services.Implement
                             item.Unit,
                             item.InsDate
                         )).ToList(),
-                        sub.Media.Select(media => new MediaResponse(
-                        media.Id,
-                        media.Name,
-                        media.Url,
-                        media.InsDate,
-                        media.UpsDate
-                    )).ToList()
-                    )).ToList()
+                        sub.Media
+                            .Where(media => media.Name.Equals(AppConstant.Template.Drawing))
+                            .Select(media => new MediaResponse(
+                                media.Id,
+                                media.Name,
+                                media.Url,
+                                media.InsDate,
+                                media.UpsDate
+                            )).ToList(), // Designdrawings
+                        sub.Media
+                            .Where(media => media.Name.Equals(AppConstant.Template.Structuredrawings))
+                            .Select(media => new MediaResponse(
+                                media.Id,
+                                media.Name,
+                                media.Url,
+                                media.InsDate,
+                                media.UpsDate
+                            )).ToList() // Structuredrawings
+                    )).ToList(),
+                    template.PackageHouses.Select(pkg => new PackageHouseResponse(
+                        pkg.Id,
+                        pkg.DesignTemplateId,
+                        pkg.ImgUrl,
+                        pkg.InsDate
+                    )).ToList(),
+                    template.Media
+                        .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
+                        .Select(media => new MediaResponse(
+                            media.Id,
+                            media.Name,
+                            media.Url,
+                            media.InsDate,
+                            media.UpsDate
+                        )).ToList() // ExteriorsUrls
                 );
                 return result;
             }
@@ -218,13 +265,6 @@ namespace RHCQS_Services.Implement
                     x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate,
-                    x.PackageHouses.Select(
-                        pgk => new PackageHouseResponse(
-                            pgk.Id,
-                            pgk.DesignTemplateId,
-                            pgk.ImgUrl,
-                            pgk.InsDate
-                        )).ToList(),
                     x.SubTemplates.Select(
                         sub => new SubTemplatesResponse(
                             sub.Id,
@@ -232,6 +272,7 @@ namespace RHCQS_Services.Implement
                             sub.FloorArea,
                             sub.InsDate,
                             sub.Size,
+                            sub.ImgUrl,
                             sub.TemplateItems.Select(
                                 item => new TemplateItemReponse(
                                     item.Id,
@@ -248,37 +289,144 @@ namespace RHCQS_Services.Implement
                                     item.InsDate
                                 )
                             ).ToList(),
-                            sub.Media.Select(media => new MediaResponse(
+                            sub.Media
+                                .Where(media => media.Name == AppConstant.Template.Drawing)
+                                .Select(media => new MediaResponse(
                                     media.Id,
                                     media.Name,
                                     media.Url,
                                     media.InsDate,
                                     media.UpsDate
-                            )).ToList()
+                                )).ToList(), // Designdrawings
+                            sub.Media
+                                .Where(media => media.Name == AppConstant.Template.Structuredrawings)
+                                .Select(media => new MediaResponse(
+                                    media.Id,
+                                    media.Name,
+                                    media.Url,
+                                    media.InsDate,
+                                    media.UpsDate
+                                )).ToList() // Structuredrawings
                         )
-                    ).ToList()
+                    ).ToList(),
+                    x.PackageHouses.Select(
+                        pgk => new PackageHouseResponse(
+                            pgk.Id,
+                            pgk.DesignTemplateId,
+                            pgk.ImgUrl,
+                            pgk.InsDate
+                        )
+                    ).ToList(),
+                    x.Media
+                        .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
+                        .Select(media => new MediaResponse(
+                            media.Id,
+                            media.Name,
+                            media.Url,
+                            media.InsDate,
+                            media.UpsDate
+                        )).ToList() // ExteriorsUrls
                 ),
-                include: x => x.Include(x => x.PackageHouses),
+                include: x => x.Include(x => x.PackageHouses)
+                               .Include(x => x.Media)
+                               .Include(x => x.SubTemplates)
+                               .ThenInclude(st => st.Media)
+                               .Include(x => x.SubTemplates)
+                               .ThenInclude(st => st.TemplateItems),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
-                size: size);
+                size: size
+            );
 
             return listHouseTemplate;
         }
 
 
-        public async Task<DesignTemplate> SearchHouseTemplateByNameAsync(string name)
+
+        public async Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name)
         {
-            var houseTemplate = await _unitOfWork.GetRepository<DesignTemplate>()
-                .FirstOrDefaultAsync(p => p.Name.Contains(name), include: s => s.Include(p => p.SubTemplates));
-            if (houseTemplate == null)
+            var template = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(
+                predicate: x => x.Name.Equals(name),
+                include: x => x.Include(x => x.SubTemplates)
+                               .ThenInclude(st => st.TemplateItems)
+                               .ThenInclude(ti => ti.ConstructionItem)
+                               .ThenInclude(ti => ti.SubConstructionItems)
+                               .Include(x => x.SubTemplates)
+                               .ThenInclude(st => st.Media)
+                               .Include(x => x.PackageHouses)
+                               .Include(x => x.Media)
+            );
+
+            if (template != null)
             {
-                throw new AppConstant.MessageError(
-                    (int)AppConstant.ErrCode.Not_Found,
-                    AppConstant.ErrMessage.Not_Found_HouseTemplate
+                var result = new HouseTemplateResponse(
+                    template.Id,
+                    template.Name,
+                    template.Description,
+                    template.NumberOfFloor,
+                    template.NumberOfBed,
+                    template.NumberOfFront,
+                    template.ImgUrl,
+                    template.InsDate,
+                    template.SubTemplates.Select(sub => new SubTemplatesResponse(
+                        sub.Id,
+                        sub.BuildingArea,
+                        sub.FloorArea,
+                        sub.InsDate,
+                        sub.Size,
+                        sub.ImgUrl,
+                        sub.TemplateItems.Select(item => new TemplateItemReponse(
+                            item.Id,
+                            item.SubConstructionId == null
+                                ? item.ConstructionItem.Name
+                                : item.ConstructionItem.SubConstructionItems.FirstOrDefault(sci => sci.Id == item.SubConstructionId)?.Name,
+                            item.ConstructionItemId,
+                            item.SubConstructionId,
+                            item.SubConstructionId == null
+                                ? item.ConstructionItem.Coefficient
+                                : item.ConstructionItem.SubConstructionItems.FirstOrDefault(sci => sci.Id == item.SubConstructionId)?.Coefficient,
+                            item.Area,
+                            item.Unit,
+                            item.InsDate
+                        )).ToList(),
+                        sub.Media
+                            .Where(media => media.Name == AppConstant.Template.Drawing)
+                            .Select(media => new MediaResponse(
+                                media.Id,
+                                media.Name,
+                                media.Url,
+                                media.InsDate,
+                                media.UpsDate
+                            )).ToList(), // Designdrawings
+                        sub.Media
+                            .Where(media => media.Name == AppConstant.Template.Structuredrawings)
+                            .Select(media => new MediaResponse(
+                                media.Id,
+                                media.Name,
+                                media.Url,
+                                media.InsDate,
+                                media.UpsDate
+                            )).ToList() // Structuredrawings
+                    )).ToList(),
+                    template.PackageHouses.Select(pkg => new PackageHouseResponse(
+                        pkg.Id,
+                        pkg.DesignTemplateId,
+                        pkg.ImgUrl,
+                        pkg.InsDate
+                    )).ToList(),
+                    template.Media
+                        .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
+                        .Select(media => new MediaResponse(
+                            media.Id,
+                            media.Name,
+                            media.Url,
+                            media.InsDate,
+                            media.UpsDate
+                        )).ToList() // ExteriorsUrls
                 );
+                return result;
             }
-            return houseTemplate;
+            return null;
         }
 
         public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid templateId)

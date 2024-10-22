@@ -10,8 +10,10 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class HouseTemplateResponse
     {
         public HouseTemplateResponse() { }
+
         public HouseTemplateResponse(Guid id, string name, string? description, int? numberOfFloor, int? numberOfBed,
-            int? numberOfFront, string? imgUrl, DateTime? insDate, List<PackageHouseResponse> packageHouses, List<SubTemplatesResponse> subTemplates)
+            int? numberOfFront, string? imgUrl, DateTime? insDate, List<SubTemplatesResponse> subTemplates,
+            List<PackageHouseResponse> packageHouses, List<MediaResponse> exteriorsUrls)
         {
             Id = id;
             Name = name;
@@ -21,8 +23,9 @@ namespace RHCQS_BusinessObject.Payload.Response
             NumberOfFront = numberOfFront;
             ImgUrl = imgUrl;
             InsDate = insDate;
-            PackageHouses = packageHouses;
             SubTemplates = subTemplates;
+            PackageHouses = packageHouses;
+            ExteriorsUrls = exteriorsUrls;
         }
 
         public Guid Id { get; set; }
@@ -45,19 +48,23 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public List<PackageHouseResponse> PackageHouses { get; set; }
 
+        public List<MediaResponse> ExteriorsUrls { get; set; }
+
     }
     public class SubTemplatesResponse
     {
-        public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea,
-            DateTime? insDate, string? size, List<TemplateItemReponse> templateItems, List<MediaResponse> media)
+        public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea, DateTime? insDate, string? size,
+            string? url, List<TemplateItemReponse> templateItems, List<MediaResponse> designdrawings, List<MediaResponse> structuredrawings)
         {
             Id = id;
             BuildingArea = buildingArea;
             FloorArea = floorArea;
             InsDate = insDate;
             Size = size;
+            Url = url;
             TemplateItems = templateItems;
-            Media = media;
+            Designdrawings = designdrawings;
+            Structuredrawings = structuredrawings;
         }
 
         public Guid Id { get; set; }
@@ -70,8 +77,12 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Size { get; set; }
 
+        public string? Url { get; set; }
+
         public List<TemplateItemReponse> TemplateItems { get; set; }
-        public List<MediaResponse> Media { get; set; }
+
+        public List<MediaResponse> Designdrawings { get; set; }
+        public List<MediaResponse> Structuredrawings { get; set; }
     }
     public class MediaResponse
     {

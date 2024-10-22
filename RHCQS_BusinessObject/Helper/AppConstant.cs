@@ -90,7 +90,12 @@ public static class AppConstant
         public const string FINISHED = "Finished";
         public const string ENDED = "Ended";
     }
-
+    public class Template
+    {
+        public const string Drawing = "Bản vẽ";
+        public const string Structuredrawings = "Cấu trúc";
+        public const string Exteriorsdrawings = "Ngoại cảnh";
+    }
     public class Status
     {
         public const string PROCESSING = "Processing";

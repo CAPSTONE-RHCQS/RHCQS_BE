@@ -17,6 +17,8 @@ public partial class SubTemplate
 
     public string? Size { get; set; }
 
+    public string? ImgUrl { get; set; }
+
     public virtual DesignTemplate DesignTemplate { get; set; } = null!;
 
     public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
