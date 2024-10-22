@@ -877,5 +877,39 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
         }
+
+        public async Task<string> ConfirmArgeeInitialFromCustomer(Guid initialId)
+        {
+            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
+
+            if (initialItem == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+            }
+
+            initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
+             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
+            var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+            return isSuccessful;
+        }
+
+
+        public async Task<string> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest comment)
+        {
+            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
+
+            if (initialItem == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+            }
+
+            initialItem.Note = comment.Note;
+            initialItem.Status = AppConstant.QuotationStatus.PROCESSING;
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
+            var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+            return isSuccessful;
+        }
     }
 }

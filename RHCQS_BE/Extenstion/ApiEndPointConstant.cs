@@ -132,6 +132,8 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationUpdateEndpoint = InitialQuotationEndpoint + "/update";
             public const string InitialQuotationProjectEndpoint = InitialQuotationEndpoint + "/list";
             public const string InitialQuotationNewVersionEndpoint = InitialQuotationEndpoint + "/new";
+            public const string InitialQuotationCustomerComment = InitialQuotationEndpoint + "/comment";
+            public const string InitialQuotationCustomerAgree = InitialQuotationEndpoint + "/finalized";
         }
         public static class FinalQuotation
         {
