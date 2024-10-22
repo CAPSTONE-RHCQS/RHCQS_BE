@@ -159,6 +159,7 @@ public static class AppConstant
         public const string SUCCESSFUL_CREATE = "Tạo thành công";
         public const string SUCCESSFUL_UPDATE = "Cập nhật thành công";
         public const string SUCCESSFUL_DELETE = "Xóa thành công";
+        public const string SEND_SUCESSFUL = "Gửi thành công!";
     }
     public class ErrMessage
     {
@@ -171,6 +172,7 @@ public static class AppConstant
         public const string ProjectNotExit = "Dự án không tồn tại!";
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
         public const string Fail_Save = "Lưu thất bại!";
+        public const string Send_Fail = "Gửi thất bại!";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";

@@ -495,5 +495,41 @@ namespace RHCQS_BE.Controllers
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
         }
+
+        #region ConfirmArgeeInitialFromCustomer
+        /// <summary>
+        /// Confirms the agreement of an initial quotation from a customer.
+        /// 
+        /// ROLE: CUSTOMER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.InitialQuotation.InitialQuotationCustomerAgree)]
+        [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ConfirmArgeeInitialFromCustomer(Guid initialId)
+        {
+            var result = await _initialService.ConfirmArgeeInitialFromCustomer(initialId);
+
+            return Ok(result);
+        }
+
+        #region FeedbackFixInitialFromCustomer
+        /// <summary>
+        /// When customer need to fix quotation -> Customer comment and click "Gửi"
+        /// 
+        /// ROLE: CUSTOMER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.InitialQuotation.InitialQuotationCustomerComment)]
+        [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest request)
+        {
+            var result = await _initialService.FeedbackFixInitialFromCustomer(initialId, request);
+
+            return Ok(result);
+        }
     }
 }
