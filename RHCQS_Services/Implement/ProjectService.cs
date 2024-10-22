@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -303,7 +303,7 @@ namespace RHCQS_Services.Implement
                             UtilitiesSectionId = utilityItem.SectionId
                         };
                     }
-                    
+
                     await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                 }
 
@@ -391,11 +391,70 @@ namespace RHCQS_Services.Implement
                     bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                     return isSuccessful;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new Exception(ex.Message);
                 }
             }
+        }
+
+        public async Task<ProjectAppResponse> TrackingProject(Guid projectId)
+        {
+            // Fetch the project details with related data
+            var projectTrack = await _unitOfWork.GetRepository<Project>()
+                .FirstOrDefaultAsync(
+                    predicate: p => p.Id == projectId,
+                    include: p => p.Include(p => p.InitialQuotations)
+                                   .Include(p => p.Contracts)
+                                   .Include(p => p.FinalQuotations)
+                );
+
+            if (projectTrack == null)
+            {
+                return null;
+            }
+
+            var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
+                .FirstOrDefaultAsync(
+                    predicate: q => q.ProjectId == projectId,
+                    orderBy: q => q.OrderByDescending(q => q.Version)
+                );
+
+            var initialResponse = initialQuotation != null
+                ? new InitialAppResponse { Status = initialQuotation.Status }
+                : null;
+
+            var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>()
+               .FirstOrDefaultAsync(
+                   predicate: q => q.ProjectId == projectId,
+                   orderBy: q => q.OrderByDescending(q => q.Version)
+               );
+
+            var finalResponse = finalQuotation != null
+                ? new FinalAppResponse { Status = finalQuotation.Status }
+                : null;
+
+            var contracts = await _unitOfWork.GetRepository<Contract>()
+               .GetListAsync(
+                   predicate: c => c.ProjectId == projectId
+            );
+
+            var contractDesignResponse = contracts
+              .Where(c => c.Type == AppConstant.ContractType.Design.ToString())
+              .Select(c => new ContractDesignAppResponse { Status = c.Status })
+                    .FirstOrDefault();
+
+            var processingResponse = contracts
+                .Where(c => c.Type == AppConstant.ContractType.Construction.ToString())
+                .Select(c => new ContractProcessingAppResponse { Status = c.Status })
+                .FirstOrDefault();
+
+            return new ProjectAppResponse(
+                initialResponse,
+                contractDesignResponse,
+                finalResponse,
+                processingResponse
+            );
         }
     }
 }

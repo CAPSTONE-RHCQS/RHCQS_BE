@@ -1,5 +1,5 @@
 ﻿using RHCQS_BusinessObject.Payload.Request;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,7 @@ namespace RHCQS_Services.Interface
         Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId);
 
         Task<bool> CancelProject(Guid projectId);
+        Task<ProjectAppResponse> TrackingProject(Guid projectId);
 
     }
 }

@@ -14,6 +14,7 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotation(int page, int size);
         Task<InitialQuotationResponse> GetDetailInitialQuotationById(Guid id);
         Task<InitialQuotationResponse> GetDetailInitialQuotationByCustomerName(string name);
+        Task<InitialQuotationResponse> GetDetailInitialNewVersion(Guid projectId);
         Task<IPaginate<InitialQuotationListResponse>> GetListInitialQuotationByProjectId(int page, int size, Guid projectId);
         Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request);
 

@@ -321,6 +321,41 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetDetailInitialNewVersion
+        /// <summary>
+        /// Retrieves the details of a specific initial quotation by project ID.
+        /// 
+        /// ROLE: SALE STAFF
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     GET /api/v1/initial-quotation/{projectId}
+        ///
+        /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of an initial quotation, 
+        /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
+        /// </remarks>
+        /// <param name="name">The unique identifier of the initial quotation.</param>
+        /// <returns>Returns the details of the initial quotation, or a 404 Not Found response if the ID does not exist.</returns>
+        /// <response code="200">Initial quotation details retrieved successfully</response>
+        /// <response code="404">Initial quotation not found</response>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
+        [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationNewVersionEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailInitialNewVersion(Guid projecId)
+        {
+            var quotation = await _initialService.GetDetailInitialNewVersion(projecId);
+            if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_InitialQuotaion });
+            var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region ApproveInitialFromManager
         /// <summary>
         /// Approve or reject an initial quotation by a Manager.
@@ -373,7 +408,7 @@ namespace RHCQS_BE.Controllers
 
             if (!string.IsNullOrEmpty(pdfUrl))
             {
-                return Ok(new { Url = pdfUrl }); 
+                return Ok(new { Url = pdfUrl });
             }
 
             return BadRequest(AppConstant.Message.ERROR);

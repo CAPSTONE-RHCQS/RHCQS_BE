@@ -6,6 +6,7 @@ using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 using System.Security.Claims;
@@ -303,6 +304,33 @@ namespace RHCQS_BE.Controllers
         {
             var isCreate = await _projectService.CancelProject(projectId);
             return isCreate ? Ok(isCreate) : BadRequest();
+        }
+
+        #region TrackingProject
+        /// <summary>
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
+        /// Retrieve a list of projects for a specific customer by their email.
+        /// </summary>
+        /// <param name="email">The email of the customer whose projects are being requested.</param>
+        /// <returns>A list of projects associated with the given customer's email.</returns>
+        /// <response code="200">Returns the list of projects.</response>
+        /// <response code="401">If the user is not authenticated or does not have the necessary role.</response>
+        /// <response code="403">If the user is forbidden from accessing this resource.</response>
+        /// <response code="404">If no projects are found for the provided email.</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Project.ProjectTrackingEndpoint)]
+        [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> TrackingProject(Guid projectId)
+        {
+            var listProjects = await _projectService.TrackingProject(projectId);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }
