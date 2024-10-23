@@ -25,9 +25,9 @@ public partial class Package
 
     public virtual ICollection<PackageHouse> PackageHouses { get; set; } = new List<PackageHouse>();
 
+    public virtual ICollection<PackageMapPromotion> PackageMapPromotions { get; set; } = new List<PackageMapPromotion>();
+
     public virtual ICollection<PackageQuotation> PackageQuotations { get; set; } = new List<PackageQuotation>();
 
     public virtual PackageType PackageType { get; set; } = null!;
-
-    public virtual ICollection<QuotationSection> QuotationSections { get; set; } = new List<QuotationSection>();
 }

@@ -13,8 +13,6 @@ public partial class Material
 
     public string? Name { get; set; }
 
-    public int? InventoryQuantity { get; set; }
-
     public double? Price { get; set; }
 
     public string? Unit { get; set; }

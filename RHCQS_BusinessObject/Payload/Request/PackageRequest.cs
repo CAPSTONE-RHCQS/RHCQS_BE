@@ -42,7 +42,6 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public double? TotalPrice { get; set; }
 
-        public int? Quantity { get; set; }
     }
     public class PackageMaterialRequest
     {

@@ -11,8 +11,6 @@ public partial class Labor
 
     public double? Price { get; set; }
 
-    public int? Quantity { get; set; }
-
     public DateTime? InsDate { get; set; }
 
     public DateTime? UpsDate { get; set; }
