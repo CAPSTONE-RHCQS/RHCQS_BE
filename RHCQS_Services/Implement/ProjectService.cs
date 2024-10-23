@@ -338,6 +338,8 @@ namespace RHCQS_Services.Implement
                 InsDate = DateTime.Now
             };
 
+            //var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Version == 0.0);
+
             await _unitOfWork.GetRepository<AssignTask>().InsertAsync(assignItem);
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -400,7 +402,6 @@ namespace RHCQS_Services.Implement
 
         public async Task<ProjectAppResponse> TrackingProject(Guid projectId)
         {
-            // Fetch the project details with related data
             var projectTrack = await _unitOfWork.GetRepository<Project>()
                 .FirstOrDefaultAsync(
                     predicate: p => p.Id == projectId,
