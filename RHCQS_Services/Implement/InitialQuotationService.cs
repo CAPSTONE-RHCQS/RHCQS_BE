@@ -750,6 +750,7 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                //Check version present
                 var initialItem = new InitialQuotation()
                 {
                     Id = Guid.NewGuid(),
@@ -762,7 +763,7 @@ namespace RHCQS_Services.Implement
                     OthersAgreement = request.OthersAgreement,
                     InsDate = DateTime.Now,
                     Status = AppConstant.QuotationStatus.REVIEWING,
-                    Version = request.VersionPresent + 1,
+                    Version = request.VersionPresent ,
                     IsTemplate = false,
                     Deflag = true,
                     Note = null,

@@ -7,7 +7,7 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
     public class UpdateInitialRequest
     {
         [Required(ErrorMessage = "VersionPresent là bắt buộc.")]
-        [Range(1, double.MaxValue, ErrorMessage = "VersionPresent phải lớn hơn 0.")]
+        //[Range(1, double.MaxValue, ErrorMessage = "VersionPresent phải lớn hơn 0.")]
         public double VersionPresent { get; set; }
 
         [Required(ErrorMessage = "ProjectId là bắt buộc.")]
