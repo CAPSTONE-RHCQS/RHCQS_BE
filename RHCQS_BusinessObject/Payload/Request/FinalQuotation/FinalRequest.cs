@@ -31,6 +31,9 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
         public List<FinalQuotationItemRequest> FinalQuotationItems { get; set; }
+
+        public Guid? QuotationUtilitiesId { get; set; }
+
     }
 
     public class BatchPaymentInfoRequest
@@ -78,86 +81,37 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
     public class FinalQuotationItemRequest
     {
+
         [Required(ErrorMessage = "ConstructionItemId là bắt buộc.")]
         public Guid ConstructionItemId { get; set; }
 
-        [Required(ErrorMessage = "Tên hạng mục là bắt buộc.")]
-        public string? Name { get; set; }
-
-        [Required(ErrorMessage = "Đơn vị là bắt buộc.")]
-        public string? Unit { get; set; }
-
-        public string? Weight { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị lao động phải là một số dương.")]
-        public double? UnitPriceLabor { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị thô phải là một số dương.")]
-        public double? UnitPriceRough { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị hoàn thiện phải là một số dương.")]
-        public double? UnitPriceFinished { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Tổng giá lao động phải là một số dương.")]
-        public double? TotalPriceLabor { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Tổng giá thô phải là một số dương.")]
-        public double? TotalPriceRough { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Tổng giá hoàn thiện phải là một số dương.")]
-        public double? TotalPriceFinished { get; set; }
-
-        [Required(ErrorMessage = "Danh sách các phần báo giá là bắt buộc.")]
-        public List<QuotationSectionRequest> QuotationSection { get; set; }
-    }
-
-    public class QuotationSectionRequest
-    {
-        [Required(ErrorMessage = "PackageId là bắt buộc.")]
-        public Guid PackageId { get; set; }
-
-        [Required(ErrorMessage = "Tên là bắt buộc.")]
-        public string? Name { get; set; }
-
-        public string? Status { get; set; }
-
-        public string? Type { get; set; }
-
-        public string? Note { get; set; }
-
-        [Range(1, int.MaxValue, ErrorMessage = "Thời gian co lại phải lớn hơn 0.")]
-        public int? ContractionTime { get; set; }
-
-        [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
         public List<QuotationItemRequest> QuotationItems { get; set; }
     }
 
     public class QuotationItemRequest
     {
-        public string? ProjectComponent { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Diện tích phải là một số dương.")]
-        public double? Area { get; set; }
 
         [Required(ErrorMessage = "Đơn vị là bắt buộc.")]
         public string? Unit { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
-        public double? Coefficient { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Trọng lượng phải là một số dương.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
         public double? Weight { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Chi phí lao động phải là một số dương.")]
-        public double? LaborCost { get; set; }
+        public double? UnitPriceLabor { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Giá vật liệu phải là một số dương.")]
-        public double? MaterialPrice { get; set; }
+        public double? UnitPriceRough { get; set; }
 
-        [Required(ErrorMessage = "Danh sách lao động là bắt buộc.")]
+        public double? UnitPriceFinished { get; set; }
+
+        public double? TotalPriceLabor { get; set; }
+
+        public double? TotalPriceRough { get; set; }
+
+        public double? TotalPriceFinished { get; set; }
+        public string ? Note { get; set; }
+
         public List<QuotationLaborRequest> QuotationLabors { get; set; }
 
-        [Required(ErrorMessage = "Danh sách vật liệu là bắt buộc.")]
         public List<QuotationMaterialRequest> QuotationMaterials { get; set; }
     }
 
@@ -168,9 +122,6 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá lao động phải là một số dương.")]
         public double? LaborPrice { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
-        public int? Quantity { get; set; }
     }
 
     public class QuotationMaterialRequest
@@ -184,7 +135,6 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Giá vật liệu phải là một số dương.")]
         public double? MaterialPrice { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
-        public int? Quantity { get; set; }
     }
+
 }
