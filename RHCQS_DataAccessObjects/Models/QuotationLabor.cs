@@ -13,8 +13,6 @@ public partial class QuotationLabor
 
     public double? LaborPrice { get; set; }
 
-    public int? Quantity { get; set; }
-
     public virtual Labor Labor { get; set; } = null!;
 
     public virtual QuotationItem QuotationItem { get; set; } = null!;

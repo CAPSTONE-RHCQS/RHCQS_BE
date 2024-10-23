@@ -76,14 +76,13 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class PackageLaborResponse
     {
 
-        public PackageLaborResponse(Guid id, Guid laborId, string? nameOfLabor, string? type, double? totalPrice, int? quantity, DateTime? insDate)
+        public PackageLaborResponse(Guid id, Guid laborId, string? nameOfLabor, string? type, double? totalPrice, DateTime? insDate)
         {
             Id = id;
             LaborId = laborId;
             NameOfLabor = nameOfLabor;
             Type = type;
             TotalPrice = totalPrice;
-            Quantity = quantity;
             InsDate = insDate;
         }
 
@@ -96,21 +95,18 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public double? TotalPrice { get; set; }
 
-        public int? Quantity { get; set; }
-
         public DateTime? InsDate { get; set; }
     }
     public class PackageMaterialResponse
     {
 
-        public PackageMaterialResponse(Guid id, Guid materialSectionId, string? materialSectionName, string? materialName,
-            int? inventoryQuantity, double? price, string? unit, string? size, string? shape, string? imgUrl, string? description, DateTime? insDate)
+        public PackageMaterialResponse(Guid id, Guid materialSectionId, string? materialSectionName, string? materialName
+            , double? price, string? unit, string? size, string? shape, string? imgUrl, string? description, DateTime? insDate)
         {
             Id = id;
             MaterialSectionId = materialSectionId;
             MaterialSectionName = materialSectionName;
             MaterialName = materialName;
-            InventoryQuantity = inventoryQuantity;
             Price = price;
             Unit = unit;
             Size = size;
@@ -125,7 +121,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid MaterialSectionId { get; set; }
         public string? MaterialSectionName { get; set; }
         public string? MaterialName { get; set; }
-        public int? InventoryQuantity { get; set; }
 
         public double? Price { get; set; }
 

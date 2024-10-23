@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace RHCQS_BusinessObject.Payload.Request
 {
@@ -23,6 +24,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
         public List<SubTemplatesRequest> SubTemplates { get; set; } = new List<SubTemplatesRequest>();
+        public List<MediaRequest> ExteriorsUrls { get; set; } = new List<MediaRequest>();
     }
 
     public class SubTemplatesRequest
@@ -36,12 +38,15 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Size { get; set; }
 
+        public string? ImgURL { get; set; }
+
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequest> TemplateItems { get; set; } = new List<TemplateItemRequest>();
-        public List<MediaRequest> Media { get; set; } = new List<MediaRequest>();
+        public List<MediaRequest> Designdrawings { get; set; } = new List<MediaRequest>();
     }
     public class MediaRequest
     {
+        [JsonIgnore]
         public string? Name { get; set; }
 
         public string? MediaImgURL { get; set; }
@@ -82,6 +87,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
         public List<SubTemplatesRequestForCreate> SubTemplates { get; set; } = new List<SubTemplatesRequestForCreate>();
+        public List<MediaRequest> ExteriorsUrls { get; set; } = new List<MediaRequest>();
     }
     public class SubTemplatesRequestForCreate
     {
@@ -92,9 +98,11 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Size { get; set; }
 
+        public string? ImgURL { get; set; }
+
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequestForCreate> TemplateItems { get; set; } = new List<TemplateItemRequestForCreate>();
-        public List<MediaRequest> Media { get; set; } = new List<MediaRequest>();
+        public List<MediaRequest> Designdrawings { get; set; } = new List<MediaRequest>();
     }
     public class TemplateItemRequestForCreate
     {

@@ -13,8 +13,6 @@ public partial class PackageLabor
 
     public double? Price { get; set; }
 
-    public int? Quantity { get; set; }
-
     public DateTime? InsDate { get; set; }
 
     public virtual Labor Labor { get; set; } = null!;

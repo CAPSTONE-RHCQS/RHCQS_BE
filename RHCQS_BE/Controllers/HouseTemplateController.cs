@@ -133,10 +133,17 @@ namespace RHCQS_BE.Controllers
                 string imageUrl = await _uploadImgService.UploadImageAsync(templ.ImgURL, "DesignHouse");
                 templ.ImgURL = imageUrl;
             }
-
+            foreach (var exterior in templ.ExteriorsUrls)
+            {
+                if (!string.IsNullOrEmpty(exterior.MediaImgURL))
+                {
+                    string mediaUrl = await _uploadImgService.UploadImageAsync(exterior.MediaImgURL, "DesignHouse");
+                    exterior.MediaImgURL = mediaUrl;
+                }
+            }
             foreach (var subTemplate in templ.SubTemplates)
             {
-                foreach (var media in subTemplate.Media)
+                foreach (var media in subTemplate.Designdrawings)
                 {
                     if (!string.IsNullOrEmpty(media.Name))
                     {
@@ -163,10 +170,17 @@ namespace RHCQS_BE.Controllers
                 string imageUrl = await _uploadImgService.UploadImageAsync(templ.ImgURL, "DesignHouse");
                 templ.ImgURL = imageUrl;
             }
-
+            foreach (var exterior in templ.ExteriorsUrls)
+            {
+                if (!string.IsNullOrEmpty(exterior.MediaImgURL))
+                {
+                    string mediaUrl = await _uploadImgService.UploadImageAsync(exterior.MediaImgURL, "DesignHouse");
+                    exterior.MediaImgURL = mediaUrl;
+                }
+            }
             foreach (var subTemplate in templ.SubTemplates)
             {
-                foreach (var media in subTemplate.Media)
+                foreach (var media in subTemplate.Designdrawings)
                 {
                     if (!string.IsNullOrEmpty(media.Name))
                     {

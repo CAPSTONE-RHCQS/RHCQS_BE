@@ -66,6 +66,8 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<PackageLabor> PackageLabors { get; set; }
 
+    public virtual DbSet<PackageMapPromotion> PackageMapPromotions { get; set; }
+
     public virtual DbSet<PackageMaterial> PackageMaterials { get; set; }
 
     public virtual DbSet<PackageQuotation> PackageQuotations { get; set; }
@@ -86,8 +88,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<QuotationMaterial> QuotationMaterials { get; set; }
 
-    public virtual DbSet<QuotationSection> QuotationSections { get; set; }
-
     public virtual DbSet<QuotationUtility> QuotationUtilities { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -105,8 +105,6 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
-
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -302,9 +300,6 @@ public partial class RhcqsContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Unit).HasMaxLength(50);
-            entity.Property(e => e.Weight).HasMaxLength(50);
 
             entity.HasOne(d => d.ConstructionItem).WithMany(p => p.FinalQuotationItems)
                 .HasForeignKey(d => d.ConstructionItemId)
@@ -565,6 +560,24 @@ public partial class RhcqsContext : DbContext
                 .HasConstraintName("FK_PackageLabor_PackageDetail");
         });
 
+        modelBuilder.Entity<PackageMapPromotion>(entity =>
+        {
+            entity.ToTable("PackageMapPromotion");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageMapPromotions)
+                .HasForeignKey(d => d.PackageId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PackageMapPromotion_Package");
+
+            entity.HasOne(d => d.Promotion).WithMany(p => p.PackageMapPromotions)
+                .HasForeignKey(d => d.PromotionId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_PackageMapPromotion_Promotion");
+        });
+
         modelBuilder.Entity<PackageMaterial>(entity =>
         {
             entity.ToTable("PackageMaterial");
@@ -677,14 +690,12 @@ public partial class RhcqsContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.ProjectComponent).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.QuotationSection).WithMany(p => p.QuotationItems)
-                .HasForeignKey(d => d.QuotationSectionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuotationItem_QuotationSection");
+            entity.HasOne(d => d.FinalQuotationItem).WithMany(p => p.QuotationItems)
+                .HasForeignKey(d => d.FinalQuotationItemId)
+                .HasConstraintName("QuotationItem_FinalQuotationItem_FK");
         });
 
         modelBuilder.Entity<QuotationLabor>(entity =>
@@ -720,27 +731,6 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.QuotationItemId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_QuotationMaterial_QuotationItem");
-        });
-
-        modelBuilder.Entity<QuotationSection>(entity =>
-        {
-            entity.ToTable("QuotationSection");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(50);
-            entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.Type).HasMaxLength(50);
-            entity.Property(e => e.UpsDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.FinalQuotationItem).WithMany(p => p.QuotationSections)
-                .HasForeignKey(d => d.FinalQuotationItemId)
-                .HasConstraintName("QuotationSection_FinalQuotationItem_FK");
-
-            entity.HasOne(d => d.Package).WithMany(p => p.QuotationSections)
-                .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuotationSection_Package");
         });
 
         modelBuilder.Entity<QuotationUtility>(entity =>

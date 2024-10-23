@@ -15,8 +15,6 @@ public partial class QuotationMaterial
 
     public double? MaterialPrice { get; set; }
 
-    public int? Quantity { get; set; }
-
     public virtual Material Material { get; set; } = null!;
 
     public virtual QuotationItem QuotationItem { get; set; } = null!;

@@ -7,29 +7,33 @@ public partial class QuotationItem
 {
     public Guid Id { get; set; }
 
-    public Guid QuotationSectionId { get; set; }
-
-    public string? ProjectComponent { get; set; }
-
-    public double? Area { get; set; }
-
     public string? Unit { get; set; }
-
-    public double? Coefficient { get; set; }
 
     public double? Weight { get; set; }
 
-    public double? LaborCost { get; set; }
+    public double? UnitPriceLabor { get; set; }
 
-    public double? MaterialPrice { get; set; }
+    public double? UnitPriceRough { get; set; }
+
+    public double? UnitPriceFinished { get; set; }
+
+    public double? TotalPriceLabor { get; set; }
+
+    public double? TotalPriceRough { get; set; }
+
+    public double? TotalPriceFinished { get; set; }
 
     public DateTime? InsDate { get; set; }
 
     public DateTime? UpsDate { get; set; }
 
+    public Guid? FinalQuotationItemId { get; set; }
+
+    public string? Note { get; set; }
+
+    public virtual FinalQuotationItem? FinalQuotationItem { get; set; }
+
     public virtual ICollection<QuotationLabor> QuotationLabors { get; set; } = new List<QuotationLabor>();
 
     public virtual ICollection<QuotationMaterial> QuotationMaterials { get; set; } = new List<QuotationMaterial>();
-
-    public virtual QuotationSection QuotationSection { get; set; } = null!;
 }

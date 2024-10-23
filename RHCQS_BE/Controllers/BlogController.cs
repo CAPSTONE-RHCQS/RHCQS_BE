@@ -36,7 +36,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="size">Size of the page</param>
         /// <returns>List of blogs</returns>
         #endregion
-        [Authorize(Roles = "Customer, Manager")]
+        [Authorize(Roles = "Customer, Manager, SalesStaff, DesignStaff")]
         [HttpGet(ApiEndPointConstant.Blog.BlogEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<BlogResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -59,7 +59,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="id">Blog ID</param>
         /// <returns>Blog details</returns>
         #endregion
-        [Authorize(Roles = "Customer, Manager")]
+        [Authorize(Roles = "Customer, Manager, SalesStaff, DesignStaff")]
         [HttpGet(ApiEndPointConstant.Blog.BlogDetailEndpoint)]
         [ProducesResponseType(typeof(BlogResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -82,7 +82,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="accountId">Account ID</param>
         /// <returns>Blog details</returns>
         #endregion
-        [Authorize(Roles = "Customer, Manager")]
+        [Authorize(Roles = "Customer, Manager, SalesStaff, DesignStaff")]
         [HttpGet(ApiEndPointConstant.Blog.BlogByAccountEndpoint)]
         [ProducesResponseType(typeof(BlogResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

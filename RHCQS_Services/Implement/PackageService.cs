@@ -47,7 +47,6 @@ namespace RHCQS_Services.Implement
                         pl.Labor?.Name,
                         pl.Labor?.Type,
                         pl.Price,
-                        pl.Quantity,
                         pl.InsDate
                     )).ToList() ?? new List<PackageLaborResponse>(),
                     pd.PackageMaterials?.Select(pm => new PackageMaterialResponse(
@@ -55,7 +54,6 @@ namespace RHCQS_Services.Implement
                         pm.MaterialSectionId,
                         pm.MaterialSection?.Name,
                         pm.MaterialSection?.Materials.FirstOrDefault()?.Name,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.InventoryQuantity ?? 0,
                         pm.MaterialSection?.Materials.FirstOrDefault()?.Price ?? 0.0,
                         pm.MaterialSection?.Materials.FirstOrDefault()?.Unit,
                         pm.MaterialSection?.Materials.FirstOrDefault()?.Size,
@@ -131,7 +129,6 @@ namespace RHCQS_Services.Implement
                             pm.MaterialSectionId,
                             pm.MaterialSection.Name,
                             pm.MaterialSection.Materials.FirstOrDefault().Name,
-                            pm.MaterialSection.Materials.FirstOrDefault().InventoryQuantity ?? 0,
                             pm.MaterialSection.Materials.FirstOrDefault().Price ?? 0.0,
                             pm.MaterialSection.Materials.FirstOrDefault().Unit,
                             pm.MaterialSection.Materials.FirstOrDefault().Size,
@@ -253,7 +250,6 @@ namespace RHCQS_Services.Implement
                         Id = Guid.NewGuid(),
                         LaborId = pl.LaborId,
                         Price = pl.TotalPrice,
-                        Quantity = pl.Quantity,
                         InsDate = DateTime.Now,
                     }).ToList(),
                     PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
@@ -337,7 +333,6 @@ namespace RHCQS_Services.Implement
                         {
                             existingLabor.LaborId = labor.LaborId;
                             existingLabor.Price = labor.TotalPrice;
-                            existingLabor.Quantity = labor.Quantity;
                         }
                         else
                         {

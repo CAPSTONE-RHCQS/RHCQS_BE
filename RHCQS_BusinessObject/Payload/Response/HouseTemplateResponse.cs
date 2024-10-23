@@ -54,7 +54,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class SubTemplatesResponse
     {
         public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea, DateTime? insDate, string? size,
-            string? url, List<TemplateItemReponse> templateItems, List<MediaResponse> designdrawings, List<MediaResponse> structuredrawings)
+            string? url, List<TemplateItemReponse> templateItems, List<MediaResponse> designdrawings)
         {
             Id = id;
             BuildingArea = buildingArea;
@@ -64,7 +64,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             Url = url;
             TemplateItems = templateItems;
             Designdrawings = designdrawings;
-            Structuredrawings = structuredrawings;
         }
 
         public Guid Id { get; set; }
@@ -82,7 +81,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public List<TemplateItemReponse> TemplateItems { get; set; }
 
         public List<MediaResponse> Designdrawings { get; set; }
-        public List<MediaResponse> Structuredrawings { get; set; }
     }
     public class MediaResponse
     {
@@ -137,16 +135,20 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageHouseResponse
     {
-        public PackageHouseResponse(Guid id, Guid packageId, string? imgUrl, DateTime? insDate)
+        public PackageHouseResponse(Guid id, Guid packageId, string? packageName, string? imgUrl, DateTime? insDate)
         {
             Id = id;
             PackageId = packageId;
+            PackageName = packageName;
             ImgUrl = imgUrl;
             InsDate = insDate;
         }
+
         public Guid Id { get; set; }
 
         public Guid PackageId { get; set; }
+
+        public string? PackageName { get; set; }
 
         public string? ImgUrl { get; set; }
 
