@@ -27,7 +27,7 @@ public partial class QuotationUtility
 
     public Guid UtilitiesSectionId { get; set; }
 
-    public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
+    public virtual FinalQuotation? FinalQuotation { get; set; }
 
     public virtual InitialQuotation? InitialQuotation { get; set; }
 

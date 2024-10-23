@@ -32,8 +32,6 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
         public List<FinalQuotationItemRequest> FinalQuotationItems { get; set; }
 
-        public Guid? QuotationUtilitiesId { get; set; }
-
     }
 
     public class BatchPaymentInfoRequest

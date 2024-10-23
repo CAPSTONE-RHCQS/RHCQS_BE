@@ -25,8 +25,6 @@ public partial class FinalQuotation
 
     public bool? Deflag { get; set; }
 
-    public Guid? QuotationUtilitiesId { get; set; }
-
     public string? ReasonReject { get; set; }
 
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
@@ -41,5 +39,5 @@ public partial class FinalQuotation
 
     public virtual Promotion? Promotion { get; set; }
 
-    public virtual QuotationUtility? QuotationUtilities { get; set; }
+    public virtual ICollection<QuotationUtility> QuotationUtilities { get; set; } = new List<QuotationUtility>();
 }

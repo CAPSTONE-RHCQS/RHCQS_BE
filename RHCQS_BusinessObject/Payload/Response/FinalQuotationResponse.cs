@@ -26,7 +26,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public FinalQuotationResponse(Guid id, string accountName, Guid projectId, string type, string adress
             , double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
-            string? status, bool? deflag, Guid? quotationUtilitiesId, string? reasonReject,
+            string? status, bool? deflag, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
             List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo, List<UtilityInf>? utilityInfos
 /*            ConstructionSummary constructionRough, ConstructionSummary constructionFinished*/)
@@ -43,7 +43,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             UpsDate = upsDate;
             Status = status;
             Deflag = deflag;
-            QuotationUtilitiesId = quotationUtilitiesId;
             ReasonReject = reasonReject;
             BatchPaymentInfos = batchPaymentInfos;
             EquipmentItems = equipmentItems;
@@ -73,8 +72,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Status { get; set; }
 
         public bool? Deflag { get; set; }
-
-        public Guid? QuotationUtilitiesId { get; set; }
 
         public string? ReasonReject { get; set; }
 

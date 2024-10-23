@@ -116,7 +116,6 @@ namespace RHCQS_Services.Implement
                 Version = request.VersionPresent,
                 InsDate = DateTime.UtcNow,
                 Status = request.Status,
-                QuotationUtilitiesId = request.QuotationUtilitiesId,
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
             };
@@ -414,37 +413,34 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities != null
-                    ? new List<UtilityInf>
-                    {
-                new UtilityInf(
-                    finalQuotation.QuotationUtilities.Id,
-                    finalQuotation.QuotationUtilities.Description,
-                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
-                    finalQuotation.QuotationUtilities.Price ?? 0,
-                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.UnitPrice ?? 0,
-                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.Unit
-                )
-                    }
+                var utilityInfoList = finalQuotation.QuotationUtilities != null && finalQuotation.QuotationUtilities.Any()
+                    ? finalQuotation.QuotationUtilities.Select(qUtility => new UtilityInf(
+                        qUtility.Id,
+                        qUtility.Description,
+                        qUtility.Coefiicient ?? 0,
+                        qUtility.Price ?? 0,
+                        qUtility.UtilitiesItem.Section.UnitPrice ?? 0,
+                        qUtility.UtilitiesItem.Section.Unit
+                    )).ToList()
                     : new List<UtilityInf>();
 
-/*                var constructionRough = GetQuotationItems
-                    .Where(item => item.Type == "ROUGH")
-                    .GroupBy(item => item.Type)
-                    .Select(group => new ConstructionSummary(
-                        group.Key,
-                        group.Sum(item => item.TotalPriceRough ?? 0),
-                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                    )).FirstOrDefault();
+                /*                var constructionRough = GetQuotationItems
+                                    .Where(item => item.Type == "ROUGH")
+                                    .GroupBy(item => item.Type)
+                                    .Select(group => new ConstructionSummary(
+                                        group.Key,
+                                        group.Sum(item => item.TotalPriceRough ?? 0),
+                                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                                    )).FirstOrDefault();
 
-                var constructionFinished = GetQuotationItems
-                    .Where(item => item.Type == "FINISHED")
-                    .GroupBy(item => item.Type)
-                    .Select(group => new ConstructionSummary(
-                        group.Key,
-                        group.Sum(item => item.TotalPriceRough ?? 0),
-                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                    )).FirstOrDefault();*/
+                                var constructionFinished = GetQuotationItems
+                                    .Where(item => item.Type == "FINISHED")
+                                    .GroupBy(item => item.Type)
+                                    .Select(group => new ConstructionSummary(
+                                        group.Key,
+                                        group.Sum(item => item.TotalPriceRough ?? 0),
+                                        group.Sum(item => item.TotalPriceLabor ?? 0)
+                                    )).FirstOrDefault();*/
 
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
@@ -459,7 +455,6 @@ namespace RHCQS_Services.Implement
                     finalQuotation.UpsDate,
                     finalQuotation.Status,
                     finalQuotation.Deflag,
-                    finalQuotation.QuotationUtilitiesId,
                     finalQuotation.ReasonReject,
                     batchPaymentsList,
                     equipmentItemsList,
@@ -599,18 +594,15 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities != null
-                    ? new List<UtilityInf>
-                    {
-                new UtilityInf(
-                    finalQuotation.QuotationUtilities.Id,
-                    finalQuotation.QuotationUtilities.Description,
-                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
-                    finalQuotation.QuotationUtilities.Price ?? 0,
-                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.UnitPrice ?? 0,
-                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.Unit
-                )
-                    }
+                var utilityInfoList = finalQuotation.QuotationUtilities != null && finalQuotation.QuotationUtilities.Any()
+                    ? finalQuotation.QuotationUtilities.Select(qUtility => new UtilityInf(
+                        qUtility.Id,
+                        qUtility.Description,
+                        qUtility.Coefiicient ?? 0,
+                        qUtility.Price ?? 0,
+                        qUtility.UtilitiesItem.Section.UnitPrice ?? 0,
+                        qUtility.UtilitiesItem.Section.Unit
+                    )).ToList()
                     : new List<UtilityInf>();
 
                 /*                var constructionRough = GetQuotationItems
@@ -644,7 +636,6 @@ namespace RHCQS_Services.Implement
                     finalQuotation.UpsDate,
                     finalQuotation.Status,
                     finalQuotation.Deflag,
-                    finalQuotation.QuotationUtilitiesId,
                     finalQuotation.ReasonReject,
                     batchPaymentsList,
                     equipmentItemsList,
@@ -784,19 +775,17 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities != null
-                    ? new List<UtilityInf>
-                    {
-                new UtilityInf(
-                    finalQuotation.QuotationUtilities.Id,
-                    finalQuotation.QuotationUtilities.Description,
-                    finalQuotation.QuotationUtilities.Coefiicient ?? 0,
-                    finalQuotation.QuotationUtilities.Price ?? 0,
-                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.UnitPrice ?? 0,
-                    finalQuotation.QuotationUtilities.UtilitiesItem.Section.Unit
-                )
-                    }
+                var utilityInfoList = finalQuotation.QuotationUtilities != null && finalQuotation.QuotationUtilities.Any()
+                    ? finalQuotation.QuotationUtilities.Select(qUtility => new UtilityInf(
+                        qUtility.Id,
+                        qUtility.Description,
+                        qUtility.Coefiicient ?? 0,
+                        qUtility.Price ?? 0,
+                        qUtility.UtilitiesItem.Section.UnitPrice ?? 0,
+                        qUtility.UtilitiesItem.Section.Unit
+                    )).ToList()
                     : new List<UtilityInf>();
+
 
                 /*                var constructionRough = GetQuotationItems
                                     .Where(item => item.Type == "ROUGH")
@@ -829,7 +818,6 @@ namespace RHCQS_Services.Implement
                     finalQuotation.UpsDate,
                     finalQuotation.Status,
                     finalQuotation.Deflag,
-                    finalQuotation.QuotationUtilitiesId,
                     finalQuotation.ReasonReject,
                     batchPaymentsList,
                     equipmentItemsList,
@@ -892,7 +880,6 @@ namespace RHCQS_Services.Implement
                     Version = request.VersionPresent + 1,
                     InsDate = DateTime.UtcNow,
                     Status = request.Status,
-                    QuotationUtilitiesId = request.QuotationUtilitiesId,
                     Deflag = true,
                     BatchPayments = new List<BatchPayment>()
                 };

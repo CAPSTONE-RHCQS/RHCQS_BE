@@ -105,6 +105,7 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -286,10 +287,6 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.Promotion).WithMany(p => p.FinalQuotations)
                 .HasForeignKey(d => d.PromotionId)
                 .HasConstraintName("FK_FinalQuotation_Promotion");
-
-            entity.HasOne(d => d.QuotationUtilities).WithMany(p => p.FinalQuotations)
-                .HasForeignKey(d => d.QuotationUtilitiesId)
-                .HasConstraintName("FK_FinalQuotation_QuotationUtilities");
         });
 
         modelBuilder.Entity<FinalQuotationItem>(entity =>
@@ -387,7 +384,7 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.InitialQuotation).WithMany(p => p.InitialQuotationItems)
                 .HasForeignKey(d => d.InitialQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_InitialQuotationItem_InitialQuotation");
+                .HasConstraintName("FK_InitialQuotationItem_InitialQuotation1");
         });
 
         modelBuilder.Entity<Labor>(entity =>
@@ -741,6 +738,10 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.FinalQuotation).WithMany(p => p.QuotationUtilities)
+                .HasForeignKey(d => d.FinalQuotationId)
+                .HasConstraintName("QuotationUtilities_FinalQuotation_FK");
 
             entity.HasOne(d => d.InitialQuotation).WithMany(p => p.QuotationUtilities)
                 .HasForeignKey(d => d.InitialQuotationId)
