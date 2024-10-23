@@ -376,7 +376,7 @@ namespace RHCQS_Services.Implement
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Media),
-                    orderBy: x => x.OrderBy(x => x.Version)
+                    orderBy: x => x.OrderByDescending(x => x.Version)
                 );
 
 
