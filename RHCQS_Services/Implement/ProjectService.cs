@@ -276,7 +276,7 @@ namespace RHCQS_Services.Implement
                             FinalQuotationId = null,
                             InitialQuotationId = initialItem.Id,
                             Name = utl.Name,
-                            Coefiicient = utilityItem.Coefficient,
+                            Coefiicient = 0,
                             Price = utl.Price,
                             Description = sectionItem.Description,
                             InsDate = DateTime.Now,

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects.Context;
+namespace RHCQS_DataAccessObjects.Models;
 
 public partial class RhcqsContext : DbContext
 {
@@ -105,6 +104,7 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -384,7 +384,7 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.InitialQuotation).WithMany(p => p.InitialQuotationItems)
                 .HasForeignKey(d => d.InitialQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_InitialQuotationItem_InitialQuotation1");
+                .HasConstraintName("FK_InitialQuotationItem_InitialQuotation");
         });
 
         modelBuilder.Entity<Labor>(entity =>

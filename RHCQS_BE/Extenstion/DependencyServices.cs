@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using CloudinaryDotNet;
 using DinkToPdf;
 using DinkToPdf.Contracts;
-using RHCQS_DataAccessObjects.Context;
+using RHCQS_DataAccessObjects.Models;
 
 
 namespace RHCQS_BE.Extenstion
