@@ -4,6 +4,7 @@ using DinkToPdf;
 using DinkToPdf.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
@@ -908,7 +909,9 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> ConfirmArgeeInitialFromCustomer(Guid initialId)
         {
-            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
+            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId,
+                                    include: x => x.Include(x => x.Project)
+                                                    .ThenInclude(x => x.Customer!));
 
             if (initialItem == null)
             {
@@ -917,6 +920,31 @@ namespace RHCQS_Services.Implement
 
             initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
+            //Contract design is coming ....
+            var contractDrawing = new Contract
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = initialItem.ProjectId,
+                Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
+                CustomerName = initialItem.Project.Customer!.Username,
+                ContractCode = null,
+                StartDate = null,
+                EndDate = null,
+                ValidityPeriod = null,
+                TaxCode = null,
+                Area = initialItem.Area,
+                UnitPrice = AppConstant.Unit.UnitPrice,
+                ContractValue = null,
+                UrlFile = null,
+                Note = null,
+                Deflag = true,
+                RoughPackagePrice = 0,
+                FinishedPackagePrice = 0,
+                Status = AppConstant.ConstractStatus.PROCESSING,
+                Type = AppConstant.ContractType.Design.ToString(),
+            };
+            await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return isSuccessful;

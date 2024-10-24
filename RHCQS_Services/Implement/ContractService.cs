@@ -116,30 +116,53 @@ namespace RHCQS_Services.Implement
                 if (Enum.TryParse<ContractType>(request.Type, out var contractType))
                 {
                     // Tạo hợp đồng
-                    var contractDrawing = new Contract
+                    var avaibleContract = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(x => x.ProjectId == infoProject.Id);
+                    Contract contractDrawing = null;
+                    if (avaibleContract == null)
                     {
-                        Id = Guid.NewGuid(),
-                        ProjectId = infoProject.Id,
-                        Name = EnumExtensions.GetEnumDescription(contractType),
-                        CustomerName = infoProject.Customer!.Username,
-                        ContractCode = GenerateRandom.GenerateRandomString(10),
-                        StartDate = request.StartDate,
-                        EndDate = request.EndDate,
-                        ValidityPeriod = request.ValidityPeriod,
-                        TaxCode = null,
-                        Area = infoProject.Area,
-                        UnitPrice = AppConstant.Unit.UnitPrice,
-                        ContractValue = request.ContractValue,
-                        UrlFile = request.UrlFile,
-                        Note = null,
-                        Deflag = true,
-                        RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
-                        FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
-                        Status = AppConstant.ConstractStatus.PROCESSING,
-                        Type = request.Type,
-                    };
-
-                    await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+                        contractDrawing = new Contract
+                        {
+                            Id = Guid.NewGuid(),
+                            ProjectId = infoProject.Id,
+                            Name = EnumExtensions.GetEnumDescription(contractType),
+                            CustomerName = infoProject.Customer!.Username,
+                            ContractCode = GenerateRandom.GenerateRandomString(10),
+                            StartDate = request.StartDate,
+                            EndDate = request.EndDate,
+                            ValidityPeriod = request.ValidityPeriod,
+                            TaxCode = null,
+                            Area = infoProject.Area,
+                            UnitPrice = AppConstant.Unit.UnitPrice,
+                            ContractValue = request.ContractValue,
+                            UrlFile = request.UrlFile,
+                            Note = null,
+                            Deflag = true,
+                            RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
+                            FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
+                            Status = AppConstant.ConstractStatus.COMPLETED,
+                            Type = request.Type,
+                        };
+                        await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+                    }
+                    else
+                    {
+                        avaibleContract.ContractCode = GenerateRandom.GenerateRandomString(10);
+                        avaibleContract.StartDate = request.StartDate;
+                        avaibleContract.EndDate = request.EndDate;
+                        avaibleContract.ValidityPeriod = request.ValidityPeriod;
+                        avaibleContract.TaxCode = null;
+                        avaibleContract.Area = infoProject.Area ?? avaibleContract.Area;
+                        avaibleContract.ContractValue = request.ContractValue;
+                        avaibleContract.UrlFile = request.UrlFile;
+                        avaibleContract.Note = null;
+                        avaibleContract.Deflag = true;
+                        avaibleContract.RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price;
+                        avaibleContract.FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price;
+                        avaibleContract.Status = AppConstant.ConstractStatus.COMPLETED;
+                        avaibleContract.Type = avaibleContract.Type;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(avaibleContract);
+                        contractDrawing = avaibleContract;
+                    }
 
                     var initialInfo = infoProject.InitialQuotations.FirstOrDefault(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
 
@@ -169,7 +192,7 @@ namespace RHCQS_Services.Implement
                         var batchPay = new BatchPayment
                         {
                             Id = Guid.NewGuid(),
-                            ContractId = contractDrawing.Id,
+                            ContractId = contractDrawing!.Id,
                             IntitialQuotationId = initialInfo!.Id,
                             InsDate = DateTime.Now,
                             FinalQuotationId = null,
