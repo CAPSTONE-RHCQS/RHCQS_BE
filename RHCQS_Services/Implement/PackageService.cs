@@ -75,7 +75,7 @@ namespace RHCQS_Services.Implement
                         package.PackageType.Name,
                         package.PackageType.InsDate
                     )
-                    : null
+                    : new PackageTypeResponse()
             );
         }
 

@@ -32,7 +32,9 @@ namespace RHCQS_Services.Implement
                                                            s.Deflag,
                                                            s.InsDate,
                                                            s.UpsDate,
-                                                           s.Description
+                                                           s.Description,
+                                                           s.UnitPrice,
+                                                           s.Unit
                 )).ToList()),
                     page: page,
                     size: size);
@@ -54,7 +56,9 @@ namespace RHCQS_Services.Implement
                                                                    s.Deflag,
                                                                    s.InsDate,
                                                                    s.UpsDate,
-                                                                   s.Description)).ToList()),
+                                                                   s.Description,
+                                                                   s.UnitPrice,
+                                                                   s.Unit)).ToList()),
                include: x => x.Include(x => x.UtilitiesSections),
                orderBy: x => x.OrderBy(x => x.InsDate));
                 return listConstruction.Items.ToList();
@@ -71,7 +75,9 @@ namespace RHCQS_Services.Implement
                                                                    s.Deflag,
                                                                    s.InsDate,
                                                                    s.UpsDate,
-                                                                   s.Description)).ToList()),
+                                                                   s.Description, 
+                                                                   s.UnitPrice,
+                                                                   s.Unit)).ToList()),
                include: x => x.Include(x => x.UtilitiesSections),
                orderBy: x => x.OrderBy(x => x.InsDate));
                 return listConstruction.Items.ToList();
@@ -109,6 +115,8 @@ namespace RHCQS_Services.Implement
                 utiSection.InsDate,
                 utiSection.UpsDate,
                 utiSection.Description,
+                utiSection.UnitPrice,
+                utiSection.Unit,
                 utilityItemsResponse 
             );
         }
@@ -136,7 +144,9 @@ namespace RHCQS_Services.Implement
                              s.Deflag,
                              s.InsDate,
                              s.UpsDate,
-                             s.Description)).ToList()
+                             s.Description,
+                             s.UnitPrice,
+                             s.Unit)).ToList()
                 );
             }
 
@@ -159,6 +169,8 @@ namespace RHCQS_Services.Implement
                     utiItem.InsDate,
                     utiItem.UpsDate,
                     utiItem.Description,
+                    utiItem.UnitPrice,
+                    utiItem.Unit,
                     utiItem.UtilitiesItems?.Select(
                         s => new UtilityItemResponse(
                             s.Id,

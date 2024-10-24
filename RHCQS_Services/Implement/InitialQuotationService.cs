@@ -380,7 +380,7 @@ namespace RHCQS_Services.Implement
                 );
 
 
-            return paginatedList.Items.ToList(); 
+            return paginatedList.Items.ToList();
         }
 
 
@@ -750,7 +750,27 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                //Check version present
+                //Check version present dulicapte
+                double nextVersion = 1.0;
+                var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                    predicate: x => x.ProjectId == request.ProjectId,
+                                    orderBy: x => x.OrderByDescending(x => x.Version)
+                                );
+
+                if (highestInitial != null)
+                {
+                    nextVersion = highestInitial.Version + 1;
+
+                    var duplicateVersion = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                        predicate: x => x.ProjectId == request.ProjectId && x.Version == nextVersion
+                    );
+
+                    if (duplicateVersion != null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Conflict_Version);
+                    }
+                }
+
                 var initialItem = new InitialQuotation()
                 {
                     Id = Guid.NewGuid(),
@@ -763,7 +783,7 @@ namespace RHCQS_Services.Implement
                     OthersAgreement = request.OthersAgreement,
                     InsDate = DateTime.Now,
                     Status = AppConstant.QuotationStatus.REVIEWING,
-                    Version = request.VersionPresent ,
+                    Version = nextVersion,
                     IsTemplate = false,
                     Deflag = true,
                     Note = null,
@@ -870,6 +890,13 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
                 }
 
+                var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                            predicate: x => x.Version == request.VersionPresent
+                    );
+
+                initialVersionPresent.Status = AppConstant.QuotationStatus.REJECTED;
+                _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
+
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;
             }
@@ -889,7 +916,7 @@ namespace RHCQS_Services.Implement
             }
 
             initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
-             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return isSuccessful;
