@@ -485,7 +485,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns success message if the update was successful.</response>
         /// <response code="404">Returns if the specified quotation was not found.</response>
         #endregion
-        [Authorize(Roles = "SalesStaff")]
+        //[Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.InitialQuotation.InitialQuotationUpdateEndpoint)]
         [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

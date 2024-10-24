@@ -8,6 +8,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class PackageTypeResponse
     {
+        public PackageTypeResponse() { }
         public PackageTypeResponse(Guid id, string? name, DateTime? insdate)
         {
             Id = id;

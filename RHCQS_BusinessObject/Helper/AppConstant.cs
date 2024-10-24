@@ -217,12 +217,12 @@ public static class AppConstant
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
         public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
-
         public const string FinalQuotaionExists = "FinalQuotaion đã tồn tại.";
         public const string CreateFinalQuotaion = "Tạo FinalQuotaion thất bại.";
         public const string CancelFinalQuotaion = "Cancel FinalQuotaion thất bại.";
         public const string CancelFinalQuotaionAlready = "Quotes không thể cancel được vì status không phù hợp.";
         public const string Not_Finalized_Final_Quotation = "Báo giá chưa kết thúc!";
+        public const string Conflict_Version = "Hiện tại đã có phiên bản báo giá này!";
 
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";

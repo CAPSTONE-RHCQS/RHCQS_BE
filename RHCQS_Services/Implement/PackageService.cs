@@ -75,7 +75,7 @@ namespace RHCQS_Services.Implement
                         package.PackageType.Name,
                         package.PackageType.InsDate
                     )
-                    : null
+                    : new PackageTypeResponse()
             );
         }
 
@@ -102,7 +102,9 @@ namespace RHCQS_Services.Implement
         }
         public async Task<List<PackageResponseForMoblie>> GetListPackage()
         {
-            var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
+            try
+            {
+                var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
                 selector: x => new PackageResponseForMoblie(
                     x.Id,
                     x.PackageTypeId,
@@ -156,7 +158,13 @@ namespace RHCQS_Services.Implement
                 predicate: x => x.Status == "Active"
             );
 
-            return listPackage.ToList();
+                return listPackage.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
+            }
+            
         }
 
         public async Task<PackageResponse> GetPackageDetail(Guid id)
