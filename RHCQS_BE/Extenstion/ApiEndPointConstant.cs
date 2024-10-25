@@ -152,11 +152,13 @@ namespace RHCQS_BE.Extenstion
             public const string ContractDetailEndpoint = ContractEndpoint + "/id";
             public const string ContractDesignEndpoint = ContractEndpoint + "/design";
             public const string ContractDesignTypeEndpoint = ContractEndpoint + "/type";
-            public const string ContractDesignApproveEndpoint = ContractDesignEndpoint + "/approve";
+            public const string ContractDesignApproveEndpoint = ContractDesignEndpoint + "/approved";
             public const string ContractDesignDetailEndpoint = ContractDesignEndpoint + "/id";
+            public const string ContractDesignSignCompletedEndpoint = ContractDesignEndpoint + "/sign/completed";
             public const string ContractConstructionEndpoint = ContractEndpoint + "/construction";
             public const string ContractConstructionDetailEndpoint = ContractConstructionEndpoint + "/id";
-            public const string ContractConstructionApproveEndpoint = ContractConstructionEndpoint + "/approve";
+            public const string ContractConstructionApproveEndpoint = ContractConstructionEndpoint + "/approved";
+            public const string ContractConstructionSignCompletedEndpoint = ContractConstructionEndpoint + "/sign/completed";
             public const string ContractFileEndpoint = ContractEndpoint + "/file";
         }
 
@@ -175,7 +177,8 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentDetailEndpoint = PaymentEndpoint + "/id";
             public const string PaymentTypeEndpoint = PaymentEndpoint + "/type";
             public const string PaymnetBatchEndpoint = PaymentEndpoint + "/batch/id";
-            
+            public const string PaymentBatchDesignConfirmEndpoint = PaymentEndpoint + "/design/confirm";
+            public const string PaymentBatchConstructionConfirmEndpoint = PaymentEndpoint + "/construction/confirm";
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Response;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,7 @@ namespace RHCQS_Services.Interface
     {
         Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size);
         Task<List<PaymentResponse>> GetDetailPayment(Guid projectId);
+        Task<string> ApproveContractDesign(Guid paymentId, List<IFormFile> bills);
+        Task<string> ApproveContractContruction(Guid paymentId, List<IFormFile> bills);
     }
 }
