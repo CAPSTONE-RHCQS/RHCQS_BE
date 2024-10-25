@@ -28,14 +28,14 @@ jobs:
         working-directory: ./source/RHCQS_BE
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ./source/RHCQS_BE/publish_output
         working-directory: ./source/RHCQS_BE
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./source/RHCQS_BE/publish_output
 
   deploy:
     runs-on: windows-latest
@@ -57,5 +57,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .
-
+          package: ./source/RHCQS_BE/publish_output
