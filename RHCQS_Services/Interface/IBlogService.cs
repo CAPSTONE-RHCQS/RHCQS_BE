@@ -13,6 +13,7 @@ namespace RHCQS_Services.Interface
     public interface IBlogService
     {
         public Task<IPaginate<BlogResponse>> GetListBlogAsync(int page, int size);
+        public Task<List<BlogResponse>> GetListBlog();
         Task<BlogResponse> GetBlogById(Guid id);
         Task<BlogResponse> GetBlogByAccountId(Guid accountid);
         Task<BlogResponse> GetBlogByAccountName(string accountname);

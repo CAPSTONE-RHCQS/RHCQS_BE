@@ -264,6 +264,7 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     DesignTemplateId = ph.DesignTemplateId,
                     ImgUrl = ph.ImgUrl,
+                    Description = ph.Description,
                     InsDate = DateTime.Now
                 }).ToList()
             };
@@ -374,6 +375,7 @@ namespace RHCQS_Services.Implement
                 {
                     existingPackageHouse.DesignTemplateId = ph.DesignTemplateId;
                     existingPackageHouse.ImgUrl = ph.ImgUrl;
+                    existingPackageHouse.Description = ph.Description;
                 }
                 else
                 {

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects.Models;
+namespace RHCQS_DataAccessObjects.Context;
 
 public partial class RhcqsContext : DbContext
 {
@@ -104,7 +105,6 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

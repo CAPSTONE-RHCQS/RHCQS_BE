@@ -135,13 +135,14 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageHouseResponse
     {
-        public PackageHouseResponse(Guid id, Guid packageId, string? packageName, string? imgUrl, DateTime? insDate)
+        public PackageHouseResponse(Guid id, Guid packageId, string? packageName, string? imgUrl, DateTime? insDate, string? description)
         {
             Id = id;
             PackageId = packageId;
             PackageName = packageName;
             ImgUrl = imgUrl;
             InsDate = insDate;
+            Description = description;
         }
 
         public Guid Id { get; set; }
@@ -153,6 +154,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? ImgUrl { get; set; }
 
         public DateTime? InsDate { get; set; }
+
+        public string? Description { get; set; }
 
     }
 }

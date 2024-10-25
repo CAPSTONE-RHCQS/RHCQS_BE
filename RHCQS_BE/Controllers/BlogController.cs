@@ -51,6 +51,27 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+        #region GetAllBlog
+        /// <summary>
+        /// Retrieves blog list without entering page and size.
+        /// </summary>
+        /// <returns>List of blog in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, Manager, SalesStaff, DesignStaff")]
+        [HttpGet(ApiEndPointConstant.Blog.BlogListEndpoint)]
+        [ProducesResponseType(typeof(IEnumerable<BlogResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllBlogAsync()
+        {
+            var blogs = await _blogService.GetListBlog();
+            var response = JsonConvert.SerializeObject(blogs, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
 
         #region GetBlogById
         /// <summary>

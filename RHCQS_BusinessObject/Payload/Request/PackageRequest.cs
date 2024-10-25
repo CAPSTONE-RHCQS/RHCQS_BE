@@ -56,5 +56,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? ImgUrl { get; set; }
 
+        public string? Description { get; set; }
+
     }
 }

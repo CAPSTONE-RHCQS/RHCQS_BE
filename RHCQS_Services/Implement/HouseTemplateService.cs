@@ -80,7 +80,8 @@ namespace RHCQS_Services.Implement
                             pgk.PackageId,
                             pgk.Package.PackageName,
                             pgk.ImgUrl,
-                            pgk.InsDate
+                            pgk.InsDate,
+                            pgk.Description
                         )
                     ).ToList(),
                     x.Media
@@ -230,7 +231,9 @@ namespace RHCQS_Services.Implement
                         pkg.PackageId,
                         pkg.Package.PackageName,
                         pkg.ImgUrl,
-                        pkg.InsDate
+                        pkg.InsDate,
+                        pkg.Description
+
                     )).ToList(),
                     template.Media
                         .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
@@ -300,7 +303,8 @@ namespace RHCQS_Services.Implement
                             pgk.PackageId,
                             pgk.Package.PackageName,
                             pgk.ImgUrl,
-                            pgk.InsDate
+                            pgk.InsDate,
+                            pgk.Description
                         )
                     ).ToList(),
                     x.Media
@@ -392,7 +396,8 @@ namespace RHCQS_Services.Implement
                         pkg.PackageId,
                         pkg.Package.PackageName,
                         pkg.ImgUrl,
-                        pkg.InsDate
+                        pkg.InsDate,
+                        pkg.Description
                     )).ToList(),
                     template.Media
                         .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
@@ -529,6 +534,12 @@ namespace RHCQS_Services.Implement
             }
 
             return houseTemplate;
+        }
+        private string GenerateDescription(PackageHouse package, DesignTemplate templ, SubTemplate sub)
+        {
+            return $"Gói nhà {package.Package.PackageName} với đơn giá áp dụng cho nhà phố biệt thự tiêu chuẩn. " +
+                   $"Diện tích thi công: {sub.BuildingArea} m², gồm {templ.NumberOfFloor} tầng và {templ.NumberOfBed} phòng. " +
+                   "Đơn giá trên chưa bao gồm VAT.";
         }
     }
 }

@@ -198,5 +198,27 @@ namespace RHCQS_Services.Implement
             return isSuccessful;
         }
 
+        public async Task<List<BlogResponse>> GetListBlog()
+        {
+            var blogs = await _unitOfWork.GetRepository<Blog>().GetListAsync(
+                selector: x => new BlogResponse(
+                    x.Id,
+                    x.Account.Username,
+                    x.Account.Role.RoleName,
+                    x.Heading,
+                    x.SubHeading,
+                    x.Context,
+                    x.ImgUrl,
+                    x.InsDate,
+                    x.UpsDate
+                ),
+                include: x => x.Include(b => b.Account)
+                               .ThenInclude(a => a.Role),
+                orderBy: x => x.OrderBy(b => b.InsDate)
+            );
+
+            return blogs.ToList();
+        }
+
     }
 }

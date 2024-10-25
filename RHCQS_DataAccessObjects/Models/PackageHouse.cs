@@ -15,6 +15,8 @@ public partial class PackageHouse
 
     public DateTime? InsDate { get; set; }
 
+    public string? Description { get; set; }
+
     public virtual DesignTemplate DesignTemplate { get; set; } = null!;
 
     public virtual Package Package { get; set; } = null!;

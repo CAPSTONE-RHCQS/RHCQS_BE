@@ -41,6 +41,7 @@ namespace RHCQS_BE.Extenstion
         public static class Blog
         {
             public const string BlogEndpoint = ApiEndpoint + "/blogs";
+            public const string BlogListEndpoint = ApiEndpoint + "/listblog";
             public const string BlogDetailEndpoint = BlogEndpoint + "/id";
             public const string BlogByAccountEndpoint = BlogEndpoint + "/accountid";
         }
