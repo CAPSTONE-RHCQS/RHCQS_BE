@@ -22,11 +22,14 @@ jobs:
           dotnet-version: '8.x'
           include-prerelease: true
 
+      # Đặt thư mục làm việc là /source/RHCQS_BE
       - name: Build with dotnet
         run: dotnet build --configuration Release
+        working-directory: ./source/RHCQS_BE
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        working-directory: ./source/RHCQS_BE
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -55,3 +58,4 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
           package: .
+
