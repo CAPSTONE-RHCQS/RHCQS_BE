@@ -48,7 +48,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: .net-app
-
+          
+      - name: List downloaded artifact
+        run: dir .\
+      
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
@@ -56,4 +59,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: ./RHCQS_BE/publish_output
+          package: ./publish_output
