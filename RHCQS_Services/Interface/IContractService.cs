@@ -15,11 +15,10 @@ namespace RHCQS_Services.Interface
     {
         Task<bool> CreateContractDesign(ContractDesignRequest request);
         Task<bool> CreateContractConstruction(ContractConstructionRequest request);
-        Task<string> ApproveContractDesign(Guid paymentId, List<IFormFile> bills);
-        Task<string> ApproveContractContruction(Guid paymentId, List<IFormFile> bills);
         Task<IPaginate<ContractResponse>> GetListContract(int page, int size);
         Task<ContractResponse> GetDetailContract(Guid contractId);
         Task<ContractResponse> GetDetailContractByType(string type);
         Task<ContractAppResponse> GetListContractApp(Guid projectId, string type);
+        Task<string> UploadContractSign(Guid contractId, List<IFormFile> contractFile);
     }
 }

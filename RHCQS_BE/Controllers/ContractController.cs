@@ -101,7 +101,7 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Creates a contract design for a specified project.
         /// 
-        /// Role: MANAGER
+        /// Role: SALES STAFF
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -115,10 +115,10 @@ namespace RHCQS_BE.Controllers
         ///       "validityPeriod": 12,                                 
         ///       "taxCode": "0123456789",                              Mã số thuế
         ///       "contractValue": 50000000,                            Giá trị hợp đồng
-        ///       "urlFile": "https://example.com/contract-file.pdf",
         ///       "note": "This is a contract for project design."
         ///     }
         /// 
+        /// FORM SAMPLE FILE THIET KE: https://res.cloudinary.com/de7pulfdj/raw/upload/v1729870312/iqnzobl2div6ddqo6tdj.docx
         /// </remarks>
         /// <param name="request">Contract design request model</param>
         /// <returns>Returns true if the contract design is created successfully, otherwise false.</returns>
@@ -126,7 +126,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to create the contract design due to invalid input</response>
         /// 
         #endregion
-        [Authorize(Roles = "SalesStaff, Manager")]
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Contract.ContractDesignEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -140,7 +140,7 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Creates a contract construction for a specified project.
         /// 
-        /// Role: MANAGER
+        /// Role: SALES STAFF
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -153,17 +153,17 @@ namespace RHCQS_BE.Controllers
         ///       "validityPeriod": 300,                                  // Validity period in days                Required
         ///       "taxCode": null,                                       // Tax code (nullable)
         ///       "contractValue": 1123500000,                           // Contract value                          Required
-        ///       "urlFile": "https://res.cloudinary.com/de7pulfdj/raw/upload/v1729439219/ppvcvg4h9wlzpsj0pu8b.docx", Required
         ///       "note": null                                           // Additional notes (nullable)
         ///     }
         /// 
+        /// FORM SAMPLE FILE THI CONG: https://res.cloudinary.com/de7pulfdj/raw/upload/v1729870312/fdoh3lrrg1sjyijtv3lj.docx
         /// </remarks>
         /// <param name="request">Contract construction request model</param>
         /// <returns>Returns true if the contract construction is created successfully, otherwise false.</returns>
         /// <response code="200">Contract construction created successfully</response>
         /// <response code="400">Failed to create the contract construction due to invalid input</response>
         #endregion
-        [Authorize(Roles = "SalesStaff, Manager")]
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Contract.ContractConstructionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -173,67 +173,15 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
-        #region ApproveContractDesin
-        /// <summary>
-        /// Manager approve payment contract design 
-        /// 
-        /// Role: MANAGER
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="request">Approve payment contract design</param>
-        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
-        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
-        /// <response code="400">Failed to approve contract due to invalid input</response>
-        /// 
-        #endregion
-        [Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.Contract.ContractDesignApproveEndpoint)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ApproveContractDesin(Guid paymentId, List<IFormFile> files)
-        {
-            var result = await _contractService.ApproveContractDesign(paymentId, files);
-            return Ok(result);
-        }
-
-        #region ApproveContractContruction
-        /// <summary>
-        /// Manager approve payment contract design 
-        /// 
-        /// Role: MANAGER
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="request">Approve payment contract design</param>
-        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
-        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
-        /// <response code="400">Failed to approve contract due to invalid input</response>
-        /// 
-        #endregion
-        [Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.Contract.ContractConstructionApproveEndpoint)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ApproveContractContruction(Guid paymentId, List<IFormFile> files)
-        {
-            var result = await _contractService.ApproveContractContruction(paymentId, files);
-            return Ok(result);
-        }
-
         #region GetListContractApp
         /// <summary>
-        /// Retrieves the contract file associated with a specific project and type.
+        /// Get file contract for App mobile 
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     GET /api/v1/contracts/files
+        /// GET /api/v1/contracts/files
         ///
-        /// Request Example:
-        /// ```http
-        /// GET /api/v1/contracts/files?projectId=bd31c4e5-e549-42ea-aec7-0f08446f089d&type=Design
-        /// ```
         ///
         /// Response Example:
         /// ```json
@@ -259,6 +207,48 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetListContractApp(Guid projectId, string type)
         {
             var contractItem = await _contractService.GetListContractApp(projectId, type);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region UploadContractSign
+        /// <summary>
+        /// Sale Staff upload contract has signed
+        /// 
+        /// ROLE: SALE STAFF
+        /// </summary>
+        /// <remarks>
+        /// **Response Example:**
+        /// ```json
+        /// {
+        ///   "Id": "d5d29d51-d6e7-4c75-a9ff-dff7b63a828c",
+        ///   "UrlFile": "http://example.com/contracts/contract-signature.pdf",
+        /// }
+        /// ```
+        /// 
+        /// **Notes:**
+        /// - The `contractId` parameter is required to specify the target contract for the file upload.
+        /// - Multiple files can be uploaded simultaneously.
+        /// - The uploaded files will be stored under the contract folder and are accessible by their generated URLs.
+        /// </remarks>
+        /// <param name="contractId">The unique identifier of the contract for which files are being uploaded.</param>
+        /// <param name="files">A list of files to upload for the specified contract.</param>
+        /// <returns>Returns the details of the uploaded contract files, including their URLs.</returns>
+        /// <response code="200">Files uploaded successfully and contract details returned</response>
+        /// <response code="404">Contract not found for the specified ID</response>
+        /// <response code="400">Invalid file format or missing required parameters</response>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
+        [HttpPut(ApiEndPointConstant.Contract.ContractConstructionSignCompletedEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadContractSign(Guid contractId, List<IFormFile> files)
+        {
+            var contractItem = await _contractService.UploadContractSign(contractId, files);
             var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
             return new ContentResult()
             {
