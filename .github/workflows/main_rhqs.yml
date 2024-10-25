@@ -19,14 +19,12 @@ jobs:
           dotnet-version: '8.x'
           include-prerelease: true
 
-      # Chạy lệnh build từ thư mục gốc của repository
       - name: Build with dotnet
         run: dotnet build --configuration Release ./RHCQS_BE
 
       - name: dotnet publish
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
-      # Debug: Kiểm tra nội dung thư mục publish_output
       - name: List publish output
         run: dir ./RHCQS_BE/publish_output
 
@@ -50,7 +48,7 @@ jobs:
           name: .net-app
           
       - name: List downloaded artifact
-        run: dir .\
+        run: dir .\  # Check the contents after downloading
       
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -59,5 +57,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: ./RHCQS_BE/publish_output
-
+          package: .  # Change this to ./publish_output if needed
