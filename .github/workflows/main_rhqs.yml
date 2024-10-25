@@ -26,6 +26,10 @@ jobs:
       - name: dotnet publish
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
+      # Debug: Kiểm tra nội dung thư mục publish_output
+      - name: List publish output
+        run: dir ./RHCQS_BE/publish_output
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
