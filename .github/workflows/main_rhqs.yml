@@ -59,4 +59,5 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: ./publish_output
+          package: ./RHCQS_BE/publish_output
+
