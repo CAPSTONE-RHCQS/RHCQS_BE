@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - rhqs
 
 on:
@@ -22,20 +19,18 @@ jobs:
           dotnet-version: '8.x'
           include-prerelease: true
 
-      # Đặt thư mục làm việc là /source/RHCQS_BE
+      # Chạy lệnh build từ thư mục gốc của repository
       - name: Build with dotnet
-        run: dotnet build --configuration Release
-        working-directory: ./source/RHCQS_BE
+        run: dotnet build --configuration Release ./RHCQS_BE
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ./source/RHCQS_BE/publish_output
-        working-directory: ./source/RHCQS_BE
+        run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ./source/RHCQS_BE/publish_output
+          path: ./RHCQS_BE/publish_output
 
   deploy:
     runs-on: windows-latest
@@ -57,4 +52,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: ./source/RHCQS_BE/publish_output
+          package: ./RHCQS_BE/publish_output
