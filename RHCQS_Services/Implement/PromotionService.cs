@@ -96,9 +96,24 @@ namespace RHCQS_Services.Implement
                 Name = request.Name,
                 ExpTime = request.ExpTime,
                 IsRunning = true,
+                Unit = AppConstant.Unit.UnitPriceD
             };
 
             await _unitOfWork.GetRepository<Promotion>().InsertAsync(promotion);
+
+            var packageInfo = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(x => x.Id == request.PackageId);
+            if (packageInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.PackageNotFound);
+            }
+            var mapPackage = new PackageMapPromotion
+            {
+                Id = Guid.NewGuid(),
+                PackageId = request.PackageId,
+                PromotionId = promotion.Id,
+                InsDate = DateTime.Now
+            };
+            await _unitOfWork.GetRepository<PackageMapPromotion>().InsertAsync(mapPackage);
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return true;

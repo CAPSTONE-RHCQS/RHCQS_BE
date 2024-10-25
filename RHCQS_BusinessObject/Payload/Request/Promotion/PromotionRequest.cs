@@ -11,7 +11,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Promotion
     {
 
         [Required(ErrorMessage = "Giá trị là bắt buộc.")]
-        [Range(1, 100, ErrorMessage = "Khuyến mãi có giá trị > 0 và nhỏ hơn < 100")]
+        [Range(1, 100000, ErrorMessage = "Khuyến mãi có giá trị > 0 và nhỏ hơn < 100000")]
         public int? Value { get; set; }
 
         [Required(ErrorMessage = "Thời gian bắt đầu là bắt buộc.")]
@@ -22,6 +22,9 @@ namespace RHCQS_BusinessObject.Payload.Request.Promotion
 
         [Required(ErrorMessage = "Thời gian hết hạn là bắt buộc.")]
         public DateTime? ExpTime { get; set; }
+
+        [Required(ErrorMessage = "Gói thi công là bắt buộc.")]
+        public Guid PackageId { get; set; }
 
     }
 }

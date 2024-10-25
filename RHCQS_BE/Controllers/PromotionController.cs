@@ -139,12 +139,13 @@ namespace RHCQS_BE.Controllers
         /// Sample request:
         /// 
         ///     POST /api/v1/promotion
-        ///     {
-        ///       "value": 20,
-        ///       "startTime": "2024-10-18T00:00:00",
-        ///       "expTime": "2024-10-20T23:59:59",
-        ///       "name": "20% discount for all orders"
-        ///     }
+        /// {
+        ///   "value": 10000,
+        ///   "startTime": "2024-11-25T17:39:38.516Z",
+        ///   "expTime": "2024-12-25T17:39:38.516Z",
+        ///   "name": "Giảm 10000đ cho 1m2 cho Gói hoàn thiện tiêu chuẩn",
+        ///   "packageId": "A1625F79-0AF9-4FE6-8021-2F317EE68B0D"
+        /// }
         /// 
         /// Notes:
         /// - `value` represents the discount value.

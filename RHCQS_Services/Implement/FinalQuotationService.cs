@@ -300,7 +300,7 @@ namespace RHCQS_Services.Implement
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                     x => x.Project.Customer.Username.Equals(name) && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
-                                   .ThenInclude(x => x.Customer)
+                                   .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
@@ -314,8 +314,8 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationMaterials)
-                                   .Include(x => x.BatchPayments)
-                                       .ThenInclude(p => p.Payment)
+                                   .Include(x => x.BatchPayments!)
+                                       .ThenInclude(p => p.Payment!)
                     );
 
                 if (finalQuotation == null)
@@ -496,7 +496,7 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationMaterials)
                                    .Include(x => x.BatchPayments)
-                                       .ThenInclude(p => p.Payment)
+                                       .ThenInclude(p => p.Payment!)
                     );
 
                 if (finalQuotation == null)
@@ -677,7 +677,7 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationMaterials)
                                    .Include(x => x.BatchPayments)
-                                       .ThenInclude(p => p.Payment)
+                                       .ThenInclude(p => p.Payment!)
                     );
 
                 if (finalQuotation == null)
