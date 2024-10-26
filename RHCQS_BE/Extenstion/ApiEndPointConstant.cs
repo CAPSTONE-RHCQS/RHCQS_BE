@@ -83,6 +83,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectCancelEndpoint = ProjectEndpoint + "/cancel";
             public const string ProjectTrackingEndpoint = ProjectEndpoint + "/tracking";
             public const string ProjectTemplateHouseEndpoint = ProjectEndpoint + "/template-house";
+            public const string ProjectDeleteEndpoint = ProjectEndpoint + "/delete";
         }
 
         public static class Construction

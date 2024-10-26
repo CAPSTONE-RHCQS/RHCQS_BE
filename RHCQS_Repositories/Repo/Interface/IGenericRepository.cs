@@ -43,7 +43,7 @@ public interface IGenericRepository<T> : IDisposable where T : class
         Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
         Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null,
         int page = 1,
-        int size = 10);
+        int size = 100);
 
     #endregion
 

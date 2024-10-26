@@ -359,13 +359,22 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Project created successfully</response>
         /// <response code="400">Failed to create the project due to validation errors</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff")]
+        //[Authorize(Roles = "Customer, SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectTemplateHouseEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateTemplateHouseProject([FromBody] TemplateHouseProjectRequest request)
         {
             var isCreate = await _projectService.CreateProjectTemplateHouse(request);
+            return Ok(isCreate);
+        }
+
+        [HttpDelete(ApiEndPointConstant.Project.ProjectDeleteEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteProjectAsync(Guid projectId)
+        {
+            var isCreate = await _projectService.DeleteProjectAsync(projectId);
             return Ok(isCreate);
         }
     }

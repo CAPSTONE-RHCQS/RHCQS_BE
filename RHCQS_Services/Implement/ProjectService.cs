@@ -466,7 +466,9 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> CreateProjectTemplateHouse(TemplateHouseProjectRequest request)
         {
-            var templateHouseInfo = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
+            try
+            {
+                var templateHouseInfo = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
                                     predicate: x => x.Id == request.SubTemplateId,
                                     include: x => x.Include(x => x.TemplateItems)
                                                         .ThenInclude(x => x.SubConstruction)
@@ -474,155 +476,231 @@ namespace RHCQS_Services.Implement
                                                     .Include(x => x.DesignTemplate)
                                                         .ThenInclude(x => x.PackageHouses)
                                                         .ThenInclude(x => x.Package));
-            if (templateHouseInfo == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.TemplateItemNotFound);
-            }
-            var customerInfo = await _unitOfWork.GetRepository<Customer>().FirstOrDefaultAsync(x => x.AccountId == request.AccountId);
-            if (customerInfo == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Customer);
-            }
+                if (templateHouseInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.TemplateItemNotFound);
+                }
+                var customerInfo = await _unitOfWork.GetRepository<Customer>().FirstOrDefaultAsync(x => x.AccountId == request.AccountId);
+                if (customerInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Customer);
+                }
 
 
-            var projectItem = new Project
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customerInfo.Id,
-                Name = "Báo giá sơ bộ " + DateTime.Now,
-                Type = AppConstant.Type.TEMPLATE,
-                Status = AppConstant.ProjectStatus.PROCESSING,
-                InsDate = DateTime.Now,
-                UpsDate = DateTime.Now,
-                ProjectCode = GenerateRandom.GenerateRandomString(5),
-                Address = request.Address,
-                Area = templateHouseInfo.BuildingArea
-            };
-            await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
-
-            var initialItem = new InitialQuotation
-            {
-                Id = Guid.NewGuid(),
-                ProjectId = projectItem.Id,
-                PromotionId = null,
-                Area = templateHouseInfo.BuildingArea,
-                TimeProcessing = null,
-                TimeRough = null,
-                TimeOthers = null,
-                InsDate = DateTime.Now,
-                Status = AppConstant.QuotationStatus.PENDING,
-                Version = 0.0,
-                IsTemplate = true,
-                Deflag = false,
-                Note = null,
-                ReasonReject = null
-            };
-
-            await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
-
-            //System find package rough
-            var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                                    predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH 
-                                    && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
-
-            var packageRoughQuotation = new PackageQuotation
-            {
-                Id = Guid.NewGuid(),
-                PackageId = packageRough.Id,
-                InitialQuotationId = initialItem.Id,
-                Type = AppConstant.Type.ROUGH,
-                InsDate = DateTime.Now
-            };
-
-            await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageRoughQuotation);
-
-            //Customer choose package finished
-            var packageFinishedQuotation = new PackageQuotation
-            {
-                Id = Guid.NewGuid(),
-                PackageId = request.PackageFinished,
-                InitialQuotationId = initialItem.Id,
-                Type = AppConstant.Type.FINISHED,
-                InsDate = DateTime.Now
-            };
-
-            await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageFinishedQuotation);
-
-            foreach (var item in templateHouseInfo.TemplateItems!)
-            {
-                var initialQuotationItem = new InitialQuotationItem
+                var projectItem = new Project
                 {
                     Id = Guid.NewGuid(),
-                    Name = null,
-                    ConstructionItemId = item.ConstructionItemId,
-                    SubConstructionId = item.SubConstructionId,
-                    Area = item.Area,
-                    Price = item.Price,
-                    UnitPrice = "đ",
+                    CustomerId = customerInfo.Id,
+                    Name = "Báo giá sơ bộ " + DateTime.Now,
+                    Type = AppConstant.Type.TEMPLATE,
+                    Status = AppConstant.ProjectStatus.PROCESSING,
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
-                    InitialQuotationId = initialItem.Id
+                    ProjectCode = GenerateRandom.GenerateRandomString(5),
+                    Address = request.Address,
+                    Area = templateHouseInfo.BuildingArea
                 };
-                await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
-            }
+                await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
 
-            if (request.QuotationUtilitiesRequest != null)
-            {
-                foreach (var utl in request.QuotationUtilitiesRequest)
+                var initialItem = new InitialQuotation
                 {
-                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
-                    Guid? sectionId = null;
-                    QuotationUtility utlItem;
-                    //UtilityItem - null => utl.UtilitiesItem = SectionId
-                    //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
-                    if (utilityItem == null)
-                    {
-                        sectionId = utl.UtilitiesItemId;
-                        var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
-                        utlItem = new QuotationUtility
-                        {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = null,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = utl.Name,
-                            Coefiicient = 0,
-                            Price = utl.Price,
-                            Description = sectionItem.Description,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                            UtilitiesSectionId = sectionItem.Id
-                        };
-                    }
-                    else
-                    {
-                        sectionId = utilityItem.SectionId;
-                        utl.UtilitiesItemId = utilityItem.Id;
-                        utlItem = new QuotationUtility
-                        {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = utilityItem.Id,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = utilityItem.Name,
-                            Coefiicient = utilityItem.Coefficient,
-                            Price = utl.Price,
-                            Description = null,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                            UtilitiesSectionId = utilityItem.SectionId
-                        };
-                    }
+                    Id = Guid.NewGuid(),
+                    ProjectId = projectItem.Id,
+                    PromotionId = null,
+                    Area = templateHouseInfo.BuildingArea,
+                    TimeProcessing = null,
+                    TimeRough = null,
+                    TimeOthers = null,
+                    InsDate = DateTime.Now,
+                    Status = AppConstant.QuotationStatus.PENDING,
+                    Version = 0.0,
+                    IsTemplate = true,
+                    Deflag = false,
+                    Note = null,
+                    ReasonReject = null
+                };
 
-                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+
+                //System find package rough
+                var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
+                                        predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH
+                                        && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
+
+                var packageRoughQuotation = new PackageQuotation
+                {
+                    Id = Guid.NewGuid(),
+                    PackageId = packageRough.Id,
+                    InitialQuotationId = initialItem.Id,
+                    Type = AppConstant.Type.ROUGH,
+                    InsDate = DateTime.Now
+                };
+
+                await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageRoughQuotation);
+
+                //Customer choose package finished
+                var packageFinishedQuotation = new PackageQuotation
+                {
+                    Id = Guid.NewGuid(),
+                    PackageId = request.PackageFinished,
+                    InitialQuotationId = initialItem.Id,
+                    Type = AppConstant.Type.FINISHED,
+                    InsDate = DateTime.Now
+                };
+
+                await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageFinishedQuotation);
+
+                foreach (var item in templateHouseInfo.TemplateItems!)
+                {
+                    var initialQuotationItem = new InitialQuotationItem
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = null,
+                        ConstructionItemId = item.ConstructionItemId,
+                        SubConstructionId = item.SubConstructionId,
+                        Area = item.Area,
+                        Price = item.Price,
+                        UnitPrice = "đ",
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        InitialQuotationId = initialItem.Id
+                    };
+                    await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
                 }
+
+                if (request.QuotationUtilitiesRequest != null)
+                {
+                    foreach (var utl in request.QuotationUtilitiesRequest)
+                    {
+                        var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
+                        Guid? sectionId = null;
+                        QuotationUtility utlItem;
+                        //UtilityItem - null => utl.UtilitiesItem = SectionId
+                        //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
+                        if (utilityItem == null)
+                        {
+                            sectionId = utl.UtilitiesItemId;
+                            var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = null,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = utl.Name,
+                                Coefiicient = 0,
+                                Price = utl.Price,
+                                Description = sectionItem.Description,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = sectionItem.Id
+                            };
+                        }
+                        else
+                        {
+                            sectionId = utilityItem.SectionId;
+                            utl.UtilitiesItemId = utilityItem.Id;
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = utilityItem.Id,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = utilityItem.Name,
+                                Coefiicient = utilityItem.Coefficient,
+                                Price = utl.Price,
+                                Description = null,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = utilityItem.SectionId
+                            };
+                        }
+
+                        await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                    }
+                }
+
+                //Promotion ....
+
+                var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+
+                return true;
             }
-
-            //Promotion ....
-
-            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
-
-            return true;
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+            
         }
+
+        public async Task<bool> DeleteProjectAsync(Guid projectId)
+        {
+            try
+            {
+                // Kiểm tra và lấy dự án
+                var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(p => p.Id == projectId);
+                if (project == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+                }
+
+                // Lấy InitialQuotations liên quan đến dự án
+                var initialQuotations = await _unitOfWork.GetRepository<InitialQuotation>()
+                    .GetListAsync(predicate: iq => iq.ProjectId == projectId);
+
+                if (initialQuotations != null && initialQuotations.Any())
+                {
+                    // Lấy danh sách ID của các InitialQuotation để sử dụng trong điều kiện Contains
+                    var initialQuotationIds = initialQuotations.Select(iq => iq.Id).ToList();
+
+                    // Xóa QuotationUtilities
+                    var quotationUtilities = await _unitOfWork.GetRepository<QuotationUtility>()
+                       .GetListAsync(predicate: qu => qu.InitialQuotationId.HasValue && initialQuotationIds.Contains(qu.InitialQuotationId.Value));
+
+                    foreach (var utility in quotationUtilities)
+                    {
+                        _unitOfWork.GetRepository<QuotationUtility>().DeleteAsync(utility);
+                    }
+
+                    // Xóa InitialQuotationItems
+                    var initialQuotationItems = await _unitOfWork.GetRepository<InitialQuotationItem>()
+                        .GetListAsync(predicate:iqi => initialQuotationIds.Contains(iqi.InitialQuotationId));
+
+                    foreach (var item in initialQuotationItems)
+                    {
+                        _unitOfWork.GetRepository<InitialQuotationItem>().DeleteAsync(item);
+                    }
+
+                    // Xóa PackageQuotations
+                    var packageQuotations = await _unitOfWork.GetRepository<PackageQuotation>()
+                        .GetListAsync(predicate:pq => initialQuotationIds.Contains(pq.InitialQuotationId));
+
+                    foreach (var package in packageQuotations)
+                    {
+                         _unitOfWork.GetRepository<PackageQuotation>().DeleteAsync(package);
+                    }
+
+                    // Xóa InitialQuotations
+                    foreach (var initialQuotation in initialQuotations)
+                    {
+                        _unitOfWork.GetRepository<InitialQuotation>().DeleteAsync(initialQuotation);
+                    }
+                }
+
+                // Xóa dự án
+                _unitOfWork.GetRepository<Project>().DeleteAsync(project);
+
+                // Lưu thay đổi
+                var result = await _unitOfWork.CommitAsync() > 0;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
+        }
+
+
+
     }
 }

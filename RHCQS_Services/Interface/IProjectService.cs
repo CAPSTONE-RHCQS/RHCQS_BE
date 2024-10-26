@@ -26,6 +26,7 @@ namespace RHCQS_Services.Interface
         Task<ProjectAppResponse> TrackingProject(Guid projectId);
 
         Task<bool> CreateProjectTemplateHouse(TemplateHouseProjectRequest request);
+        Task<bool> DeleteProjectAsync(Guid projectId);
 
     }
 }
