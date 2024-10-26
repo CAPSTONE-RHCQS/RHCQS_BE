@@ -56,11 +56,14 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region GetAccountsByRoleId
         /// <summary>
         /// Get a list of accounts by RoleId.
         /// </summary>
-        /// <param name="roleId">The Role ID to filter accounts.</param>
+        /// <param name="id">The Role ID to filter accounts.</param>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
         /// <returns>List of accounts with the specified Role ID.</returns>
         // GET: api/account/role/{roleId}
         #endregion
@@ -90,7 +93,7 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetAccountProfile()
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var accountProfile = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId));
+            var accountProfile = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId!));
 
             var settings = new JsonSerializerSettings
             {

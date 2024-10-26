@@ -333,7 +333,7 @@ namespace RHCQS_BE.Controllers
         /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of a final quotation, 
         /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
         /// </remarks>
-        /// <param name="id">The unique identifier of the final quotation.</param>
+        /// <param name="projectId">The unique identifier of the final quotation.</param>
         /// <returns>Returns the details of the final quotation, or a 404 Not Found response if the ID does not exist.</returns>
         /// <response code="200">Final quotation details retrieved successfully</response>
         /// <response code="404">Final quotation not found</response>
@@ -341,9 +341,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.FinalQuotation.FinalQuotationDetailByProjectIdEndpoint)]
         [ProducesResponseType(typeof(FinalQuotationResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetDetailFinalQuotationByProjectId(Guid projectid)
+        public async Task<IActionResult> GetDetailFinalQuotationByProjectId(Guid projectId)
         {
-            var quotation = await _finalQuotationService.GetDetailFinalQuotationByProjectId(projectid);
+            var quotation = await _finalQuotationService.GetDetailFinalQuotationByProjectId(projectId);
             if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_FinalQuotaion });
             var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
             return new ContentResult()
@@ -444,7 +444,7 @@ namespace RHCQS_BE.Controllers
         /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of a final quotation, 
         /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
         /// </remarks>
-        /// <param name="id">The unique identifier of the final quotation.</param>
+        /// <param name="customerName">The unique identifier of the final quotation.</param>
         /// <returns>Returns the details of the final quotation, or a 404 Not Found response if the ID does not exist.</returns>
         /// <response code="200">Final quotation details retrieved successfully</response>
         /// <response code="404">Final quotation not found</response>

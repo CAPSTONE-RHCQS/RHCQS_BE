@@ -151,7 +151,7 @@ namespace RHCQS_Services.Implement
         public async Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name)
         {
             var constructionItem = await _unitOfWork.GetRepository<ConstructionItem>().FirstOrDefaultAsync(
-                predicate: con => con.Name.Equals(name),
+                predicate: con => con.Name!.Equals(name),
                 include: con => con.Include(con => con.SubConstructionItems)
             );
 
@@ -185,8 +185,9 @@ namespace RHCQS_Services.Implement
             try
             {
                 var isCheckConstruction = await _unitOfWork.GetRepository<ConstructionItem>()
-                                                .FirstOrDefaultAsync(i => i.Name.Equals(item.Name));
-                if (isCheckConstruction != null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionExit);
+                                                .FirstOrDefaultAsync(i => i.Name!.Equals(item.Name));
+                if (isCheckConstruction != null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, 
+                    AppConstant.ErrMessage.ConstructionExit);
                 var constructionItem = new ConstructionItem()
                 {
                     Id = Guid.NewGuid(),
@@ -264,7 +265,7 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var subRequest in request.SubRequests)
                 {
-                    var existingSubItem = constructionItem.SubConstructionItems.FirstOrDefault(x => x.Id == subRequest.Id);
+                    var existingSubItem = constructionItem.SubConstructionItems!.FirstOrDefault(x => x.Id == subRequest.Id);
 
                     if (existingSubItem != null && existingSubItem.Name != subRequest.Name)
                     {

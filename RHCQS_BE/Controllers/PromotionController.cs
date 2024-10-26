@@ -109,7 +109,7 @@ namespace RHCQS_BE.Controllers
         /// 
         /// <b>Roles allowed:</b> MANAGER, CUSTOMER, SALE STAFF
         /// </remarks>
-        /// <param name="promotionId">The unique identifier of the promotion</param>
+        /// <param name="name">The unique identifier of the promotion</param>
         /// <returns>Detailed information about the promotion</returns>
         /// <response code="200">Returns the details of the promotion</response>
         /// <response code="404">If the promotion is not found</response>

@@ -11,7 +11,7 @@ public static class AppConstant
     public class MessageError : Exception
     {
         public int Code { get; set; }
-        public string Message { get; set; }
+        public new string Message { get; set; }
 
         public MessageError(int code, string message)
         {

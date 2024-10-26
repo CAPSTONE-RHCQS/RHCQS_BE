@@ -9,7 +9,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class ConstructionItemResponse
     {
-        public ConstructionItemResponse() { }
         public ConstructionItemResponse(Guid id, string? name, double? coefficient,
             string? unit, DateTime? insDate, DateTime? upsDate,string? type, List<SubConstructionItemResponse> subConstructionItems)
         {

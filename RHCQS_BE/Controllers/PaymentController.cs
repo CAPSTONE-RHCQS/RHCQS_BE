@@ -73,6 +73,7 @@ namespace RHCQS_BE.Controllers
         /// <remarks>
         /// </remarks>
         /// <param name="paymentId">Approve payment contract design</param>
+        /// <param name="files"></param>
         /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
         /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
         /// <response code="400">Failed to approve contract due to invalid input</response>
@@ -96,7 +97,8 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <remarks>
         /// </remarks>
-        /// <param name="request">Approve payment contract design</param>
+        /// <param name="paymentId">Approve payment contract design</param>
+        /// <param name="files"></param>
         /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
         /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
         /// <response code="400">Failed to approve contract due to invalid input</response>

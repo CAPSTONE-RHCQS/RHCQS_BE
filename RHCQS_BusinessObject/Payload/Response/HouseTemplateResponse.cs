@@ -105,7 +105,8 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class TemplateItemReponse
     {
-        public TemplateItemReponse(Guid id, string? name, Guid contructionid, Guid? subcontructionid, double? coefficient, double? area, string? unit, DateTime? insDate)
+        public TemplateItemReponse(Guid id, string? name, Guid contructionid, Guid? subcontructionid, 
+            double? coefficient, double? area, string? unit, DateTime? insDate)
         {
             Id = id;
             Name = name;
