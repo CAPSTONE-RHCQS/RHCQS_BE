@@ -124,6 +124,8 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignVersionDetailEndpoint = HouseDesignVersionEndpoint + "/id";
             public const string HouseDesignVersionUploadFilesEndpoint = HouseDesignVersionEndpoint + "/upload-files";
             public const string ApproveHouseDesignVersionEndpoint = HouseDesignVersionEndpoint + "/approve";
+            public const string HouseDesignVerisonConfirmEndpoint = HouseDesignVersionEndpoint + "/confirm";
+            public const string HouseDesignVersionFeedbackEndpoint = HouseDesignVersionEndpoint + "/feedback";
         }
 
         public static class InitialQuotation

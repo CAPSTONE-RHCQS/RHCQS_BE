@@ -213,6 +213,7 @@ public static class AppConstant
         public const string OverloadProjectDrawing = "Dự án đã khởi tạo 4 bản vẽ thiết kế!";
         public const string DesignNoAccess = "Không có quyền truy cập dự án này!";
         public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
+        public const string House_Design_Not_Found = "Không tìm thấy bản vẽ!";
 
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
