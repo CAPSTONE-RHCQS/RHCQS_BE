@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
+using RHCQS_BusinessObject.Payload.Request.Project;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
@@ -331,6 +332,70 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        #region CreateTemplateHouseProject
+        /// <summary>
+        /// Role: CUSTOMER - SALE STAFF
+        /// Creates a new project along with its initial quotation and optional utilities.
+        /// </summary>
+        /// <remarks>
+        /// **Sample request:**
+        /// 
+        /// ```json
+        /// POST /api/v1/project
+        /// {
+        ///    "customerId": "08B10FF5-E37D-40BF-947C-80CBF78FA411",
+        ///    "name": "Test 1 báo giá",
+        ///    "type": "ALL",
+        ///    "address": "Vĩnh thuận, Long bình, Thủ đức",
+        ///    "area": 123,
+        ///    "packageQuotations": [
+        ///        {
+        ///            "packageId": "aa5057d8-9b30-4f17-a8ee-7aad655b63cc",
+        ///            "type": "ROUGH"
+        ///        },
+        ///        {
+        ///            "packageId": "abeeddf8-487d-4dea-afb9-173b3feb0338",
+        ///            "type": "FINISHED"
+        ///        }
+        ///    ],
+        ///    "initialQuotation": {
+        ///    "promotionId": null,
+        ///        "initialQuotationItemRequests": [
+        ///            {
+        ///        "constructionItemId": "a6ce35ee-d19c-40ac-8044-cbecdb54f8d9",
+        ///                "subConstructionId": "40a79928-c9bb-4338-a8fb-0b0e9389e40e",
+        ///                "area": 123,
+        ///                "price": 56160000
+        ///            }
+        ///        ]
+        ///    },
+        ///    "quotationUtilitiesRequest": [
+        ///        {
+        ///            "ultilitiesItemId": "0A76055D-3AA0-41BF-868F-637EF0C7B19B",
+        ///            "name": "Chi phí thi công trình hẻm nhỏ",
+        ///            "price": 1684800
+        ///        }
+        ///    ]
+        ///}
+        /// ```
+        /// </remarks>
+        /// <param name="request">The request model for creating a project</param>
+        /// <returns>
+        /// Returns true if the project is created successfully; otherwise, false.
+        /// </returns>
+        /// <response code="200">Project created successfully</response>
+        /// <response code="400">Failed to create the project due to validation errors</response>
+        #endregion
+        //[Authorize(Roles = "Customer, SalesStaff")]
+        [HttpPost(ApiEndPointConstant.Project.ProjectTemplateHouseEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateTemplateHouseProject([FromBody] TemplateHouseProjectRequest request)
+        {
+            var isCreate = await _projectService.CreateProjectTemplateHouse(request);
+            return Ok(isCreate);
         }
     }
 }

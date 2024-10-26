@@ -1,4 +1,5 @@
 ﻿using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.Project;
 using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using System;
@@ -23,6 +24,8 @@ namespace RHCQS_Services.Interface
 
         Task<bool> CancelProject(Guid projectId);
         Task<ProjectAppResponse> TrackingProject(Guid projectId);
+
+        Task<bool> CreateProjectTemplateHouse(TemplateHouseProjectRequest request);
 
     }
 }

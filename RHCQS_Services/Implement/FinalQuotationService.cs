@@ -507,7 +507,7 @@ namespace RHCQS_Services.Implement
 
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
-                        bp?.Payment.Id ?? Guid.Empty,
+                        bp?.Payment!.Id ?? Guid.Empty,
                         bp.InsDate,
                         bp.Status,
                         bp?.Payment?.UpsDate,
@@ -971,412 +971,412 @@ namespace RHCQS_Services.Implement
         }
 
 
-/*        private string GenerateHtmlContent(FinalQuotationResponse request)
-        {
-            var sb = new StringBuilder();
-            sb.Append(@"
-<html>
-<head>
-    <meta charset='UTF-8'>
-    <style>
-        @page {
-            margin: 30px;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            font-size: 14px;
-            color: black;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: left;
-            margin-top: 30px;
-        }
-        h3 {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-        p {
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 0;
-            text-align: left;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            page-break-inside: auto;
-        }
-        tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
-        }
-        th, td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f0f0f0;
-        }
-        .center {
-            text-align: center;
-        }
-        .signature {
-            margin-top: 50px;
-            width: 100%;
-        }
-        .signature-row {
-            width: 100%;
-            display: table;
-            margin-top: 20px;
-        }
-        .signature-column {
-            display: table-cell;
-            text-align: center;
-        }
-        .signature-column strong {
-            display: block;
-            margin-top: 50px;
-        }
-        .total {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
-    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
-    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
-    <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
+//        private string GenerateHtmlContent(FinalQuotationResponse request)
+//        {
+//            var sb = new StringBuilder();
+//            sb.Append(@"
+//<html>
+//<head>
+//    <meta charset='UTF-8'>
+//    <style>
+//        @page {
+//            margin: 30px;
+//        }
+//        body {
+//            margin: 0;
+//            padding: 0;
+//            font-family: 'Arial', sans-serif;
+//            font-size: 14px;
+//            color: black;
+//        }
+//        h1 {
+//            font-size: 24px;
+//            font-weight: bold;
+//            text-align: center;
+//            margin-bottom: 20px;
+//        }
+//        h2 {
+//            font-size: 18px;
+//            font-weight: bold;
+//            text-align: left;
+//            margin-top: 30px;
+//        }
+//        h3 {
+//            font-size: 16px;
+//            font-weight: bold;
+//            margin-top: 20px;
+//        }
+//        p {
+//            font-size: 14px;
+//            line-height: 1.5;
+//            margin: 0;
+//            text-align: left;
+//        }
+//        table {
+//            width: 100%;
+//            border-collapse: collapse;
+//            margin-top: 10px;
+//            page-break-inside: auto;
+//        }
+//        tr {
+//            page-break-inside: avoid;
+//            page-break-after: auto;
+//        }
+//        th, td {
+//            border: 1px solid black;
+//            padding: 8px;
+//            text-align: left;
+//        }
+//        th {
+//            background-color: #f0f0f0;
+//        }
+//        .center {
+//            text-align: center;
+//        }
+//        .signature {
+//            margin-top: 50px;
+//            width: 100%;
+//        }
+//        .signature-row {
+//            width: 100%;
+//            display: table;
+//            margin-top: 20px;
+//        }
+//        .signature-column {
+//            display: table-cell;
+//            text-align: center;
+//        }
+//        .signature-column strong {
+//            display: block;
+//            margin-top: 50px;
+//        }
+//        .total {
+//            background-color: #f2f2f2;
+//            font-weight: bold;
+//            color: red;
+//        }
+//    </style>
+//</head>
+//<body>
+//    <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
+//    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
+//    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
+//    <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
 
-    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
-    <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
-    <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
+//    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
+//    <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
+//    <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
 
-    <div class='table-container'>
-        <table>
-            <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>KHOẢN MỤC CHI PHÍ</th>
-                    <th>CHI PHÍ VẬT TƯ</th>
-                    <th>CHI PHÍ NHÂN CÔNG</th>
-                    <th>THÀNH TIỀN (VND)</th>
-                </tr>
-            </thead>
-            <tbody>");
+//    <div class='table-container'>
+//        <table>
+//            <thead>
+//                <tr>
+//                    <th>STT</th>
+//                    <th>KHOẢN MỤC CHI PHÍ</th>
+//                    <th>CHI PHÍ VẬT TƯ</th>
+//                    <th>CHI PHÍ NHÂN CÔNG</th>
+//                    <th>THÀNH TIỀN (VND)</th>
+//                </tr>
+//            </thead>
+//            <tbody>");
 
-            int noCount = 1;
-            var rough = request.ConstructionRough;
-            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
-            string roughTypeDisplay = rough.Type == "ROUGH" ? "Phần thô" : rough.Type;
-            sb.Append($@"
-                <tr>
-                    <td>{noCount++}</td>
-                    <td>{roughTypeDisplay}</td>
-                    <td>{rough.TotalPriceRough:N0}</td>
-                    <td>{rough.TotalPriceLabor:N0}</td>
-                    <td class='highlight'>{roughTotalAmount:N0}</td>
-                </tr>");
+//            int noCount = 1;
+//            var rough = request.ConstructionRough;
+//            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
+//            string roughTypeDisplay = rough.Type == "ROUGH" ? "Phần thô" : rough.Type;
+//            sb.Append($@"
+//                <tr>
+//                    <td>{noCount++}</td>
+//                    <td>{roughTypeDisplay}</td>
+//                    <td>{rough.TotalPriceRough:N0}</td>
+//                    <td>{rough.TotalPriceLabor:N0}</td>
+//                    <td class='highlight'>{roughTotalAmount:N0}</td>
+//                </tr>");
 
-            var finished = request.ConstructionFinished;
-            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor);
-            string finishedTypeDisplay = finished.Type == "FINISHED" ? "Phần hoàn thiện" : finished.Type;
-            sb.Append($@"
-                <tr>
-                    <td>{noCount++}</td>
-                    <td>{finishedTypeDisplay}</td>
-                    <td>{finished.TotalPriceRough:N0}</td>
-                    <td>{finished.TotalPriceLabor:N0}</td>
-                    <td class='highlight'>{finishedTotalAmount:N0}</td>
-                    </tr>");
+//            var finished = request.ConstructionFinished;
+//            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor);
+//            string finishedTypeDisplay = finished.Type == "FINISHED" ? "Phần hoàn thiện" : finished.Type;
+//            sb.Append($@"
+//                <tr>
+//                    <td>{noCount++}</td>
+//                    <td>{finishedTypeDisplay}</td>
+//                    <td>{finished.TotalPriceRough:N0}</td>
+//                    <td>{finished.TotalPriceLabor:N0}</td>
+//                    <td class='highlight'>{finishedTotalAmount:N0}</td>
+//                    </tr>");
 
-            decimal utilityTotal = 0;
+//            decimal utilityTotal = 0;
 
-            if (request.UtilityInfos != null && request.UtilityInfos.Count > 0)
-            {
-                foreach (var utility in request.UtilityInfos)
-                {
-                    decimal utilityAmount = (decimal)utility.Price;
-                    utilityTotal += utilityAmount;
+//            if (request.UtilityInfos != null && request.UtilityInfos.Count > 0)
+//            {
+//                foreach (var utility in request.UtilityInfos)
+//                {
+//                    decimal utilityAmount = (decimal)utility.Price;
+//                    utilityTotal += utilityAmount;
 
-                    string utilityTypeDisplay = "Phần tiện ích";
+//                    string utilityTypeDisplay = "Phần tiện ích";
 
-                    sb.Append($@"
-        <tr>
-            <td>{noCount++}</td>
-            <td>{utilityTypeDisplay}</td>
-            <td></td>
-            <td></td>
-            <td class='highlight'>{utilityAmount:N0}</td>
-        </tr>");
-                }
-            }
+//                    sb.Append($@"
+//        <tr>
+//            <td>{noCount++}</td>
+//            <td>{utilityTypeDisplay}</td>
+//            <td></td>
+//            <td></td>
+//            <td class='highlight'>{utilityAmount:N0}</td>
+//        </tr>");
+//                }
+//            }
 
-            decimal total = roughTotalAmount + finishedTotalAmount + utilityTotal;
-            decimal roundedTotal = Math.Round(total);
-            sb.Append($@"
-                <tr class='total'>
-                    <td colspan='4'>Cộng (chưa VAT)</td>
-                    <td class='highlight'>{total:N0}</td>
-                </tr>
-                <tr class='total'>
-                    <td colspan='4'>Làm tròn (chưa VAT)</td>
-                    <td class='highlight'>{roundedTotal:N0}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>");
-            sb.Append($@"
-    <div class='signature'>
-        <div class='signature-row'>
-            <div class='signature-column'>
-                NGƯỜI LẬP<br />
-                <strong></strong>
-            </div>
-            <div class='signature-column'>
-                NGƯỜI CHỦ TRÌ<br />
-                <strong></strong>
-            </div>
-        </div>
-    </div>");
-            sb.Append($@"
-    <h2>BẢNG BÁO CHI TIẾT</h2>");
+//            decimal total = roughTotalAmount + finishedTotalAmount + utilityTotal;
+//            decimal roundedTotal = Math.Round(total);
+//            sb.Append($@"
+//                <tr class='total'>
+//                    <td colspan='4'>Cộng (chưa VAT)</td>
+//                    <td class='highlight'>{total:N0}</td>
+//                </tr>
+//                <tr class='total'>
+//                    <td colspan='4'>Làm tròn (chưa VAT)</td>
+//                    <td class='highlight'>{roundedTotal:N0}</td>
+//                </tr>
+//            </tbody>
+//        </table>
+//    </div>");
+//            sb.Append($@"
+//    <div class='signature'>
+//        <div class='signature-row'>
+//            <div class='signature-column'>
+//                NGƯỜI LẬP<br />
+//                <strong></strong>
+//            </div>
+//            <div class='signature-column'>
+//                NGƯỜI CHỦ TRÌ<br />
+//                <strong></strong>
+//            </div>
+//        </div>
+//    </div>");
+//            sb.Append($@"
+//    <h2>BẢNG BÁO CHI TIẾT</h2>");
 
-            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "ROUGH").ToList();
-            if (roughItems.Any())
-            {
-                sb.Append($@"
-    <h4>CHI PHÍ THÔ</h4>
-    <table border='1' cellpadding='5' cellspacing='0'>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>NỘI DUNG CÔNG VIỆC</th>
-                <th>DVT</th>
-                <th>KHỐI LƯỢNG</th>
-                <th>ĐƠN GIÁ NHÂN CÔNG</th>
-                <th>ĐƠN GIÁ VẬT TƯ</th>
-                <th>THÀNH TIỀN NHÂN CÔNG</th>
-                <th>THÀNH TIỀN VẬT TƯ</th>
-            </tr>
-        </thead>
-        <tbody>");
+//            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "ROUGH").ToList();
+//            if (roughItems.Any())
+//            {
+//                sb.Append($@"
+//    <h4>CHI PHÍ THÔ</h4>
+//    <table border='1' cellpadding='5' cellspacing='0'>
+//        <thead>
+//            <tr>
+//                <th>STT</th>
+//                <th>NỘI DUNG CÔNG VIỆC</th>
+//                <th>DVT</th>
+//                <th>KHỐI LƯỢNG</th>
+//                <th>ĐƠN GIÁ NHÂN CÔNG</th>
+//                <th>ĐƠN GIÁ VẬT TƯ</th>
+//                <th>THÀNH TIỀN NHÂN CÔNG</th>
+//                <th>THÀNH TIỀN VẬT TƯ</th>
+//            </tr>
+//        </thead>
+//        <tbody>");
 
-                int noCons = 0;
-                foreach (var item in roughItems)
-                {
-                    sb.Append($@"
-        <tr>
-            <td>{++noCons}</td>
-            <td>{item.Name}</td>
-            <td>{item.Unit}</td>
-            <td>{item.Weight:N0}</td>
-            <td>{item.UnitPriceLabor:N0}</td>
-            <td>{item.UnitPriceRough:N0}</td>
-            <td>{item.TotalPriceLabor:N0}</td>
-            <td>{item.TotalPriceRough:N0}</td>
-        </tr>");
-                }
+//                int noCons = 0;
+//                foreach (var item in roughItems)
+//                {
+//                    sb.Append($@"
+//        <tr>
+//            <td>{++noCons}</td>
+//            <td>{item.Name}</td>
+//            <td>{item.Unit}</td>
+//            <td>{item.Weight:N0}</td>
+//            <td>{item.UnitPriceLabor:N0}</td>
+//            <td>{item.UnitPriceRough:N0}</td>
+//            <td>{item.TotalPriceLabor:N0}</td>
+//            <td>{item.TotalPriceRough:N0}</td>
+//        </tr>");
+//                }
 
-                sb.Append("</tbody></table>");
-            }
+//                sb.Append("</tbody></table>");
+//            }
 
-            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "FINISHED").ToList();
-            if (finishedItems.Any())
-            {
-                sb.Append($@"
-    <h4>CHI PHÍ HOÀN THIỆN</h4>
-    <table border='1' cellpadding='5' cellspacing='0'>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>NỘI DUNG CÔNG VIỆC</th>
-                <th>DVT</th>
-                <th>KHỐI LƯỢNG</th>
-                <th>ĐƠN GIÁ NHÂN CÔNG</th>
-                <th>ĐƠN GIÁ VẬT TƯ</th>
-                <th>THÀNH TIỀN NHÂN CÔNG</th>
-                <th>THÀNH TIỀN VẬT TƯ</th>
-            </tr>
-        </thead>
-        <tbody>");
+//            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "FINISHED").ToList();
+//            if (finishedItems.Any())
+//            {
+//                sb.Append($@"
+//    <h4>CHI PHÍ HOÀN THIỆN</h4>
+//    <table border='1' cellpadding='5' cellspacing='0'>
+//        <thead>
+//            <tr>
+//                <th>STT</th>
+//                <th>NỘI DUNG CÔNG VIỆC</th>
+//                <th>DVT</th>
+//                <th>KHỐI LƯỢNG</th>
+//                <th>ĐƠN GIÁ NHÂN CÔNG</th>
+//                <th>ĐƠN GIÁ VẬT TƯ</th>
+//                <th>THÀNH TIỀN NHÂN CÔNG</th>
+//                <th>THÀNH TIỀN VẬT TƯ</th>
+//            </tr>
+//        </thead>
+//        <tbody>");
 
-                int noCons = roughItems.Count;
-                foreach (var item in finishedItems)
-                {
-                    sb.Append($@"
-        <tr>
-            <td>{++noCons}</td>
-            <td>{item.Name}</td>
-            <td>{item.Unit}</td>
-            <td>{item.Weight:N0}</td>
-            <td>{item.UnitPriceLabor:N0}</td>
-            <td>{item.UnitPriceFinished:N0}</td>
-            <td>{item.TotalPriceLabor:N0}</td>
-            <td>{item.TotalPriceFinished:N0}</td>
-        </tr>");
-                }
+//                int noCons = roughItems.Count;
+//                foreach (var item in finishedItems)
+//                {
+//                    sb.Append($@"
+//        <tr>
+//            <td>{++noCons}</td>
+//            <td>{item.Name}</td>
+//            <td>{item.Unit}</td>
+//            <td>{item.Weight:N0}</td>
+//            <td>{item.UnitPriceLabor:N0}</td>
+//            <td>{item.UnitPriceFinished:N0}</td>
+//            <td>{item.TotalPriceLabor:N0}</td>
+//            <td>{item.TotalPriceFinished:N0}</td>
+//        </tr>");
+//                }
 
-                sb.Append("</tbody></table>");
-            }
+//                sb.Append("</tbody></table>");
+//            }
 
-            sb.Append($@"
-        </tbody>
-    </table>
+//            sb.Append($@"
+//        </tbody>
+//    </table>
 
-    <h4>CHI PHÍ THIẾT BỊ</h4>
-    <table border='1' cellpadding='5' cellspacing='0'>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>NỘI DUNG CÔNG VIỆC</th>
-                <th>DVT</th>
-                <th>KHỐI LƯỢNG</th>
-                <th>ĐƠN GIÁ<br />VẬT TƯ HOÀN THIỆN</th>
-                <th>THÀNH TIỀN<br />VẬT TƯ HOÀN THIỆN</th>
-                <th>GHI CHÚ</th>
-            </tr>
-        </thead>
-        <tbody>");
+//    <h4>CHI PHÍ THIẾT BỊ</h4>
+//    <table border='1' cellpadding='5' cellspacing='0'>
+//        <thead>
+//            <tr>
+//                <th>STT</th>
+//                <th>NỘI DUNG CÔNG VIỆC</th>
+//                <th>DVT</th>
+//                <th>KHỐI LƯỢNG</th>
+//                <th>ĐƠN GIÁ<br />VẬT TƯ HOÀN THIỆN</th>
+//                <th>THÀNH TIỀN<br />VẬT TƯ HOÀN THIỆN</th>
+//                <th>GHI CHÚ</th>
+//            </tr>
+//        </thead>
+//        <tbody>");
 
-            int noEqui = 0;
-            foreach (var item in request.EquipmentItems)
-            {
-                sb.Append($@"
-            <tr>
-                <td>{++noEqui}</td>
-                <td>{item.Name}</td>
-                <td>{item.Unit}</td>
-                <td>{item.Quantity:N0}</td>
-                <td>{item.UnitOfMaterial:N0}</td>
-                <td>{item.TotalOfMaterial:N0}</td>
-                <td>{item.Note}</td>
-            </tr>");
-            }
+//            int noEqui = 0;
+//            foreach (var item in request.EquipmentItems)
+//            {
+//                sb.Append($@"
+//            <tr>
+//                <td>{++noEqui}</td>
+//                <td>{item.Name}</td>
+//                <td>{item.Unit}</td>
+//                <td>{item.Quantity:N0}</td>
+//                <td>{item.UnitOfMaterial:N0}</td>
+//                <td>{item.TotalOfMaterial:N0}</td>
+//                <td>{item.Note}</td>
+//            </tr>");
+//            }
 
-            sb.Append($@"
-        </tbody>
-    </table>
+//            sb.Append($@"
+//        </tbody>
+//    </table>
 
-    <h4>CHI PHÍ KHÁC</h4>
-    <table border='1' cellpadding='5' cellspacing='0'>
-        <thead>
-            <tr>
-                <th>STT</th>
-                <th>TIỆN ÍCH</th>
-                <th>HỆ SỐ</th>
-                <th>ĐƠN GIÁ</th>
-                <th>THÀNH TIỀN</th>
-            </tr>
-        </thead>
-        <tbody>");
+//    <h4>CHI PHÍ KHÁC</h4>
+//    <table border='1' cellpadding='5' cellspacing='0'>
+//        <thead>
+//            <tr>
+//                <th>STT</th>
+//                <th>TIỆN ÍCH</th>
+//                <th>HỆ SỐ</th>
+//                <th>ĐƠN GIÁ</th>
+//                <th>THÀNH TIỀN</th>
+//            </tr>
+//        </thead>
+//        <tbody>");
 
-            int noUti = 0;
-            foreach (var item in request.UtilityInfos)
-            {
-                sb.Append($@"
-            <tr>
-                <td>{++noUti}</td>
-                <td>{item.Description}</td>
-                <td>{item.Coefficient:N0}</td>
-                <td>{item.UnitPrice:N0}</td>
-                <td>{item.Price:N0}</td>
-            </tr>");
-            }
+//            int noUti = 0;
+//            foreach (var item in request.UtilityInfos)
+//            {
+//                sb.Append($@"
+//            <tr>
+//                <td>{++noUti}</td>
+//                <td>{item.Description}</td>
+//                <td>{item.Coefficient:N0}</td>
+//                <td>{item.UnitPrice:N0}</td>
+//                <td>{item.Price:N0}</td>
+//            </tr>");
+//            }
 
-            sb.Append($@"
-        </tbody>
-    </table>
+//            sb.Append($@"
+//        </tbody>
+//    </table>
 
-    <h2>KHUYẾN MÃI</h2>
-    <table>
-            <tr>
-                <th>STT</th>
-                <th>KHUYẾN MÃI</th>
-                <th>GIÁ TRỊ (VND)</th>
-                <th>THÀNH TIỀN</th>
-            </tr>
-            ");
-            int noPro = 0;
-            var promotion = request.PromotionInfo;
-            if (promotion != null)
-            {
-                sb.Append($@"
-                     <tr>
-                        <td>{noPro++}</td>
-                        <td>{promotion.Name}</td>
-                        <td>{promotion.Value}</td>
-                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
-                    </tr>");
-            }
-            else
-            {
-                sb.Append($@"
-                    <tr>
-                        <td colspan='4'>Không có khuyên mãi</td>
-                    </tr>");
-            }
+//    <h2>KHUYẾN MÃI</h2>
+//    <table>
+//            <tr>
+//                <th>STT</th>
+//                <th>KHUYẾN MÃI</th>
+//                <th>GIÁ TRỊ (VND)</th>
+//                <th>THÀNH TIỀN</th>
+//            </tr>
+//            ");
+//            int noPro = 0;
+//            var promotion = request.PromotionInfo;
+//            if (promotion != null)
+//            {
+//                sb.Append($@"
+//                     <tr>
+//                        <td>{noPro++}</td>
+//                        <td>{promotion.Name}</td>
+//                        <td>{promotion.Value}</td>
+//                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
+//                    </tr>");
+//            }
+//            else
+//            {
+//                sb.Append($@"
+//                    <tr>
+//                        <td colspan='4'>Không có khuyên mãi</td>
+//                    </tr>");
+//            }
 
-            sb.Append($@"
-        </tbody>
-    </table>
+//            sb.Append($@"
+//        </tbody>
+//    </table>
 
-    <h2>PHƯƠNG THỨC THANH TOÁN</h2>
-    <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
-    <table>
-        <tr>
-            <th>ĐỢT</th>
-            <th>NỘI DUNG THANH TOÁN</th>
-            <th>GIÁ TRỊ(%)</th>
-            <th>GIÁ TRỊ (VND)</th>
-            <th>NGÀY THANH TOÁN</th>
-            <th>HẠN CHÓT</th>
-        </tr>");
+//    <h2>PHƯƠNG THỨC THANH TOÁN</h2>
+//    <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
+//    <table>
+//        <tr>
+//            <th>ĐỢT</th>
+//            <th>NỘI DUNG THANH TOÁN</th>
+//            <th>GIÁ TRỊ(%)</th>
+//            <th>GIÁ TRỊ (VND)</th>
+//            <th>NGÀY THANH TOÁN</th>
+//            <th>HẠN CHÓT</th>
+//        </tr>");
 
-            int stageCounter = 1;
-            foreach (var payment in request.BatchPaymentInfos)
-            {
-                sb.Append($@"
-        <tr>
-            <td>{stageCounter}</td>
-            <td>{payment.Description}</td>
-            <td>{payment.Percents}</td>
-            <td>{payment.Price:N0}</td>
-            <td>{payment.PaymentDate}</td>
-            <td>{payment.PaymentPhase}</td>
-        </tr>");
-                stageCounter++;
-            }
+//            int stageCounter = 1;
+//            foreach (var payment in request.BatchPaymentInfos)
+//            {
+//                sb.Append($@"
+//        <tr>
+//            <td>{stageCounter}</td>
+//            <td>{payment.Description}</td>
+//            <td>{payment.Percents}</td>
+//            <td>{payment.Price:N0}</td>
+//            <td>{payment.PaymentDate}</td>
+//            <td>{payment.PaymentPhase}</td>
+//        </tr>");
+//                stageCounter++;
+//            }
 
-            sb.Append(@"
-    </table>
+//            sb.Append(@"
+//    </table>
 
-    <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
-    <ul>
-        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
-        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
-        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
-    </ul>
+//    <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
+//    <ul>
+//        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
+//        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
+//        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
+//    </ul>
 
-</body>
-</html>");
+//</body>
+//</html>");
 
-            return sb.ToString();
-        }*/
+//            return sb.ToString();
+//        }
     }
 }

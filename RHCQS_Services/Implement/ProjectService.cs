@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.Project;
 using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -456,6 +457,167 @@ namespace RHCQS_Services.Implement
                 finalResponse,
                 processingResponse
             );
+        }
+
+        public async Task<bool> CreateProjectTemplateHouse(TemplateHouseProjectRequest request)
+        {
+            var templateHouseInfo = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
+                                    predicate: x => x.Id == request.SubTemplateId,
+                                    include: x => x.Include(x => x.TemplateItems)
+                                                        .ThenInclude(x => x.SubConstruction)
+                                                        .ThenInclude(x => x.ConstructionItems)
+                                                    .Include(x => x.DesignTemplate)
+                                                        .ThenInclude(x => x.PackageHouses)
+                                                        .ThenInclude(x => x.Package));
+            if (templateHouseInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.TemplateItemNotFound);
+            }
+            var customerInfo = await _unitOfWork.GetRepository<Customer>().FirstOrDefaultAsync(x => x.AccountId == request.AccountId);
+            if (customerInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Customer);
+            }
+
+
+            var projectItem = new Project
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = customerInfo.Id,
+                Name = "Báo giá sơ bộ " + DateTime.Now,
+                Type = AppConstant.Type.TEMPLATE,
+                Status = AppConstant.ProjectStatus.PROCESSING,
+                InsDate = DateTime.Now,
+                UpsDate = DateTime.Now,
+                ProjectCode = GenerateRandom.GenerateRandomString(5),
+                Address = request.Address,
+                Area = templateHouseInfo.BuildingArea
+            };
+            await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
+
+            var initialItem = new InitialQuotation
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = projectItem.Id,
+                PromotionId = null,
+                Area = templateHouseInfo.BuildingArea,
+                TimeProcessing = null,
+                TimeRough = null,
+                TimeOthers = null,
+                InsDate = DateTime.Now,
+                Status = AppConstant.QuotationStatus.PENDING,
+                Version = 0.0,
+                IsTemplate = true,
+                Deflag = false,
+                Note = null,
+                ReasonReject = null
+            };
+
+            await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+
+            //System find package rough
+            var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
+                                    predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH 
+                                    && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
+
+            var packageRoughQuotation = new PackageQuotation
+            {
+                Id = Guid.NewGuid(),
+                PackageId = packageRough.Id,
+                InitialQuotationId = initialItem.Id,
+                Type = AppConstant.Type.ROUGH,
+                InsDate = DateTime.Now
+            };
+
+            await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageRoughQuotation);
+
+            //Customer choose package finished
+            var packageFinishedQuotation = new PackageQuotation
+            {
+                Id = Guid.NewGuid(),
+                PackageId = request.PackgeFinsihed,
+                InitialQuotationId = initialItem.Id,
+                Type = AppConstant.Type.FINISHED,
+                InsDate = DateTime.Now
+            };
+
+            await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageFinishedQuotation);
+
+            foreach (var item in templateHouseInfo.TemplateItems!)
+            {
+                var initialQuotationItem = new InitialQuotationItem
+                {
+                    Id = Guid.NewGuid(),
+                    Name = null,
+                    ConstructionItemId = item.ConstructionItemId,
+                    SubConstructionId = item.SubConstructionId,
+                    Area = item.Area,
+                    Price = item.Price,
+                    UnitPrice = "đ",
+                    InsDate = DateTime.Now,
+                    UpsDate = DateTime.Now,
+                    InitialQuotationId = initialItem.Id
+                };
+                await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
+            }
+
+            if (request.QuotationUtilitiesRequest != null)
+            {
+                foreach (var utl in request.QuotationUtilitiesRequest)
+                {
+                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UltilitiesItemId);
+                    Guid? sectionId = null;
+                    QuotationUtility utlItem;
+                    //UtilityItem - null => utl.UtilitiesItem = SectionId
+                    //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
+                    if (utilityItem == null)
+                    {
+                        sectionId = utl.UltilitiesItemId;
+                        var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
+                        utlItem = new QuotationUtility
+                        {
+                            Id = Guid.NewGuid(),
+                            UtilitiesItemId = null,
+                            FinalQuotationId = null,
+                            InitialQuotationId = initialItem.Id,
+                            Name = utl.Name,
+                            Coefiicient = 0,
+                            Price = utl.Price,
+                            Description = sectionItem.Description,
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                            UtilitiesSectionId = sectionItem.Id
+                        };
+                    }
+                    else
+                    {
+                        sectionId = utilityItem.SectionId;
+                        utl.UltilitiesItemId = utilityItem.Id;
+                        utlItem = new QuotationUtility
+                        {
+                            Id = Guid.NewGuid(),
+                            UtilitiesItemId = utilityItem.Id,
+                            FinalQuotationId = null,
+                            InitialQuotationId = initialItem.Id,
+                            Name = utilityItem.Name,
+                            Coefiicient = utilityItem.Coefficient,
+                            Price = utl.Price,
+                            Description = null,
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                            UtilitiesSectionId = utilityItem.SectionId
+                        };
+                    }
+
+                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                }
+            }
+
+            //Promotion ....
+
+            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+
+            return true;
         }
     }
 }

@@ -19,6 +19,8 @@ public partial class TemplateItem
 
     public Guid? SubConstructionId { get; set; }
 
+    public double? Price { get; set; }
+
     public virtual ConstructionItem ConstructionItem { get; set; } = null!;
 
     public virtual SubConstructionItem? SubConstruction { get; set; }
