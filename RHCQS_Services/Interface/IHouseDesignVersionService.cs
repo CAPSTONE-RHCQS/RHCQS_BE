@@ -13,5 +13,7 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateHouseDesignVersion(HouseDesignVersionRequest request);
         Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId);
         Task<bool> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request);
+        Task<string> ConfirmDesignDrawingFromCustomer(Guid versionId);
+        Task<string> CommentDesignDrawingFromCustomer(Guid versionId, FeedbackHouseDesignDrawingRequest comment);
     }
 }

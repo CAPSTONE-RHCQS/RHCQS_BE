@@ -19,7 +19,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Project
         public string Address { get; set; }
 
         [Required(ErrorMessage = "Gói thi công hoàn thiện là bắt buộc.")]
-        public Guid PackgeFinsihed { get; set; }
+        public Guid PackageFinished { get; set; }
 
         public List<QuotationUtilitiesRequest>? QuotationUtilitiesRequest { get; set; }
     }

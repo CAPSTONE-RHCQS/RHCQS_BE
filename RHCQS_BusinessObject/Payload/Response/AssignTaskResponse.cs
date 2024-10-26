@@ -8,7 +8,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class AssignTaskResponse
     {
-        public AssignTaskResponse() { }
         public AssignTaskResponse(Guid id, Guid accountId, string accountName,
             string? name, string? status, DateTime? insDate)
         {

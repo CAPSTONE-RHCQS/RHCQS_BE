@@ -168,7 +168,8 @@ namespace RHCQS_Services.Implement
             _account.Username = account.Username != default ? account.Username : _account.Username;
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
-            _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash) != default ? PasswordHash.HashPassword(account.PasswordHash) : _account.PasswordHash;
+            _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash!) != default ? 
+                PasswordHash.HashPassword(account.PasswordHash!) : _account.PasswordHash;
             _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
             _account.RoleId = account.RoleId != Guid.Empty ? account.RoleId : _account.RoleId;
             _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;

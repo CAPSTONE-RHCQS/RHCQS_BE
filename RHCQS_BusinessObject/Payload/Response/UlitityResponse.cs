@@ -9,7 +9,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class UtilityResponse
     {
-        public UtilityResponse() { }
         public UtilityResponse(Guid id, string? name, string? type, bool? deflag, 
             DateTime? insDate, DateTime? upsDate, List<UtilitiesSectionResponse> sections)
         { 
@@ -39,7 +38,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class UtilitiesSectionResponse
     {
-        public UtilitiesSectionResponse() { }
         public UtilitiesSectionResponse(Guid id, string? name, bool? deflag, DateTime? insDate,
             DateTime? upsDate, string? description, double? unitPrice, string? unit)
         {
@@ -51,6 +49,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Description = description;
             UnitPrice = unitPrice;
             Unit = unit;
+            Items = new List<UtilityItemResponse>();
         }
 
         public UtilitiesSectionResponse(Guid id, string? name, bool? deflag, DateTime? insDate,

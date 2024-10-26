@@ -261,14 +261,14 @@ namespace RHCQS_Services.Implement
 
                 foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
                 {
-                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UltilitiesItemId);
+                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
                     Guid? sectionId = null;
                     QuotationUtility utlItem;
                     //UtilityItem - null => utl.UtilitiesItem = SectionId
                     //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
                     if (utilityItem == null)
                     {
-                        sectionId = utl.UltilitiesItemId;
+                        sectionId = utl.UtilitiesItemId;
                         var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
                         utlItem = new QuotationUtility
                         {
@@ -288,7 +288,7 @@ namespace RHCQS_Services.Implement
                     else
                     {
                         sectionId = utilityItem.SectionId;
-                        utl.UltilitiesItemId = utilityItem.Id;
+                        utl.UtilitiesItemId = utilityItem.Id;
                         utlItem = new QuotationUtility
                         {
                             Id = Guid.NewGuid(),
@@ -342,6 +342,11 @@ namespace RHCQS_Services.Implement
             //var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Version == 0.0);
 
             await _unitOfWork.GetRepository<AssignTask>().InsertAsync(assignItem);
+
+            //Update Initial quotation status PENDING -> PROCESSING
+            var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.ProjectId == projectId);
+            initialInfo.Status = AppConstant.QuotationStatus.PROCESSING;
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
@@ -535,7 +540,7 @@ namespace RHCQS_Services.Implement
             var packageFinishedQuotation = new PackageQuotation
             {
                 Id = Guid.NewGuid(),
-                PackageId = request.PackgeFinsihed,
+                PackageId = request.PackageFinished,
                 InitialQuotationId = initialItem.Id,
                 Type = AppConstant.Type.FINISHED,
                 InsDate = DateTime.Now
@@ -565,14 +570,14 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var utl in request.QuotationUtilitiesRequest)
                 {
-                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UltilitiesItemId);
+                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
                     Guid? sectionId = null;
                     QuotationUtility utlItem;
                     //UtilityItem - null => utl.UtilitiesItem = SectionId
                     //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
                     if (utilityItem == null)
                     {
-                        sectionId = utl.UltilitiesItemId;
+                        sectionId = utl.UtilitiesItemId;
                         var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
                         utlItem = new QuotationUtility
                         {
@@ -592,7 +597,7 @@ namespace RHCQS_Services.Implement
                     else
                     {
                         sectionId = utilityItem.SectionId;
-                        utl.UltilitiesItemId = utilityItem.Id;
+                        utl.UtilitiesItemId = utilityItem.Id;
                         utlItem = new QuotationUtility
                         {
                             Id = Guid.NewGuid(),

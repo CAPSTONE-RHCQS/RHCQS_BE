@@ -11,7 +11,7 @@ public static class AppConstant
     public class MessageError : Exception
     {
         public int Code { get; set; }
-        public string Message { get; set; }
+        public new string Message { get; set; }
 
         public MessageError(int code, string message)
         {
@@ -57,7 +57,6 @@ public static class AppConstant
         public const string PROCESSING = "Processing";
         public const string DESIGNED = "Designed";
         public const string UNDER_REVIEW = "Reviewing";
-        public const string SIGNED_DESIGN_CONTRACT = "Signed Design Contract";
         public const string SIGNED_CONTRACT = "Signed Contract";
         public const string FINALIZED = "Finalized";
         public const string ENDED = "Ended";
@@ -214,6 +213,7 @@ public static class AppConstant
         public const string OverloadProjectDrawing = "Dự án đã khởi tạo 4 bản vẽ thiết kế!";
         public const string DesignNoAccess = "Không có quyền truy cập dự án này!";
         public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
+        public const string House_Design_Not_Found = "Không tìm thấy bản vẽ!";
 
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";

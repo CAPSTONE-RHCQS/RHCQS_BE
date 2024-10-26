@@ -155,7 +155,7 @@ namespace RHCQS_Services.Implement
                                            .ThenInclude(ms => ms.Materials)
                                .Include(x => x.PackageHouses),
                 orderBy: x => x.OrderBy(x => x.InsDate),
-                predicate: x => x.Status == "Active"
+                predicate: x => x.Status == "Active" && x.PackageType.Name != AppConstant.Type.ROUGH
             );
 
                 return listPackage.ToList();

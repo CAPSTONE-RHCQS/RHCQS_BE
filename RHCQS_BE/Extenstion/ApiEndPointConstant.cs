@@ -82,7 +82,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectAssignEndpoint = ProjectEndpoint + "/assign";
             public const string ProjectCancelEndpoint = ProjectEndpoint + "/cancel";
             public const string ProjectTrackingEndpoint = ProjectEndpoint + "/tracking";
-            public const string ProjectTemplateHouseEndpoint = ProjectEndpoint + "/temple-house";
+            public const string ProjectTemplateHouseEndpoint = ProjectEndpoint + "/template-house";
         }
 
         public static class Construction
@@ -124,6 +124,8 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignVersionDetailEndpoint = HouseDesignVersionEndpoint + "/id";
             public const string HouseDesignVersionUploadFilesEndpoint = HouseDesignVersionEndpoint + "/upload-files";
             public const string ApproveHouseDesignVersionEndpoint = HouseDesignVersionEndpoint + "/approve";
+            public const string HouseDesignVerisonConfirmEndpoint = HouseDesignVersionEndpoint + "/confirm";
+            public const string HouseDesignVersionFeedbackEndpoint = HouseDesignVersionEndpoint + "/feedback";
         }
 
         public static class InitialQuotation
@@ -137,7 +139,7 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationProjectEndpoint = InitialQuotationEndpoint + "/list";
             public const string InitialQuotationNewVersionEndpoint = InitialQuotationEndpoint + "/new";
             public const string InitialQuotationCustomerComment = InitialQuotationEndpoint + "/comment";
-            public const string InitialQuotationCustomerAgree = InitialQuotationEndpoint + "/finalized";
+            public const string InitialQuotationCustomerAgree = ApiEndpoint +"/quotation" + "/finalized";
         }
         public static class FinalQuotation
         {

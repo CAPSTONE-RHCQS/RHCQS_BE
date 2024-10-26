@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
+using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 
@@ -142,6 +143,42 @@ namespace RHCQS_BE.Controllers
         {
             var isApprove = await _designVersionService.ApproveHouseDrawing(Id, request);
             return Ok(isApprove ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
+        }
+
+        #region ConfirmDesignDrawingFromCustomer
+        /// <summary>
+        /// Confirms the agreement of an house desing drawings from a customer.
+        /// 
+        /// ROLE: CUSTOMER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.HouseDesignVersion.HouseDesignVerisonConfirmEndpoint)]
+        [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ConfirmDesignDrawingFromCustomer(Guid versionId)
+        {
+            var result = await _designVersionService.ConfirmDesignDrawingFromCustomer(versionId);
+
+            return Ok(result);
+        }
+
+        #region CommentDesignDrawingFromCustomer
+        /// <summary>
+        /// When customer need to fix house desgin drawing -> Customer comment and click "Gửi"
+        /// 
+        /// ROLE: CUSTOMER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.HouseDesignVersion.HouseDesignVersionFeedbackEndpoint)]
+        [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> FeedbackFixInitialFromCustomer(Guid versionId, FeedbackHouseDesignDrawingRequest request)
+        {
+            var result = await _designVersionService.CommentDesignDrawingFromCustomer(versionId, request);
+
+            return Ok(result);
         }
     }
 }

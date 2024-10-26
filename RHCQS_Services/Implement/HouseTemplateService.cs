@@ -181,6 +181,7 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(st => st.Media)
                                .Include(x => x.PackageHouses)
                                .ThenInclude(p => p.Package)
+                               .ThenInclude(p => p.PackageType)
                                .Include(x => x.Media)
             );
 
@@ -226,7 +227,9 @@ namespace RHCQS_Services.Implement
                                 media.UpsDate
                             )).ToList() // Designdrawings
                     )).ToList(),
-                    template.PackageHouses.Select(pkg => new PackageHouseResponse(
+                    template.PackageHouses
+                    .Where(pkg => pkg.Package.PackageType.Name != "ROUGH")
+                    .Select(pkg => new PackageHouseResponse(
                         pkg.Id,
                         pkg.PackageId,
                         pkg.Package.PackageName,

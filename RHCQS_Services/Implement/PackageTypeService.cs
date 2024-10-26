@@ -75,7 +75,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 return newPackageType;
-            }catch(Exception ex) { throw; }
+            }catch(Exception ex) { throw new Exception(ex.Message); }
         }
     }
 }

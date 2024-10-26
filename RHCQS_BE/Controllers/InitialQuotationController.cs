@@ -484,7 +484,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns success message if the update was successful.</response>
         /// <response code="404">Returns if the specified quotation was not found.</response>
         #endregion
-        //[Authorize(Roles = "SalesStaff")]
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.InitialQuotation.InitialQuotationUpdateEndpoint)]
         [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -497,7 +497,7 @@ namespace RHCQS_BE.Controllers
 
         #region ConfirmArgeeInitialFromCustomer
         /// <summary>
-        /// Confirms the agreement of an initial quotation from a customer.
+        /// Confirms the agreement of an initial quotation + final quotation from a customer.
         /// 
         /// ROLE: CUSTOMER
         /// </summary>
@@ -506,9 +506,9 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.InitialQuotation.InitialQuotationCustomerAgree)]
         [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ConfirmArgeeInitialFromCustomer(Guid initialId)
+        public async Task<IActionResult> ConfirmArgeeInitialFromCustomer(Guid quotationId)
         {
-            var result = await _initialService.ConfirmArgeeInitialFromCustomer(initialId);
+            var result = await _initialService.ConfirmArgeeInitialFromCustomer(quotationId);
 
             return Ok(result);
         }

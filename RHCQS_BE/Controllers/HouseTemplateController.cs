@@ -184,7 +184,7 @@ namespace RHCQS_BE.Controllers
                 {
                     if (!string.IsNullOrEmpty(media.Name))
                     {
-                        string mediaUrl = await _uploadImgService.UploadImageAsync(media.MediaImgURL, "DesignHouse");
+                        string mediaUrl = await _uploadImgService.UploadImageAsync(media.MediaImgURL!, "DesignHouse");
                         media.MediaImgURL = mediaUrl;
                     }
                 }
