@@ -151,6 +151,7 @@ namespace RHCQS_BE.Extenstion
             public const string AssignFinalQuotationEndpoint = FinalQuotationEndpoint + "/assign";
             public const string CancelFinalQuotationEndpoint = FinalQuotationEndpoint + "/cancel";
             public const string ApproveFinalQuotationEndpoint = FinalQuotationEndpoint + "/approve";
+            public const string FinalQuotationProjectEndpoint = FinalQuotationEndpoint + "/list";
         }
 
         public static class Contract

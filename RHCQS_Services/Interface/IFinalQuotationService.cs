@@ -1,6 +1,7 @@
 ﻿    using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.App;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -20,5 +21,6 @@ namespace RHCQS_Services.Interface
         Task<bool> UpdateFinalQuotation(FinalRequest request);
         Task<bool> CreateFinalQuotation(FinalRequest request);
         Task<bool> CancelFinalQuotation(Guid Id, CancelQuotation reason);
+        Task<List<FinalAppResponse>> GetListFinalQuotationByProjectId(Guid projectId);
     }
 }

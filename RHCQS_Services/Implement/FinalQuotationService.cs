@@ -19,6 +19,7 @@ using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
 using RHCQS_BusinessObject.Payload.Request;
 using static RHCQS_BusinessObjects.AppConstant;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using RHCQS_BusinessObject.Payload.Response.App;
 
 namespace RHCQS_Services.Implement
 {
@@ -1494,6 +1495,27 @@ namespace RHCQS_Services.Implement
 </html>");
 
             return sb.ToString();
+        }
+
+        public async Task<List<FinalAppResponse>> GetListFinalQuotationByProjectId(Guid projectId)
+        {
+            var paginatedList = await _unitOfWork.GetRepository<FinalQuotation>()
+                .GetList(
+                    predicate: x => x.ProjectId == projectId,
+                    selector: x => new FinalAppResponse(
+                        x.Id,
+                        x.Version,
+                         x.Media != null && x.Media.Any() ? x.Media.First().Url : string.Empty,
+                         x.Status!
+                    ),
+                    include: x => x.Include(x => x.Project)
+                                   .ThenInclude(x => x.Customer!)
+                                   .Include(x => x.Media),
+                    orderBy: x => x.OrderByDescending(x => x.Version)
+                );
+
+
+            return paginatedList.Items.ToList();
         }
     }
 }

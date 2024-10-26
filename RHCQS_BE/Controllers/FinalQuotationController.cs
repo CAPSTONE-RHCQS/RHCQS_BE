@@ -242,6 +242,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
         #region GetDetailFinalQuotationById
         /// <summary>
         /// Retrieves the details of a specific final quotation by projectid.
@@ -353,6 +354,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
         #region GetDetailFinalQuotationByCustomerName
         /// <summary>
         /// Retrieves the details of a specific final quotation by customer name.
@@ -449,7 +451,6 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Final quotation details retrieved successfully</response>
         /// <response code="404">Final quotation not found</response>
         #endregion
-
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.FinalQuotation.FinalQuotationDetailByCustomerEndpoint)]
         [ProducesResponseType(typeof(FinalQuotationResponse), StatusCodes.Status200OK)]
@@ -465,6 +466,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
         #region UpdateFinalQuotation
         /// <summary>
         /// Update a final quotation.
@@ -480,6 +482,7 @@ namespace RHCQS_BE.Controllers
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);
         }
+
         #region CancelFinalQuotation
         /// <summary>
         /// cancel final quotation.
@@ -495,6 +498,7 @@ namespace RHCQS_BE.Controllers
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CANCELFINAL : AppConstant.Message.ERROR);
         }
+
         #region CreateFinalQuotation
         /// <summary>
         /// Create a final quotation.
@@ -509,6 +513,32 @@ namespace RHCQS_BE.Controllers
             bool quotation = await _finalQuotationService.CreateFinalQuotation(request);
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);
+        }
+
+        #region GetListFinalQuotationByProjectId
+        /// <summary>
+        /// Show file PDF final quotation for App
+        /// 
+        /// Role: CUSTOMER
+        /// </summary>
+        /// <remarks>
+        /// projectId demo: B81935A8-4482-43F5-AD68-558ABDE58D58
+        /// </remarks>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpGet(ApiEndPointConstant.FinalQuotation.FinalQuotationProjectEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListFinalQuotationByProjectId(Guid projectId)
+        {
+            var list = await _finalQuotationService.GetListFinalQuotationByProjectId(projectId);
+            if (list == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_FinalQuotaion});
+            var result = JsonConvert.SerializeObject(list, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }
