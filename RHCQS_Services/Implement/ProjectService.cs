@@ -343,6 +343,11 @@ namespace RHCQS_Services.Implement
 
             await _unitOfWork.GetRepository<AssignTask>().InsertAsync(assignItem);
 
+            //Update Initial quotation status PENDING -> PROCESSING
+            var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.ProjectId == projectId);
+            initialInfo.Status = AppConstant.QuotationStatus.PROCESSING;
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
+
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }

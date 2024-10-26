@@ -85,7 +85,6 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Profile account.
         /// </summary>
-        /// <param name="profile">The account object with the data.</param>
         /// <returns>Profile.</returns>
         #endregion
         [Authorize]
