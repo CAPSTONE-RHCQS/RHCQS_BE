@@ -31,8 +31,6 @@ public partial class QuotationItem
 
     public string? Note { get; set; }
 
-    public string? Name { get; set; }
-
     public virtual FinalQuotationItem? FinalQuotationItem { get; set; }
 
     public virtual ICollection<QuotationLabor> QuotationLabors { get; set; } = new List<QuotationLabor>();

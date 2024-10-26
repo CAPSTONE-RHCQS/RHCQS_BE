@@ -377,7 +377,7 @@ namespace RHCQS_Services.Implement
                         ? qi.QuotationLabors.FirstOrDefault()?.Labor.Name
                         : (qi.QuotationMaterials.Any()
                             ? qi.QuotationMaterials.FirstOrDefault()?.Material.Name
-                            : qi.Name);
+                            : null);
 
                     return new QuotationItemResponse(
                         qi.Id,
@@ -579,7 +579,7 @@ namespace RHCQS_Services.Implement
                         ? qi.QuotationLabors.FirstOrDefault()?.Labor.Name
                         : (qi.QuotationMaterials.Any()
                             ? qi.QuotationMaterials.FirstOrDefault()?.Material.Name
-                            : qi.Name);
+                            : null);
 
                     return new QuotationItemResponse(
                         qi.Id,
@@ -780,7 +780,7 @@ namespace RHCQS_Services.Implement
                         ? qi.QuotationLabors.FirstOrDefault()?.Labor.Name
                         : (qi.QuotationMaterials.Any()
                             ? qi.QuotationMaterials.FirstOrDefault()?.Material.Name
-                            : qi.Name);
+                            : null);
 
                     return new QuotationItemResponse(
                         qi.Id,
