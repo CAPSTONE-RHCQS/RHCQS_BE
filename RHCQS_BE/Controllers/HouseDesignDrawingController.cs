@@ -77,7 +77,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewDrawingPreviousStep(Guid projectId)
         {
-            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var listHouseDesignDrawings = await _houseService.ViewDrawingPreviousStep(accountId, projectId);
             object result;
 
@@ -256,7 +256,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingListEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewDrawingByProjectId(Guid projectId)

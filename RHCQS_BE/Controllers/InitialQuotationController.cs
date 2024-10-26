@@ -300,7 +300,7 @@ namespace RHCQS_BE.Controllers
         /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of an initial quotation, 
         /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
         /// </remarks>
-        /// <param name="name">The unique identifier of the initial quotation.</param>
+        /// <param name="customerName">The unique identifier of the initial quotation.</param>
         /// <returns>Returns the details of the initial quotation, or a 404 Not Found response if the ID does not exist.</returns>
         /// <response code="200">Initial quotation details retrieved successfully</response>
         /// <response code="404">Initial quotation not found</response>
@@ -335,7 +335,6 @@ namespace RHCQS_BE.Controllers
         /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of an initial quotation, 
         /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
         /// </remarks>
-        /// <param name="name">The unique identifier of the initial quotation.</param>
         /// <returns>Returns the details of the initial quotation, or a 404 Not Found response if the ID does not exist.</returns>
         /// <response code="200">Initial quotation details retrieved successfully</response>
         /// <response code="404">Initial quotation not found</response>

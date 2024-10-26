@@ -55,7 +55,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId)
         {
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
-                        predicate: x => x.Account.Id == accountId,
+                        predicate: x => x.Account!.Id == accountId,
                         selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
                                                                       x.Type, x.IsCompany, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
@@ -224,7 +224,7 @@ namespace RHCQS_Services.Implement
         public async Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId)
         {
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
-                predicate: x => x.Account.Id == accountId,
+                predicate: x => x.Account!.Id == accountId,
                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
                                                           x.Type, x.IsCompany, x.InsDate,
                                                           x.HouseDesignVersions.Select(

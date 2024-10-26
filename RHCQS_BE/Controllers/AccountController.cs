@@ -69,7 +69,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(AccountResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListAccountByRoleIdAsync(Guid id, int page, int size)
         {
-            var list = await _accountService.GetListAccountByRoleIdAsync(id,page, size);
+            var list = await _accountService.GetListAccountByRoleIdAsync(id, page, size);
             var accounts = JsonConvert.SerializeObject(list, Formatting.Indented);
             return new ContentResult
             {
@@ -216,7 +216,7 @@ namespace RHCQS_BE.Controllers
         /// Update an account by ID.
         /// </summary>
         /// <param name="id">The ID of the account to update.</param>
-        /// <param name="account">The account object with updated data.</param>
+        /// <param name="accountRequest">The account object with updated data.</param>
         /// <returns>The updated account object.</returns>
         // PUT: api/account/{id}
         #endregion

@@ -55,7 +55,6 @@ namespace RHCQS_BE.Controllers
         /// <remarks>
         /// This API returns a list of projects managed by the sales staff member, with pagination support.
         /// </remarks>
-        /// <param name="token">JWT token of the sales staff member.</param>
         /// <param name="page">The page number for pagination (required).</param>
         /// <param name="size">The number of records per page (required).</param>
         /// <returns>A list of projects related to the sales staff member.</returns>
@@ -312,7 +311,7 @@ namespace RHCQS_BE.Controllers
         /// Role: CUSTOMER - SALE STAFF - MANAGER
         /// Retrieve a list of projects for a specific customer by their email.
         /// </summary>
-        /// <param name="email">The email of the customer whose projects are being requested.</param>
+        /// <param name="projectId">The email of the customer whose projects are being requested.</param>
         /// <returns>A list of projects associated with the given customer's email.</returns>
         /// <response code="200">Returns the list of projects.</response>
         /// <response code="401">If the user is not authenticated or does not have the necessary role.</response>
