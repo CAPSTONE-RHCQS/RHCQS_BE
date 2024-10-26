@@ -202,7 +202,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
         {
-/*            var finalItem = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
+            var finalItem = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
 
             if (finalItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
                                                AppConstant.ErrMessage.Not_Found_FinalQuotaion);
@@ -268,7 +268,8 @@ namespace RHCQS_Services.Implement
                             UpsDate = DateTime.Now,
                             SubTemplateId = null,
                             PaymentId = null,
-                            InitialQuotationId = finalItem.Id
+                            FinalQuotationId = finalItem.Id,
+                            InitialQuotationId = null,
                         };
 
                         await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
@@ -289,7 +290,7 @@ namespace RHCQS_Services.Implement
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
             }
 
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;*/
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return null;
         }
 
@@ -311,9 +312,11 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationLabors)
+                                       .ThenInclude(co => co.Labor)
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationMaterials)
+                                       .ThenInclude(co => co.Material)
                                    .Include(x => x.BatchPayments!)
                                        .ThenInclude(p => p.Payment!)
                     );
@@ -369,8 +372,16 @@ namespace RHCQS_Services.Implement
                 ).ToList();
 
                 var QuotationItems = (List<QuotationItem> quotationItems) => quotationItems.Select(qi =>
-                    new QuotationItemResponse(
+                {
+                    var displayName = qi.QuotationLabors.Any()
+                        ? qi.QuotationLabors.FirstOrDefault()?.Labor.Name
+                        : (qi.QuotationMaterials.Any()
+                            ? qi.QuotationMaterials.FirstOrDefault()?.Material.Name
+                            : null);
+
+                    return new QuotationItemResponse(
                         qi.Id,
+                        displayName,
                         qi.Unit,
                         qi.Weight,
                         qi.UnitPriceLabor,
@@ -384,8 +395,9 @@ namespace RHCQS_Services.Implement
                         qi.Note,
                         QuotationLabors(qi),
                         QuotationMaterials(qi)
-                    )
-                ).ToList();
+                    );
+                }).ToList();
+
 
                 var finalQuotationItemsList = finalQuotation.FinalQuotationItems.Select(fqi =>
                 {
@@ -424,24 +436,33 @@ namespace RHCQS_Services.Implement
                     )).ToList()
                     : new List<UtilityInf>();
 
-                /*                var constructionRough = GetQuotationItems
-                                    .Where(item => item.Type == "ROUGH")
-                                    .GroupBy(item => item.Type)
-                                    .Select(group => new ConstructionSummary(
-                                        group.Key,
-                                        group.Sum(item => item.TotalPriceRough ?? 0),
-                                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                                    )).FirstOrDefault();
+                var constructionRough = finalQuotationItemsList
+                    .Where(item => item.Type == "ROUGH")
+                    .SelectMany(item => item.QuotationItems)
+                    .GroupBy(qi => "ROUGH")
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
 
-                                var constructionFinished = GetQuotationItems
-                                    .Where(item => item.Type == "FINISHED")
-                                    .GroupBy(item => item.Type)
-                                    .Select(group => new ConstructionSummary(
-                                        group.Key,
-                                        group.Sum(item => item.TotalPriceRough ?? 0),
-                                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                                    )).FirstOrDefault();*/
+                var constructionFinished = finalQuotationItemsList
+                    .Where(item => item.Type == "FINISHED")
+                    .SelectMany(item => item.QuotationItems)
+                    .GroupBy(qi => "FINISHED")
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+                var equipmentCost = finalQuotation.EquipmentItems
+                    .Sum(ei => ei.TotalOfMaterial);
 
+                var equipmentCostSummary = new ConstructionSummary(
+                    "EQUIPMENT",
+                    (double)equipmentCost,
+                    0
+                );
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username,
@@ -460,9 +481,10 @@ namespace RHCQS_Services.Implement
                     equipmentItemsList,
                     finalQuotationItemsList,
                     promotionInfo,
-                    utilityInfoList/*,
+                    utilityInfoList,
                     constructionRough,
-                    constructionFinished*/
+                    constructionFinished,
+                    equipmentCostSummary
                 );
 
                 return response;
@@ -481,7 +503,7 @@ namespace RHCQS_Services.Implement
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                     x => x.Id.Equals(id) && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
-                                   .ThenInclude(x => x.Customer)
+                                   .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
@@ -492,10 +514,12 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationLabors)
+                                       .ThenInclude(co => co.Labor)
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationMaterials)
-                                   .Include(x => x.BatchPayments)
+                                       .ThenInclude(co => co.Material)
+                                   .Include(x => x.BatchPayments!)
                                        .ThenInclude(p => p.Payment!)
                     );
 
@@ -550,8 +574,16 @@ namespace RHCQS_Services.Implement
                 ).ToList();
 
                 var QuotationItems = (List<QuotationItem> quotationItems) => quotationItems.Select(qi =>
-                    new QuotationItemResponse(
+                {
+                    var displayName = qi.QuotationLabors.Any()
+                        ? qi.QuotationLabors.FirstOrDefault()?.Labor.Name
+                        : (qi.QuotationMaterials.Any()
+                            ? qi.QuotationMaterials.FirstOrDefault()?.Material.Name
+                            : null);
+
+                    return new QuotationItemResponse(
                         qi.Id,
+                        displayName,
                         qi.Unit,
                         qi.Weight,
                         qi.UnitPriceLabor,
@@ -565,8 +597,8 @@ namespace RHCQS_Services.Implement
                         qi.Note,
                         QuotationLabors(qi),
                         QuotationMaterials(qi)
-                    )
-                ).ToList();
+                    );
+                }).ToList();
 
                 var finalQuotationItemsList = finalQuotation.FinalQuotationItems.Select(fqi =>
                 {
@@ -605,24 +637,33 @@ namespace RHCQS_Services.Implement
                     )).ToList()
                     : new List<UtilityInf>();
 
-                /*                var constructionRough = GetQuotationItems
-                                    .Where(item => item.Type == "ROUGH")
-                                    .GroupBy(item => item.Type)
-                                    .Select(group => new ConstructionSummary(
-                                        group.Key,
-                                        group.Sum(item => item.TotalPriceRough ?? 0),
-                                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                                    )).FirstOrDefault();
+                var constructionRough = finalQuotationItemsList
+                    .Where(item => item.Type == "ROUGH")
+                    .SelectMany(item => item.QuotationItems)
+                    .GroupBy(qi => "ROUGH")
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
 
-                                var constructionFinished = GetQuotationItems
-                                    .Where(item => item.Type == "FINISHED")
-                                    .GroupBy(item => item.Type)
-                                    .Select(group => new ConstructionSummary(
-                                        group.Key,
-                                        group.Sum(item => item.TotalPriceRough ?? 0),
-                                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                                    )).FirstOrDefault();*/
+                var constructionFinished = finalQuotationItemsList
+                    .Where(item => item.Type == "FINISHED")
+                    .SelectMany(item => item.QuotationItems)
+                    .GroupBy(qi => "FINISHED")
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+                var equipmentCost = finalQuotation.EquipmentItems
+                    .Sum(ei => ei.TotalOfMaterial);
 
+                var equipmentCostSummary = new ConstructionSummary(
+                    "EQUIPMENT",
+                    (double)equipmentCost,
+                    0             
+                );
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username,
@@ -641,9 +682,10 @@ namespace RHCQS_Services.Implement
                     equipmentItemsList,
                     finalQuotationItemsList,
                     promotionInfo,
-                    utilityInfoList/*,
+                    utilityInfoList,
                     constructionRough,
-                    constructionFinished*/
+                    constructionFinished,
+                    equipmentCostSummary
                 );
 
                 return response;
@@ -662,7 +704,7 @@ namespace RHCQS_Services.Implement
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                     x => x.ProjectId.Equals(projectid) && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
-                                   .ThenInclude(x => x.Customer)
+                                   .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
@@ -673,10 +715,12 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationLabors)
+                                       .ThenInclude(co => co.Labor)
                                    .Include(x => x.FinalQuotationItems)
                                        .ThenInclude(co => co.QuotationItems)
                                        .ThenInclude(co => co.QuotationMaterials)
-                                   .Include(x => x.BatchPayments)
+                                       .ThenInclude(co => co.Material)
+                                   .Include(x => x.BatchPayments!)
                                        .ThenInclude(p => p.Payment!)
                     );
 
@@ -731,8 +775,16 @@ namespace RHCQS_Services.Implement
                 ).ToList();
 
                 var QuotationItems = (List<QuotationItem> quotationItems) => quotationItems.Select(qi =>
-                    new QuotationItemResponse(
+                {
+                    var displayName = qi.QuotationLabors.Any()
+                        ? qi.QuotationLabors.FirstOrDefault()?.Labor.Name
+                        : (qi.QuotationMaterials.Any()
+                            ? qi.QuotationMaterials.FirstOrDefault()?.Material.Name
+                            : null);
+
+                    return new QuotationItemResponse(
                         qi.Id,
+                        displayName,
                         qi.Unit,
                         qi.Weight,
                         qi.UnitPriceLabor,
@@ -746,8 +798,8 @@ namespace RHCQS_Services.Implement
                         qi.Note,
                         QuotationLabors(qi),
                         QuotationMaterials(qi)
-                    )
-                ).ToList();
+                    );
+                }).ToList();
 
                 var finalQuotationItemsList = finalQuotation.FinalQuotationItems.Select(fqi =>
                 {
@@ -786,25 +838,33 @@ namespace RHCQS_Services.Implement
                     )).ToList()
                     : new List<UtilityInf>();
 
+                var constructionRough = finalQuotationItemsList
+                    .Where(item => item.Type == "ROUGH")
+                    .SelectMany(item => item.QuotationItems)
+                    .GroupBy(qi => "ROUGH")
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
 
-                /*                var constructionRough = GetQuotationItems
-                                    .Where(item => item.Type == "ROUGH")
-                                    .GroupBy(item => item.Type)
-                                    .Select(group => new ConstructionSummary(
-                                        group.Key,
-                                        group.Sum(item => item.TotalPriceRough ?? 0),
-                                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                                    )).FirstOrDefault();
+                var constructionFinished = finalQuotationItemsList
+                    .Where(item => item.Type == "FINISHED")
+                    .SelectMany(item => item.QuotationItems)
+                    .GroupBy(qi => "FINISHED")
+                    .Select(group => new ConstructionSummary(
+                        group.Key,
+                        group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceLabor ?? 0)
+                    )).FirstOrDefault();
+                var equipmentCost = finalQuotation.EquipmentItems
+                    .Sum(ei => ei.TotalOfMaterial);
 
-                                var constructionFinished = GetQuotationItems
-                                    .Where(item => item.Type == "FINISHED")
-                                    .GroupBy(item => item.Type)
-                                    .Select(group => new ConstructionSummary(
-                                        group.Key,
-                                        group.Sum(item => item.TotalPriceRough ?? 0),
-                                        group.Sum(item => item.TotalPriceLabor ?? 0)
-                                    )).FirstOrDefault();*/
-
+                var equipmentCostSummary = new ConstructionSummary(
+                    "EQUIPMENT",
+                    (double)equipmentCost,
+                    0
+                );
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username,
@@ -823,9 +883,10 @@ namespace RHCQS_Services.Implement
                     equipmentItemsList,
                     finalQuotationItemsList,
                     promotionInfo,
-                    utilityInfoList/*,
+                    utilityInfoList,
                     constructionRough,
-                    constructionFinished*/
+                    constructionFinished,
+                    equipmentCostSummary
                 );
 
                 return response;
@@ -970,412 +1031,469 @@ namespace RHCQS_Services.Implement
         }
 
 
-//        private string GenerateHtmlContent(FinalQuotationResponse request)
-//        {
-//            var sb = new StringBuilder();
-//            sb.Append(@"
-//<html>
-//<head>
-//    <meta charset='UTF-8'>
-//    <style>
-//        @page {
-//            margin: 30px;
-//        }
-//        body {
-//            margin: 0;
-//            padding: 0;
-//            font-family: 'Arial', sans-serif;
-//            font-size: 14px;
-//            color: black;
-//        }
-//        h1 {
-//            font-size: 24px;
-//            font-weight: bold;
-//            text-align: center;
-//            margin-bottom: 20px;
-//        }
-//        h2 {
-//            font-size: 18px;
-//            font-weight: bold;
-//            text-align: left;
-//            margin-top: 30px;
-//        }
-//        h3 {
-//            font-size: 16px;
-//            font-weight: bold;
-//            margin-top: 20px;
-//        }
-//        p {
-//            font-size: 14px;
-//            line-height: 1.5;
-//            margin: 0;
-//            text-align: left;
-//        }
-//        table {
-//            width: 100%;
-//            border-collapse: collapse;
-//            margin-top: 10px;
-//            page-break-inside: auto;
-//        }
-//        tr {
-//            page-break-inside: avoid;
-//            page-break-after: auto;
-//        }
-//        th, td {
-//            border: 1px solid black;
-//            padding: 8px;
-//            text-align: left;
-//        }
-//        th {
-//            background-color: #f0f0f0;
-//        }
-//        .center {
-//            text-align: center;
-//        }
-//        .signature {
-//            margin-top: 50px;
-//            width: 100%;
-//        }
-//        .signature-row {
-//            width: 100%;
-//            display: table;
-//            margin-top: 20px;
-//        }
-//        .signature-column {
-//            display: table-cell;
-//            text-align: center;
-//        }
-//        .signature-column strong {
-//            display: block;
-//            margin-top: 50px;
-//        }
-//        .total {
-//            background-color: #f2f2f2;
-//            font-weight: bold;
-//            color: red;
-//        }
-//    </style>
-//</head>
-//<body>
-//    <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
-//    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
-//    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
-//    <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
+        private string GenerateHtmlContent(FinalQuotationResponse request)
+        {
+            var sb = new StringBuilder();
+            sb.Append(@"
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <style>
+        @page {
+            margin: 30px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            color: black;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h2 {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 30px;
+        }
+        h3 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+            text-align: left;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            page-break-inside: auto;
+        }
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .center {
+            text-align: center;
+        }
+        .signature {
+            margin-top: 50px;
+            width: 100%;
+        }
+        .signature-row {
+            width: 100%;
+            display: table;
+            margin-top: 20px;
+        }
+        .signature-column {
+            display: table-cell;
+            text-align: center;
+        }
+        .signature-column strong {
+            display: block;
+            margin-top: 50px;
+        }
+        .total {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
+    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
+    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
+    <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
 
-//    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
-//    <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
-//    <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
+    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
+    <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
+    <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
 
-//    <div class='table-container'>
-//        <table>
-//            <thead>
-//                <tr>
-//                    <th>STT</th>
-//                    <th>KHOẢN MỤC CHI PHÍ</th>
-//                    <th>CHI PHÍ VẬT TƯ</th>
-//                    <th>CHI PHÍ NHÂN CÔNG</th>
-//                    <th>THÀNH TIỀN (VND)</th>
-//                </tr>
-//            </thead>
-//            <tbody>");
+<div class='table-container'>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>KHOẢN MỤC CHI PHÍ</th>
+                <th>CHI PHÍ VẬT TƯ</th>
+                <th>CHI PHÍ NHÂN CÔNG</th>
+                <th>THÀNH TIỀN (VND)</th>
+            </tr>
+        </thead>
+        <tbody>");
 
-//            int noCount = 1;
-//            var rough = request.ConstructionRough;
-//            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
-//            string roughTypeDisplay = rough.Type == "ROUGH" ? "Phần thô" : rough.Type;
-//            sb.Append($@"
-//                <tr>
-//                    <td>{noCount++}</td>
-//                    <td>{roughTypeDisplay}</td>
-//                    <td>{rough.TotalPriceRough:N0}</td>
-//                    <td>{rough.TotalPriceLabor:N0}</td>
-//                    <td class='highlight'>{roughTotalAmount:N0}</td>
-//                </tr>");
+            int noCount = 1;
+            var rough = request.ConstructionRough;
+            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
+            string roughTypeDisplay = rough.Type == "ROUGH" ? "Phần thô" : rough.Type;
+            sb.Append($@"
+    <tr>
+        <td>{noCount++}</td>
+        <td>{roughTypeDisplay}</td>
+        <td>{rough.TotalPriceRough:N0}</td>
+        <td>{rough.TotalPriceLabor:N0}</td>
+        <td class='highlight'>{roughTotalAmount:N0}</td>
+    </tr>");
 
-//            var finished = request.ConstructionFinished;
-//            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor);
-//            string finishedTypeDisplay = finished.Type == "FINISHED" ? "Phần hoàn thiện" : finished.Type;
-//            sb.Append($@"
-//                <tr>
-//                    <td>{noCount++}</td>
-//                    <td>{finishedTypeDisplay}</td>
-//                    <td>{finished.TotalPriceRough:N0}</td>
-//                    <td>{finished.TotalPriceLabor:N0}</td>
-//                    <td class='highlight'>{finishedTotalAmount:N0}</td>
-//                    </tr>");
+            var finished = request.ConstructionFinished;
+            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor);
+            string finishedTypeDisplay = finished.Type == "FINISHED" ? "Phần hoàn thiện" : finished.Type;
+            sb.Append($@"
+    <tr>
+        <td>{noCount++}</td>
+        <td>{finishedTypeDisplay}</td>
+        <td>{finished.TotalPriceRough:N0}</td>
+        <td>{finished.TotalPriceLabor:N0}</td>
+        <td class='highlight'>{finishedTotalAmount:N0}</td>
+    </tr>");
 
-//            decimal utilityTotal = 0;
+            // Add equipment cost summary
+            var equipmentCostSummary = request.Equitment;
+            decimal equipmentTotalAmount = (decimal)(equipmentCostSummary.TotalPriceRough + equipmentCostSummary.TotalPriceLabor);
+            string equipmentTypeDisplay = equipmentCostSummary.Type == "EQUIPMENT" ? "Phần thiết bị" : equipmentCostSummary.Type;
 
-//            if (request.UtilityInfos != null && request.UtilityInfos.Count > 0)
-//            {
-//                foreach (var utility in request.UtilityInfos)
-//                {
-//                    decimal utilityAmount = (decimal)utility.Price;
-//                    utilityTotal += utilityAmount;
+            sb.Append($@"
+    <tr>
+        <td>{noCount++}</td>
+        <td>{equipmentTypeDisplay}</td>
+        <td>{equipmentCostSummary.TotalPriceRough:N0}</td>
+        <td>{equipmentCostSummary.TotalPriceLabor:N0}</td>
+        <td class='highlight'>{equipmentTotalAmount:N0}</td>
+    </tr>");
 
-//                    string utilityTypeDisplay = "Phần tiện ích";
+            decimal utilityTotal = 0;
 
-//                    sb.Append($@"
-//        <tr>
-//            <td>{noCount++}</td>
-//            <td>{utilityTypeDisplay}</td>
-//            <td></td>
-//            <td></td>
-//            <td class='highlight'>{utilityAmount:N0}</td>
-//        </tr>");
-//                }
-//            }
+            if (request.UtilityInfos != null && request.UtilityInfos.Count > 0)
+            {
+                foreach (var utility in request.UtilityInfos)
+                {
+                    decimal utilityAmount = (decimal)utility.Price;
+                    utilityTotal += utilityAmount;
 
-//            decimal total = roughTotalAmount + finishedTotalAmount + utilityTotal;
-//            decimal roundedTotal = Math.Round(total);
-//            sb.Append($@"
-//                <tr class='total'>
-//                    <td colspan='4'>Cộng (chưa VAT)</td>
-//                    <td class='highlight'>{total:N0}</td>
-//                </tr>
-//                <tr class='total'>
-//                    <td colspan='4'>Làm tròn (chưa VAT)</td>
-//                    <td class='highlight'>{roundedTotal:N0}</td>
-//                </tr>
-//            </tbody>
-//        </table>
-//    </div>");
-//            sb.Append($@"
-//    <div class='signature'>
-//        <div class='signature-row'>
-//            <div class='signature-column'>
-//                NGƯỜI LẬP<br />
-//                <strong></strong>
-//            </div>
-//            <div class='signature-column'>
-//                NGƯỜI CHỦ TRÌ<br />
-//                <strong></strong>
-//            </div>
-//        </div>
-//    </div>");
-//            sb.Append($@"
-//    <h2>BẢNG BÁO CHI TIẾT</h2>");
+                    string utilityTypeDisplay = "Phần tiện ích";
 
-//            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "ROUGH").ToList();
-//            if (roughItems.Any())
-//            {
-//                sb.Append($@"
-//    <h4>CHI PHÍ THÔ</h4>
-//    <table border='1' cellpadding='5' cellspacing='0'>
-//        <thead>
-//            <tr>
-//                <th>STT</th>
-//                <th>NỘI DUNG CÔNG VIỆC</th>
-//                <th>DVT</th>
-//                <th>KHỐI LƯỢNG</th>
-//                <th>ĐƠN GIÁ NHÂN CÔNG</th>
-//                <th>ĐƠN GIÁ VẬT TƯ</th>
-//                <th>THÀNH TIỀN NHÂN CÔNG</th>
-//                <th>THÀNH TIỀN VẬT TƯ</th>
-//            </tr>
-//        </thead>
-//        <tbody>");
+                    sb.Append($@"
+            <tr>
+                <td>{noCount++}</td>
+                <td>{utilityTypeDisplay}</td>
+                <td></td>
+                <td></td>
+                <td class='highlight'>{utilityAmount:N0}</td>
+            </tr>");
+                }
+            }
 
-//                int noCons = 0;
-//                foreach (var item in roughItems)
-//                {
-//                    sb.Append($@"
-//        <tr>
-//            <td>{++noCons}</td>
-//            <td>{item.Name}</td>
-//            <td>{item.Unit}</td>
-//            <td>{item.Weight:N0}</td>
-//            <td>{item.UnitPriceLabor:N0}</td>
-//            <td>{item.UnitPriceRough:N0}</td>
-//            <td>{item.TotalPriceLabor:N0}</td>
-//            <td>{item.TotalPriceRough:N0}</td>
-//        </tr>");
-//                }
+            decimal total = roughTotalAmount + finishedTotalAmount + equipmentTotalAmount + utilityTotal;
+            decimal roundedTotal = Math.Round(total);
+            sb.Append($@"
+    <tr class='total'>
+        <td colspan='4'>Cộng (chưa VAT)</td>
+        <td class='highlight'>{total:N0}</td>
+    </tr>
+    <tr class='total'>
+        <td colspan='4'>Làm tròn (chưa VAT)</td>
+        <td class='highlight'>{roundedTotal:N0}</td>
+    </tr>
+</tbody>
+</table>
+</div>");
 
-//                sb.Append("</tbody></table>");
-//            }
+            sb.Append($@"
+<div class='signature'>
+    <div class='signature-row'>
+        <div class='signature-column'>
+            NGƯỜI LẬP<br />
+            <strong></strong>
+        </div>
+        <div class='signature-column'>
+            NGƯỜI CHỦ TRÌ<br />
+            <strong></strong>
+        </div>
+    </div>
+</div>");
+            // Begin the table
+            sb.Append($@"
+<h2>BẢNG BÁO GIÁ CHI TIẾT</h2>
+<table border='1' cellpadding='5' cellspacing='0'>
+    <thead>
+        <tr>
+            <th>STT</th>
+            <th>NỘI DUNG CÔNG VIỆC</th>
+            <th>DVT</th>
+            <th>KHỐI LƯỢNG</th>
+            <th>ĐƠN GIÁ NHÂN CÔNG</th>
+            <th>ĐƠN GIÁ VẬT TƯ THÔ</th>
+            <th>ĐƠN GIÁ VẬT TƯ H.T</th>
+            <th>THÀNH TIỀN NHÂN CÔNG</th>
+            <th>THÀNH TIỀN VẬT TƯ THÔ</th>
+            <th>THÀNH TIỀN VẬT TƯ H.T</th>
+            <th>GHI CHÚ</th>
+        </tr>
+    </thead>
+    <tbody>");
 
-//            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "FINISHED").ToList();
-//            if (finishedItems.Any())
-//            {
-//                sb.Append($@"
-//    <h4>CHI PHÍ HOÀN THIỆN</h4>
-//    <table border='1' cellpadding='5' cellspacing='0'>
-//        <thead>
-//            <tr>
-//                <th>STT</th>
-//                <th>NỘI DUNG CÔNG VIỆC</th>
-//                <th>DVT</th>
-//                <th>KHỐI LƯỢNG</th>
-//                <th>ĐƠN GIÁ NHÂN CÔNG</th>
-//                <th>ĐƠN GIÁ VẬT TƯ</th>
-//                <th>THÀNH TIỀN NHÂN CÔNG</th>
-//                <th>THÀNH TIỀN VẬT TƯ</th>
-//            </tr>
-//        </thead>
-//        <tbody>");
+            int noCons = 0;
 
-//                int noCons = roughItems.Count;
-//                foreach (var item in finishedItems)
-//                {
-//                    sb.Append($@"
-//        <tr>
-//            <td>{++noCons}</td>
-//            <td>{item.Name}</td>
-//            <td>{item.Unit}</td>
-//            <td>{item.Weight:N0}</td>
-//            <td>{item.UnitPriceLabor:N0}</td>
-//            <td>{item.UnitPriceFinished:N0}</td>
-//            <td>{item.TotalPriceLabor:N0}</td>
-//            <td>{item.TotalPriceFinished:N0}</td>
-//        </tr>");
-//                }
+            // Handling "ROUGH" items
+            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "ROUGH").ToList();
+            if (roughItems.Any())
+            {
+                sb.Append($@"
+        <tr>
+            <td>{++noCons}</td>
+            <td colspan='10'><b>PHẦN VẬT TƯ THÔ</b></td>
+        </tr>");
 
-//                sb.Append("</tbody></table>");
-//            }
+                foreach (var construction in roughItems)
+                {
+                    // Display construction name as a section header
+                    sb.Append($@"
+            <tr>
+                <td>{++noCons}</td>
+                <td><b>{construction.ContructionName}</b></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+            </tr>");
 
-//            sb.Append($@"
-//        </tbody>
-//    </table>
+                    foreach (var item in construction.QuotationItems)
+                    {
+                        sb.Append($@"
+                <tr>
+                    <td>{++noCons}</td>
+                    <td>{item.Name}</td>
+                    <td>{item.Unit}</td>
+                    <td>{item.Weight:N0}</td>
+                    <td>{item.UnitPriceLabor:N0}</td>
+                    <td>{item.UnitPriceRough:N0}</td>
+                    <td>{item.UnitPriceFinished:N0}</td>
+                    <td>{item.TotalPriceLabor:N0}</td> 
+                    <td>{item.TotalPriceRough:N0}</td>
+                    <td>{item.TotalPriceFinished:N0}</td>
+                    <td>{item.Note}</td>
+                </tr>");
+                    }
+                }
+            }
 
-//    <h4>CHI PHÍ THIẾT BỊ</h4>
-//    <table border='1' cellpadding='5' cellspacing='0'>
-//        <thead>
-//            <tr>
-//                <th>STT</th>
-//                <th>NỘI DUNG CÔNG VIỆC</th>
-//                <th>DVT</th>
-//                <th>KHỐI LƯỢNG</th>
-//                <th>ĐƠN GIÁ<br />VẬT TƯ HOÀN THIỆN</th>
-//                <th>THÀNH TIỀN<br />VẬT TƯ HOÀN THIỆN</th>
-//                <th>GHI CHÚ</th>
-//            </tr>
-//        </thead>
-//        <tbody>");
+            // Handling "FINISHED" items
+            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "FINISHED").ToList();
+            if (finishedItems.Any())
+            {
+                sb.Append($@"
+        <tr>
+            <td>{++noCons}</td>
+            <td colspan='10'><b>PHẦN HOÀN THIỆN</b></td>
+        </tr>");
 
-//            int noEqui = 0;
-//            foreach (var item in request.EquipmentItems)
-//            {
-//                sb.Append($@"
-//            <tr>
-//                <td>{++noEqui}</td>
-//                <td>{item.Name}</td>
-//                <td>{item.Unit}</td>
-//                <td>{item.Quantity:N0}</td>
-//                <td>{item.UnitOfMaterial:N0}</td>
-//                <td>{item.TotalOfMaterial:N0}</td>
-//                <td>{item.Note}</td>
-//            </tr>");
-//            }
+                foreach (var construction in finishedItems)
+                {
+                    // Display construction name as a section header
+                    sb.Append($@"
+            <tr>
+                <td>{++noCons}</td>
+                <td><b>{construction.ContructionName}</b></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+            </tr>");
 
-//            sb.Append($@"
-//        </tbody>
-//    </table>
+                    foreach (var item in construction.QuotationItems)
+                    {
+                        sb.Append($@"
+                <tr>
+                    <td>{++noCons}</td>
+                    <td>{item.Name}</td>
+                    <td>{item.Unit}</td>
+                    <td>{item.Weight:N0}</td>
+                    <td>{item.UnitPriceLabor:N0}</td>
+                    <td>{item.UnitPriceRough:N0}</td>
+                    <td>{item.UnitPriceFinished:N0}</td>
+                    <td>{item.TotalPriceLabor:N0}</td> 
+                    <td>{item.TotalPriceRough:N0}</td>
+                    <td>{item.TotalPriceFinished:N0}</td>
+                    <td>{item.Note}</td>
+                </tr>");
+                    }
+                }
+            }
 
-//    <h4>CHI PHÍ KHÁC</h4>
-//    <table border='1' cellpadding='5' cellspacing='0'>
-//        <thead>
-//            <tr>
-//                <th>STT</th>
-//                <th>TIỆN ÍCH</th>
-//                <th>HỆ SỐ</th>
-//                <th>ĐƠN GIÁ</th>
-//                <th>THÀNH TIỀN</th>
-//            </tr>
-//        </thead>
-//        <tbody>");
+            // End the table
+            sb.Append("</tbody></table>");
 
-//            int noUti = 0;
-//            foreach (var item in request.UtilityInfos)
-//            {
-//                sb.Append($@"
-//            <tr>
-//                <td>{++noUti}</td>
-//                <td>{item.Description}</td>
-//                <td>{item.Coefficient:N0}</td>
-//                <td>{item.UnitPrice:N0}</td>
-//                <td>{item.Price:N0}</td>
-//            </tr>");
-//            }
 
-//            sb.Append($@"
-//        </tbody>
-//    </table>
+            sb.Append($@"
+        </tbody>
+    </table>
 
-//    <h2>KHUYẾN MÃI</h2>
-//    <table>
-//            <tr>
-//                <th>STT</th>
-//                <th>KHUYẾN MÃI</th>
-//                <th>GIÁ TRỊ (VND)</th>
-//                <th>THÀNH TIỀN</th>
-//            </tr>
-//            ");
-//            int noPro = 0;
-//            var promotion = request.PromotionInfo;
-//            if (promotion != null)
-//            {
-//                sb.Append($@"
-//                     <tr>
-//                        <td>{noPro++}</td>
-//                        <td>{promotion.Name}</td>
-//                        <td>{promotion.Value}</td>
-//                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
-//                    </tr>");
-//            }
-//            else
-//            {
-//                sb.Append($@"
-//                    <tr>
-//                        <td colspan='4'>Không có khuyên mãi</td>
-//                    </tr>");
-//            }
+    <h4>CHI PHÍ THIẾT BỊ</h4>
+    <table border='1' cellpadding='5' cellspacing='0'>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>NỘI DUNG CÔNG VIỆC</th>
+                <th>DVT</th>
+                <th>KHỐI LƯỢNG</th>
+                <th>ĐƠN GIÁ<br />VẬT TƯ HOÀN THIỆN</th>
+                <th>THÀNH TIỀN<br />VẬT TƯ HOÀN THIỆN</th>
+                <th>GHI CHÚ</th>
+            </tr>
+        </thead>
+        <tbody>");
 
-//            sb.Append($@"
-//        </tbody>
-//    </table>
+            int noEqui = 0;
+            foreach (var item in request.EquipmentItems)
+            {
+                sb.Append($@"
+            <tr>
+                <td>{++noEqui}</td>
+                <td>{item.Name}</td>
+                <td>{item.Unit}</td>
+                <td>{item.Quantity:N0}</td>
+                <td>{item.UnitOfMaterial:N0}</td>
+                <td>{item.TotalOfMaterial:N0}</td>
+                <td>{item.Note}</td>
+            </tr>");
+            }
 
-//    <h2>PHƯƠNG THỨC THANH TOÁN</h2>
-//    <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
-//    <table>
-//        <tr>
-//            <th>ĐỢT</th>
-//            <th>NỘI DUNG THANH TOÁN</th>
-//            <th>GIÁ TRỊ(%)</th>
-//            <th>GIÁ TRỊ (VND)</th>
-//            <th>NGÀY THANH TOÁN</th>
-//            <th>HẠN CHÓT</th>
-//        </tr>");
+            sb.Append($@"
+        </tbody>
+    </table>
 
-//            int stageCounter = 1;
-//            foreach (var payment in request.BatchPaymentInfos)
-//            {
-//                sb.Append($@"
-//        <tr>
-//            <td>{stageCounter}</td>
-//            <td>{payment.Description}</td>
-//            <td>{payment.Percents}</td>
-//            <td>{payment.Price:N0}</td>
-//            <td>{payment.PaymentDate}</td>
-//            <td>{payment.PaymentPhase}</td>
-//        </tr>");
-//                stageCounter++;
-//            }
+    <h4>CHI PHÍ KHÁC</h4>
+    <table border='1' cellpadding='5' cellspacing='0'>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>TIỆN ÍCH</th>
+                <th>HỆ SỐ</th>
+                <th>ĐƠN GIÁ</th>
+                <th>THÀNH TIỀN</th>
+            </tr>
+        </thead>
+        <tbody>");
 
-//            sb.Append(@"
-//    </table>
+            int noUti = 0;
+            foreach (var item in request.UtilityInfos)
+            {
+                sb.Append($@"
+            <tr>
+                <td>{++noUti}</td>
+                <td>{item.Description}</td>
+                <td>{item.Coefficient:N0}</td>
+                <td>{item.UnitPrice:N0}</td>
+                <td>{item.Price:N0}</td>
+            </tr>");
+            }
 
-//    <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
-//    <ul>
-//        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
-//        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
-//        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
-//    </ul>
+            sb.Append($@"
+        </tbody>
+    </table>
 
-//</body>
-//</html>");
+    <h2>KHUYẾN MÃI</h2>
+    <table>
+            <tr>
+                <th>STT</th>
+                <th>KHUYẾN MÃI</th>
+                <th>GIÁ TRỊ (VND)</th>
+                <th>THÀNH TIỀN</th>
+            </tr>
+            ");
+            int noPro = 0;
+            var promotion = request.PromotionInfo;
+            if (promotion != null)
+            {
+                sb.Append($@"
+                     <tr>
+                        <td>{noPro++}</td>
+                        <td>{promotion.Name}</td>
+                        <td>{promotion.Value}</td>
+                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
+                    </tr>");
+            }
+            else
+            {
+                sb.Append($@"
+                    <tr>
+                        <td colspan='4'>Không có khuyên mãi</td>
+                    </tr>");
+            }
 
-//            return sb.ToString();
-//        }
+            sb.Append($@"
+        </tbody>
+    </table>
+
+    <h2>PHƯƠNG THỨC THANH TOÁN</h2>
+    <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
+    <table>
+        <tr>
+            <th>ĐỢT</th>
+            <th>NỘI DUNG THANH TOÁN</th>
+            <th>GIÁ TRỊ(%)</th>
+            <th>GIÁ TRỊ (VND)</th>
+            <th>NGÀY THANH TOÁN</th>
+            <th>HẠN CHÓT</th>
+        </tr>");
+
+            int stageCounter = 1;
+            foreach (var payment in request.BatchPaymentInfos)
+            {
+                sb.Append($@"
+        <tr>
+            <td>{stageCounter}</td>
+            <td>{payment.Description}</td>
+            <td>{payment.Percents}</td>
+            <td>{payment.Price:N0}</td>
+            <td>{payment.PaymentDate}</td>
+            <td>{payment.PaymentPhase}</td>
+        </tr>");
+                stageCounter++;
+            }
+
+            sb.Append(@"
+    </table>
+
+    <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
+    <ul>
+        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
+        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
+        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
+    </ul>
+
+</body>
+</html>");
+
+            return sb.ToString();
+        }
     }
 }
