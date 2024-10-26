@@ -244,11 +244,6 @@ namespace RHCQS_Services.Implement
             return listTask;
         }
 
-        //public async Task<bool> UploadFileDrawing(string urlFile)
-        //{
-
-        //}
-
         public async Task<List<HouseDesignDrawingResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId)
         {
             //Check design staff in step?
@@ -307,5 +302,7 @@ namespace RHCQS_Services.Implement
                         orderBy: x => x.OrderBy(x => x.Step));
             return listDrawingPrevious.Items.ToList();
         }
+
+
     }
 }

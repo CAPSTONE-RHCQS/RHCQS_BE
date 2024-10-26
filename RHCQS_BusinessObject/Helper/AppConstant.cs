@@ -57,7 +57,6 @@ public static class AppConstant
         public const string PROCESSING = "Processing";
         public const string DESIGNED = "Designed";
         public const string UNDER_REVIEW = "Reviewing";
-        public const string SIGNED_DESIGN_CONTRACT = "Signed Design Contract";
         public const string SIGNED_CONTRACT = "Signed Contract";
         public const string FINALIZED = "Finalized";
         public const string ENDED = "Ended";

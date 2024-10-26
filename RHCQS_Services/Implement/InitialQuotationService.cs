@@ -18,6 +18,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace RHCQS_Services.Implement
 {
@@ -372,7 +373,8 @@ namespace RHCQS_Services.Implement
                     selector: x => new InitialQuotationAppResponse(
                         x.Id,
                         x.Version,
-                         x.Media != null && x.Media.Any() ? x.Media.First().Url : string.Empty
+                         x.Media != null && x.Media.Any() ? x.Media.First().Url : string.Empty,
+                         x.Status!
                     ),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
@@ -907,47 +909,89 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<string> ConfirmArgeeInitialFromCustomer(Guid initialId)
+        public async Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId)
         {
-            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId,
+            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
                                     include: x => x.Include(x => x.Project)
                                                     .ThenInclude(x => x.Customer!));
 
-            if (initialItem == null)
+            if (initialItem != null)
+            {
+                initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
+                _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
+                //Contract design is coming ....
+                var contractDrawing = new Contract
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = initialItem.ProjectId,
+                    Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
+                    CustomerName = initialItem.Project.Customer!.Username,
+                    ContractCode = null,
+                    StartDate = null,
+                    EndDate = null,
+                    ValidityPeriod = null,
+                    TaxCode = null,
+                    Area = initialItem.Area,
+                    UnitPrice = AppConstant.Unit.UnitPrice,
+                    ContractValue = null,
+                    UrlFile = null,
+                    Note = null,
+                    Deflag = true,
+                    RoughPackagePrice = 0,
+                    FinishedPackagePrice = 0,
+                    Status = AppConstant.ConstractStatus.PROCESSING,
+                    Type = AppConstant.ContractType.Design.ToString(),
+                };
+                await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+
+                var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
+            }
+            else if (initialItem == null)
+            {
+                var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
+                                            include: x => x.Include(x => x.Project)
+                                                            .ThenInclude(x => x.Customer!));
+                if (finalInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_FinalQuotaion);
+                }
+                finalInfo.Status = AppConstant.QuotationStatus.FINALIZED;
+                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalInfo);
+
+                //Contract construction is coming ....
+                var contractDrawing = new Contract
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = finalInfo.ProjectId,
+                    Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Construction),
+                    CustomerName = finalInfo.Project.Customer!.Username,
+                    ContractCode = null,
+                    StartDate = null,
+                    EndDate = null,
+                    ValidityPeriod = null,
+                    TaxCode = null,
+                    Area = finalInfo.Project.Area,
+                    UnitPrice = AppConstant.Unit.UnitPrice,
+                    ContractValue = null,
+                    UrlFile = null,
+                    Note = null,
+                    Deflag = true,
+                    RoughPackagePrice = 0,
+                    FinishedPackagePrice = 0,
+                    Status = AppConstant.ConstractStatus.PROCESSING,
+                    Type = AppConstant.ContractType.Construction.ToString(),
+                };
+                await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+
+                var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
+            }
+            else
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
             }
-
-            initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
-
-            //Contract design is coming ....
-            var contractDrawing = new Contract
-            {
-                Id = Guid.NewGuid(),
-                ProjectId = initialItem.ProjectId,
-                Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
-                CustomerName = initialItem.Project.Customer!.Username,
-                ContractCode = null,
-                StartDate = null,
-                EndDate = null,
-                ValidityPeriod = null,
-                TaxCode = null,
-                Area = initialItem.Area,
-                UnitPrice = AppConstant.Unit.UnitPrice,
-                ContractValue = null,
-                UrlFile = null,
-                Note = null,
-                Deflag = true,
-                RoughPackagePrice = 0,
-                FinishedPackagePrice = 0,
-                Status = AppConstant.ConstractStatus.PROCESSING,
-                Type = AppConstant.ContractType.Design.ToString(),
-            };
-            await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
-
-            var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
-            return isSuccessful;
         }
 
 

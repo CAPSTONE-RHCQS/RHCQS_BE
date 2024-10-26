@@ -26,16 +26,18 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class InitialQuotationAppResponse
     {
-        public InitialQuotationAppResponse(Guid id, double? version, string file)
+        public InitialQuotationAppResponse(Guid id, double? version, string file, string status)
         {
             Id = id;
             Version = version;
             File = file;
+            Status = status;
         }
 
         public Guid Id { get; set; }
         public double? Version { get; set; }
         public string File {  get; set; }
+        public string Status { get; set; }
     }
 
     public class InitialQuotationResponse

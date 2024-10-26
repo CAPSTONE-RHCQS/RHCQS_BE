@@ -19,7 +19,7 @@ namespace RHCQS_Services.Interface
         Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request);
 
         Task<bool> UpdateInitialQuotation(UpdateInitialRequest request);
-        Task<string> ConfirmArgeeInitialFromCustomer(Guid initialId);
+        Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId);
         Task<string> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest comment);
     }
 }
