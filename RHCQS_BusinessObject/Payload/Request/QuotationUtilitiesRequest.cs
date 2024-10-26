@@ -8,7 +8,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class QuotationUtilitiesRequest
     {
-        public Guid UltilitiesItemId { get; set; }
+        public Guid UtilitiesItemId { get; set; }
 
         public string Name { get; set; } = null!;
 
