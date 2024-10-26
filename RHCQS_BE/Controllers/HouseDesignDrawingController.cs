@@ -249,5 +249,27 @@ namespace RHCQS_BE.Controllers
                 return BadRequest(result.Message);
             }
         }
+
+        #region ViewDrawingByProjectId
+        /// <summary>
+        /// Retrieves the house design drawing item.
+        /// </summary>
+        /// <returns>Item constructhouse design drawing in the system</returns>
+        #endregion
+        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingListEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ViewDrawingByProjectId(Guid projectId)
+        {
+            var design = await _houseService.ViewDrawingByProjectId(projectId);
+            if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
+            var result = JsonConvert.SerializeObject(design, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

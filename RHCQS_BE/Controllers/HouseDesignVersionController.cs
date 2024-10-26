@@ -132,7 +132,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="500">If an internal server error occurs.</response>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpPut(ApiEndPointConstant.HouseDesignVersion.AssignHouseDesignVersionEndpoint)]
+        [HttpPut(ApiEndPointConstant.HouseDesignVersion.ApproveHouseDesignVersionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -109,11 +109,13 @@ namespace RHCQS_BE.Extenstion
         public static class HouseDesignDrawing
         {
             public const string HouseDesignDrawingEndpoint = ApiEndpoint + "/housedesign";
+            public const string HouseDesignDrawingListEndpoint = HouseDesignDrawingEndpoint + "/list";
             public const string HouseDesignDrawingDesignStaffEndpont = HouseDesignDrawingEndpoint + "/design";
             public const string HouseDesignDrawingPreviousEndpoint = HouseDesignDrawingEndpoint + "/previous";
             public const string HouseDesignDrawingDetailEndpoint = HouseDesignDrawingEndpoint + "/id";
             public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
             public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task";
+            public const string HouseDesignDrawingAssignTask = HouseDesignDrawingEndpoint + "/assign";
         }
 
         public static class HouseDesignVersion
@@ -121,7 +123,7 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignVersionEndpoint = ApiEndpoint + "/design";
             public const string HouseDesignVersionDetailEndpoint = HouseDesignVersionEndpoint + "/id";
             public const string HouseDesignVersionUploadFilesEndpoint = HouseDesignVersionEndpoint + "/upload-files";
-            public const string AssignHouseDesignVersionEndpoint = HouseDesignVersionEndpoint + "/assign";
+            public const string ApproveHouseDesignVersionEndpoint = HouseDesignVersionEndpoint + "/approve";
         }
 
         public static class InitialQuotation

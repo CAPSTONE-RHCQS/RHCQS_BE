@@ -285,5 +285,27 @@ namespace RHCQS_Services.Implement
 
             }
         }
+
+        public async Task<List<HouseDesignDrawingResponse>> ViewDrawingByProjectId(Guid projectId)
+        {
+            var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                                                .GetList(predicate: x => x.ProjectId == projectId,
+                                                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.HouseDesignVersions.Select(
+                                                                          v => new HouseDesignVersionResponse(
+                                                                              v.Id,
+                                                                              v.Name,
+                                                                              v.Version,
+                                                                              v.Media.Select(m => m.Url).FirstOrDefault(),
+                                                                              v.Status,
+                                                                              v.InsDate,
+                                                                              v.PreviousDrawingId,
+                                                                              v.Note)).ToList()),
+                        include: x => x.Include(x => x.HouseDesignVersions)
+                                        .ThenInclude(x => x.Media),
+                        orderBy: x => x.OrderBy(x => x.Step));
+            return listDrawingPrevious.Items.ToList();
+        }
     }
 }
