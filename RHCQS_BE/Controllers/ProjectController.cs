@@ -237,7 +237,7 @@ namespace RHCQS_BE.Controllers
         ///     PUT /api/initial-quotation
         ///     {
         ///         "accountId": "d287e991-5b2b-4569-b0c4-7e81d9e75b78",
-        ///         "initialQuotationId": "3f63e5b2-632f-48fa-ae9d-1c123456abcd"
+        ///         "projectId": "3f63e5b2-632f-48fa-ae9d-1c123456abcd"
         ///     }
         ///     
         /// </remarks>
