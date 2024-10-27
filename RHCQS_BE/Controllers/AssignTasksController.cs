@@ -32,8 +32,14 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ListDesignStaffWorkAvailable()
         {
-            var isCreate = await _assignService.ListDesignStaffWorkAvailable();
-            return Ok(isCreate);
+            var list = await _assignService.ListDesignStaffWorkAvailable();
+            var result = JsonConvert.SerializeObject(list, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }
