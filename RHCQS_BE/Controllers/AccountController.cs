@@ -224,7 +224,7 @@ namespace RHCQS_BE.Controllers
         #endregion
         [Authorize(Roles = "Customer ,DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Account.AccountByIdEndpoint)]
-        public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequest accountRequest)
+        public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequestForUpdate accountRequest)
         {
 
             var existingAccount = await _accountService.GetAccountByIdAsync(id);
@@ -232,15 +232,7 @@ namespace RHCQS_BE.Controllers
             {
                 return NotFound("Account not found.");
             }
-
-            if (accountRequest.RoleId != Guid.Empty && existingAccount.RoleId != accountRequest.RoleId)
-            {
-                var role = await _roleService.GetRoleByIdAsync(accountRequest.RoleId);
-                if (role == null)
-                {
-                    accountRequest.RoleId = existingAccount.RoleId;
-                }
-            }
+ 
             if (accountRequest.ImageUrl != null)
             {
                 var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
@@ -254,9 +246,6 @@ namespace RHCQS_BE.Controllers
                 PasswordHash = accountRequest.PasswordHash,
                 ImageUrl = accountRequest.ImageUrl,
                 Deflag = accountRequest.Deflag,
-                RoleId = accountRequest.RoleId,
-                InsDate = accountRequest.InsDate,
-                UpsDate = accountRequest.UpsDate
             };
 
             var updatedAccount = await _accountService.UpdateAccountAsync(id, account);
