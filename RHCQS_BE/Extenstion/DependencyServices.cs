@@ -88,8 +88,8 @@ namespace RHCQS_BE.Extenstion
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
-            string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-            NativeLibrary.Load(dllPath);
+            //string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+            //NativeLibrary.Load(dllPath);
             return services;
         }
 
