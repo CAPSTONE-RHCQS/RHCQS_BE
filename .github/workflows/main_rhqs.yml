@@ -29,7 +29,7 @@ jobs:
         run: dotnet build --configuration Release ./RHCQS_BE
 
       - name: dotnet publish
-        run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output --self-contained
+        run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
       - name: Verify library inclusion
         run: dir ./RHCQS_BE/publish_output
