@@ -13,11 +13,13 @@
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 		<None Update="ExternalLibraries/libwkhtmltox.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 			<TargetPath>libwkhtmltox.dll</TargetPath>
 		</None>
 
 		<None Update="ExternalLibraries/libwkhtmltox.so">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
 			<TargetPath>libwkhtmltox.so</TargetPath>
 		</None>
 	</ItemGroup>
