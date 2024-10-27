@@ -18,6 +18,7 @@ namespace RHCQS_Services.Interface
         public Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size);
         Task<Account> SearchAccountsByNameAsync(string name);
         Task<Account> UpdateAccountAsync(Guid id, Account account);
+        Task<Account> UpdateProfileAsync(Guid id, Account account);
         Task<Account> UpdateDeflagAccountAsync(Guid id);
     }
 }

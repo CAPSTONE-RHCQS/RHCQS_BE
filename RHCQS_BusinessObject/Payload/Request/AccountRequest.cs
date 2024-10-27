@@ -64,6 +64,24 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public bool? Deflag { get; set; }
     }
+    public class AccountRequestForUpdateProfile
+    {
+        [StringLength(50, ErrorMessage = "Username không được dài quá 50 ký tự.")]
+        public string? Username { get; set; }
+
+        [Url(ErrorMessage = "ImageUrl phải là một URL hợp lệ.")]
+        public string? ImageUrl { get; set; }
+
+        [MinLength(6, ErrorMessage = "Password phải có ít nhất 6 ký tự.")]
+        public string? PasswordHash { get; set; }
+
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
+        public string? PhoneNumber { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateOnly? DateOfBirth { get; set; }
+
+    }
     public class DeTokenRequest
     {
         public string Token;

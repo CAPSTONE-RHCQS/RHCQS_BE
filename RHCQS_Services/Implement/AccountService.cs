@@ -169,9 +169,57 @@ namespace RHCQS_Services.Implement
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
             _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash!) != default ? 
-                PasswordHash.HashPassword(account.PasswordHash!) : _account.PasswordHash;
+             PasswordHash.HashPassword(account.PasswordHash!) : _account.PasswordHash;
             _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
-            _account.RoleId = account.RoleId != Guid.Empty ? account.RoleId : _account.RoleId;
+            _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
+            _account.UpsDate = DateTime.UtcNow;
+
+            accountRepository.UpdateAsync(_account);
+            if (_account.Role.RoleName == UserRoleForRegister.Customer.ToString())
+            {
+                var customerRepository = _unitOfWork.GetRepository<Customer>();
+                var _customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == _account.Email);
+
+                if (_customer != null)
+                {
+                    _customer.Username = account.Username != default ? account.Username : _customer.Username;
+                    _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
+                    _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
+                    _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
+                    _customer.ImgUrl = account.ImageUrl == default ? null : account.ImageUrl;
+                    _customer.UpsDate = DateTime.UtcNow;
+
+                    customerRepository.UpdateAsync(_customer);
+                }
+            }
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.UpdateAccount
+                );
+            }
+
+            return _account;
+        }
+        public async Task<Account> UpdateProfileAsync(Guid id, Account account)
+        {
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var _account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
+
+            if (_account == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
+            }
+            _account.Username = account.Username != default ? account.Username : _account.Username;
+            _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
+            _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
+            _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash!) != default ?
+            PasswordHash.HashPassword(account.PasswordHash!) : _account.PasswordHash;
             _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
             _account.UpsDate = DateTime.UtcNow;
 

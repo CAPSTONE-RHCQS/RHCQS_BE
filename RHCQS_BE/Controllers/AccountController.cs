@@ -222,7 +222,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>The updated account object.</returns>
         // PUT: api/account/{id}
         #endregion
-        [Authorize(Roles = "Customer ,DesignStaff, SalesStaff, Manager")]
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Account.AccountByIdEndpoint)]
         public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequestForUpdate accountRequest)
         {
@@ -246,6 +246,61 @@ namespace RHCQS_BE.Controllers
                 PasswordHash = accountRequest.PasswordHash,
                 ImageUrl = accountRequest.ImageUrl,
                 Deflag = accountRequest.Deflag,
+            };
+
+            var updatedAccount = await _accountService.UpdateAccountAsync(id, account);
+            if (updatedAccount == null)
+            {
+                return StatusCode(500, "An error occurred while updating the account.");
+            }
+
+            return Ok(new AccountResponse(
+                updatedAccount.Id,
+                updatedAccount.Username,
+                updatedAccount.PhoneNumber,
+                updatedAccount.DateOfBirth,
+                updatedAccount.PasswordHash,
+                updatedAccount.Email,
+                updatedAccount.ImageUrl,
+                updatedAccount.Deflag,
+                updatedAccount.Role.RoleName,
+                updatedAccount.RoleId,
+                updatedAccount.InsDate,
+                updatedAccount.UpsDate
+            ));
+        }
+        #region UpdateProfile
+        /// <summary>
+        /// Update an profile by ID.
+        /// </summary>
+        /// <param name="id">The ID of the account to update.</param>
+        /// <param name="accountRequest">The account object with updated data.</param>
+        /// <returns>The updated profile object.</returns>
+        // PUT: api/account/profile/{id}
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.Account.ProfileEndpoint)]
+        public async Task<ActionResult<Account>> UpdateProfileForCustomerAsync(Guid id, [FromBody] AccountRequestForUpdateProfile accountRequest)
+        {
+
+            var existingAccount = await _accountService.GetAccountByIdAsync(id);
+            if (existingAccount == null)
+            {
+                return NotFound("Account not found.");
+            }
+
+            if (accountRequest.ImageUrl != null)
+            {
+                var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
+                existingAccount.ImageUrl = imageUrl;
+            }
+            var account = new Account
+            {
+                Username = accountRequest.Username,
+                PhoneNumber = accountRequest.PhoneNumber,
+                DateOfBirth = accountRequest.DateOfBirth,
+                PasswordHash = accountRequest.PasswordHash,
+                ImageUrl = accountRequest.ImageUrl,
             };
 
             var updatedAccount = await _accountService.UpdateAccountAsync(id, account);
