@@ -18,6 +18,7 @@ jobs:
         with:
           dotnet-version: '8.x'
           include-prerelease: true
+
       - name: Copy platform-specific libraries
         run: |
           mkdir -p RHCQS_BE/publish_output/ExternalLibraries
@@ -63,4 +64,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .  # Change this to ./publish_output if needed
+          package: .  # This should point to the publish output folder
