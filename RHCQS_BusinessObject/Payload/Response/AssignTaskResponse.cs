@@ -30,4 +30,12 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
     }
+
+    public class DesignStaffWorkResponse
+    {
+        public Guid AccountId { get; set; }
+        public string AccountName { get; set; }
+
+        public string? ProjectName { get; set; }
+    }
 }
