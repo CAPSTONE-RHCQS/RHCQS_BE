@@ -71,5 +71,29 @@ namespace RHCQS_Services.Implement
         //    }
         //    return false;
         //}
+
+        public async Task<List<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable()
+        {
+            var listDesign = await _unitOfWork.GetRepository<Account>().GetListAsync(
+                predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD"),
+                include: x => x.Include(x => x.AssignTasks!)
+                               .ThenInclude(assignTask => assignTask.Project!)
+            );
+
+            var listResult = listDesign
+                .Where(account => account.AssignTasks
+                    .Select(assignTask => assignTask.ProjectId)
+                    .Distinct().Count() < 2)
+                .Select(account => new DesignStaffWorkResponse
+                {
+                    AccountId = account.Id,
+                    AccountName = account.Username!,
+                    ProjectName = account.AssignTasks.FirstOrDefault()?.Project?.Name 
+                })
+                .ToList();
+
+            return listResult;
+        }
+
     }
 }
