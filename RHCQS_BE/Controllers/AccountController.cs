@@ -226,7 +226,7 @@ namespace RHCQS_BE.Controllers
         ///   "username": "Ngân test",
         ///   "imageUrl": "https://chungkhoantaichinh.vn/wp-content/uploads/2022/12/avatar-meo-cute-de-thuong-05.jpg",
         ///   "phoneNumber": "0906697051",
-        ///   "dateOfBirth": "2002-01-01"
+        ///   "dateOfBirth": "2002-01-01" (YYYY-MM-DD)
         /// }
         /// ```
         /// </remarks>
@@ -289,7 +289,7 @@ namespace RHCQS_BE.Controllers
         ///   "username": "Ngân test",
         ///   "imageUrl": "https://chungkhoantaichinh.vn/wp-content/uploads/2022/12/avatar-meo-cute-de-thuong-05.jpg",
         ///   "phoneNumber": "0906697051",
-        ///   "dateOfBirth": "2002-01-01"
+        ///   "dateOfBirth": "2002-01-01" (YYYY-MM-DD)
         /// }
         /// ```
         /// </remarks>
