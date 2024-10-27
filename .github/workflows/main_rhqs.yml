@@ -18,6 +18,13 @@ jobs:
         with:
           dotnet-version: '8.x'
           include-prerelease: true
+      - name: Copy platform-specific libraries
+        run: |
+          mkdir -p RHCQS_BE/publish_output/ExternalLibraries
+          # Copy Windows library
+          copy D:\Graduates\RHCQS_BE\ExternalLibraries\libwkhtmltox.dll RHCQS_BE\publish_output\ExternalLibraries\
+          # Copy Linux library
+          copy D:\Graduates\RHCQS_BE\ExternalLibraries\libwkhtmltox.so RHCQS_BE\publish_output\ExternalLibraries\
 
       - name: Build with dotnet
         run: dotnet build --configuration Release ./RHCQS_BE
