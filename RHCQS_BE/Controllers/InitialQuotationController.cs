@@ -365,13 +365,7 @@ namespace RHCQS_BE.Controllers
         /// ### Request Examples:
         /// 
         /// **PUT** `/api/quotation/initial/approve?initialId=5e6321c8-fc09-4b45-8a64-d72f91c19b7f`
-        /// 
-        /// **Body**:
-        /// ```json
-        /// {
-        ///   "reason": "The quotation does not meet the necessary requirements."
-        /// }
-        /// ```
+        /// type: Approved - Rejected
         /// 
         /// ### Responses:
         /// 
@@ -382,14 +376,6 @@ namespace RHCQS_BE.Controllers
         /// {
         ///   "message": "Approved"
         /// }
-        /// ```
-        /// 
-        /// Example success response (Rejected):
-        /// ```json
-        /// {
-        ///   "message": "An error occurred during approval."
-        /// }
-        /// ```
         /// 
         /// **404 Not Found** - The initial quotation ID was not found.
         /// </remarks>

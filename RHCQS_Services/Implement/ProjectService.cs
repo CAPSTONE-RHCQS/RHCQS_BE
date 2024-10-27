@@ -502,6 +502,23 @@ namespace RHCQS_Services.Implement
                 };
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
 
+
+                //System find package rough
+                var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
+                                        predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH
+                                        && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
+
+                //Calculate total rough from buidling area
+                double totalPriceRough = 0;
+                if (packageRough.Price.HasValue && templateHouseInfo.BuildingArea.HasValue)
+                {
+                    totalPriceRough = (double)(packageRough.Price.Value * templateHouseInfo.BuildingArea.Value);
+                }
+                else
+                {
+                    totalPriceRough = 0; 
+                }
+
                 var initialItem = new InitialQuotation
                 {
                     Id = Guid.NewGuid(),
@@ -517,15 +534,12 @@ namespace RHCQS_Services.Implement
                     IsTemplate = true,
                     Deflag = false,
                     Note = null,
+                    TotalRough = totalPriceRough,
                     ReasonReject = null
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
 
-                //System find package rough
-                var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                                        predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH
-                                        && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
 
                 var packageRoughQuotation = new PackageQuotation
                 {
