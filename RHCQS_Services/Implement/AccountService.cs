@@ -168,8 +168,6 @@ namespace RHCQS_Services.Implement
             _account.Username = account.Username != default ? account.Username : _account.Username;
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
-            _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash!) != default ? 
-             PasswordHash.HashPassword(account.PasswordHash!) : _account.PasswordHash;
             _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
             _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
             _account.UpsDate = DateTime.UtcNow;
@@ -218,8 +216,6 @@ namespace RHCQS_Services.Implement
             _account.Username = account.Username != default ? account.Username : _account.Username;
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
-            _account.PasswordHash = PasswordHash.HashPassword(account.PasswordHash!) != default ?
-            PasswordHash.HashPassword(account.PasswordHash!) : _account.PasswordHash;
             _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
             _account.UpsDate = DateTime.UtcNow;
 
@@ -234,7 +230,6 @@ namespace RHCQS_Services.Implement
                     _customer.Username = account.Username != default ? account.Username : _customer.Username;
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
-                    _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
                     _customer.ImgUrl = account.ImageUrl == default ? null : account.ImageUrl;
                     _customer.UpsDate = DateTime.UtcNow;
 
@@ -293,5 +288,42 @@ namespace RHCQS_Services.Implement
 
             return account;
         }
+        public async Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword)
+        {
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id);
+
+            if (account == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
+            }
+
+            if (!PasswordHash.VerifyPassword(currentPassword, account.PasswordHash))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Unauthorized,
+                    AppConstant.ErrMessage.IncorrectPassword
+                );
+            }
+
+            account.PasswordHash = PasswordHash.HashPassword(newPassword);
+            account.UpsDate = DateTime.UtcNow;
+
+            accountRepository.UpdateAsync(account);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.UpdatePasswordFailed
+                );
+            }
+
+            return true;
+        }
+
     }
 }

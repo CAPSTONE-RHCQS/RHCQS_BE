@@ -53,9 +53,6 @@ namespace RHCQS_BusinessObject.Payload.Request
         [Url(ErrorMessage = "ImageUrl phải là một URL hợp lệ.")]
         public string? ImageUrl { get; set; }
 
-        [MinLength(6, ErrorMessage = "Password phải có ít nhất 6 ký tự.")]
-        public string? PasswordHash { get; set; }
-
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
         public string? PhoneNumber { get; set; }
 
@@ -72,15 +69,17 @@ namespace RHCQS_BusinessObject.Payload.Request
         [Url(ErrorMessage = "ImageUrl phải là một URL hợp lệ.")]
         public string? ImageUrl { get; set; }
 
-        [MinLength(6, ErrorMessage = "Password phải có ít nhất 6 ký tự.")]
-        public string? PasswordHash { get; set; }
-
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
         public string? PhoneNumber { get; set; }
 
         [DataType(DataType.Date)]
         public DateOnly? DateOfBirth { get; set; }
 
+    }
+        public class PasswordUpdateRequest
+    {
+        public string CurrentPassword { get; set; }
+        public string NewPassword { get; set; }
     }
     public class DeTokenRequest
     {

@@ -20,5 +20,6 @@ namespace RHCQS_Services.Interface
         Task<Account> UpdateAccountAsync(Guid id, Account account);
         Task<Account> UpdateProfileAsync(Guid id, Account account);
         Task<Account> UpdateDeflagAccountAsync(Guid id);
+        Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword);
     }
 }

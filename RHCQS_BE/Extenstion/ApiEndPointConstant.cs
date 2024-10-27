@@ -49,6 +49,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string AccountEndpoint = ApiEndpoint + "/account";
             public const string ProfileEndpoint = AccountEndpoint + "/profile";
+            public const string UpdatePasswordEndpoint = AccountEndpoint + "/password";
             public const string AccountByIdEndpoint = AccountEndpoint + "/id";
             public const string AccountByRoleIdEndpoint = AccountEndpoint + "/roleid";
             public const string ActiveAccountEndpoint = ApiEndpoint + "/account/active-account";

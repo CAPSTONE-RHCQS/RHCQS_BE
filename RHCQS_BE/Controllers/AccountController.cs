@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
@@ -217,21 +219,29 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Update an account by ID.
         /// </summary>
+        /// <remarks>
+        /// Sample JSON input for updating an account:
+        /// ```json
+        /// {
+        ///   "username": "Ngân test",
+        ///   "imageUrl": "https://chungkhoantaichinh.vn/wp-content/uploads/2022/12/avatar-meo-cute-de-thuong-05.jpg",
+        ///   "phoneNumber": "0906697051",
+        ///   "dateOfBirth": "2002-01-01"
+        /// }
+        /// ```
+        /// </remarks>
         /// <param name="id">The ID of the account to update.</param>
         /// <param name="accountRequest">The account object with updated data.</param>
         /// <returns>The updated account object.</returns>
         // PUT: api/account/{id}
         #endregion
+
         [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Account.AccountByIdEndpoint)]
         public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequestForUpdate accountRequest)
         {
 
             var existingAccount = await _accountService.GetAccountByIdAsync(id);
-            if (existingAccount == null)
-            {
-                return NotFound("Account not found.");
-            }
  
             if (accountRequest.ImageUrl != null)
             {
@@ -243,7 +253,6 @@ namespace RHCQS_BE.Controllers
                 Username = accountRequest.Username,
                 PhoneNumber = accountRequest.PhoneNumber,
                 DateOfBirth = accountRequest.DateOfBirth,
-                PasswordHash = accountRequest.PasswordHash,
                 ImageUrl = accountRequest.ImageUrl,
                 Deflag = accountRequest.Deflag,
             };
@@ -271,23 +280,30 @@ namespace RHCQS_BE.Controllers
         }
         #region UpdateProfile
         /// <summary>
-        /// Update an profile by ID.
+        /// Update a profile by ID for Customer.
         /// </summary>
-        /// <param name="id">The ID of the account to update.</param>
-        /// <param name="accountRequest">The account object with updated data.</param>
+        /// <remarks>
+        /// Sample JSON input for updating an account:
+        /// ```json
+        /// {
+        ///   "username": "Ngân test",
+        ///   "imageUrl": "https://chungkhoantaichinh.vn/wp-content/uploads/2022/12/avatar-meo-cute-de-thuong-05.jpg",
+        ///   "phoneNumber": "0906697051",
+        ///   "dateOfBirth": "2002-01-01"
+        /// }
+        /// ```
+        /// </remarks>
         /// <returns>The updated profile object.</returns>
         // PUT: api/account/profile/{id}
         #endregion
+
         [Authorize(Roles = "Customer")]
         [HttpPut(ApiEndPointConstant.Account.ProfileEndpoint)]
-        public async Task<ActionResult<Account>> UpdateProfileForCustomerAsync(Guid id, [FromBody] AccountRequestForUpdateProfile accountRequest)
+        public async Task<ActionResult<Account>> UpdateProfileForCustomerAsync([FromBody] AccountRequestForUpdateProfile accountRequest)
         {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var existingAccount = await _accountService.GetAccountByIdAsync(id);
-            if (existingAccount == null)
-            {
-                return NotFound("Account not found.");
-            }
+            var existingAccount = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId!));
 
             if (accountRequest.ImageUrl != null)
             {
@@ -299,11 +315,10 @@ namespace RHCQS_BE.Controllers
                 Username = accountRequest.Username,
                 PhoneNumber = accountRequest.PhoneNumber,
                 DateOfBirth = accountRequest.DateOfBirth,
-                PasswordHash = accountRequest.PasswordHash,
                 ImageUrl = accountRequest.ImageUrl,
             };
 
-            var updatedAccount = await _accountService.UpdateAccountAsync(id, account);
+            var updatedAccount = await _accountService.UpdateAccountAsync(existingAccount.Id, account);
             if (updatedAccount == null)
             {
                 return StatusCode(500, "An error occurred while updating the account.");
@@ -324,6 +339,26 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.UpsDate
             ));
         }
+        #region UpdatePassword
+        /// <summary>
+        /// Update the password of the currently authenticated user.
+        /// </summary>
+        /// <param name="passwordUpdateRequest">The current and new password for the update.</param>
+        /// <returns>HTTP 200 if successful, otherwise appropriate error codes.</returns>
+        #endregion
+        [Authorize]
+        [HttpPut(ApiEndPointConstant.Account.UpdatePasswordEndpoint)]
+        public async Task<IActionResult> UpdatePasswordAsync([FromBody] PasswordUpdateRequest passwordUpdateRequest)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var account = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId));
+
+            var result = await _accountService.UpdatePasswordAsync(account.Id, passwordUpdateRequest.CurrentPassword, passwordUpdateRequest.NewPassword);
+
+            return Ok(result ? AppConstant.Message.PASSWORD_SUCESSFUL : AppConstant.Message.ERROR);
+        }
+
         #region UpdateDeflagAccount
         /// <summary>
         /// Update deflag of an account by ID or ban account.
