@@ -47,9 +47,6 @@ namespace RHCQS_BusinessObject.Payload.Request
     public class AccountRequestForUpdate
     {
 
-        [EmailAddress(ErrorMessage = "Email không hợp lệ(phải theo dạng @gmail.com).")]
-        public string? Email { get; set; }
-
         [StringLength(50, ErrorMessage = "Username không được dài quá 50 ký tự.")]
         public string? Username { get; set; }
 
