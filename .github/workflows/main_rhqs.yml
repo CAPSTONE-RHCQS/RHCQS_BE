@@ -23,9 +23,9 @@ jobs:
         run: |
           mkdir -p RHCQS_BE/publish_output/ExternalLibraries
           # Copy libraries from the repository
-          copy RHCQS_BE/ExternalLibraries/libwkhtmltox.dll RHCQS_BE/publish_output/ExternalLibraries/
-          copy RHCQS_BE/ExternalLibraries/libwkhtmltox.so RHCQS_BE/publish_output/ExternalLibraries/
-
+          copy ./ExternalLibraries/libwkhtmltox.dll ./RHCQS_BE/publish_output/ExternalLibraries/
+          copy ./ExternalLibraries/libwkhtmltox.so ./RHCQS_BE/publish_output/ExternalLibraries/
+          
       - name: Build with dotnet
         run: dotnet build --configuration Release ./RHCQS_BE
 
