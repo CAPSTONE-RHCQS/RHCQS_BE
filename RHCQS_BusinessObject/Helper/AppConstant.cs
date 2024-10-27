@@ -224,6 +224,7 @@ public static class AppConstant
         public const string CancelFinalQuotaionAlready = "Quotes không thể cancel được vì status không phù hợp.";
         public const string Not_Finalized_Final_Quotation = "Báo giá chưa kết thúc!";
         public const string Conflict_Version = "Hiện tại đã có phiên bản báo giá này!";
+        public const string Reason_Rejected_Required = "Cần phải có lý do báo giá bị từ chối!";
 
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";

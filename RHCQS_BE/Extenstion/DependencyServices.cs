@@ -86,6 +86,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IBlogService, BlogService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
+            services.AddSignalR();
             return services;
         }
 

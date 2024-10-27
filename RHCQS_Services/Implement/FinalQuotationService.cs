@@ -286,6 +286,11 @@ namespace RHCQS_Services.Implement
             }
             else
             {
+                if (finalItem.ReasonReject == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request,
+                                               AppConstant.ErrMessage.Reason_Rejected_Required);
+                }
                 finalItem.Status = AppConstant.QuotationStatus.REJECTED;
                 finalItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
