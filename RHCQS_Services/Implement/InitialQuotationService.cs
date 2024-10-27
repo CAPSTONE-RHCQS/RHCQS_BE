@@ -386,8 +386,6 @@ namespace RHCQS_Services.Implement
             return paginatedList.Items.ToList();
         }
 
-
-
         public async Task<string> ApproveInitialFromManager(Guid initialId, ApproveQuotationRequest request)
         {
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
