@@ -21,10 +21,9 @@ jobs:
 
       - name: Copy platform-specific libraries
         run: |
-          mkdir -p RHCQS_BE/publish_output
-          # Copy libwkhtmltox.dll directly to the publish root
-          copy ./ExternalLibraries/libwkhtmltox.dll ./RHCQS_BE/publish_output/
-
+          mkdir -p RHCQS_BE/publish_output/ExternalLibraries
+          # Copy Windows-specific wkhtmltox
+          copy ./ExternalLibraries/libwkhtmltox.dll ./RHCQS_BE/publish_output/ExternalLibraries/
       - name: Build with dotnet
         run: dotnet build --configuration Release ./RHCQS_BE
 
@@ -32,7 +31,7 @@ jobs:
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
       - name: Verify library inclusion
-        run: dir ./RHCQS_BE/publish_output
+        run: dir ./RHCQS_BE/publish_output/ExternalLibraries
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -54,8 +53,8 @@ jobs:
           name: .net-app
           
       - name: List downloaded artifact
-        run: dir .\ # Check the contents after downloading
-
+        run: dir .\  # Check the contents after downloading
+      
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
