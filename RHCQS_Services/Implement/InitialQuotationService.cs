@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -418,6 +419,9 @@ namespace RHCQS_Services.Implement
                         }
                     }
                     };
+
+                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
                     //Upload cloudinary

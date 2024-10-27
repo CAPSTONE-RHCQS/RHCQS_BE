@@ -16,6 +16,7 @@ using CloudinaryDotNet;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using RHCQS_DataAccessObjects.Context;
+using System.Runtime.InteropServices;
 
 
 namespace RHCQS_BE.Extenstion
@@ -87,6 +88,8 @@ namespace RHCQS_BE.Extenstion
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
+            string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+            NativeLibrary.Load(dllPath);
             return services;
         }
 
