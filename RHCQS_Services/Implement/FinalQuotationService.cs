@@ -234,12 +234,7 @@ namespace RHCQS_Services.Implement
                                 }
                             }
                     };
-                    string dllPath = Path.Combine(AppContext.BaseDirectory, "libwkhtmltox.dll");
-                    if (!File.Exists(dllPath))
-                    {
-                        throw new Exception($"File not found: {dllPath}");
-                    }
-
+                    string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll");
                     NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
