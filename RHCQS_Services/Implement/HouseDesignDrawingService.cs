@@ -192,7 +192,9 @@ namespace RHCQS_Services.Implement
                 }
 
                 int existingDesigns = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                    .CountAsync(d => d.AccountId == designerId && d.Status != "Accepted");
+                    .CountAsync(d => d.AccountId == designerId && d.Status != AppConstant.HouseDesignStatus.ACCEPTED
+                    && d.Status != AppConstant.HouseDesignStatus.FINALIZED
+                    && d.Status != AppConstant.HouseDesignStatus.REJECTED);
 
                 if (existingDesigns >= 2)
                 {

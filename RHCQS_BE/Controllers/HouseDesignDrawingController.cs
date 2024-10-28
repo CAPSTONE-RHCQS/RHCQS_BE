@@ -211,6 +211,9 @@ namespace RHCQS_BE.Controllers
         /// Creates a new set of house design drawings in the system for the specified project.
         /// </summary>
         /// <remarks>
+        /// 
+        /// 4 DesignerId for 4 Design Drawing
+        /// 
         /// Sample request:
         /// 
         ///     POST /api/v1/housedesigndrawing
