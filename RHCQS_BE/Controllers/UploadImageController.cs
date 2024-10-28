@@ -51,19 +51,19 @@ namespace RHCQS_BE.Controllers
 
         [HttpPost]
         [Route("api/upload/filename")]
-        public async Task<ActionResult> Upload(IFormFile file, string customName = null)
+        public async Task<ActionResult> Upload(IFormFile file, string fileName)
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file provided.");
 
             // Generate a custom name for the file if provided, otherwise use the original filename without extension
-            var publicId = customName ?? Path.GetFileNameWithoutExtension(file.FileName);
+            var publicId = fileName ?? Path.GetFileNameWithoutExtension(file.FileName);
 
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 PublicId = publicId,
-                Folder = "profile",
+                Folder = "HouseDesignDrawing",
                 UseFilename = true,
                 UniqueFilename = false,
                 Overwrite = true
