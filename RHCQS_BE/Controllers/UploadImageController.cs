@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RHCQS_BE.Extenstion;
 
 namespace RHCQS_BE.Controllers
 {
@@ -49,8 +50,7 @@ namespace RHCQS_BE.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("api/upload/filename")]
+        [HttpPost(ApiEndPointConstant.General.UploadImageDrawingEndpoint)]
         public async Task<ActionResult> Upload(IFormFile file, string fileName)
         {
             if (file == null || file.Length == 0)
