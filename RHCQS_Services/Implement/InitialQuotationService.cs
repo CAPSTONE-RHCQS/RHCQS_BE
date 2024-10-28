@@ -420,7 +420,7 @@ namespace RHCQS_Services.Implement
                     }
                     };
 
-                    string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll");
+                    string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
                     NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
@@ -469,9 +469,8 @@ namespace RHCQS_Services.Implement
                 catch (Exception ex)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                       $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll")}; " +
-                       $"{Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"+
-                       $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll")}" + $"{ex}"
+                       $"{ex}" +
+                       $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
 );
                 }
             }
