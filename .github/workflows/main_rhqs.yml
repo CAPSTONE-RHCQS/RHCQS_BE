@@ -19,11 +19,25 @@ jobs:
           dotnet-version: '8.x'
           include-prerelease: true
 
+      - name: Verify initial presence of libwkhtmltox.dll
+        run: |
+          if (Test-Path -Path ./ExternalLibraries/libwkhtmltox.dll) {
+            Write-Output "libwkhtmltox.dll exists in source directory."
+          } else {
+            Write-Output "libwkhtmltox.dll NOT found in source directory."
+            exit 1
+          }
+        shell: pwsh
+
       - name: Copy platform-specific libraries
         run: |
           New-Item -ItemType Directory -Path RHCQS_BE\publish_output\ExternalLibraries -Force
-          if (Test-Path -Path ./ExternalLibraries/libwkhtmltox.dll) {
-            Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\
+          Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\
+          if (Test-Path -Path RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+            Write-Output "libwkhtmltox.dll copied successfully."
+          } else {
+            Write-Output "Failed to copy libwkhtmltox.dll to publish_output."
+            exit 1
           }
         shell: pwsh
 
@@ -56,7 +70,7 @@ jobs:
           name: .net-app
 
       - name: List entire downloaded artifact directory
-        run: Get-ChildItem -Path .\ -Recurse  # Liệt kê tất cả thư mục để xác định cấu trúc
+        run: Get-ChildItem -Path .\ -Recurse
         shell: pwsh
 
       - name: Verify library presence in deployment artifact
