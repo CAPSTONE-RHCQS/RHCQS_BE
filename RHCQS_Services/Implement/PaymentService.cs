@@ -205,5 +205,35 @@ namespace RHCQS_Services.Implement
             }
 
         }
+
+        public async Task<List<PaymentResponse>> GetListBatchResponse(Guid projectId)
+        {
+            var listBatch = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                            predicate: x => x.Contract!.ProjectId == projectId,
+                            include: x => x.Include(x => x.Payment!)
+                                           .ThenInclude(x => x.PaymentType));
+
+            if (listBatch == null || !listBatch.Any())
+            {
+                return new List<PaymentResponse>();
+            }
+
+            var payments = listBatch.Select(batch => batch.Payment).Distinct();
+
+            var result = payments.Select(payment => new PaymentResponse(
+                id: payment!.Id,
+                type: payment.PaymentType.Name!,
+                insDate: payment.InsDate,
+                upsDate: payment.UpsDate,
+                totalprice: payment.TotalPrice,
+                paymentDate: payment.PaymentDate,
+                paymentPhase: payment.PaymentPhase,
+                unit: payment.Unit,
+                percents: payment.Percents,
+                description: payment.Description
+            )).ToList();
+
+            return result;
+        }
     }
 }

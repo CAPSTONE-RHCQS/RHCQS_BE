@@ -268,6 +268,7 @@ public static class AppConstant
         //Payment
         public const string Invalid_Payment = "Thanh toán này không tìm thấy!";
         public const string Type_Not_Found = "Không tìm thấy kiểu hợp đồng!";
+
         //Blog
         public const string Not_Found_Blog = "Bài đăng này không tìm thấy!";
 

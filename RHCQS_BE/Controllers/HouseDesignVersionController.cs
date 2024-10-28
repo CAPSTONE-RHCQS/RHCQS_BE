@@ -33,7 +33,6 @@ namespace RHCQS_BE.Controllers
         ///
         ///     POST /api/v1/design
         ///     {
-        ///       "accountId": "990773A2-1817-47F5-9116-301E97435C44",
         ///       "name": "Kiến trúc",
         ///       "houseDesignDrawingId": "EAB8D4FF-C6D4-452A-AB89-DEDC8D3F5153",
         ///       "fileUrl": "https://designfile....",
@@ -57,7 +56,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="401">Unauthorized, only managers are allowed to create design versions</response>
         /// <response code="500">Internal server error</response>
         #endregion
-        [Authorize(Roles = "DesignStaff")]
+        //[Authorize(Roles = "DesignStaff")]
         [HttpPost(ApiEndPointConstant.HouseDesignVersion.HouseDesignVersionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -117,7 +116,7 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
-        #region
+        #region AssignHouseDrawing
         /// <summary>
         /// Assigns a specific house drawing to a house design version.
         /// </summary>

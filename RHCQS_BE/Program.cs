@@ -24,6 +24,7 @@ namespace RHCQS_BE
                    {
                        policy.WithOrigins("http://localhost:3000")
                              .WithOrigins("http://localhost:5173")
+                             .WithOrigins("http://localhost:8081")
                              .WithOrigins("https://rhcqs.vercel.app")
                              .AllowAnyHeader()
                              .AllowAnyMethod()

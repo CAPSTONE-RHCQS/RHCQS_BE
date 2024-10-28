@@ -11,8 +11,6 @@ public partial class HouseDesignVersion
 
     public double Version { get; set; }
 
-    public string Status { get; set; } = null!;
-
     public DateTime? InsDate { get; set; }
 
     public Guid HouseDesignDrawingId { get; set; }
