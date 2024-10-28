@@ -31,10 +31,10 @@ namespace RHCQS_Services.Implement
             _cloudinary = cloudinary;
         }
 
-        public async Task<bool> CreateHouseDesignVersion(HouseDesignVersionRequest request)
+        public async Task<bool> CreateHouseDesignVersion(Guid accountId, HouseDesignVersionRequest request)
         {
             var staffInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                .FirstOrDefaultAsync(x => x.Account!.Id == request.AccountId && x.Id == request.HouseDesignDrawingId,
+                .FirstOrDefaultAsync(x => x.Account!.Id == accountId && x.Id == request.HouseDesignDrawingId,
                 include: x => x.Include(x => x.Account!));
             if (staffInfo == null)
             {
