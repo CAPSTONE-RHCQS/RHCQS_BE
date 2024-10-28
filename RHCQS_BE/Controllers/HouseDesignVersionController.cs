@@ -6,6 +6,7 @@ using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
+using System.Security.Claims;
 
 namespace RHCQS_BE.Controllers
 {
@@ -62,7 +63,8 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHouseDesignVersion([FromBody] HouseDesignVersionRequest item)
         {
-            var isCreate = await _designVersionService.CreateHouseDesignVersion(item);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var isCreate = await _designVersionService.CreateHouseDesignVersion(accountId, item);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 

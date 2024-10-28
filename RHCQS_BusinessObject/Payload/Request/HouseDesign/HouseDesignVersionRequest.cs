@@ -10,8 +10,6 @@ namespace RHCQS_BusinessObject.Payload.Request.HouseDesign
 
     public class HouseDesignVersionRequest
     {
-        [Required(ErrorMessage = "Account is required")]
-        public Guid AccountId { get; set; }
         [Required(ErrorMessage = "Name is required")]
         [StringLength(100, ErrorMessage = "Name cannot be longer than 100 characters")]
         public string? Name { get; set; }

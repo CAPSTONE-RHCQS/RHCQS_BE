@@ -222,7 +222,6 @@ namespace RHCQS_Services.Implement
             return isSuccessful ? (true, AppConstant.Message.APPROVED) : (false, "Error occurred during saving.");
         }
 
-
         public async Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId)
         {
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
@@ -304,7 +303,6 @@ namespace RHCQS_Services.Implement
                         orderBy: x => x.OrderBy(x => x.Step));
             return listDrawingPrevious.Items.ToList();
         }
-
 
     }
 }
