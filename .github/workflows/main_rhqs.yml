@@ -32,13 +32,13 @@ jobs:
       - name: Copy platform-specific libraries
         run: |
           # Ensure destination directory exists
-          New-Item -ItemType Directory -Path RHCQS_BE\publish_output\ExternalLibraries -Force
+          New-Item -ItemType Directory -Path RHCQS_BE\ExternalLibraries -Force
           
           # Copy library to publish_output location
-          Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\
+          Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\ExternalLibraries\
           
           # Verify the copy
-          if (Test-Path -Path RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+          if (Test-Path -Path RHCQS_BE\ExternalLibraries\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll copied successfully."
           } else {
             Write-Output "Failed to copy libwkhtmltox.dll to publish_output."
@@ -54,7 +54,7 @@ jobs:
 
       - name: Verify library inclusion in publish output
         run: |
-          if (Test-Path -Path ./RHCQS_BE/publish_output/ExternalLibraries/libwkhtmltox.dll) {
+          if (Test-Path -Path ./RHCQS_BE/ExternalLibraries/libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll is present in publish output."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in publish output directory."
@@ -66,7 +66,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ./RHCQS_BE/publish_output
+          path: ./RHCQS_BE/publish_output/
+          retention-days: 1
 
   deploy:
     runs-on: windows-latest
@@ -82,12 +83,15 @@ jobs:
           name: .net-app
 
       - name: List entire downloaded artifact directory
-        run: Get-ChildItem -Path .\ -Recurse
+        run: |
+          Write-Output "Listing downloaded artifact directory contents:"
+          Get-ChildItem -Path . -Recurse
         shell: pwsh
 
       - name: Verify library presence in deployment artifact
         run: |
-          if (Test-Path -Path .\RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+          # Adjust path based on observed artifact structure
+          if (Test-Path -Path .\RHCQS_BE\ExternalLibraries\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll found in the expected path."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in the expected path."
