@@ -50,14 +50,8 @@ namespace RHCQS_BE.Controllers
             }
         }
 
-<<<<<<< Updated upstream
-        [HttpPost]
-        [Route("api/upload/filename")]
-        public async Task<ActionResult> Upload(IFormFile file, string customName = null)
-=======
         [HttpPost(ApiEndPointConstant.General.UploadImageDrawingEndpoint)]
         public async Task<ActionResult> Upload(IFormFile file, string fileName)
->>>>>>> Stashed changes
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file provided.");
