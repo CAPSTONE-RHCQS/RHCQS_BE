@@ -41,8 +41,9 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Access_DesignDrawing);
             }
 
-            var availableDrawing = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(
-                                            v => v.HouseDesignDrawingId == request.HouseDesignDrawingId);
+            var availableDrawing = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(                                    
+                                            v => v.HouseDesignDrawingId == request.HouseDesignDrawingId,
+                                            orderBy: v => v.OrderByDescending(v => v.Version));
             if (availableDrawing == null)
             {
                 var itemDesign = new HouseDesignVersion
