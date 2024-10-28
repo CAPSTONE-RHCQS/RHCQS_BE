@@ -24,6 +24,8 @@ namespace RHCQS_BE.Controllers
         #region ListDesignStaffWorkAvailable
         /// <summary>
         /// Retrieves a list of available design staff work assignments.
+        /// 
+        /// Role: MANAGER
         /// </summary>
         #endregion
         [Authorize(Roles = "Manager")]
