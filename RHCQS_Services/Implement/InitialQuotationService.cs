@@ -468,7 +468,10 @@ namespace RHCQS_Services.Implement
                 }
                 catch (Exception ex)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll"));
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                       $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "libwkhtmltox.dll")}; " +
+                       $"{Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
+);
                 }
             }
             else
