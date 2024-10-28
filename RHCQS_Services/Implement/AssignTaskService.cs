@@ -78,6 +78,7 @@ namespace RHCQS_Services.Implement
                 predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD"),
                 include: x => x.Include(x => x.AssignTasks!)
                                .ThenInclude(assignTask => assignTask.Project!)
+                               .Include(x => x.Role)
             );
 
             var listResult = listDesign
@@ -86,9 +87,11 @@ namespace RHCQS_Services.Implement
                     .Distinct().Count() < 2)
                 .Select(account => new DesignStaffWorkResponse
                 {
-                    AccountId = account.Id,
-                    AccountName = account.Username!,
-                    ProjectName = account.AssignTasks.FirstOrDefault()?.Project?.Name 
+                    Id = account.Id,
+                    ImgUrl = account.ImageUrl,
+                    Name = account.Username!,
+                    RoleName = account.Role.RoleName!,
+                    Phone = account.PhoneNumber
                 })
                 .ToList();
 

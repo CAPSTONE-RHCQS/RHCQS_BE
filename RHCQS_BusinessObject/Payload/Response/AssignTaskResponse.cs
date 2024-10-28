@@ -33,9 +33,11 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class DesignStaffWorkResponse
     {
-        public Guid AccountId { get; set; }
-        public string AccountName { get; set; }
+        public Guid Id { get; set; }
+        public string ImgUrl {  get; set; }
+        public string Name { get; set; }
 
-        public string? ProjectName { get; set; }
+        public string RoleName { get; set; }
+        public string? Phone { get; set; }
     }
 }
