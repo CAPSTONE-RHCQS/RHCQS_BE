@@ -32,6 +32,7 @@ jobs:
       - name: Copy platform-specific libraries
         run: |
           New-Item -ItemType Directory -Path RHCQS_BE\ExternalLibraries -Force
+          
           Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\ExternalLibraries\
           
           if (Test-Path -Path RHCQS_BE\ExternalLibraries\libwkhtmltox.dll) {
@@ -58,11 +59,17 @@ jobs:
           }
         shell: pwsh
 
+      - name: List contents of publish output before uploading
+        run: |
+          Write-Output "Listing contents of publish_output directory:"
+          Get-ChildItem -Path ./RHCQS_BE/publish_output -Recurse
+        shell: pwsh
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ./RHCQS_BE/publish_output/
+          path: ./RHCQS_BE/
           retention-days: 1
 
   deploy:
@@ -84,24 +91,11 @@ jobs:
           Get-ChildItem -Path . -Recurse
         shell: pwsh
 
-      - name: Search for libwkhtmltox.dll location
-        id: search-dll
-        run: |
-          # Find the exact location of libwkhtmltox.dll
-          $dllPath = (Get-ChildItem -Path . -Filter libwkhtmltox.dll -Recurse | Select-Object -First 1).FullName
-          if ($dllPath) {
-            Write-Output "libwkhtmltox.dll found at path: $dllPath"
-          } else {
-            Write-Output "libwkhtmltox.dll NOT found in any subdirectory."
-            exit 1
-          }
-          echo "::set-output name=dll_path::$dllPath"
-        shell: pwsh
-
       - name: Verify library presence in deployment artifact
         run: |
-          if (Test-Path -Path "${{ steps.search-dll.outputs.dll_path }}") {
-            Write-Output "libwkhtmltox.dll confirmed in the artifact at: ${{ steps.search-dll.outputs.dll_path }}"
+          # Adjust path based on observed artifact structure
+          if (Test-Path -Path .\RHCQS_BE\ExternalLibraries\libwkhtmltox.dll) {
+            Write-Output "libwkhtmltox.dll found in the expected path."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in the expected path."
             exit 1
