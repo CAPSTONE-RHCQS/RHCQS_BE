@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RHCQS_BE.Extenstion;
 
 namespace RHCQS_BE.Controllers
 {
@@ -49,9 +50,14 @@ namespace RHCQS_BE.Controllers
             }
         }
 
+<<<<<<< Updated upstream
         [HttpPost]
         [Route("api/upload/filename")]
         public async Task<ActionResult> Upload(IFormFile file, string customName = null)
+=======
+        [HttpPost(ApiEndPointConstant.General.UploadImageDrawingEndpoint)]
+        public async Task<ActionResult> Upload(IFormFile file, string fileName)
+>>>>>>> Stashed changes
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file provided.");
