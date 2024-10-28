@@ -66,7 +66,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ./RHCQS_BE/publish_output
+          path: ./RHCQS_BE/publish_output/
+          retention-days: 1
 
   deploy:
     runs-on: windows-latest
@@ -80,14 +81,17 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: .net-app
+          path: ./artifact-download
 
       - name: List entire downloaded artifact directory
-        run: Get-ChildItem -Path .\ -Recurse
+        run: |
+          Write-Output "Listing downloaded artifact directory contents:"
+          Get-ChildItem -Path .\artifact-download\ -Recurse
         shell: pwsh
 
       - name: Verify library presence in deployment artifact
         run: |
-          if (Test-Path -Path .\RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+          if (Test-Path -Path .\artifact-download\RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll found in the expected path."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in the expected path."
@@ -102,4 +106,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .\RHCQS_BE\publish_output
+          package: .\artifact-download\RHCQS_BE\publish_output
