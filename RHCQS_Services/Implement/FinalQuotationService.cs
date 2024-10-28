@@ -20,6 +20,7 @@ using RHCQS_BusinessObject.Payload.Request;
 using static RHCQS_BusinessObjects.AppConstant;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RHCQS_BusinessObject.Payload.Response.App;
+using System.Runtime.InteropServices;
 
 namespace RHCQS_Services.Implement
 {
@@ -233,6 +234,8 @@ namespace RHCQS_Services.Implement
                                 }
                             }
                     };
+                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
                     //Upload cloudinary
