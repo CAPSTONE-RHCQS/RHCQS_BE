@@ -29,16 +29,16 @@ jobs:
           }
         shell: pwsh
 
-      - name: Copy platform-specific libraries to publish_output
+      - name: Copy libwkhtmltox.dll directly to publish_output
         run: |
           # Ensure destination directory exists
-          New-Item -ItemType Directory -Path RHCQS_BE\publish_output\ExternalLibraries -Force
+          New-Item -ItemType Directory -Path RHCQS_BE\publish_output -Force
           
-          # Copy library to publish_output location
-          Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\
-          
+          # Copy library directly to publish_output
+          Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\libwkhtmltox.dll
+
           # Verify the copy
-          if (Test-Path -Path RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+          if (Test-Path -Path RHCQS_BE\publish_output\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll copied successfully to publish_output."
           } else {
             Write-Output "Failed to copy libwkhtmltox.dll to publish_output."
@@ -54,7 +54,7 @@ jobs:
 
       - name: Verify library inclusion in publish output
         run: |
-          if (Test-Path -Path ./RHCQS_BE/publish_output/ExternalLibraries/libwkhtmltox.dll) {
+          if (Test-Path -Path ./RHCQS_BE/publish_output/libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll is present in publish output."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in publish output directory."
@@ -96,7 +96,7 @@ jobs:
 
       - name: Verify library presence in deployment artifact
         run: |
-          if (Test-Path -Path .\ExternalLibraries\libwkhtmltox.dll) {
+          if (Test-Path -Path .\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll found in expected path within artifact."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in the expected path."
