@@ -31,8 +31,13 @@ jobs:
 
       - name: Copy platform-specific libraries
         run: |
+          # Ensure destination directory exists
           New-Item -ItemType Directory -Path RHCQS_BE\publish_output\ExternalLibraries -Force
+          
+          # Copy library to publish_output location
           Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\
+          
+          # Verify the copy
           if (Test-Path -Path RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll copied successfully."
           } else {
@@ -48,7 +53,14 @@ jobs:
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
       - name: Verify library inclusion in publish output
-        run: dir ./RHCQS_BE/publish_output/ExternalLibraries
+        run: |
+          if (Test-Path -Path ./RHCQS_BE/publish_output/ExternalLibraries/libwkhtmltox.dll) {
+            Write-Output "libwkhtmltox.dll is present in publish output."
+          } else {
+            Write-Output "libwkhtmltox.dll NOT found in publish output directory."
+            exit 1
+          }
+        shell: pwsh
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -90,4 +102,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .\publish_output
+          package: .\RHCQS_BE\publish_output
