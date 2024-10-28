@@ -113,5 +113,28 @@ namespace RHCQS_BE.Controllers
             var result = await _paymentService.ApproveContractContruction(paymentId, files);
             return Ok(result);
         }
+
+        #region GetListBatchResponse
+        /// <summary>
+        /// List batch payment for customer - App
+        /// 
+        /// Role: CUSTOMER
+        /// </summary>
+        /// <returns>List of payment in the system</returns>
+        #endregion
+        //[Authorize(Roles = "Customer")]
+        [HttpGet(ApiEndPointConstant.Payment.PaymentBatchForCustomerEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetListBatchResponse(Guid projectId)
+        {
+            var listPayment = await _paymentService.GetListBatchResponse(projectId);
+            var result = JsonConvert.SerializeObject(listPayment, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

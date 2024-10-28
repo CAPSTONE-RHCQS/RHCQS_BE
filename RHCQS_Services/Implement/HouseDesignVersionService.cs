@@ -51,7 +51,6 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     Name = request.Name,
                     Version = 1.0,
-                    Status = "Proccesing",
                     InsDate = DateTime.Now,
                     HouseDesignDrawingId = request.HouseDesignDrawingId,
                     Note = "",
@@ -63,6 +62,19 @@ namespace RHCQS_Services.Implement
 
                 await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesign);
 
+                //Update status PENDING -> REVIEWING
+                var drawingInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                                        .FirstOrDefaultAsync(predicate: x => x.Id == request.HouseDesignDrawingId);
+
+                if (drawingInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found); 
+                }
+                drawingInfo.Status = AppConstant.HouseDesignStatus.REVIEWING;
+
+                await _unitOfWork.GetRepository<HouseDesignDrawing>().InsertAsync(drawingInfo);
+
+                //Create media save file
                 var itemMedia = new Medium
                 {
                     Id = Guid.NewGuid(),
@@ -81,7 +93,6 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     Name = availableDrawing!.Name,
                     Version = availableDrawing.Version + 1,
-                    Status = AppConstant.Status.PROCESSING,
                     InsDate = DateTime.Now,
                     HouseDesignDrawingId = availableDrawing.HouseDesignDrawingId,
                     Note = null,
@@ -91,7 +102,7 @@ namespace RHCQS_Services.Implement
                 };
 
                 //Update status in house desgin draw previous
-                availableDrawing!.Status = AppConstant.Status.UPDATED;
+                availableDrawing!.HouseDesignDrawing.Status = AppConstant.Status.UPDATED;
 
                 _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
 
@@ -169,10 +180,10 @@ namespace RHCQS_Services.Implement
                 };
                 await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
                 //itemDrawing.FileUrl = uploadResult.Url?.ToString() ?? itemDrawing.FileUrl;
-                itemDrawing.Status = "Processing";
+                itemDrawing.HouseDesignDrawing.Status = "Processing";
             }
 
-            itemDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
+            itemDrawing.HouseDesignDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
             itemDrawing.UpsDate = DateTime.Now;
 
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);
@@ -189,7 +200,7 @@ namespace RHCQS_Services.Implement
 
             if (request.Type == AppConstant.HouseDesignStatus.APPROVED)
             {
-                drawingItem.Status = AppConstant.HouseDesignStatus.APPROVED;
+                drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.APPROVED;
                 drawingItem.Deflag = true;
                 var designDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().
                     FirstOrDefaultAsync(x => x.Id == drawingItem.HouseDesignDrawingId);
@@ -197,7 +208,7 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                drawingItem.Status = AppConstant.HouseDesignStatus.UPDATING;
+                drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.UPDATING;
                 drawingItem.Reason = request.Reason;
             }
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
@@ -219,7 +230,6 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
-            designVersionInfo.Status = AppConstant.HouseDesignStatus.ACCEPTED;
             designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ACCEPTED;
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);
 
@@ -238,7 +248,6 @@ namespace RHCQS_Services.Implement
             }
 
             designVersionInfo.Note = comment.Note;
-            designVersionInfo.Status = AppConstant.HouseDesignStatus.REJECTED;
             designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.UPDATING;
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);
 
