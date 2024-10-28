@@ -55,11 +55,17 @@ jobs:
         with:
           name: .net-app
 
-      - name: List downloaded artifact
-        run: dir .\  # Kiểm tra cấu trúc thư mục chính
+      - name: List entire downloaded artifact directory
+        run: dir .\ /s  # Liệt kê tất cả thư mục để xác định cấu trúc
 
       - name: Verify library presence in deployment artifact
-        run: dir .\publish_output\ExternalLibraries\  # Đảm bảo đường dẫn đúng
+        run: |
+          if (Test-Path -Path .\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+            Write-Output "libwkhtmltox.dll found in the expected path."
+          } else {
+            Write-Output "libwkhtmltox.dll NOT found in the expected path."
+            exit 1
+          }
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -68,4 +74,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .\publish_output
+          package: .
