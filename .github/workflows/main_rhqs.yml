@@ -23,14 +23,19 @@ jobs:
         run: |
           mkdir -p RHCQS_BE/publish_output/ExternalLibraries
           # Copy Windows-specific wkhtmltox
-          copy ./ExternalLibraries/libwkhtmltox.dll ./RHCQS_BE/publish_output/ExternalLibraries/
+          if exist ./ExternalLibraries/libwkhtmltox.dll (
+            copy ./ExternalLibraries/libwkhtmltox.dll ./RHCQS_BE/publish_output/ExternalLibraries/
+          ) else (
+            echo "libwkhtmltox.dll not found!"
+            exit 1
+          )
       - name: Build with dotnet
         run: dotnet build --configuration Release ./RHCQS_BE
 
       - name: dotnet publish
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
-      - name: Verify library inclusion
+      - name: Verify library inclusion in publish output
         run: dir ./RHCQS_BE/publish_output/ExternalLibraries
 
       - name: Upload artifact for deployment job
