@@ -21,14 +21,12 @@ jobs:
 
       - name: Copy platform-specific libraries
         run: |
-          mkdir -p RHCQS_BE/publish_output/ExternalLibraries
-          # Copy Windows-specific wkhtmltox
-          if exist ./ExternalLibraries/libwkhtmltox.dll (
-            copy ./ExternalLibraries/libwkhtmltox.dll ./RHCQS_BE/publish_output/ExternalLibraries/
-          ) else (
-            echo "libwkhtmltox.dll not found!"
-            exit 1
-          )
+          New-Item -ItemType Directory -Path RHCQS_BE\publish_output\ExternalLibraries -Force
+          if (Test-Path -Path ./ExternalLibraries/libwkhtmltox.dll) {
+            Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\
+          }
+        shell: pwsh
+
       - name: Build with dotnet
         run: dotnet build --configuration Release ./RHCQS_BE
 
