@@ -215,8 +215,7 @@ namespace RHCQS_Services.Implement
 
             if (listBatch == null || !listBatch.Any())
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, 
-                    AppConstant.ErrMessage.Invalid_Payment);
+                return new List<PaymentResponse>();
             }
 
             var payments = listBatch.Select(batch => batch.Payment).Distinct();
