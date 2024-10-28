@@ -75,7 +75,7 @@ jobs:
 
       - name: Verify library presence in deployment artifact
         run: |
-          if (Test-Path -Path .\publish_output\ExternalLibraries\libwkhtmltox.dll) {
+          if (Test-Path -Path .\RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
             Write-Output "libwkhtmltox.dll found in the expected path."
           } else {
             Write-Output "libwkhtmltox.dll NOT found in the expected path."
