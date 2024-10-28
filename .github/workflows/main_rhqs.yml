@@ -55,11 +55,11 @@ jobs:
         with:
           name: .net-app
 
-      - name: Verify library presence in deployment artifact
-        run: dir .\RHCQS_BE\publish_output\ExternalLibraries\
-
       - name: List downloaded artifact
-        run: dir .\  # Check the contents after downloading
+        run: dir .\  # Kiểm tra cấu trúc thư mục chính
+
+      - name: Verify library presence in deployment artifact
+        run: dir .\publish_output\ExternalLibraries\  # Đảm bảo đường dẫn đúng
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -68,4 +68,4 @@ jobs:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .\RHCQS_BE\publish_output
+          package: .\publish_output
