@@ -420,7 +420,7 @@ namespace RHCQS_Services.Implement
                     }
                     };
 
-                    string dllPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
                     NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
