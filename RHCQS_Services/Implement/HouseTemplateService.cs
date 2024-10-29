@@ -252,7 +252,26 @@ namespace RHCQS_Services.Implement
             }
             return null;
         }
+        public async Task<IPaginate<HouseTemplateResponseCustom>> GetListHouseTemplateForShortVersionAsync(int page, int size)
+        {
+            var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetList(
+                selector: x => new HouseTemplateResponseCustom(
+                    x.Id,
+                    x.Name,
+                    x.Description,
+                    x.NumberOfFloor,
+                    x.NumberOfBed,
+                    x.NumberOfFront,
+                    x.ImgUrl,
+                    x.InsDate
+                ),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                page: page,
+                size: size
+            );
 
+            return listHouseTemplate;
+        }
         public async Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size)
         {
             var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetList(

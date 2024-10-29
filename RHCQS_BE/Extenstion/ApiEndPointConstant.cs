@@ -70,6 +70,7 @@ namespace RHCQS_BE.Extenstion
         public static class HouseTemplate
         {
             public const string HouseTemplateEndpoint = ApiEndpoint + "/housetemplate";
+            public const string HouseTemplateShorterEndpoint = ApiEndpoint + "/house-templates-list";
             public const string HouseTemplateListEndpoint = ApiEndpoint + "/allhousetemplate";
             public const string SearchHouseTemplateEndpoint = HouseTemplateEndpoint + "/name";
             public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";

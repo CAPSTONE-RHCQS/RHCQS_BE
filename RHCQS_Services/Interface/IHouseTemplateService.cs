@@ -13,6 +13,7 @@ namespace RHCQS_Services.Interface
     public interface IHouseTemplateService
     {
         public Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size);
+        public Task<IPaginate<HouseTemplateResponseCustom>> GetListHouseTemplateForShortVersionAsync(int page, int size);
         public Task<List<HouseTemplateResponse>> GetListHouseTemplate();
         Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name);
         Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id);

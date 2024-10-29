@@ -51,6 +51,40 @@ namespace RHCQS_BusinessObject.Payload.Response
         public List<MediaResponse> ExteriorsUrls { get; set; }
 
     }
+    public class HouseTemplateResponseCustom
+    {
+        public HouseTemplateResponseCustom() { }
+
+        public HouseTemplateResponseCustom(Guid id, string name, string? description, int? numberOfFloor, int? numberOfBed,
+            int? numberOfFront, string? imgUrl, DateTime? insDate)
+        {
+            Id = id;
+            Name = name;
+            Description = description;
+            NumberOfFloor = numberOfFloor;
+            NumberOfBed = numberOfBed;
+            NumberOfFront = numberOfFront;
+            ImgUrl = imgUrl;
+            InsDate = insDate;
+        }
+
+        public Guid Id { get; set; }
+
+        public string Name { get; set; } = null!;
+
+        public string? Description { get; set; }
+
+        public int? NumberOfFloor { get; set; }
+
+        public int? NumberOfBed { get; set; }
+
+        public int? NumberOfFront { get; set; }
+
+        public string? ImgUrl { get; set; }
+
+        public DateTime? InsDate { get; set; }
+
+    }
     public class SubTemplatesResponse
     {
         public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea, DateTime? insDate, string? size,
