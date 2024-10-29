@@ -28,14 +28,6 @@ namespace RHCQS_BE.Controllers
         /// Retrieves a paginated list of initial quotations.
         /// </summary>
         /// <remarks>
-        /// Sample request:
-        /// 
-        ///     GET /api/v1/initial-quotations?page={page}&size={size}
-        /// 
-        /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve a paginated list of initial quotations. 
-        /// Users can specify the page number and the page size for the response. Each entry in the list includes basic information about 
-        /// the initial quotation, such as the ID, version, area, and status.
-        /// 
         /// Example response:
         /// {
         ///   "Size": 10,
@@ -52,8 +44,6 @@ namespace RHCQS_BE.Controllers
         ///   ]
         /// }
         /// </remarks>
-        /// <param name="page">The page number to retrieve. Default is 1.</param>
-        /// <param name="size">The number of items per page. Default is 10.</param>
         /// <returns>Returns a paginated list of initial quotations, or a 404 Not Found response if no quotations are found.</returns>
         /// <response code="200">Initial quotations retrieved successfully</response>
         /// <response code="404">No initial quotations found</response>

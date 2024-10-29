@@ -33,7 +33,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
-                            selector: p => new PaymentResponse(p.Id, p.PaymentType!.Name, p.InsDate,
+                            selector: p => new PaymentResponse(p.Id, p.PaymentType.Name!, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
                                                                p.Unit, p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
@@ -54,8 +54,8 @@ namespace RHCQS_Services.Implement
             );
 
             var paymentResponses = batchInfo.Select(bp => new PaymentResponse(
-                bp.Payment.Id,
-                bp.Payment.PaymentType.Name,
+                bp.Payment!.Id,
+                bp.Payment.PaymentType.Name!,
                 bp.InsDate,
                 bp.Payment.UpsDate,
                 bp.Payment.TotalPrice,

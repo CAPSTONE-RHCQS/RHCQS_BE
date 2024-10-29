@@ -68,7 +68,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListProjectBySalesStaff([FromQuery]int page, int size)
         {
-            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var listProjects = await _projectService.GetListProjectBySalesStaff(accountId, page, size);
             var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
             return new ContentResult()
