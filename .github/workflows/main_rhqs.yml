@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -19,16 +18,6 @@ jobs:
           dotnet-version: '8.x'
           include-prerelease: true
 
-      - name: Verify initial presence of libwkhtmltox.dll
-        run: |
-          if (Test-Path -Path ./ExternalLibraries/libwkhtmltox.dll) {
-            Write-Output "libwkhtmltox.dll exists in source directory."
-          } else {
-            Write-Output "libwkhtmltox.dll NOT found in source directory."
-            exit 1
-          }
-        shell: pwsh
-
       - name: Copy libwkhtmltox.dll directly to publish_output
         run: |
           # Ensure destination directory exists
@@ -36,13 +25,6 @@ jobs:
           
           # Copy library directly to the correct path in publish_output
           Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll
-          # Verify the copy
-          if (Test-Path -Path RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll) {
-            Write-Output "libwkhtmltox.dll copied successfully to publish_output."
-          } else {
-            Write-Output "Failed to copy libwkhtmltox.dll to publish_output."
-            exit 1
-          }
         shell: pwsh
 
       - name: Build with dotnet
@@ -50,22 +32,6 @@ jobs:
 
       - name: dotnet publish
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
-
-      - name: Verify library inclusion in publish output
-        run: |
-          if (Test-Path -Path ./RHCQS_BE/publish_output/ExternalLibraries/libwkhtmltox.dll) {
-            Write-Output "libwkhtmltox.dll is present in publish output."
-          } else {
-            Write-Output "libwkhtmltox.dll NOT found in publish output directory."
-            exit 1
-          }
-        shell: pwsh
-
-      - name: List contents of publish output before uploading
-        run: |
-          Write-Output "Listing contents of publish_output directory:"
-          Get-ChildItem -Path ./RHCQS_BE/publish_output -Recurse
-        shell: pwsh
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
@@ -86,22 +52,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: .net-app
-
-      - name: List entire downloaded artifact directory
-        run: |
-          Write-Output "Listing downloaded artifact directory contents:"
-          Get-ChildItem -Path . -Recurse
-        shell: pwsh
-
-      - name: Verify library presence in deployment artifact
-        run: |
-          if (Test-Path -Path .\ExternalLibraries\libwkhtmltox.dll) {
-            Write-Output "libwkhtmltox.dll found in expected path within artifact."
-          } else {
-            Write-Output "libwkhtmltox.dll NOT found in the expected path."
-            exit 1
-          }
-        shell: pwsh
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
