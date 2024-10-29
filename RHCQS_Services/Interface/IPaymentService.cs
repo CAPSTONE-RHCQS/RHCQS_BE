@@ -16,5 +16,6 @@ namespace RHCQS_Services.Interface
         Task<string> ApproveContractDesign(Guid paymentId, List<IFormFile> bills);
         Task<string> ApproveContractContruction(Guid paymentId, List<IFormFile> bills);
         Task<List<PaymentResponse>> GetListBatchResponse(Guid projectId);
+        Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId);
     }
 }

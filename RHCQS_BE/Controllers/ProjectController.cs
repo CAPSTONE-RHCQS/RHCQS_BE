@@ -261,7 +261,7 @@ namespace RHCQS_BE.Controllers
 
         #region CancelProject
         /// <summary>
-        /// Role: MANAGER
+        /// Role: MANAGER - CUSTOMER
         /// Cancels an existing project along with its associated initial quotations, final quotations, and house design drawings.
         /// </summary>
         /// <remarks>
@@ -296,7 +296,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="projectId">The ID of the project to be canceled.</param>
         /// <returns>Returns a boolean indicating whether the project was successfully canceled or not.</returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager, Customer")]
         [HttpPut(ApiEndPointConstant.Project.ProjectCancelEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

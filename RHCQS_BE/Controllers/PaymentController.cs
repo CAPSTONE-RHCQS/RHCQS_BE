@@ -122,12 +122,35 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of payment in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer")]
+        [Authorize(Roles = "Customer")]
         [HttpGet(ApiEndPointConstant.Payment.PaymentBatchForCustomerEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListBatchResponse(Guid projectId)
         {
             var listPayment = await _paymentService.GetListBatchResponse(projectId);
+            var result = JsonConvert.SerializeObject(listPayment, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region ConfirmBatchPaymentFromCustomer
+        /// <summary>
+        /// Confirm payment for Customer - App
+        /// 
+        /// Role: CUSTOMER
+        /// </summary>
+        /// <returns>Message</returns>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.Payment.PaymentConfirmEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ConfirmBatchPaymentFromCustomer(Guid paymentId)
+        {
+            var listPayment = await _paymentService.ConfirmBatchPaymentFromCustomer(paymentId);
             var result = JsonConvert.SerializeObject(listPayment, Formatting.Indented);
             return new ContentResult()
             {
