@@ -25,6 +25,8 @@ public partial class Payment
 
     public string? Description { get; set; }
 
+    public bool? IsConfirm { get; set; }
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();

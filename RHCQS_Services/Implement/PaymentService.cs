@@ -33,7 +33,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
-                            selector: p => new PaymentResponse(p.Id, p.PaymentType!.Name, p.InsDate, 
+                            selector: p => new PaymentResponse(p.Id, p.PaymentType!.Name, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
                                                                p.Unit, p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
@@ -54,16 +54,16 @@ namespace RHCQS_Services.Implement
             );
 
             var paymentResponses = batchInfo.Select(bp => new PaymentResponse(
-                bp.Payment.Id,                          
-                bp.Payment.PaymentType.Name,                         
+                bp.Payment.Id,
+                bp.Payment.PaymentType.Name,
                 bp.InsDate,
                 bp.Payment.UpsDate,
                 bp.Payment.TotalPrice,
                 bp.Payment.PaymentDate,
                 bp.Payment.PaymentPhase,
-                bp.Payment.Unit,                                 
-                bp.Payment.Percents,                             
-                bp.Payment.Description                            
+                bp.Payment.Unit,
+                bp.Payment.Percents,
+                bp.Payment.Description
             )).ToList();
 
             return paymentResponses;
@@ -234,6 +234,25 @@ namespace RHCQS_Services.Implement
             )).ToList();
 
             return result;
+        }
+
+        public async Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId)
+        {
+            var paymentInfo = await _unitOfWork.GetRepository<Payment>()
+                                    .FirstOrDefaultAsync(x => x.Id == paymentId,
+                                    include: x => x.Include(x => x.BatchPayments));
+            if (paymentInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                                        AppConstant.ErrMessage.Invalid_Payment);
+            }
+
+            paymentInfo.IsConfirm = true;
+            _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
+
+            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : 
+                                                                   AppConstant.ErrMessage.Fail_Save;
+            return saveResutl;
         }
     }
 }

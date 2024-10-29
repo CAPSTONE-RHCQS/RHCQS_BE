@@ -56,13 +56,13 @@ namespace RHCQS_BE.Controllers
         /// <response code="401">Unauthorized, only managers are allowed to create design versions</response>
         /// <response code="500">Internal server error</response>
         #endregion
-        //[Authorize(Roles = "DesignStaff")]
+        [Authorize(Roles = "DesignStaff")]
         [HttpPost(ApiEndPointConstant.HouseDesignVersion.HouseDesignVersionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateHouseDesignVersion([FromBody] HouseDesignVersionRequest item)
         {
-            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var isCreate = await _designVersionService.CreateHouseDesignVersion(accountId, item);
             return isCreate ? Ok(isCreate) : BadRequest();
         }

@@ -191,6 +191,7 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentBatchDesignConfirmEndpoint = PaymentEndpoint + "/design/confirm";
             public const string PaymentBatchConstructionConfirmEndpoint = PaymentEndpoint + "/construction/confirm";
             public const string PaymentBatchForCustomerEndpoint = PaymentEndpoint + "/list/app";
+            public const string PaymentConfirmEndpoint = PaymentEndpoint + "/confirm";
         }
 
         public static class General

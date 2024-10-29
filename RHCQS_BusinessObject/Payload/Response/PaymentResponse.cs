@@ -34,6 +34,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Percents = percents;
             Description = description;
         }
+
         public Guid Id { get; set; }
         public string Type { get; set; }
 
