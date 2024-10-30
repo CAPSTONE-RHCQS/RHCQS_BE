@@ -20,10 +20,7 @@ jobs:
 
       - name: Copy libwkhtmltox.dll directly to publish_output
         run: |
-          # Ensure destination directory exists
           New-Item -ItemType Directory -Path RHCQS_BE\publish_output\ExternalLibraries -Force
-          
-          # Copy library directly to the correct path in publish_output
           Copy-Item -Path ./ExternalLibraries/libwkhtmltox.dll -Destination RHCQS_BE\publish_output\ExternalLibraries\libwkhtmltox.dll
         shell: pwsh
 
@@ -33,31 +30,42 @@ jobs:
       - name: dotnet publish
         run: dotnet publish ./RHCQS_BE -c Release -o ./RHCQS_BE/publish_output
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: .net-app
-          path: ./RHCQS_BE/publish_output/
-          retention-days: 1
+      - name: Compress publish_output folder
+        run: Compress-Archive -Path ./RHCQS_BE/publish_output -DestinationPath publish_output.zip
+        shell: pwsh
+
+      - name: Upload to Dropbox
+        env:
+          DROPBOX_ACCESS_TOKEN: ${{ secrets.DROPBOX_ACCESS_TOKEN }}
+        run: |
+          curl -X POST https://content.dropboxapi.com/2/files/upload \
+            --header "Authorization: Bearer $DROPBOX_ACCESS_TOKEN" \
+            --header "Dropbox-API-Arg: {\"path\": \"/publish_output.zip\", \"mode\": \"overwrite\"}" \
+            --header "Content-Type: application/octet-stream" \
+            --data-binary @publish_output.zip
 
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: .net-app
+      - name: Download from Dropbox
+        env:
+          DROPBOX_ACCESS_TOKEN: ${{ secrets.DROPBOX_ACCESS_TOKEN }}
+        run: |
+          curl -X POST https://content.dropboxapi.com/2/files/download \
+            --header "Authorization: Bearer $DROPBOX_ACCESS_TOKEN" \
+            --header "Dropbox-API-Arg: {\"path\": \"/publish_output.zip\"}" \
+            --output publish_output.zip
+          Expand-Archive -Path publish_output.zip -DestinationPath ./RHCQS_BE/publish_output
+        shell: pwsh
 
       - name: Deploy to Azure Web App
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'rhqs'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1BAE05A8B7354D6AB226218A25BE3412 }}
-          package: .
+          package: ./RHCQS_BE/publish_output/
