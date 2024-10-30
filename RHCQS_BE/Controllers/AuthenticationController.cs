@@ -65,7 +65,14 @@ namespace RHCQS_BE.Controllers
             [FromQuery][Required(ErrorMessage = "Role là cần thiết.")] UserRoleForRegister role)
         {
             var result = await _authService.RegisterAsync(registerRequest, role);
-            return Ok(new { message = "Đăng kí thành công!" });
+            var response = JsonConvert.SerializeObject(new { message = "Đăng kí thành công!" }, Formatting.Indented);
+
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         #region Logout

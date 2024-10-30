@@ -122,7 +122,8 @@ namespace RHCQS_Services.Implement
                         pd.InsDate,
                         pd.PackageLabors.Select(pl => new PackageLaborResponseForMoblie(
                             pl.Labor.Name,
-                            pl.Labor.Type
+                            pl.Labor.Type,
+                            pl.Labor.Price
                         )).ToList(),
                         pd.PackageMaterials.Select(pm => new PackageMaterialResponse(
                             pm.Id,

@@ -223,14 +223,16 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageLaborResponseForMoblie
     {
-        public PackageLaborResponseForMoblie(string? nameOfLabor, string? type)
+        public PackageLaborResponseForMoblie(string? nameOfLabor, string? type, double? price)
         {
             NameOfLabor = nameOfLabor;
             Type = type;
+            Price = price;
         }
 
         public string? NameOfLabor { get; set; }
         public string? Type { get; set; }
+        public double? Price { get; set; }
 
     }
 }

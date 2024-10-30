@@ -100,7 +100,7 @@ namespace RHCQS_Services.Implement
             }
 
             var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
-            if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == request.ProjectId && p.Version == request.VersionPresent))
+            if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == request.ProjectId))
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
@@ -115,7 +115,7 @@ namespace RHCQS_Services.Implement
                 PromotionId = request.PromotionId,
                 TotalPrice = request.TotalPrice,
                 Note = request.Note,
-                Version = request.VersionPresent,
+                Version = 1,
                 InsDate = DateTime.UtcNow,
                 Status = request.Status,
                 Deflag = true,
