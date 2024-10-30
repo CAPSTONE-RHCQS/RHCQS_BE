@@ -1,19 +1,70 @@
-- pipeline: "Deploy"
-  events:
-  - type: "PUSH"
-    refs:
-    - "refs/heads/main"
-  fail_on_prepare_env_warning: true
-  resources: "NANO"
-  actions:
-  - action: "dotnet build"
+# Buddy pipeline for building and deploying an ASP.NET Core app to Azure
+
+pipeline: "Build and Deploy ASP.NET Core app to Azure Web App - rhqs"
+
+# Trigger on push to the main branch or manually
+trigger:
+  - event: PUSH
+    branch:
+      - "main"
+
+actions:
+  # Step 1: Checkout the repository
+  - action: "Git Checkout"
+    type: "CHECKOUT"
+    branch: "main"
+
+  # Step 2: Set up .NET Core
+  - action: "Execute commands"
+    name: "Set up .NET Core"
     type: "BUILD"
-    docker_image_name: "dotnet/sdk"
+    docker_image_name: "mcr.microsoft.com/dotnet/sdk"
     docker_image_tag: "8.0"
-    image_location: "PUBLIC_REGISTRY"
-    docker_registry: "OTHER"
-    registry: "mcr.microsoft.com"
-    execute_commands:
-    - "dotnet restore"
-    - "dotnet build"
-    shell: "BASH"
+    commands:
+      - dotnet --version  # Verify .NET Core version
+
+  # Step 3: Restore dependencies
+  - action: "Execute commands"
+    name: "Restore dependencies"
+    type: "BUILD"
+    docker_image_name: "mcr.microsoft.com/dotnet/sdk"
+    docker_image_tag: "8.0"
+    commands:
+      - dotnet restore ./RHCQS_BE/RHCQS_BE.csproj
+
+  # Step 4: Copy libwkhtmltox.dll to publish_output
+  - action: "Execute commands"
+    name: "Copy libwkhtmltox.dll to publish_output"
+    type: "BUILD"
+    docker_image_name: "mcr.microsoft.com/dotnet/sdk"
+    docker_image_tag: "8.0"
+    commands:
+      - mkdir -p RHCQS_BE/publish_output/ExternalLibraries
+      - cp ./ExternalLibraries/libwkhtmltox.dll RHCQS_BE/publish_output/ExternalLibraries/libwkhtmltox.dll
+
+  # Step 5: Build the application
+  - action: "Execute commands"
+    name: "Build the application"
+    type: "BUILD"
+    docker_image_name: "mcr.microsoft.com/dotnet/sdk"
+    docker_image_tag: "8.0"
+    commands:
+      - dotnet build --configuration Release ./RHCQS_BE/RHCQS_BE.csproj
+
+  # Step 6: Publish the application
+  - action: "Execute commands"
+    name: "Publish the application"
+    type: "BUILD"
+    docker_image_name: "mcr.microsoft.com/dotnet/sdk"
+    docker_image_tag: "8.0"
+    commands:
+      - dotnet publish ./RHCQS_BE/RHCQS_BE.csproj -c Release -o ./RHCQS_BE/publish_output
+
+  # Step 7: Deploy to Azure Web App
+  - action: "Deploy to Azure Web App"
+    name: "Deploy to Azure"
+    type: "AZURE_APP_SERVICE_DEPLOY"
+    app_name: "rhqs"
+    slot_name: "Production"
+    publish_profile: "${AZUREAPPSERVICE_PUBLISHPROFILE}"  # Set this as an environment variable in Buddy
+    local_path: "./RHCQS_BE/publish_output"
