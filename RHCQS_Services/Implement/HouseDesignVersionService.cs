@@ -33,98 +33,106 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> CreateHouseDesignVersion(Guid accountId, HouseDesignVersionRequest request)
         {
-            var staffInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+            try
+            {
+                var staffInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                 .FirstOrDefaultAsync(x => x.Account!.Id == accountId && x.Id == request.HouseDesignDrawingId,
                 include: x => x.Include(x => x.Account!));
-            if (staffInfo == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Access_DesignDrawing);
-            }
-
-            var availableDrawing = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(                                    
-                                            v => v.HouseDesignDrawingId == request.HouseDesignDrawingId,
-                                            orderBy: v => v.OrderByDescending(v => v.Version));
-            if (availableDrawing == null)
-            {
-                var itemDesign = new HouseDesignVersion
+                if (staffInfo == null)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = request.Name,
-                    Version = 1.0,
-                    InsDate = DateTime.Now,
-                    HouseDesignDrawingId = request.HouseDesignDrawingId,
-                    Note = "",
-                    PreviousDrawingId = request.PreviousDrawingId ?? null,
-                    RelatedDrawingId = request.RelatedDrawingId ?? null,
-                    UpsDate = DateTime.Now,
-                    Deflag = false,
-                };
-
-                await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesign);
-
-                //Update status PENDING -> REVIEWING
-                var drawingInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                                        .FirstOrDefaultAsync(predicate: x => x.Id == request.HouseDesignDrawingId);
-
-                if (drawingInfo == null)
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found); 
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Access_DesignDrawing);
                 }
-                drawingInfo.Status = AppConstant.HouseDesignStatus.REVIEWING;
 
-                await _unitOfWork.GetRepository<HouseDesignDrawing>().InsertAsync(drawingInfo);
-
-                //Create media save file
-                var itemMedia = new Medium
+                var availableDrawing = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(
+                                                v => v.HouseDesignDrawingId == request.HouseDesignDrawingId,
+                                                orderBy: v => v.OrderByDescending(v => v.Version));
+                if (availableDrawing == null)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = request.Name,
-                    HouseDesignVersionId = itemDesign.Id,
-                    Url = request.FileUrl,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now
-                };
-                await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
+                    var itemDesign = new HouseDesignVersion
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = request.Name,
+                        Version = 1.0,
+                        InsDate = DateTime.Now,
+                        HouseDesignDrawingId = request.HouseDesignDrawingId,
+                        Note = "",
+                        PreviousDrawingId = request.PreviousDrawingId ?? null,
+                        RelatedDrawingId = request.RelatedDrawingId ?? null,
+                        UpsDate = DateTime.Now,
+                        Deflag = false,
+                    };
+
+                    await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesign);
+
+                    //Update status PENDING -> REVIEWING
+                    var drawingInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                                            .FirstOrDefaultAsync(predicate: x => x.Id == request.HouseDesignDrawingId);
+
+                    if (drawingInfo == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
+                    }
+                    drawingInfo.Status = AppConstant.HouseDesignStatus.REVIEWING;
+
+                    _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(drawingInfo);
+
+                    //Create media save file
+                    var itemMedia = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = request.Name,
+                        HouseDesignVersionId = itemDesign.Id,
+                        Url = request.FileUrl,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now
+                    };
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
+                }
+                else
+                {
+                    var itemDesignUpdate = new HouseDesignVersion
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = availableDrawing!.Name,
+                        Version = availableDrawing.Version + 1,
+                        InsDate = DateTime.Now,
+                        HouseDesignDrawingId = availableDrawing.HouseDesignDrawingId,
+                        Note = null,
+                        UpsDate = DateTime.Now,
+                        RelatedDrawingId = availableDrawing?.RelatedDrawingId,
+                        PreviousDrawingId = availableDrawing?.PreviousDrawingId,
+                    };
+
+                    //Update status in house desgin draw previous
+                    availableDrawing!.HouseDesignDrawing.Status = AppConstant.Status.UPDATED;
+
+                    _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
+
+                    await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesignUpdate);
+
+                    var itemMedia = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = request.Name,
+                        HouseDesignVersionId = itemDesignUpdate.Id,
+                        Url = request.FileUrl,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now
+                    };
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
+                }
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                if (isSuccessful)
+                {
+                    return true;
+                }
+                return false;
             }
-            else
+            catch (Exception ex)
             {
-                var itemDesignUpdate = new HouseDesignVersion
-                {
-                    Id = Guid.NewGuid(),
-                    Name = availableDrawing!.Name,
-                    Version = availableDrawing.Version + 1,
-                    InsDate = DateTime.Now,
-                    HouseDesignDrawingId = availableDrawing.HouseDesignDrawingId,
-                    Note = null,
-                    UpsDate = DateTime.Now,
-                    RelatedDrawingId = availableDrawing?.RelatedDrawingId,
-                    PreviousDrawingId = availableDrawing?.PreviousDrawingId,
-                };
-
-                //Update status in house desgin draw previous
-                availableDrawing!.HouseDesignDrawing.Status = AppConstant.Status.UPDATED;
-
-                _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
-
-                await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesignUpdate);
-
-                var itemMedia = new Medium
-                {
-                    Id = Guid.NewGuid(),
-                    Name = request.Name,
-                    HouseDesignVersionId = itemDesignUpdate.Id,
-                    Url = request.FileUrl,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now
-                };
-                await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            if (isSuccessful)
-            {
-                return true;
-            }
-            return false;
+            
         }
 
         public async Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId)

@@ -95,7 +95,7 @@ namespace RHCQS_Services.Implement
             else
             {
                 var listPaginate = await _unitOfWork.GetRepository<ConstructionItem>().GetListAsync(
-                    predicate: x => (bool)x.IsFinalQuotation == false,
+                    predicate: x => (bool)x.IsFinalQuotation! == false,
                     selector: x => new ConstructionItemResponse(x.Id, x.Name, x.Coefficient, x.Unit,
                                                                 x.InsDate, x.UpsDate, x.Type,
                                                                 x.SubConstructionItems.Select(
@@ -145,7 +145,7 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            return null;
+            return new ConstructionItemResponse();
         }
 
         public async Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name)
@@ -177,7 +177,7 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            return null;
+            return new ConstructionItemResponse();
         }
 
         public async Task<bool> CreateConstructionItem(ConstructionItemRequest item)

@@ -47,6 +47,30 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region FilterProjects
+        /// <summary>
+        /// Filter project by status
+        /// 
+        /// Role: MANAGER - SALE STAFF
+        /// Retrieves the list of all project.
+        /// </summary>
+        /// <returns>List of project in the system</returns>
+        #endregion
+        [Authorize(Roles = "Manager, SalesStaff")]
+        [HttpGet(ApiEndPointConstant.Project.ProjectFilterByStatusEndpoint)]
+        [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> FilterProjects(int page, int size, string type)
+        {
+            var listProjects = await _projectService.FilterProjects(page, size, type);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetListProjectBySalesStaff
         /// <summary>
         /// Role: SALE STAFF

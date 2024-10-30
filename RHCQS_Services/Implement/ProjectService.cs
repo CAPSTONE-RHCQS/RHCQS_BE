@@ -45,6 +45,21 @@ namespace RHCQS_Services.Implement
             return listProjects;
         }
 
+        public async Task<IPaginate<ProjectResponse>> FilterProjects(int page, int size, string type)
+        {
+            IPaginate<ProjectResponse> listProjects =
+            await _unitOfWork.GetRepository<Project>().GetList(
+                predicate: x => x.Status!.ToUpper() == type.ToUpper(),
+                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                                                    x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
+                include: x => x.Include(w => w.Customer!),
+                orderBy: x => x.OrderBy(w => w.InsDate),
+                page: page,
+                size: size
+                );
+            return listProjects;
+        }
+
         public async Task<IPaginate<ProjectResponse>> GetListProjectBySalesStaff(Guid accountId, int page, int size)
         {
             IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<AssignTask>().GetList(
@@ -296,7 +311,7 @@ namespace RHCQS_Services.Implement
                             UtilitiesItemId = utilityItem.Id,
                             FinalQuotationId = null,
                             InitialQuotationId = initialItem.Id,
-                            Name = utilityItem.Name,
+                            Name = utilityItem.Name!,
                             Coefiicient = utilityItem.Coefficient,
                             Price = utl.Price,
                             Description = null,
@@ -419,7 +434,7 @@ namespace RHCQS_Services.Implement
 
             if (projectTrack == null)
             {
-                return null;
+                return new ProjectAppResponse(null, null, null, null);
             }
 
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
@@ -429,7 +444,7 @@ namespace RHCQS_Services.Implement
                 );
 
             var initialResponse = initialQuotation != null
-                ? new InitialAppResponse { Status = initialQuotation.Status }
+                ? new InitialAppResponse { Status = initialQuotation.Status! }
                 : null;
 
             var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>()
@@ -439,7 +454,7 @@ namespace RHCQS_Services.Implement
                );
 
             var finalResponse = finalQuotation != null
-                ? new FinalAppResponse { Status = finalQuotation.Status }
+                ? new FinalAppResponse { Status = finalQuotation.Status! }
                 : null;
 
             var contracts = await _unitOfWork.GetRepository<Contract>()
@@ -473,7 +488,7 @@ namespace RHCQS_Services.Implement
                                     predicate: x => x.Id == request.SubTemplateId,
                                     include: x => x.Include(x => x.TemplateItems)
                                                         .ThenInclude(x => x.SubConstruction)
-                                                        .ThenInclude(x => x.ConstructionItems)
+                                                            .ThenInclude(x => x.ConstructionItems)
                                                     .Include(x => x.DesignTemplate)
                                                         .ThenInclude(x => x.PackageHouses)
                                                         .ThenInclude(x => x.Package));
@@ -621,7 +636,7 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = utilityItem.Id,
                                 FinalQuotationId = null,
                                 InitialQuotationId = initialItem.Id,
-                                Name = utilityItem.Name,
+                                Name = utilityItem.Name!,
                                 Coefiicient = utilityItem.Coefficient,
                                 Price = utl.Price,
                                 Description = null,
