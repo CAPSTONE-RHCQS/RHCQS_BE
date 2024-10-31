@@ -33,7 +33,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
-                            selector: p => new PaymentResponse(p.Id, p.PaymentType.Name!, p.InsDate,
+                            selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
                                                                p.Unit, p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
@@ -54,6 +54,7 @@ namespace RHCQS_Services.Implement
             );
 
             var paymentResponses = batchInfo.Select(bp => new PaymentResponse(
+                bp.Payment!.Priority,
                 bp.Payment!.Id,
                 bp.Payment.PaymentType.Name!,
                 bp.InsDate,
@@ -211,7 +212,9 @@ namespace RHCQS_Services.Implement
             var listBatch = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
                             predicate: x => x.Contract!.ProjectId == projectId,
                             include: x => x.Include(x => x.Payment!)
-                                           .ThenInclude(x => x.PaymentType));
+                                           .ThenInclude(x => x.PaymentType),
+                            orderBy: x => x.OrderBy(x => x.Payment.Priority)
+                            );
 
             if (listBatch == null || !listBatch.Any())
             {
@@ -221,6 +224,7 @@ namespace RHCQS_Services.Implement
             var payments = listBatch.Select(batch => batch.Payment).Distinct();
 
             var result = payments.Select(payment => new PaymentResponse(
+                priorty: payment.Priority,
                 id: payment!.Id,
                 type: payment.PaymentType.Name!,
                 insDate: payment.InsDate,
@@ -250,7 +254,7 @@ namespace RHCQS_Services.Implement
             paymentInfo.IsConfirm = true;
             _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
 
-            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : 
+            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE :
                                                                    AppConstant.ErrMessage.Fail_Save;
             return saveResutl;
         }

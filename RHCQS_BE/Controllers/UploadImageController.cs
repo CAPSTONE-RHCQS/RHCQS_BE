@@ -3,6 +3,8 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
 {
@@ -11,7 +13,12 @@ namespace RHCQS_BE.Controllers
     public class UploadImageController : ControllerBase
     {
         private readonly Cloudinary _cloudinary;
+        private readonly IUploadImgService _uploadImageService;
 
+        public UploadImageController(IUploadImgService uploadImageService)
+        {
+            _uploadImageService = uploadImageService;
+        }
         public UploadImageController(IConfiguration configuration)
         {
             var account = new Account(
@@ -80,5 +87,6 @@ namespace RHCQS_BE.Controllers
                 return StatusCode((int)uploadResult.StatusCode, uploadResult.Error.Message);
             }
         }
+
     }
 }
