@@ -117,7 +117,6 @@ namespace RHCQS_Services.Implement
         }
 
 
-
         public async Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id)
         {
             var constructionItem = await _unitOfWork.GetRepository<ConstructionItem>().FirstOrDefaultAsync(
@@ -227,7 +226,6 @@ namespace RHCQS_Services.Implement
                 throw new Exception(ex.Message);
             }
         }
-
 
         public async Task<bool> CreateConstructionItem(ConstructionItemRequest item)
         {

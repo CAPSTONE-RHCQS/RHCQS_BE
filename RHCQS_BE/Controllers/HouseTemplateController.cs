@@ -288,7 +288,7 @@ namespace RHCQS_BE.Controllers
                 return BadRequest($"Error uploading images: {ex.Message}");
             }
         }
-
+        
         #region CreatePackageHouse
         /// <summary>
         /// Creates a new package for a house design template.

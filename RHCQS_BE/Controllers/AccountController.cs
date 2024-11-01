@@ -94,6 +94,7 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetAccountProfile()
         {
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var accountProfile = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId!));
 
             var settings = new JsonSerializerSettings
@@ -241,23 +242,23 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequestForUpdate accountRequest)
         {
 
-            var existingAccount = await _accountService.GetAccountByIdAsync(id);
+/*            var existingAccount = await _accountService.GetAccountByIdAsync(id);
  
             if (accountRequest.ImageUrl != null)
             {
                 var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
                 existingAccount.ImageUrl = imageUrl;
-            }
-            var account = new Account
+            }*/
+/*            var account = new Account
             {
                 Username = accountRequest.Username,
                 PhoneNumber = accountRequest.PhoneNumber,
                 DateOfBirth = accountRequest.DateOfBirth,
-                ImageUrl = accountRequest.ImageUrl,
+                ImageUrl = null,
                 Deflag = accountRequest.Deflag,
-            };
+            };*/
 
-            var updatedAccount = await _accountService.UpdateAccountAsync(id, account);
+            var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);
             if (updatedAccount == null)
             {
                 return StatusCode(500, "An error occurred while updating the account.");
@@ -305,20 +306,20 @@ namespace RHCQS_BE.Controllers
 
             var existingAccount = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId!));
 
-            if (accountRequest.ImageUrl != null)
+/*            if (accountRequest.ImageUrl != null)
             {
                 var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
                 existingAccount.ImageUrl = imageUrl;
-            }
-            var account = new Account
+            }*/
+/*            var account = new Account
             {
                 Username = accountRequest.Username,
                 PhoneNumber = accountRequest.PhoneNumber,
                 DateOfBirth = accountRequest.DateOfBirth,
                 ImageUrl = accountRequest.ImageUrl,
-            };
+            };*/
 
-            var updatedAccount = await _accountService.UpdateAccountAsync(existingAccount.Id, account);
+            var updatedAccount = await _accountService.UpdateProfileAsync(existingAccount.Id, accountRequest);
             if (updatedAccount == null)
             {
                 return StatusCode(500, "An error occurred while updating the account.");
@@ -387,6 +388,36 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.InsDate,
                 updatedAccount.UpsDate
             ));
+        }
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.Account.UploadImageProfileEndpoint)]
+        [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateImageForAccount([FromForm] ImageForAccount request)
+        {
+            var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (request.AccountImage == null)
+            {
+                return BadRequest("At least one image file is required.");
+            }
+
+            try
+            {
+                var isUploaded = await _accountService.CreateImageAccount(Guid.Parse(accountId!), request);
+                if (isUploaded)
+                {
+                    return Ok("Images uploaded successfully.");
+                }
+                else
+                {
+                    return BadRequest("Image upload failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error uploading images: {ex.Message}");
+            }
         }
     }
 }

@@ -237,7 +237,7 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Construction.ConstructionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateConstruction([FromQuery] Guid id, [FromBody] UpdateConstructionRequest request)
+        public async Task<IActionResult> UpdateConstruction([FromQuery]Guid id, [FromBody]UpdateConstructionRequest request)
         {
             var isCreate = await _constructionService.UpdateConstruction(id, request);
             return isCreate ? Ok(isCreate) : BadRequest();

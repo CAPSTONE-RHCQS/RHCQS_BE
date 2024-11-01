@@ -26,6 +26,7 @@ public static class AppConstant
         public const string PaymentDesign = "Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng";
         public const string Initial = "Báo giá sơ bộ";
         public const string Final = "Báo giá chi tiết";
+        public const string Active = "Active";
     }
     public class Unit
     {
@@ -110,7 +111,10 @@ public static class AppConstant
         public const string PROGRESS = "Progress";
         public const string PAID = "Paid";
     }
-
+    public class Profile
+    {
+        public const string IMAGE = "Ảnh Profile";
+    }
     public enum ContractType
     {
         [Description("Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng")]
