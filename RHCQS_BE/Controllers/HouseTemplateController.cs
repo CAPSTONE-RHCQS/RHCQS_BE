@@ -27,6 +27,7 @@ namespace RHCQS_BE.Controllers
             _houseService = houseService;
             _uploadImgService = uploadImgService;
         }
+
         #region GetListHouseTemplates
         /// <summary>
         /// Retrieves the list of all housetemplate.
@@ -47,6 +48,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region GetListHouseTemplates
         /// <summary>
         /// Retrieves the list of all housetemplate shorter version response.
@@ -67,6 +69,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region GetListHouseTemplate
         /// <summary>
         /// Retrieves housetemplate list without entering page and size.
@@ -88,6 +91,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region SearchHouseTemplate
         /// <summary>
         /// Search housetemplate by name.
@@ -120,6 +124,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region SearchHouseTemplate
         /// <summary>
         /// Get detailhousetemplate by id.
