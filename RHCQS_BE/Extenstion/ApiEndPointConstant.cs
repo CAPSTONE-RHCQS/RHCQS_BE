@@ -211,5 +211,13 @@ namespace RHCQS_BE.Extenstion
         {
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/drawing/version";
         }
+
+        public static class Material
+        {
+            public const string MaterialEndpoint = ApiEndpoint + "/material";
+            public const string MaterialListEndpoint = ApiEndpoint + "/allhmaterials";
+            public const string SearchMaterialEndpoint = MaterialEndpoint + "/name";
+            public const string MaterialDetailEndpoint = MaterialEndpoint + "/id";
+        }
     }
 }

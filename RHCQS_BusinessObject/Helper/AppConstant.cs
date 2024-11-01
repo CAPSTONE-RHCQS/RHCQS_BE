@@ -145,7 +145,8 @@ public static class AppConstant
         Not_Found = 404,
         Conflict = 409,
         Too_Many_Requests = 429,
-        Unprocessable_Entity = 422
+        Unprocessable_Entity = 422,
+        NotFound = 501
     }
 
     public class Message
