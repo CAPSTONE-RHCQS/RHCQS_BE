@@ -13,6 +13,7 @@ namespace RHCQS_BE.Extenstion
         public const string RootEndPoint = "/api";
         public const string ApiVersion = "/v1";
         public const string ApiEndpoint = RootEndPoint + ApiVersion;
+        public const string Test = ApiEndpoint + "/test";
 
         public static class Auth
         {
@@ -76,6 +77,8 @@ namespace RHCQS_BE.Extenstion
             public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";
             public const string SubTemplateDesignEndpoint = ApiEndpoint + "/sub-template";
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/upload-design-images";
+            public const string PackageHouseEndpoint = ApiEndpoint + "/package-house";
+            public const string UploadImagePackHouseEndpoint = ApiEndpoint + "/upload-package-house";
         }
 
         public static class Project
@@ -97,7 +100,8 @@ namespace RHCQS_BE.Extenstion
         {
             public const string ConstructionEndpoint = ApiEndpoint + "/construction";
             public const string ConstructionDetailEndpoint = ConstructionEndpoint + "/id";
-            public const string COnstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
+            public const string ConstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
+            public const string ConstructionContainNameEndpoint = ConstructionEndpoint + "/contain/name";
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
         }
 

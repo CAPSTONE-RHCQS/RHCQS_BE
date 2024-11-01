@@ -63,7 +63,7 @@ namespace RHCQS_BE.Controllers
             if (file == null || file.Length == 0)
                 return BadRequest("No file provided.");
 
-            // Generate a custom name for the file if provided, otherwise use the original filename without extension
+
             var publicId = fileName ?? Path.GetFileNameWithoutExtension(file.FileName);
 
             var uploadParams = new ImageUploadParams()
