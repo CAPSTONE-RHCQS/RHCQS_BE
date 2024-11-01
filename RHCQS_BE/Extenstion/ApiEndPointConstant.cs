@@ -59,6 +59,7 @@ namespace RHCQS_BE.Extenstion
             public const string AccountProfileEndpoint = AccountEndpoint + "/profile";
             public const string SearchAccountEndpoint = AccountEndpoint + "/name";
             public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
+            public const string UploadImageProfileEndpoint = ApiEndpoint + "/upload-profile-images";
 
         }
 

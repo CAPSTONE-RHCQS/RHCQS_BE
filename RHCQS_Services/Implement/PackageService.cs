@@ -167,7 +167,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
-            
+
         }
 
         public async Task<PackageResponse> GetPackageDetail(Guid id)
@@ -421,7 +421,7 @@ namespace RHCQS_Services.Implement
                 return filteredItems.Select(packageItem => new AutoPackageResponse(
                     packageId: packageItem.Id,
                     packageName: packageItem.PackageName!,
-                    price: packageItem.Price ?? 0 
+                    price: packageItem.Price ?? 0
                 )).ToList();
             }
             catch (Exception ex)

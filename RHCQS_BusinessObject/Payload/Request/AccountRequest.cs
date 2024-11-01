@@ -50,9 +50,6 @@ namespace RHCQS_BusinessObject.Payload.Request
         [StringLength(50, ErrorMessage = "Username không được dài quá 50 ký tự.")]
         public string? Username { get; set; }
 
-        [Url(ErrorMessage = "ImageUrl phải là một URL hợp lệ.")]
-        public string? ImageUrl { get; set; }
-
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
         public string? PhoneNumber { get; set; }
 
@@ -65,9 +62,6 @@ namespace RHCQS_BusinessObject.Payload.Request
     {
         [StringLength(50, ErrorMessage = "Username không được dài quá 50 ký tự.")]
         public string? Username { get; set; }
-
-        [Url(ErrorMessage = "ImageUrl phải là một URL hợp lệ.")]
-        public string? ImageUrl { get; set; }
 
         [Phone(ErrorMessage = "Số điện thoại không hợp lệ.")]
         public string? PhoneNumber { get; set; }

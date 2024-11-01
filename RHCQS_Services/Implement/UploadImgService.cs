@@ -1,8 +1,13 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObjects;
+using RHCQS_DataAccessObjects.Models;
+using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.IO;
@@ -12,17 +17,18 @@ namespace RHCQS_Services.Implement
 {
     public class UploadImgService : IUploadImgService
     {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<UploadImgService> _logger;
+        private readonly IConverter _converter;
         private readonly Cloudinary _cloudinary;
 
-        public UploadImgService(IConfiguration configuration)
+        public UploadImgService(IUnitOfWork unitOfWork, ILogger<UploadImgService> logger,
+            IConverter converter, Cloudinary cloudinary)
         {
-            var account = new Account(
-                cloud: configuration["Cloudinary:Cloudname"],
-                apiKey: configuration["Cloudinary:ApiKey"],
-                apiSecret: configuration["Cloudinary:ApiSecret"]
-            );
-            _cloudinary = new Cloudinary(account);
-            _cloudinary.Api.Secure = true;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+            _converter = converter;
+            _cloudinary = cloudinary;
         }
 
         public async Task<string> UploadImageAsync(string imagePathOrUrl, string folder)
@@ -94,7 +100,62 @@ namespace RHCQS_Services.Implement
                 }
             }
         }
+        public async Task<string> UploadFile(Guid designTemplateId, IFormFile file, string folder, string nameImage)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true,
+                    Folder = folder
+                };
 
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var mediaItem = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = nameImage,
+                        Url = uploadResult.Url.ToString(),
+                        InsDate = DateTime.Now,
+                        DesignTemplateId = designTemplateId
+                    };
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaItem);
+                    _unitOfWork.Commit();
+                    return uploadResult.Url.ToString();
+                }
+                else
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        uploadResult.Error.Message
+                    );
+                }
+            }
+        }
+        public async Task<string> UploadFileForImageAccount(Guid accountid, IFormFile file, string folder, string nameImage)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true,
+                    Folder = folder
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                return uploadResult.Url.ToString();
+            }
+        }
         public async Task<List<string>> UploadImageDesignTemplate(List<IFormFile> files)
         {
             var uploadResults = new List<string>();
@@ -109,7 +170,7 @@ namespace RHCQS_Services.Implement
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true,
-                        Folder = "DesignHouse"
+                        Folder = "DesignHouse" 
                     };
 
                     var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -130,6 +191,5 @@ namespace RHCQS_Services.Implement
 
             return uploadResults;
         }
-
     }
 }

@@ -18,12 +18,14 @@ namespace RHCQS_Services.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<HouseTemplateService> _logger;
         private readonly Cloudinary _cloudinary;
+        private readonly IUploadImgService _uploadImgService;
 
-        public HouseTemplateService(IUnitOfWork unitOfWork, ILogger<HouseTemplateService> logger, Cloudinary cloudinary)
+        public HouseTemplateService(IUnitOfWork unitOfWork, ILogger<HouseTemplateService> logger, Cloudinary cloudinary, IUploadImgService uploadImgService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cloudinary = cloudinary;
+            _uploadImgService = uploadImgService;
         }
         public async Task<List<HouseTemplateResponse>> GetListHouseTemplate()
         {
@@ -643,7 +645,7 @@ namespace RHCQS_Services.Implement
             if (files.OverallImage != null)
             {
                 nameImage = AppConstant.Template.OverallDrawing;
-                var overallImageUrl = await UploadFile(designTemplateId, files.OverallImage, "DesignHouse", nameImage);
+                var overallImageUrl = await _uploadImgService.UploadFile(designTemplateId, files.OverallImage, "DesignHouse", nameImage);
                 var designInfo = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(x => x.Id == designTemplateId);
                 designInfo.ImgUrl = overallImageUrl;
                 _unitOfWork.GetRepository<DesignTemplate>().UpdateAsync(designInfo);
@@ -655,7 +657,7 @@ namespace RHCQS_Services.Implement
             foreach (var file in files.OutSideImage)
             {
                 nameImage = AppConstant.Template.Exteriorsdrawings;
-                var outSideImageUrl = await UploadFile(designTemplateId, file, "DesignHouse", nameImage);
+                var outSideImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "DesignHouse", nameImage);
                 uploadResults.Add(outSideImageUrl);
             }
 
@@ -663,7 +665,7 @@ namespace RHCQS_Services.Implement
             foreach (var file in files.DesignDrawingImage)
             {
                 nameImage = AppConstant.Template.Drawing;
-                var designDrawingImageUrl = await UploadFile(designTemplateId, file, "DesignHouse", nameImage);
+                var designDrawingImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "DesignHouse", nameImage);
                 uploadResults.Add(designDrawingImageUrl);
             }
 

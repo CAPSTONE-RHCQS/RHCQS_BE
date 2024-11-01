@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Response;
+﻿using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using System;
@@ -17,9 +18,10 @@ namespace RHCQS_Services.Interface
         public Task<IPaginate<AccountResponse>> GetListAccountAsync(int page, int size);
         public Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size);
         Task<Account> SearchAccountsByNameAsync(string name);
-        Task<Account> UpdateAccountAsync(Guid id, Account account);
-        Task<Account> UpdateProfileAsync(Guid id, Account account);
+        Task<Account> UpdateAccountAsync(Guid id, AccountRequestForUpdate account);
+        Task<Account> UpdateProfileAsync(Guid id, AccountRequestForUpdateProfile account);
         Task<Account> UpdateDeflagAccountAsync(Guid id);
         Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword);
+        Task<bool> CreateImageAccount(Guid accountId, ImageForAccount files);
     }
 }

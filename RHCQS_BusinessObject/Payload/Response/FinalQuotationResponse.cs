@@ -157,10 +157,11 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, string? contructionName, string? type, double? coefficient,
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, string? contructionName, string? type, double? coefficient,
             DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
+            ContructionId = contructionId;
             ContructionName = contructionName;
             Type = type;
             Coefficient = coefficient;
@@ -169,7 +170,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
-
+        public Guid ContructionId { get; set; }
         public string? ContructionName { get; set; }
 
         public string? Type { get; set; }
@@ -271,9 +272,10 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class UtilityInf
     {
-        public UtilityInf(Guid id, string description, double coefficient, double price, double unitPrice, string unit)
+        public UtilityInf(Guid id, string name, string description, double coefficient, double price, double unitPrice, string unit)
         {
             Id = id;
+            Name = name;
             Description = description;
             Coefficient = coefficient;
             Price = price;
@@ -282,6 +284,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
+        public string Name { get; set; }
         public string Description { get; set; }
         public double Coefficient { get; set; }
         public double Price { get; set; }
@@ -293,6 +296,10 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string Type { get; set; }
         public double TotalPriceRough { get; set; }
         public double TotalPriceLabor { get; set; }
+
+        public ConstructionSummary()
+        {
+        }
 
         public ConstructionSummary(string type, double totalPriceRough, double totalPriceLabor)
         {

@@ -77,14 +77,14 @@ namespace RHCQS_Services.Implement
                                                                    s.Deflag,
                                                                    s.InsDate,
                                                                    s.UpsDate,
-                                                                   s.Description, 
+                                                                   s.Description,
                                                                    s.UnitPrice,
                                                                    s.Unit)).ToList()),
                include: x => x.Include(x => x.UtilitiesSections),
                orderBy: x => x.OrderBy(x => x.InsDate));
                 return listConstruction.Items.ToList();
             }
-           
+
         }
 
         public async Task<UtilitiesSectionResponse> SearchUtilityItem(string name)
@@ -96,8 +96,8 @@ namespace RHCQS_Services.Implement
 
             if (utiSection == null)
             {
-                throw new AppConstant.MessageError((int) AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
-                
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+
             }
 
             var utilityItemsResponse = utiSection.UtilitiesItems.Select(item =>
@@ -119,7 +119,7 @@ namespace RHCQS_Services.Implement
                 utiSection.Description,
                 utiSection.UnitPrice,
                 utiSection.Unit,
-                utilityItemsResponse 
+                utilityItemsResponse
             );
         }
 
@@ -265,7 +265,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> UpdateUtility(UpdateUtilityRequest request)
         {
-            if (request.Utility != null) { 
+            if (request.Utility != null)
+            {
                 var utility = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(u => u.Id == request.Utility.Id);
                 if (utility == null)
                 {
@@ -288,7 +289,7 @@ namespace RHCQS_Services.Implement
                 utility.Name = request.Utility.Name ?? utility.Name;
                 utility.UpsDate = DateTime.Now;
 
-                _unitOfWork.GetRepository<UtilityOption> ().UpdateAsync(utility);
+                _unitOfWork.GetRepository<UtilityOption>().UpdateAsync(utility);
 
             }
             if (request.Sections != null)
