@@ -1,13 +1,8 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObjects;
-using RHCQS_DataAccessObjects.Models;
-using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.IO;
@@ -17,29 +12,18 @@ namespace RHCQS_Services.Implement
 {
     public class UploadImgService : IUploadImgService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<UploadImgService> _logger;
-        private readonly IConverter _converter;
         private readonly Cloudinary _cloudinary;
 
-        public UploadImgService(IUnitOfWork unitOfWork, ILogger<UploadImgService> logger,
-            IConverter converter, Cloudinary cloudinary)
+        public UploadImgService(IConfiguration configuration)
         {
-            _unitOfWork = unitOfWork;
-            _logger = logger;
-            _converter = converter;
-            _cloudinary = cloudinary;
+            var account = new Account(
+                cloud: configuration["Cloudinary:Cloudname"],
+                apiKey: configuration["Cloudinary:ApiKey"],
+                apiSecret: configuration["Cloudinary:ApiSecret"]
+            );
+            _cloudinary = new Cloudinary(account);
+            _cloudinary.Api.Secure = true;
         }
-        //public UploadImgService(IConfiguration configuration)
-        //{
-        //    var account = new Account(
-        //        cloud: configuration["Cloudinary:Cloudname"],
-        //        apiKey: configuration["Cloudinary:ApiKey"],
-        //        apiSecret: configuration["Cloudinary:ApiSecret"]
-        //    );
-        //    _cloudinary = new Cloudinary(account);
-        //    _cloudinary.Api.Secure = true;
-        //}
 
         public async Task<string> UploadImageAsync(string imagePathOrUrl, string folder)
         {
@@ -146,5 +130,6 @@ namespace RHCQS_Services.Implement
 
             return uploadResults;
         }
+
     }
 }
