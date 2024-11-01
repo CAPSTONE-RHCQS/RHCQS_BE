@@ -38,6 +38,7 @@ namespace RHCQS_BE.Extenstion
             public const string PackageListEndpoint = ApiEndpoint + "/allpackage";
             public const string PackageDetailEndpoint = PackageEndpoint + "/id";
             public const string PackageByNameEndpoint = PackageEndpoint + "/name";
+            public const string PackageAutoCharacter = PackageEndpoint + "/contain/name";
         }
         public static class Blog
         {
@@ -116,6 +117,7 @@ namespace RHCQS_BE.Extenstion
             public const string UtilityItemHiddenEndpoint = UtilityEndpoint + "/hidden/id";
             public const string UtilityItemEndpoint = UtilityEndpoint + "/item";
             public const string UtilityItemSearchEndpoint = UtilityItemEndpoint + "/search/name";
+            public const string UtilityAutoCharacterEndpoint = UtilityEndpoint + "/contain/name";
         }
 
         public static class HouseDesignDrawing

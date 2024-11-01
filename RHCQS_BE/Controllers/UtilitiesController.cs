@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.Utility;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Utility;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 
@@ -73,7 +74,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">If the `type` is invalid or not provided.</response>
         /// <response code="500">If there is an internal server error while processing the request.</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityByTypeEndpoint)]
         [ProducesResponseType(typeof(List<UtilityResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -285,6 +286,37 @@ namespace RHCQS_BE.Controllers
             var utilityItem = await _utilitiesService.BanUtility(utilityId);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
             return Ok(result);
+        }
+
+        #region GetDetailUtilityByContainName
+        /// <summary>
+        /// Search by character name.
+        /// 
+        /// ROLE: CUSTOMER, SALE STAFF, MANAGER
+        /// </summary>
+        /// <remarks>
+        /// This API allows users with roles "Customer", "SalesStaff", or "Manager" to search for a utility section by name.
+        /// It returns a utility section along with its associated utility items. If no utility section is found, an error will be thrown.
+        /// </remarks>
+        /// <param name="name">The name of the utility section to search for.</param>
+        /// <response code="200">Returns the utility section and associated utility items.</response>
+        /// <response code="400">Bad Request. The search term is invalid.</response>
+        /// <response code="404">Not Found. No utility section with the given name was found.</response>
+        /// <returns>A utility section object with associated utility items.</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Utility.UtilityAutoCharacterEndpoint)]
+        [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailUtilityByContainName(string name)
+        {
+            var utilityItem = await _utilitiesService.GetDetailUtilityByContainName(name);
+            var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }

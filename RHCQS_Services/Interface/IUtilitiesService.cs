@@ -1,5 +1,5 @@
 ﻿using RHCQS_BusinessObject.Payload.Request.Utility;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Utility;
 using RHCQS_BusinessObjects;
 
 namespace RHCQS_Services.Interface
@@ -14,5 +14,7 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateUtility(UtilityRequest request);
         Task<bool> UpdateUtility(UpdateUtilityRequest request);
         Task<string> BanUtility(Guid utilityId);
+
+        Task<List<AutoUtilityResponse>> GetDetailUtilityByContainName(string name);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Utility;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Construction;
+using RHCQS_BusinessObject.Payload.Response.Utility;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -361,6 +363,55 @@ namespace RHCQS_Services.Implement
 
             var save = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Fail_Save;
             return save;
+        }
+
+        public async Task<List<AutoUtilityResponse>> GetDetailUtilityByContainName(string name)
+        {
+            try
+            {
+                var normalizedName = name.RemoveDiacritics();
+
+                var utilityItems = await _unitOfWork.GetRepository<UtilitiesSection>()
+                    .GetListAsync(include: con => con.Include(c => c.UtilitiesItems));
+
+                var filteredItems = utilityItems
+                    .Where(con =>
+                        (con.Name != null && con.Name.RemoveDiacritics().Contains(normalizedName)) ||
+                        con.UtilitiesItems.Any(sub => sub.Name.RemoveDiacritics().Contains(normalizedName)))
+                    .ToList();
+
+                return filteredItems.SelectMany(utilityItems =>
+                {
+
+                    var matchingUtilityItem = utilityItems.UtilitiesItems
+                        .Where(item => item.Name!.RemoveDiacritics().Contains(normalizedName))
+                        .Select(utilityItems => new AutoUtilityResponse(
+                            utilitySectionId: utilityItems.Section.Id,
+                            utilityItemId: utilityItems.Id,
+                            name: utilityItems.Name!,
+                            coefficient: utilityItems.Coefficient,
+                            unitPrice: 0
+                        )).ToList();
+
+
+                    if (!matchingUtilityItem.Any() && utilityItems.Name!.RemoveDiacritics().Contains(normalizedName))
+                    {
+                        matchingUtilityItem.Add(new AutoUtilityResponse(
+                            utilitySectionId: utilityItems.Id,
+                            utilityItemId: null,
+                            name: utilityItems.Name!,
+                            coefficient: 0,
+                            unitPrice: utilityItems.UnitPrice
+                        ));
+                    }
+
+                    return matchingUtilityItem;
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

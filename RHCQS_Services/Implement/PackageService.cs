@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Package;
+using RHCQS_BusinessObject.Payload.Response.Utility;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -400,6 +403,33 @@ namespace RHCQS_Services.Implement
 
             return existingPackage;
         }
+
+        public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
+        {
+            try
+            {
+                var normalizedName = name.RemoveDiacritics();
+
+                var packageItems = await _unitOfWork.GetRepository<Package>()
+                    .GetListAsync(predicate: p => p.Status == AppConstant.General.Active);
+
+                var filteredItems = packageItems
+                    .Where(con =>
+                        con.PackageName != null && con.PackageName.RemoveDiacritics().Contains(normalizedName))
+                    .ToList();
+
+                return filteredItems.Select(packageItem => new AutoPackageResponse(
+                    packageId: packageItem.Id,
+                    packageName: packageItem.PackageName!,
+                    price: packageItem.Price ?? 0 
+                )).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
     }
 
 }
