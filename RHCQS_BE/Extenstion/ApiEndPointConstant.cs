@@ -13,6 +13,7 @@ namespace RHCQS_BE.Extenstion
         public const string RootEndPoint = "/api";
         public const string ApiVersion = "/v1";
         public const string ApiEndpoint = RootEndPoint + ApiVersion;
+        public const string Test = ApiEndpoint + "/test";
 
         public static class Auth
         {
@@ -74,6 +75,10 @@ namespace RHCQS_BE.Extenstion
             public const string HouseTemplateListEndpoint = ApiEndpoint + "/allhousetemplate";
             public const string SearchHouseTemplateEndpoint = HouseTemplateEndpoint + "/name";
             public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";
+            public const string SubTemplateDesignEndpoint = ApiEndpoint + "/sub-template";
+            public const string UploadImageDrawingEndpoint = ApiEndpoint + "/upload-design-images";
+            public const string PackageHouseEndpoint = ApiEndpoint + "/package-house";
+            public const string UploadImagePackHouseEndpoint = ApiEndpoint + "/upload-package-house";
         }
 
         public static class Project
@@ -95,7 +100,8 @@ namespace RHCQS_BE.Extenstion
         {
             public const string ConstructionEndpoint = ApiEndpoint + "/construction";
             public const string ConstructionDetailEndpoint = ConstructionEndpoint + "/id";
-            public const string COnstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
+            public const string ConstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
+            public const string ConstructionContainNameEndpoint = ConstructionEndpoint + "/contain/name";
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
         }
 
@@ -145,10 +151,11 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationProjectEndpoint = InitialQuotationEndpoint + "/list";
             public const string InitialQuotationNewVersionEndpoint = InitialQuotationEndpoint + "/new";
             public const string InitialQuotationCustomerComment = InitialQuotationEndpoint + "/comment";
-            public const string InitialQuotationCustomerAgree = ApiEndpoint +"/quotation" + "/finalized";
+            public const string InitialQuotationCustomerAgree = ApiEndpoint + "/quotation" + "/finalized";
         }
         public static class FinalQuotation
         {
+
             public const string FinalQuotationEndpoint = ApiEndpoint + "/quotation" + "/final";
             public const string FinalQuotationDetailEndpoint = FinalQuotationEndpoint + "/id";
             public const string FinalQuotationDetailByProjectIdEndpoint = FinalQuotationEndpoint + "/projectid";
@@ -157,6 +164,8 @@ namespace RHCQS_BE.Extenstion
             public const string CancelFinalQuotationEndpoint = FinalQuotationEndpoint + "/cancel";
             public const string ApproveFinalQuotationEndpoint = FinalQuotationEndpoint + "/approve";
             public const string FinalQuotationProjectEndpoint = FinalQuotationEndpoint + "/list";
+            public const string FinalQuotationCustomerAgree = FinalQuotationEndpoint + "/finalized";
+            public const string FinalQuotationCustomerComment = FinalQuotationEndpoint + "/comment";
         }
 
         public static class Contract
@@ -199,6 +208,14 @@ namespace RHCQS_BE.Extenstion
         public static class General
         {
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/drawing/version";
+        }
+
+        public static class Material
+        {
+            public const string MaterialEndpoint = ApiEndpoint + "/material";
+            public const string MaterialListEndpoint = ApiEndpoint + "/allhmaterials";
+            public const string SearchMaterialEndpoint = MaterialEndpoint + "/name";
+            public const string MaterialDetailEndpoint = MaterialEndpoint + "/id";
         }
     }
 }

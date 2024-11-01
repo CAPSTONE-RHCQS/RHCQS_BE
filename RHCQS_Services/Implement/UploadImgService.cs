@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
@@ -93,5 +94,42 @@ namespace RHCQS_Services.Implement
                 }
             }
         }
+
+        public async Task<List<string>> UploadImageDesignTemplate(List<IFormFile> files)
+        {
+            var uploadResults = new List<string>();
+
+            foreach (var file in files)
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true,
+                        Folder = "DesignHouse"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        uploadResults.Add(uploadResult.Url.ToString());
+                    }
+                    else
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Bad_Request,
+                            uploadResult.Error.Message
+                        );
+                    }
+                }
+            }
+
+            return uploadResults;
+        }
+
     }
 }

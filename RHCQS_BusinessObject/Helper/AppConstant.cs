@@ -40,7 +40,7 @@ public static class AppConstant
         public const string Customer = "Customer";
     }
 
-    public class Type 
+    public class Type
     {
         public const string ROUGH = "ROUGH";
         public const string FINISHED = "FINISHED";
@@ -97,6 +97,7 @@ public static class AppConstant
         public const string Drawing = "Bản vẽ";
         public const string Structuredrawings = "Cấu trúc";
         public const string Exteriorsdrawings = "Ngoại cảnh";
+        public const string OverallDrawing = "Tổng thể";
     }
     public class Status
     {
@@ -143,7 +144,8 @@ public static class AppConstant
         Not_Found = 404,
         Conflict = 409,
         Too_Many_Requests = 429,
-        Unprocessable_Entity = 422
+        Unprocessable_Entity = 422,
+        NotFound = 501
     }
 
     public class Message
@@ -275,6 +277,11 @@ public static class AppConstant
         //Utility
         public const string Utility_Not_Found = "Không tìm thấy tiện ích!";
         public const string Utility_Duplicate = "Tên tiện ích đã bị trùng! Hãy đổi tên khác!";
+
+        //FinalQuotation
+        public const string FinalQuotationExists = "FinalQuotation đã tồn tại.";
+
+
     }
 }
 

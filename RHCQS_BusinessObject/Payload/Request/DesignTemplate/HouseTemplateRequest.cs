@@ -69,7 +69,8 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Unit { get; set; }
     }
-    public class HouseTemplateRequestForCretae
+
+    public class HouseTemplateRequestForCreate
     {
 
         [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
@@ -81,13 +82,12 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public int? NumberOfBed { get; set; }
 
-        public int? NumberOfFront { get; set; }
-
-        public string? ImgURL { get; set; }
+        [Required(ErrorMessage = "Gói thi công là bắt buộc phải có.")]
+        public Guid PackageRoughId { get; set; }
+        public string? DescriptionPackage { get; set; }
 
         [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
         public List<SubTemplatesRequestForCreate> SubTemplates { get; set; } = new List<SubTemplatesRequestForCreate>();
-        public List<MediaRequest> ExteriorsUrls { get; set; } = new List<MediaRequest>();
     }
     public class SubTemplatesRequestForCreate
     {
@@ -98,25 +98,22 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Size { get; set; }
 
-        public string? ImgURL { get; set; }
-
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequestForCreate> TemplateItems { get; set; } = new List<TemplateItemRequestForCreate>();
-        public List<MediaRequest> Designdrawings { get; set; } = new List<MediaRequest>();
     }
     public class TemplateItemRequestForCreate
     {
 
         [Required(ErrorMessage = "ConstructionItemId là bắt buộc phải có.")]
         public Guid ConstructionItemId { get; set; }
-        [Required(ErrorMessage = "SubConstructionItemId là bắt buộc phải có.")]
         public Guid SubConstructionItemId { get; set; }
 
-        [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
+        //[Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;
 
         public double? Area { get; set; }
 
         public string? Unit { get; set; }
     }
+
 }

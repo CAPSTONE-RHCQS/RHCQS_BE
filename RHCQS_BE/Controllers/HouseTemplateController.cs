@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
+using static RHCQS_BE.Extenstion.ApiEndPointConstant;
 using Account = CloudinaryDotNet.Account;
 
 namespace RHCQS_BE.Controllers
@@ -138,43 +140,80 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region CreateHouseTemplate
         /// <summary>
-        /// Creates a new house tempalte.
+        /// Creates a new house template.
         /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST /api/housetemplate
+        ///     {
+        ///         "name": "Mẫu test",
+        ///         "description": "Test mẫu nhà",
+        ///         "numberOfFloor": 2,
+        ///         "numberOfBed": 3,
+        ///         "numberOfFront": 0,
+        ///         "subTemplates": [
+        ///             {
+        ///                 "buildingArea": 200,
+        ///                 "floorArea": 120,
+        ///                 "size": "R8 x D15",
+        ///                 "templateItems": [
+        ///                     {
+        ///                         "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
+        ///                         "subConstructionItemId": "00000000-0000-0000-0000-000000000000",
+        ///                         "name": "Trệt",
+        ///                         "area": 120,
+        ///                         "unit": "m2"
+        ///                     },
+        ///                     {
+        ///                         "constructionItemId": "EBA29420-A8DB-455C-86B0-B325A1DA4E1E",
+        ///                         "subConstructionItemId": "00000000-0000-0000-0000-000000000000",
+        ///                         "name": "Lầu 1",
+        ///                         "area": 80,
+        ///                         "unit": "m2"
+        ///                     }
+        ///                 ]
+        ///             }
+        ///         ]
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="request">The house template details to be created.</param>
+        /// <returns>Returns `true` if the creation is successful, otherwise `false`.</returns>
+        /// <response code="200">Returns `true` indicating successful creation of the house template.</response>
+        /// <response code="400">Returns the validation errors or `false` if creation failed.</response>
         #endregion
         [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPost(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequestForCretae templ)
+        public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequestForCreate request)
         {
-            if (!string.IsNullOrEmpty(templ.ImgURL))
+            var housetemplate = await _houseService.CreateHouseTemplate(request);
+            var result = JsonConvert.SerializeObject(housetemplate, Formatting.Indented);
+            return new ContentResult
             {
-                string imageUrl = await _uploadImgService.UploadImageAsync(templ.ImgURL, "DesignHouse");
-                templ.ImgURL = imageUrl;
-            }
-            foreach (var exterior in templ.ExteriorsUrls)
-            {
-                if (!string.IsNullOrEmpty(exterior.MediaImgURL))
-                {
-                    string mediaUrl = await _uploadImgService.UploadImageAsync(exterior.MediaImgURL, "DesignHouse");
-                    exterior.MediaImgURL = mediaUrl;
-                }
-            }
-            foreach (var subTemplate in templ.SubTemplates)
-            {
-                foreach (var media in subTemplate.Designdrawings)
-                {
-                    if (!string.IsNullOrEmpty(media.Name))
-                    {
-                        string mediaUrl = await _uploadImgService.UploadImageAsync(media.MediaImgURL, "DesignHouse");
-                        media.MediaImgURL = mediaUrl;
-                    }
-                }
-            }
-            var isCreate = await _houseService.CreateHouseTemplate(templ);
-            return isCreate ? Ok(isCreate) : BadRequest();
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
+
+
+        //#region CreateSubTemplate
+        //#endregion
+        ////[Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        //[HttpPost(ApiEndPointConstant.HouseTemplate.SubTemplateDesignEndpoint)]
+        //[ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        //public async Task<IActionResult> CreateSubTemplate([FromBody] TemplateRequestForCreateArea request)
+        //{
+        //    var isCreate = await _houseService.CreateSubTemplate(request);
+        //    return isCreate ? Ok(isCreate) : BadRequest();
+        //}
+
+
         #region UpdateHouseTemplate
         /// <summary>
         /// Update a house tempalte.
@@ -211,6 +250,93 @@ namespace RHCQS_BE.Controllers
             }
             var update = await _houseService.UpdateHouseTemplate(templ, id);
             return Ok(update);
+        }
+
+        #region CreateImageDesignTemplate
+        /// <summary>
+        /// Upload Image drawing house template
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImageDrawingEndpoint)]
+        [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateImageDesignTemplate([FromQuery] Guid designTemplateId, [FromForm] ImageDesignDrawingRequest request)
+        {
+            if (request.OverallImage == null && (request.OutSideImage == null || request.OutSideImage.Count == 0)
+                && (request.DesignDrawingImage == null || request.DesignDrawingImage.Count == 0))
+            {
+                return BadRequest("At least one image file is required.");
+            }
+
+            try
+            {
+                var isUploaded = await _houseService.CreateImageDesignTemplate(designTemplateId, request);
+                if (isUploaded)
+                {
+                    return Ok("Images uploaded successfully.");
+                }
+                else
+                {
+                    return BadRequest("Image upload failed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error uploading images: {ex.Message}");
+            }
+        }
+
+        #region CreatePackageHouse
+        /// <summary>
+        /// Creates a new package for a house design template.
+        /// </summary>
+        /// <remarks>
+        /// Example request:
+        /// 
+        /// {
+        ///   "packageId": "5245F485-C546-4051-B04E-954FD773811E",
+        ///   "designTemplateId": "AC0E955C-3F03-4788-9DB8-C9C32069FC3F",
+        ///   "description": "This price applies to standard urban villas. It includes construction area over 365 m², with 1 floor and 2 rooms. Note that the listed price does not include VAT.",
+        ///   "packageHouseImage": "http://res.cloudinary.com/de7pulfdj/image/upload/v1730463742/PackageHouse/Flexible_package.png"
+        /// }
+        /// </remarks>
+        /// <param name="request">An object containing details for creating the house package</param>
+        /// <returns>A URL of the created package house image if successful</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.HouseTemplate.PackageHouseEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreatePackageHouse([FromBody] PackageHouseRequest request)
+        {
+            var housetemplate = await _houseService.CreatePackageHouse(request);
+            var result = JsonConvert.SerializeObject(housetemplate, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        #region UploadImgPackageHouse
+        /// <summary>
+        /// Upload image package house design template - package finished
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImagePackHouseEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImgPackageHouse(IFormFile request)
+        {
+            var imgUrl = await _houseService.UploadFileNoMedia(request, "PackageHouse");
+            return Ok(imgUrl);
         }
     }
 }
