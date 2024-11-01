@@ -74,6 +74,8 @@ namespace RHCQS_BE.Extenstion
             public const string HouseTemplateListEndpoint = ApiEndpoint + "/allhousetemplate";
             public const string SearchHouseTemplateEndpoint = HouseTemplateEndpoint + "/name";
             public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";
+            public const string SubTemplateDesignEndpoint = ApiEndpoint + "/sub-template";
+            public const string UploadImageDrawingEndpoint = ApiEndpoint + "/upload-design-images";
         }
 
         public static class Project
@@ -145,10 +147,11 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationProjectEndpoint = InitialQuotationEndpoint + "/list";
             public const string InitialQuotationNewVersionEndpoint = InitialQuotationEndpoint + "/new";
             public const string InitialQuotationCustomerComment = InitialQuotationEndpoint + "/comment";
-            public const string InitialQuotationCustomerAgree = ApiEndpoint +"/quotation" + "/finalized";
+            public const string InitialQuotationCustomerAgree = ApiEndpoint + "/quotation" + "/finalized";
         }
         public static class FinalQuotation
         {
+
             public const string FinalQuotationEndpoint = ApiEndpoint + "/quotation" + "/final";
             public const string FinalQuotationDetailEndpoint = FinalQuotationEndpoint + "/id";
             public const string FinalQuotationDetailByProjectIdEndpoint = FinalQuotationEndpoint + "/projectid";
@@ -157,6 +160,8 @@ namespace RHCQS_BE.Extenstion
             public const string CancelFinalQuotationEndpoint = FinalQuotationEndpoint + "/cancel";
             public const string ApproveFinalQuotationEndpoint = FinalQuotationEndpoint + "/approve";
             public const string FinalQuotationProjectEndpoint = FinalQuotationEndpoint + "/list";
+            public const string FinalQuotationCustomerAgree = FinalQuotationEndpoint + "/finalized";
+            public const string FinalQuotationCustomerComment = FinalQuotationEndpoint + "/comment";
         }
 
         public static class Contract

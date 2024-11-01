@@ -1,4 +1,4 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -18,6 +18,8 @@ namespace RHCQS_Services.Interface
         Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name);
         Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id);
         Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
-        Task<bool> CreateHouseTemplate(HouseTemplateRequestForCretae templ);
+        Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ);
+        //Task<bool> CreateSubTemplate(TemplateRequestForCreateArea request);
+        Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files);
     }
 }
