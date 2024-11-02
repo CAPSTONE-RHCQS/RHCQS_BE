@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace RHCQS_Services.Interface
 {
-    public interface IMaterialTypeService
+    public interface IMaterialSectionService
     {
-        Task<IPaginate<MaterialTypeResponse>> GetListMaterialType(int page, int size);
-        Task<MaterialTypeResponse> GetDetailMaterialType(Guid id);
-        Task<bool> CreateMaterialType(MaterialTypeRequest request);
-        Task<bool> UpdateMaterialType(Guid id, MaterialTypeRequest request);
-        Task<IPaginate<MaterialTypeResponse>> SearchMaterialTypeByName(string name, int page, int size);
+        Task<IPaginate<MaterialSectionResponse>> GetListMaterialSection(int page, int size);
+        Task<MaterialSectionResponse> GetDetailMaterialSection(Guid id);
+        Task<bool> CreateMaterialSection(MaterialSectionRequest request);
+        Task<bool> UpdateMaterialSection(Guid id, MaterialSectionRequest request);
+        Task<IPaginate<MaterialSectionResponse>> SearchMaterialSectionByName(string name, int page, int size);
     }
 }

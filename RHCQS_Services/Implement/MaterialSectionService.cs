@@ -15,27 +15,25 @@ using System.Threading.Tasks;
 
 namespace RHCQS_Services.Implement
 {
-    public class MaterialTypeService : IMaterialTypeService
+    public class MaterialSectionService : IMaterialSectionService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<MaterialTypeService> _logger;
+        private readonly ILogger<MaterialSectionService> _logger;
 
-        public MaterialTypeService(IUnitOfWork unitOfWork, ILogger<MaterialTypeService> logger)
+        public MaterialSectionService(IUnitOfWork unitOfWork, ILogger<MaterialSectionService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
-        public async Task<IPaginate<MaterialTypeResponse>> GetListMaterialType(int page, int size)
+        public async Task<IPaginate<MaterialSectionResponse>> GetListMaterialSection(int page, int size)
         {
-            return await _unitOfWork.GetRepository<MaterialType>().GetList(
-                selector: x => new MaterialTypeResponse
+            return await _unitOfWork.GetRepository<MaterialSection>().GetList(
+                selector: x => new MaterialSectionResponse
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    InsDate = x.InsDate,
-                    UpsDate = x.UpsDate,
-                    Deflag = x.Deflag
+                    InsDate = x.InsDate
                 },
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -43,89 +41,80 @@ namespace RHCQS_Services.Implement
             );
         }
 
-        public async Task<MaterialTypeResponse> GetDetailMaterialType(Guid id)
+        public async Task<MaterialSectionResponse> GetDetailMaterialSection(Guid id)
         {
-            var labor = await _unitOfWork.GetRepository<MaterialType>().FirstOrDefaultAsync(
+            var labor = await _unitOfWork.GetRepository<MaterialSection>().FirstOrDefaultAsync(
                 predicate: m => m.Id == id);
             if (labor == null)
-                return new MaterialTypeResponse();
+                return new MaterialSectionResponse();
 
-            return new MaterialTypeResponse
+            return new MaterialSectionResponse
             {
                 Id = labor.Id,
                 Name = labor.Name,
-                InsDate = labor.InsDate,
-                UpsDate = labor.UpsDate,
-                Deflag = labor.Deflag
+                InsDate = labor.InsDate
             };
         }
 
-        public async Task<bool> CreateMaterialType(MaterialTypeRequest request)
+        public async Task<bool> CreateMaterialSection(MaterialSectionRequest request)
         {
             try
             {
-                var newMaterialType = new MaterialType
+                var newMaterialSection = new MaterialSection
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
-                    Deflag = request.Deflag
+                    InsDate = DateTime.Now
                 };
-                await _unitOfWork.GetRepository<MaterialType>().InsertAsync(newMaterialType);
+                await _unitOfWork.GetRepository<MaterialSection>().InsertAsync(newMaterialSection);
                 return await _unitOfWork.CommitAsync() > 0;
             }
             catch (Exception)
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while creating a new material type."
+                    "An error while creating a new material section."
                 );
             }
         }
 
-        public async Task<bool> UpdateMaterialType(Guid id, MaterialTypeRequest request)
+        public async Task<bool> UpdateMaterialSection(Guid id, MaterialSectionRequest request)
         {
             try
             {
-                var materialType = await _unitOfWork.GetRepository<MaterialType>()
+                var materialSection = await _unitOfWork.GetRepository<MaterialSection>()
                     .FirstOrDefaultAsync(m => m.Id == id);
 
-                if (materialType == null)
+                if (materialSection == null)
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Material type does not exist."
+                        "Material section does not exist."
                     );
                 }
 
-                materialType.Name = request.Name ?? materialType.Name;
-                materialType.Deflag = request.Deflag ?? materialType.Deflag;
+                materialSection.Name = request.Name ?? materialSection.Name;
 
-                materialType.UpsDate = DateTime.Now;
-
-                _unitOfWork.GetRepository<MaterialType>().UpdateAsync(materialType);
+                _unitOfWork.GetRepository<MaterialSection>().UpdateAsync(materialSection);
                 return await _unitOfWork.CommitAsync() > 0;
             }
             catch (Exception)
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while updating a new material type."
+                    "An error while updating a new material section."
                 );
             }
         }
 
-        public async Task<IPaginate<MaterialTypeResponse>> SearchMaterialTypeByName(string name, int page, int size)
+        public async Task<IPaginate<MaterialSectionResponse>> SearchMaterialSectionByName(string name, int page, int size)
         {
-            return await _unitOfWork.GetRepository<MaterialType>().GetList(
-                selector: x => new MaterialTypeResponse
+            return await _unitOfWork.GetRepository<MaterialSection>().GetList(
+                selector: x => new MaterialSectionResponse
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    InsDate = x.InsDate,
-                    UpsDate = x.UpsDate,
-                    Deflag = x.Deflag
+                    InsDate = x.InsDate
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate),
