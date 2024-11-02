@@ -173,25 +173,32 @@ namespace RHCQS_Services.Implement
                     QuotationUtilities = new List<QuotationUtility>()
                 };
 
-                finalQuotation.BatchPayments = initialQuotation.BatchPayments.Select(bp => new BatchPayment
+                //finalQuotation.BatchPayments = initialQuotation.BatchPayments.Select(bp => new BatchPayment
+                //{
+                //    Id = Guid.NewGuid(),
+                //    IntitialQuotationId = bp.IntitialQuotationId,
+                //    ContractId = bp.ContractId,
+                //    InsDate = DateTime.UtcNow,
+                //    FinalQuotationId = finalQuotation.Id,
+                //    Payment = new Payment
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        PaymentTypeId = bp.Payment.PaymentTypeId,
+                //        InsDate = DateTime.UtcNow,
+                //        TotalPrice = bp.Payment.TotalPrice,
+                //        Percents = bp.Payment.Percents,
+                //        Description = bp.Payment.Description,
+                //        Unit = AppConstant.Unit.UnitPrice
+                //    },
+                //    Status = bp.Status
+                //}).ToList();
+                var BatchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
+                foreach (var batchPayment in initialQuotation.BatchPayments)
                 {
-                    Id = Guid.NewGuid(),
-                    IntitialQuotationId = bp.IntitialQuotationId,
-                    ContractId = bp.ContractId,
-                    InsDate = DateTime.UtcNow,
-                    FinalQuotationId = finalQuotation.Id,
-                    Payment = new Payment
-                    {
-                        Id = Guid.NewGuid(),
-                        PaymentTypeId = bp.Payment.PaymentTypeId,
-                        InsDate = DateTime.UtcNow,
-                        TotalPrice = bp.Payment.TotalPrice,
-                        Percents = bp.Payment.Percents,
-                        Description = bp.Payment.Description,
-                        Unit = AppConstant.Unit.UnitPrice
-                    },
-                    Status = bp.Status
-                }).ToList();
+                    batchPayment.FinalQuotationId = finalQuotation.Id;
+                    batchPayment.InsDate = DateTime.UtcNow;
+                    BatchPaymentRepo.UpdateAsync(batchPayment);
+                }
 
                 finalQuotation.FinalQuotationItems = initialQuotation.InitialQuotationItems.Select(iqi => new FinalQuotationItem
                 {
@@ -201,24 +208,32 @@ namespace RHCQS_Services.Implement
                 }).ToList();
 
 
+                //foreach (var initialUtility in initialQuotation.QuotationUtilities)
+                //{
+                //    var utlItem = new QuotationUtility
+                //    {
+                //        Id = Guid.NewGuid(),
+                //        UtilitiesItemId = initialUtility.UtilitiesItemId,
+                //        UtilitiesSectionId = initialUtility.UtilitiesSectionId,
+                //        FinalQuotationId = finalQuotation.Id,
+                //        InitialQuotationId = initialQuotation.Id,
+                //        Name = initialUtility.Name,
+                //        Coefiicient = initialUtility.Coefiicient,
+                //        Price = initialUtility.Price,
+                //        Description = initialUtility.Description,
+                //        InsDate = DateTime.UtcNow,
+                //        UpsDate = DateTime.UtcNow,
+                //    };
+                //    finalQuotation.QuotationUtilities.Add(utlItem);
+                //}
+                var QuotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
                 foreach (var initialUtility in initialQuotation.QuotationUtilities)
                 {
-                    var utlItem = new QuotationUtility
-                    {
-                        Id = Guid.NewGuid(),
-                        UtilitiesItemId = initialUtility.UtilitiesItemId,
-                        UtilitiesSectionId = initialUtility.UtilitiesSectionId,
-                        FinalQuotationId = finalQuotation.Id,
-                        InitialQuotationId = initialQuotation.Id,
-                        Name = initialUtility.Name,
-                        Coefiicient = initialUtility.Coefiicient,
-                        Price = initialUtility.Price,
-                        Description = initialUtility.Description,
-                        InsDate = DateTime.UtcNow,
-                        UpsDate = DateTime.UtcNow,
-                    };
-                    finalQuotation.QuotationUtilities.Add(utlItem);
+                    initialUtility.FinalQuotationId = finalQuotation.Id;
+                    initialUtility.UpsDate = DateTime.UtcNow;
+                    QuotationUtilityRepo.UpdateAsync(initialUtility);
                 }
+
                 await finalQuotationRepo.InsertAsync(finalQuotation);
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -502,6 +517,8 @@ namespace RHCQS_Services.Implement
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
                         bp?.Payment?.Id ?? Guid.Empty,
+                        bp?.IntitialQuotationId ?? Guid.Empty,
+                        bp?.ContractId ?? Guid.Empty,
                         bp?.InsDate,
                         bp?.Status ?? string.Empty,
                         bp?.Payment?.UpsDate,
@@ -703,6 +720,8 @@ namespace RHCQS_Services.Implement
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
                         bp?.Payment!.Id ?? Guid.Empty,
+                        bp?.IntitialQuotationId ?? Guid.Empty,
+                        bp?.ContractId ?? Guid.Empty,
                         bp.InsDate,
                         bp.Status,
                         bp?.Payment?.UpsDate,
@@ -905,6 +924,8 @@ namespace RHCQS_Services.Implement
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
                         bp?.Payment.Id ?? Guid.Empty,
+                        bp?.IntitialQuotationId ?? Guid.Empty,
+                        bp?.ContractId ?? Guid.Empty,
                         bp.InsDate,
                         bp.Status,
                         bp?.Payment?.UpsDate,
