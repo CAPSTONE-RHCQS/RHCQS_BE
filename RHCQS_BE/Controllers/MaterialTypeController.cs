@@ -63,6 +63,34 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region CreateMaterialType
+        /// <summary>
+        /// Creates a new labor in the system.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /api/v1/materialtype
+        ///    {
+        ///    "name": "Test",
+        ///    "deflag": true
+        ///     }
+        /// </remarks>
+        /// <param name="request">Material type request model</param>
+        /// <returns>Returns true if the material type is created successfully, otherwise false.</returns>
+        /// <response code="200">Material type created successfully</response>
+        /// <response code="400">Failed to create the material type</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.MaterialType.MaterialTypeEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateMaterialType([FromBody] MaterialTypeRequest request)
+        {
+            var isCreated = await _materialTypeService.CreateMaterialType(request);
+            return isCreated ? Ok(isCreated) : BadRequest();
+        }
 
     }
 }
