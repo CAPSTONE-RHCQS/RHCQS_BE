@@ -9,15 +9,17 @@ public partial class SubTemplate
 
     public Guid DesignTemplateId { get; set; }
 
-    public double? BuildingArea { get; set; }
+    public double BuildingArea { get; set; }
 
     public double? FloorArea { get; set; }
 
     public DateTime? InsDate { get; set; }
 
-    public string? Size { get; set; }
+    public string Size { get; set; } = null!;
 
     public string? ImgUrl { get; set; }
+
+    public double? TotalRough { get; set; }
 
     public virtual DesignTemplate DesignTemplate { get; set; } = null!;
 

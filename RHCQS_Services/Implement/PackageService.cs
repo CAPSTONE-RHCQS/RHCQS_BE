@@ -41,7 +41,6 @@ namespace RHCQS_Services.Implement
                 package.UpsDate,
                 package.PackageDetails?.Select(pd => new PackageDetailsResponse(
                     pd.Id,
-                    pd.Action,
                     pd.Type,
                     pd.InsDate,
                     pd.PackageLabors?.Select(pl => new PackageLaborResponse(
@@ -120,7 +119,6 @@ namespace RHCQS_Services.Implement
                     x.UpsDate,
                     x.PackageDetails.Select(pd => new PackageDetailsResponseForMoblie(
                         pd.Id,
-                        pd.Action,
                         pd.Type,
                         pd.InsDate,
                         pd.PackageLabors.Select(pl => new PackageLaborResponseForMoblie(
@@ -245,7 +243,6 @@ namespace RHCQS_Services.Implement
                 PackageDetails = packageRequest.PackageDetails.Select(pd => new PackageDetail
                 {
                     Id = Guid.NewGuid(),
-                    Action = pd.Action,
                     Type = pd.Type,
                     InsDate = DateTime.Now,
                     PackageLabors = pd.PackageLabors?.Select(pl => new PackageLabor
@@ -327,7 +324,6 @@ namespace RHCQS_Services.Implement
 
                 if (existingPackageDetail != null)
                 {
-                    existingPackageDetail.Action = pd.Action;
                     existingPackageDetail.Type = pd.Type;
 
                     foreach (var labor in pd.PackageLabors)

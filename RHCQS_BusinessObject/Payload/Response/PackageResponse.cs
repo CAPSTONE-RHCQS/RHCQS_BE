@@ -51,11 +51,10 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class PackageDetailsResponse
     {
-        public PackageDetailsResponse(Guid id, string? action, string? type, DateTime? insDate,
+        public PackageDetailsResponse(Guid id, string? type, DateTime? insDate,
             List<PackageLaborResponse> packageLabors, List<PackageMaterialResponse> packageMaterials)
         {
             Id = id;
-            Action = action;
             Type = type;
             InsDate = insDate;
             PackageLabors = packageLabors;
@@ -63,8 +62,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
-
-        public string? Action { get; set; }
 
         public string? Type { get; set; }
 
@@ -199,11 +196,10 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageDetailsResponseForMoblie
     {
-        public PackageDetailsResponseForMoblie(Guid id, string? action, string? type, DateTime? insDate,
+        public PackageDetailsResponseForMoblie(Guid id, string? type, DateTime? insDate,
             List<PackageLaborResponseForMoblie> packageLabors, List<PackageMaterialResponse> packageMaterials)
         {
             Id = id;
-            Action = action;
             Type = type;
             InsDate = insDate;
             PackageLabors = packageLabors;
@@ -211,8 +207,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
-
-        public string? Action { get; set; }
 
         public string? Type { get; set; }
 

@@ -36,7 +36,6 @@ namespace RHCQS_Services.Implement
                     x.Description,
                     x.NumberOfFloor,
                     x.NumberOfBed,
-                    x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate,
                     x.SubTemplates.Select(
@@ -126,7 +125,7 @@ namespace RHCQS_Services.Implement
                 SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
                 {
                     Id = Guid.NewGuid(),
-                    BuildingArea = sub.BuildingArea,
+                    BuildingArea = sub.BuildingArea ?? 0,
                     FloorArea = sub.FloorArea,
                     Size = sub.Size,
                     ImgUrl = null,
@@ -268,7 +267,6 @@ namespace RHCQS_Services.Implement
                     template.Description,
                     template.NumberOfFloor,
                     template.NumberOfBed,
-                    template.NumberOfFront,
                     template.ImgUrl,
                     template.InsDate,
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
@@ -336,7 +334,6 @@ namespace RHCQS_Services.Implement
                     x.Description,
                     x.NumberOfFloor,
                     x.NumberOfBed,
-                    x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate
                 ),
@@ -356,7 +353,6 @@ namespace RHCQS_Services.Implement
                     x.Description,
                     x.NumberOfFloor,
                     x.NumberOfBed,
-                    x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate,
                     x.SubTemplates.Select(
@@ -452,7 +448,6 @@ namespace RHCQS_Services.Implement
                     template.Description,
                     template.NumberOfFloor,
                     template.NumberOfBed,
-                    template.NumberOfFront,
                     template.ImgUrl,
                     template.InsDate,
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
@@ -541,7 +536,6 @@ namespace RHCQS_Services.Implement
             houseTemplate.Description = templ.Description;
             houseTemplate.NumberOfFloor = templ.NumberOfFloor;
             houseTemplate.NumberOfBed = templ.NumberOfBed;
-            houseTemplate.NumberOfFront = templ.NumberOfFront;
             houseTemplate.ImgUrl = templ.ImgURL;
 
             foreach (var media in templ.ExteriorsUrls)
@@ -567,7 +561,7 @@ namespace RHCQS_Services.Implement
                 var existingSubTemplate = houseTemplate.SubTemplates.FirstOrDefault(st => st.Id == sub.Id);
                 if (existingSubTemplate != null)
                 {
-                    existingSubTemplate.BuildingArea = sub.BuildingArea;
+                    existingSubTemplate.BuildingArea = sub.BuildingArea ?? 0;
                     existingSubTemplate.FloorArea = sub.FloorArea;
                     existingSubTemplate.Size = sub.Size;
                     existingSubTemplate.ImgUrl = sub.ImgURL;

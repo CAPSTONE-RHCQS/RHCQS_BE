@@ -191,5 +191,69 @@ namespace RHCQS_Services.Implement
 
             return uploadResults;
         }
+
+        public async Task<string> UploadImageFolder(IFormFile file, string fileName, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return "File is null or empty";
+
+            try
+            {
+                var publicId = fileName ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = folder,
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                return uploadResult.StatusCode == System.Net.HttpStatusCode.OK
+                    ? uploadResult.Url.ToString()
+                    : "Fail";
+            }
+            catch (Exception ex)
+            {
+                // Log error details for debugging
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        public async Task<string> UploadImage(IFormFile file, string fileName)
+        {
+            if (file == null || file.Length == 0)
+                return "File is null or empty";
+
+            try
+            {
+                var publicId = fileName ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = "HouseDesignDrawing",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                return uploadResult.StatusCode == System.Net.HttpStatusCode.OK
+                    ? uploadResult.Url.ToString()
+                    : "Fail";
+            }
+            catch (Exception ex)
+            {
+                // Log error details for debugging
+                return $"Error: {ex.Message}";
+            }
+        }
     }
 }

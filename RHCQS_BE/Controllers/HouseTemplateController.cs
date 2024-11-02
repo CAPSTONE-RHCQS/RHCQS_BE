@@ -108,7 +108,6 @@ namespace RHCQS_BE.Controllers
                 Description = housetemplate.Description,
                 NumberOfBed = housetemplate.NumberOfBed,
                 NumberOfFloor = housetemplate.NumberOfFloor,
-                NumberOfFront = housetemplate.NumberOfFront,
                 ImgUrl = housetemplate.ImgUrl,
                 InsDate = housetemplate.InsDate,
             };

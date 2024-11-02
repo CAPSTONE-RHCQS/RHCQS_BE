@@ -211,6 +211,7 @@ namespace RHCQS_BE.Extenstion
         public static class General
         {
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/drawing/version";
+            public const string UploadAvatarEndpoint = ApiEndpoint + "/avatar";
         }
 
         public static class Material

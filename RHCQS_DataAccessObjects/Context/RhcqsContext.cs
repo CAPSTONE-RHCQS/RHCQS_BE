@@ -106,10 +106,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=database.techtheworld.id.vn;Database=RHCQS;User Id=rhcqs;Password=E77A6576-4A1F-4A0B-9BE4-AD6D189B86E5;Encrypt=True;TrustServerCertificate=True");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -514,7 +510,6 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("PackageDetail");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Action).HasMaxLength(50);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Type).HasMaxLength(50);
 

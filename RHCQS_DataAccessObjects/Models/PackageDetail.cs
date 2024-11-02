@@ -9,8 +9,6 @@ public partial class PackageDetail
 
     public Guid PackageId { get; set; }
 
-    public string? Action { get; set; }
-
     public string? Type { get; set; }
 
     public DateTime? InsDate { get; set; }

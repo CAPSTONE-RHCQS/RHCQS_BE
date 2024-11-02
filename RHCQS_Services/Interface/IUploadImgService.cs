@@ -14,5 +14,7 @@ namespace RHCQS_Services.Interface
         Task<string> UploadFile(Guid designTemplateId, IFormFile file, string folder, string nameImage);
         Task<string> UploadFileForImageAccount(Guid accountid, IFormFile file, string folder, string nameImage);
         Task<List<string>> UploadImageDesignTemplate(List<IFormFile> files);
+        Task<string> UploadImage(IFormFile file, string fileName);
+        Task<string> UploadImageFolder(IFormFile file, string fileName, string folder);
     }
 }

@@ -526,9 +526,9 @@ namespace RHCQS_Services.Implement
 
                 //Calculate total rough from buidling area
                 double totalPriceRough = 0;
-                if (packageRough.Price.HasValue && templateHouseInfo.BuildingArea.HasValue)
+                if (packageRough.Price.HasValue && templateHouseInfo.BuildingArea != 0)
                 {
-                    totalPriceRough = (double)(packageRough.Price.Value * templateHouseInfo.BuildingArea.Value);
+                    totalPriceRough = (double)packageRough.Price * (double)templateHouseInfo.BuildingArea;
                 }
                 else
                 {

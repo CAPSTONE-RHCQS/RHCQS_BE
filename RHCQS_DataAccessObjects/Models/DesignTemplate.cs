@@ -15,13 +15,9 @@ public partial class DesignTemplate
 
     public int? NumberOfBed { get; set; }
 
-    public int? NumberOfFront { get; set; }
-
     public string? ImgUrl { get; set; }
 
     public DateTime? InsDate { get; set; }
-
-    public double? TotalRough { get; set; }
 
     public virtual ICollection<Medium> Media { get; set; } = new List<Medium>();
 
