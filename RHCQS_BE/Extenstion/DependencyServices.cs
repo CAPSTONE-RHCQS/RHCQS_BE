@@ -86,6 +86,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IBlogService, BlogService>();
             services.AddScoped<IMaterialService, MaterialService>();
+            services.AddScoped<ILaborService, LaborService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
