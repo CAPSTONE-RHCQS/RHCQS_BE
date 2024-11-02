@@ -119,5 +119,25 @@ namespace RHCQS_BE.Controllers
             return isUpdated ? Ok(isUpdated) : BadRequest();
         }
 
+        #region SearchLaborByName
+        /// <summary>
+        /// Searches labors by name.
+        /// </summary>
+        /// <param name="name">The name or partial name of the labor.</param>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(IPaginate<LaborResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchLaborByName(string name, int page, int size)
+        {
+            var listSearchLabor = await _laborService.SearchLaborByName(name, page, size);
+            var result = JsonConvert.SerializeObject(listSearchLabor, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }
