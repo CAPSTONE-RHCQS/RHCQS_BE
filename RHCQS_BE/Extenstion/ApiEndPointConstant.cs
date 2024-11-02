@@ -218,8 +218,16 @@ namespace RHCQS_BE.Extenstion
         {
             public const string LaborEndpoint = ApiEndpoint + "/labor";
             public const string LaborListEndpoint = ApiEndpoint + "/alllabors";
-            public const string SearchLaborlEndpoint = LaborEndpoint + "/name";
+            public const string SearchLaborEndpoint = LaborEndpoint + "/name";
             public const string LaborDetailEndpoint = LaborEndpoint + "/id";
+        }
+
+        public static class MaterialType
+        {
+            public const string MaterialTypeEndpoint = ApiEndpoint + "/materialtype";
+            public const string MaterialTypeListEndpoint = ApiEndpoint + "/allmaterialtypes";
+            public const string SearchMaterialTypeEndpoint = MaterialTypeEndpoint + "/name";
+            public const string MaterialTypeDetailEndpoint = MaterialTypeEndpoint + "/id";
         }
     }
 }

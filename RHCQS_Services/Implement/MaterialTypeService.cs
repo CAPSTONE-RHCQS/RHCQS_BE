@@ -15,29 +15,27 @@ using System.Threading.Tasks;
 
 namespace RHCQS_Services.Implement
 {
-    public class LaborService : ILaborService
+    public class MaterialTypeService : IMaterialTypeService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ILogger<LaborService> _logger;
+        private readonly ILogger<MaterialTypeService> _logger;
 
-        public LaborService(IUnitOfWork unitOfWork, ILogger<LaborService> logger)
+        public MaterialTypeService(IUnitOfWork unitOfWork, ILogger<MaterialTypeService> logger)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
 
-        public async Task<IPaginate<LaborResponse>> GetListLabor(int page, int size)
+        public async Task<IPaginate<MaterialTypeResponse>> GetListMaterialType(int page, int size)
         {
-            return await _unitOfWork.GetRepository<Labor>().GetList(
-                selector: x => new LaborResponse
+            return await _unitOfWork.GetRepository<MaterialType>().GetList(
+                selector: x => new MaterialTypeResponse
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Price = x.Price,
                     InsDate = x.InsDate,
                     UpsDate = x.UpsDate,
-                    Deflag = x.Deflag,
-                    Type = x.Type
+                    Deflag = x.Deflag
                 },
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -45,97 +43,89 @@ namespace RHCQS_Services.Implement
             );
         }
 
-        public async Task<LaborResponse> GetDetailLabor(Guid id)
+        public async Task<MaterialTypeResponse> GetDetailMaterialType(Guid id)
         {
-            var labor = await _unitOfWork.GetRepository<Labor>().FirstOrDefaultAsync(
+            var labor = await _unitOfWork.GetRepository<MaterialType>().FirstOrDefaultAsync(
                 predicate: m => m.Id == id);
             if (labor == null)
-                return new LaborResponse();
+                return new MaterialTypeResponse();
 
-            return new LaborResponse
+            return new MaterialTypeResponse
             {
                 Id = labor.Id,
                 Name = labor.Name,
-                Price = labor.Price,
                 InsDate = labor.InsDate,
                 UpsDate = labor.UpsDate,
-                Deflag = labor.Deflag,
-                Type = labor.Type
+                Deflag = labor.Deflag
             };
         }
 
-        public async Task<bool> CreateLabor(LaborRequest request)
+        public async Task<bool> CreateMaterialType(MaterialTypeRequest request)
         {
             try
             {
-                var newLabor = new Labor
+                var newMaterialType = new MaterialType
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    Price = request.Price,
                     InsDate = DateTime.Now,
                     UpsDate = DateTime.Now,
-                    Deflag = request.Deflag,
-                    Type = request.Type
+                    Deflag = request.Deflag
                 };
-                await _unitOfWork.GetRepository<Labor>().InsertAsync(newLabor);
+                await _unitOfWork.GetRepository<MaterialType>().InsertAsync(newMaterialType);
                 return await _unitOfWork.CommitAsync() > 0;
             }
             catch (Exception)
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while creating a new labor."
+                    "An error while creating a new material type."
                 );
             }
         }
 
-        public async Task<bool> UpdateLabor(Guid id, LaborRequest request)
+        public async Task<bool> UpdateMaterialType(Guid id, MaterialTypeRequest request)
         {
             try
             {
-                var labor = await _unitOfWork.GetRepository<Labor>()
+                var materialType = await _unitOfWork.GetRepository<MaterialType>()
                     .FirstOrDefaultAsync(m => m.Id == id);
 
-                if (labor == null)
+                if (materialType == null)
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Labor does not exist."
+                        "Material type does not exist."
                     );
                 }
 
-                labor.Name = request.Name ?? labor.Name;
-                labor.Price = request.Price.HasValue ? (double)request.Price.Value : labor.Price;
-                labor.Deflag = request.Deflag ?? labor.Deflag;
-                labor.Type = request.Type ?? labor.Type;
+                materialType.Name = request.Name ?? materialType.Name;
+                materialType.Deflag = request.Deflag ?? materialType.Deflag;
 
-                labor.UpsDate = DateTime.Now;
+                materialType.UpsDate = DateTime.Now;
 
-                _unitOfWork.GetRepository<Labor>().UpdateAsync(labor);
+                _unitOfWork.GetRepository<MaterialType>().UpdateAsync(materialType);
                 return await _unitOfWork.CommitAsync() > 0;
             }
             catch (Exception)
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while updating a new labor."
+                    "An error while updating a new material type."
                 );
             }
         }
 
-        public async Task<IPaginate<LaborResponse>> SearchLaborByName(string name, int page, int size)
+        public async Task<IPaginate<MaterialTypeResponse>> SearchMaterialTypeByName(string name, int page, int size)
         {
-            return await _unitOfWork.GetRepository<Labor>().GetList(
-                selector: x => new LaborResponse
+            return await _unitOfWork.GetRepository<MaterialType>().GetList(
+                selector: x => new MaterialTypeResponse
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    Price = x.Price,
                     InsDate = x.InsDate,
                     UpsDate = x.UpsDate,
-                    Deflag = x.Deflag,
-                    Type = x.Type
+                    Deflag = x.Deflag
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate),
