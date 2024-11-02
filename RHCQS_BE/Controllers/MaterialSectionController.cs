@@ -112,6 +112,25 @@ namespace RHCQS_BE.Controllers
             return isUpdated ? Ok(isUpdated) : BadRequest();
         }
 
-        
+        #region SearchMaterialSectionByName
+        /// <summary>
+        /// Searches material sections by name.
+        /// </summary>
+        /// <param name="name">The name or partial name of the material section.</param>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(IPaginate<MaterialSectionResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchMaterialSectionByName(string name, int page, int size)
+        {
+            var listSearchMaterialSection = await _materialSectionService.SearchMaterialSectionByName(name, page, size);
+            var result = JsonConvert.SerializeObject(listSearchMaterialSection, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }
