@@ -617,7 +617,7 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = null,
                                 FinalQuotationId = null,
                                 InitialQuotationId = initialItem.Id,
-                                Name = utl.Name,
+                                Name = sectionItem.Name!,
                                 Coefiicient = 0,
                                 Price = utl.Price,
                                 Description = sectionItem.Description,
@@ -694,7 +694,7 @@ namespace RHCQS_Services.Implement
 
                     // Xóa InitialQuotationItems
                     var initialQuotationItems = await _unitOfWork.GetRepository<InitialQuotationItem>()
-                        .GetListAsync(predicate:iqi => initialQuotationIds.Contains(iqi.InitialQuotationId));
+                        .GetListAsync(predicate: iqi => initialQuotationIds.Contains(iqi.InitialQuotationId));
 
                     foreach (var item in initialQuotationItems)
                     {
@@ -703,11 +703,11 @@ namespace RHCQS_Services.Implement
 
                     // Xóa PackageQuotations
                     var packageQuotations = await _unitOfWork.GetRepository<PackageQuotation>()
-                        .GetListAsync(predicate:pq => initialQuotationIds.Contains(pq.InitialQuotationId));
+                        .GetListAsync(predicate: pq => initialQuotationIds.Contains(pq.InitialQuotationId));
 
                     foreach (var package in packageQuotations)
                     {
-                         _unitOfWork.GetRepository<PackageQuotation>().DeleteAsync(package);
+                        _unitOfWork.GetRepository<PackageQuotation>().DeleteAsync(package);
                     }
 
                     // Xóa InitialQuotations
@@ -716,6 +716,23 @@ namespace RHCQS_Services.Implement
                         _unitOfWork.GetRepository<InitialQuotation>().DeleteAsync(initialQuotation);
                     }
                 }
+
+                //Tìm Assign Task
+                var taskInfo = await _unitOfWork.GetRepository<AssignTask>().FirstOrDefaultAsync(x => x.ProjectId == projectId);
+                _unitOfWork.GetRepository<AssignTask>().DeleteAsync(taskInfo);
+
+                //Tìm House design drawing
+                var houseDrawingInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(predicate: x => x.ProjectId == projectId,
+                                                    include: x => x.Include(x => x.HouseDesignVersions)
+                                                                    .ThenInclude(x => x.Media));
+                await _unitOfWork.GetRepository<HouseDesignDrawing>().DeleteRangeAsync(houseDrawingInfo);
+
+                //Contract 
+                var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(x => x.ProjectId == projectId &&
+                                                        x.Type == "Design",
+                                                        include: x => x.Include(x => x.BatchPayments)
+                                                                        .ThenInclude(x => x.Payment!));
+                 _unitOfWork.GetRepository<Contract>().DeleteAsync(contractInfo);
 
                 // Xóa dự án
                 _unitOfWork.GetRepository<Project>().DeleteAsync(project);
