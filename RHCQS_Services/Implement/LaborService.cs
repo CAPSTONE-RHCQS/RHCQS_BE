@@ -34,6 +34,8 @@ namespace RHCQS_Services.Implement
                     Id = x.Id,
                     Name = x.Name,
                     Price = x.Price,
+                    InsDate = x.InsDate,
+                    UpsDate = x.UpsDate,
                     Deflag = x.Deflag,
                     Type = x.Type
                 },
@@ -55,6 +57,8 @@ namespace RHCQS_Services.Implement
                 Id = labor.Id,
                 Name = labor.Name,
                 Price = labor.Price,
+                InsDate = labor.InsDate,
+                UpsDate = labor.UpsDate,
                 Deflag = labor.Deflag,
                 Type = labor.Type
             };
@@ -128,6 +132,8 @@ namespace RHCQS_Services.Implement
                     Id = x.Id,
                     Name = x.Name,
                     Price = x.Price,
+                    InsDate = x.InsDate,
+                    UpsDate = x.UpsDate,
                     Deflag = x.Deflag,
                     Type = x.Type
                 },

@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
+using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -44,6 +45,28 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        
+        #region GetDetailLabor
+        /// <summary>
+        /// Retrieves the labor.
+        /// </summary>
+        /// <returns>Labor in the system</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet(ApiEndPointConstant.Labor.LaborDetailEndpoint)]
+        [ProducesResponseType(typeof(LaborResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailLabor(Guid id)
+        {
+            var labor = await _laborService.GetDetailLabor(id);
+            var result = JsonConvert.SerializeObject(labor, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+
+
     }
 }

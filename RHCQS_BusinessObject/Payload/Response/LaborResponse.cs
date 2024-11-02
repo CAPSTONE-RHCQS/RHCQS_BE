@@ -14,6 +14,10 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public double? Price { get; set; }
 
+        public DateTime? InsDate { get; set; }
+
+        public DateTime? UpsDate { get; set; }
+
         public bool? Deflag { get; set; }
 
         public string? Type { get; set; }
