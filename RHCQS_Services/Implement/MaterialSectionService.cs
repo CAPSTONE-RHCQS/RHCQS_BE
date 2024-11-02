@@ -45,18 +45,18 @@ namespace RHCQS_Services.Implement
 
         public async Task<MaterialTypeResponse> GetDetailMaterialType(Guid id)
         {
-            var materialType = await _unitOfWork.GetRepository<MaterialType>().FirstOrDefaultAsync(
+            var labor = await _unitOfWork.GetRepository<MaterialType>().FirstOrDefaultAsync(
                 predicate: m => m.Id == id);
-            if (materialType == null)
+            if (labor == null)
                 return new MaterialTypeResponse();
 
             return new MaterialTypeResponse
             {
-                Id = materialType.Id,
-                Name = materialType.Name,
-                InsDate = materialType.InsDate,
-                UpsDate = materialType.UpsDate,
-                Deflag = materialType.Deflag
+                Id = labor.Id,
+                Name = labor.Name,
+                InsDate = labor.InsDate,
+                UpsDate = labor.UpsDate,
+                Deflag = labor.Deflag
             };
         }
 
