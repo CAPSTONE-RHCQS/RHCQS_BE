@@ -4,9 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
-using RHCQS_BusinessObject.Payload.Request.Material;
+using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
-using RHCQS_BusinessObject.Payload.Response.Material;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 

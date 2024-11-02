@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using RHCQS_BusinessObject.Payload.Request.Material;
-using RHCQS_BusinessObject.Payload.Response.Material;
+using RHCQS_BusinessObject.Payload.Request.Mate;
+using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
