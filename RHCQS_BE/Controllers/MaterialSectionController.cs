@@ -42,6 +42,27 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        
+        #region GetDetailMaterialSection
+        /// <summary>
+        /// Retrieves the material section.
+        /// </summary>
+        /// <returns>Material section in the system</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet(ApiEndPointConstant.MaterialSection.MaterialSectionDetailEndpoint)]
+        [ProducesResponseType(typeof(MaterialSectionResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailMaterialSection(Guid id)
+        {
+            var materialSection = await _materialSectionService.GetDetailMaterialSection(id);
+            var result = JsonConvert.SerializeObject(materialSection, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+
     }
 }
