@@ -63,6 +63,34 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region CreateMaterialSection
+        /// <summary>
+        /// Creates a new labor in the system.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /api/v1/materialsection
+        ///    {
+        ///    "name": "Test"
+        ///     }
+        /// </remarks>
+        /// <param name="request">Material section request model</param>
+        /// <returns>Returns true if the material section is created successfully, otherwise false.</returns>
+        /// <response code="200">Material section created successfully</response>
+        /// <response code="400">Failed to create the material section</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.MaterialSection.MaterialSectionEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateMaterialSection([FromBody] MaterialSectionRequest request)
+        {
+            var isCreated = await _materialSectionService.CreateMaterialSection(request);
+            return isCreated ? Ok(isCreated) : BadRequest();
+        }
+
 
     }
 }
