@@ -88,6 +88,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IMaterialService, MaterialService>();
             services.AddScoped<ILaborService, LaborService>();
             services.AddScoped<IMaterialTypeService, MaterialTypeService>();
+            services.AddScoped<IMaterialSectionService, MaterialSectionService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
