@@ -13,6 +13,7 @@ namespace RHCQS_BE.Extenstion
         public const string RootEndPoint = "/api";
         public const string ApiVersion = "/v1";
         public const string ApiEndpoint = RootEndPoint + ApiVersion;
+        public const string Test = ApiEndpoint + "/test";
 
         public static class Auth
         {
@@ -37,6 +38,7 @@ namespace RHCQS_BE.Extenstion
             public const string PackageListEndpoint = ApiEndpoint + "/allpackage";
             public const string PackageDetailEndpoint = PackageEndpoint + "/id";
             public const string PackageByNameEndpoint = PackageEndpoint + "/name";
+            public const string PackageAutoCharacter = PackageEndpoint + "/contain/name";
         }
         public static class Blog
         {
@@ -57,6 +59,7 @@ namespace RHCQS_BE.Extenstion
             public const string AccountProfileEndpoint = AccountEndpoint + "/profile";
             public const string SearchAccountEndpoint = AccountEndpoint + "/name";
             public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
+            public const string UploadImageProfileEndpoint = ApiEndpoint + "/upload-profile-images";
 
         }
 
@@ -76,6 +79,8 @@ namespace RHCQS_BE.Extenstion
             public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";
             public const string SubTemplateDesignEndpoint = ApiEndpoint + "/sub-template";
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/upload-design-images";
+            public const string PackageHouseEndpoint = ApiEndpoint + "/package-house";
+            public const string UploadImagePackHouseEndpoint = ApiEndpoint + "/upload-package-house";
         }
 
         public static class Project
@@ -97,7 +102,8 @@ namespace RHCQS_BE.Extenstion
         {
             public const string ConstructionEndpoint = ApiEndpoint + "/construction";
             public const string ConstructionDetailEndpoint = ConstructionEndpoint + "/id";
-            public const string COnstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
+            public const string ConstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
+            public const string ConstructionContainNameEndpoint = ConstructionEndpoint + "/contain/name";
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
         }
 
@@ -112,6 +118,7 @@ namespace RHCQS_BE.Extenstion
             public const string UtilityItemHiddenEndpoint = UtilityEndpoint + "/hidden/id";
             public const string UtilityItemEndpoint = UtilityEndpoint + "/item";
             public const string UtilityItemSearchEndpoint = UtilityItemEndpoint + "/search/name";
+            public const string UtilityAutoCharacterEndpoint = UtilityEndpoint + "/contain/name";
         }
 
         public static class HouseDesignDrawing
@@ -204,6 +211,7 @@ namespace RHCQS_BE.Extenstion
         public static class General
         {
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/drawing/version";
+            public const string UploadAvatarEndpoint = ApiEndpoint + "/avatar";
         }
 
         public static class Material

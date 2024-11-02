@@ -1,15 +1,14 @@
-﻿using RHCQS_DataAccessObjects.Models;
+﻿using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
+using RHCQS_DataAccessObjects.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 {
     public class FinalRequest
     {
-        [Required(ErrorMessage = "VersionPresent là bắt buộc.")]
-        [Range(1, double.MaxValue, ErrorMessage = "VersionPresent phải lớn hơn 0.")]
-        public double VersionPresent { get; set; }
 
         [Required(ErrorMessage = "ProjectId là bắt buộc.")]
         public Guid ProjectId { get; set; }
@@ -21,15 +20,12 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public string? Note { get; set; }
 
-        public string? Status { get; set; }
-
-        [Required(ErrorMessage = "Danh sách các đợt thanh toán là bắt buộc.")]
         public List<BatchPaymentInfoRequest> BatchPaymentInfos { get; set; }
 
-        [Required(ErrorMessage = "Danh sách các thiết bị là bắt buộc.")]
         public List<EquipmentItemsRequest> EquipmentItems { get; set; }
 
-        [Required(ErrorMessage = "Danh sách các mục báo giá là bắt buộc.")]
+        public List<UtilitiesUpdateRequestForFinal>? Utilities { get; set; }
+
         public List<FinalQuotationItemRequest> FinalQuotationItems { get; set; }
 
     }
@@ -86,6 +82,19 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public List<QuotationItemRequest> QuotationItems { get; set; }
     }
 
+    public class UtilitiesUpdateRequestForFinal
+    {
+        [Required(ErrorMessage = "UltilitiesItemId là bắt buộc.")]
+        public Guid UtilitiesItemId { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
+        public double? Coefficient { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+        public double? Price { get; set; }
+
+        public string? Description { get; set; }
+    }
     public class QuotationItemRequest
     {
 
@@ -108,9 +117,9 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public double? TotalPriceFinished { get; set; }
         public string ? Note { get; set; }
 
-        public List<QuotationLaborRequest> QuotationLabors { get; set; }
+        public QuotationLaborRequest? QuotationLabors { get; set; }
 
-        public List<QuotationMaterialRequest> QuotationMaterials { get; set; }
+        public QuotationMaterialRequest? QuotationMaterials { get; set; }
     }
 
     public class QuotationLaborRequest

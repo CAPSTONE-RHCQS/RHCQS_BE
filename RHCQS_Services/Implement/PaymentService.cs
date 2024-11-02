@@ -254,7 +254,7 @@ namespace RHCQS_Services.Implement
             paymentInfo.IsConfirm = true;
             _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
 
-            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE :
+            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : 
                                                                    AppConstant.ErrMessage.Fail_Save;
             return saveResutl;
         }

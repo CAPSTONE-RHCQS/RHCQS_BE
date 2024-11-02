@@ -108,7 +108,6 @@ namespace RHCQS_BE.Controllers
                 Description = housetemplate.Description,
                 NumberOfBed = housetemplate.NumberOfBed,
                 NumberOfFloor = housetemplate.NumberOfFloor,
-                NumberOfFront = housetemplate.NumberOfFront,
                 ImgUrl = housetemplate.ImgUrl,
                 InsDate = housetemplate.InsDate,
             };
@@ -287,6 +286,56 @@ namespace RHCQS_BE.Controllers
             {
                 return BadRequest($"Error uploading images: {ex.Message}");
             }
+        }
+        
+        #region CreatePackageHouse
+        /// <summary>
+        /// Creates a new package for a house design template.
+        /// </summary>
+        /// <remarks>
+        /// Example request:
+        /// 
+        /// {
+        ///   "packageId": "5245F485-C546-4051-B04E-954FD773811E",
+        ///   "designTemplateId": "AC0E955C-3F03-4788-9DB8-C9C32069FC3F",
+        ///   "description": "This price applies to standard urban villas. It includes construction area over 365 m², with 1 floor and 2 rooms. Note that the listed price does not include VAT.",
+        ///   "packageHouseImage": "http://res.cloudinary.com/de7pulfdj/image/upload/v1730463742/PackageHouse/Flexible_package.png"
+        /// }
+        /// </remarks>
+        /// <param name="request">An object containing details for creating the house package</param>
+        /// <returns>A URL of the created package house image if successful</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.HouseTemplate.PackageHouseEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreatePackageHouse([FromBody] PackageHouseRequest request)
+        {
+            var housetemplate = await _houseService.CreatePackageHouse(request);
+            var result = JsonConvert.SerializeObject(housetemplate, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+
+        #region UploadImgPackageHouse
+        /// <summary>
+        /// Upload image package house design template - package finished
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImagePackHouseEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImgPackageHouse(IFormFile request)
+        {
+            var imgUrl = await _houseService.UploadFileNoMedia(request, "PackageHouse");
+            return Ok(imgUrl);
         }
     }
 }

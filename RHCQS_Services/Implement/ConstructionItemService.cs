@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.Construction;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -115,7 +117,6 @@ namespace RHCQS_Services.Implement
         }
 
 
-
         public async Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id)
         {
             var constructionItem = await _unitOfWork.GetRepository<ConstructionItem>().FirstOrDefaultAsync(
@@ -180,13 +181,59 @@ namespace RHCQS_Services.Implement
             return new ConstructionItemResponse();
         }
 
+        public async Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string name)
+        {
+            try
+            {
+                var normalizedName = name.RemoveDiacritics();
+
+                var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
+                    .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
+
+                var filteredItems = constructionItems
+                    .Where(con =>
+                        (con.Name != null && con.Name.RemoveDiacritics().Contains(normalizedName)) ||
+                        con.SubConstructionItems.Any(sub => sub.Name.RemoveDiacritics().Contains(normalizedName)))
+                    .ToList();
+
+                return filteredItems.SelectMany(constructionItem =>
+                {
+
+                    var matchingSubConstructions = constructionItem.SubConstructionItems
+                        .Where(sub => sub.Name.RemoveDiacritics().Contains(normalizedName))
+                        .Select(subConstruction => new AutoConstructionResponse(
+                            constructionItem.Id,
+                            subConstructionId: subConstruction.Id,
+                            name: subConstruction.Name,
+                            coefficient: subConstruction.Coefficient
+                        )).ToList();
+
+                    if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
+                    {
+                        matchingSubConstructions.Add(new AutoConstructionResponse(
+                            constructionItem.Id,
+                            subConstructionId: null,
+                            name: constructionItem.Name,
+                            coefficient: constructionItem.Coefficient
+                        ));
+                    }
+
+                    return matchingSubConstructions;
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<bool> CreateConstructionItem(ConstructionItemRequest item)
         {
             try
             {
                 var isCheckConstruction = await _unitOfWork.GetRepository<ConstructionItem>()
                                                 .FirstOrDefaultAsync(i => i.Name!.Equals(item.Name));
-                if (isCheckConstruction != null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, 
+                if (isCheckConstruction != null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
                     AppConstant.ErrMessage.ConstructionExit);
                 var constructionItem = new ConstructionItem()
                 {
@@ -271,8 +318,8 @@ namespace RHCQS_Services.Implement
                     {
                         existingSubItem.Name = subRequest.Name;
                         existingSubItem.Coefficient = subRequest.Coefficient;
-                    } 
-                    else if(existingSubItem != null && existingSubItem.Name == subRequest.Name)
+                    }
+                    else if (existingSubItem != null && existingSubItem.Name == subRequest.Name)
                     {
                         existingSubItem.Coefficient = subRequest.Coefficient;
                     }

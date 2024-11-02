@@ -130,7 +130,8 @@ namespace RHCQS_Services.Implement
                     Username = registerRequest.Email,
                     InsDate = DateTime.UtcNow,
                     UpsDate = DateTime.UtcNow,
-                    Deflag = true
+                    Deflag = true,
+                    AccountId = newAccount.Id
                 };
 
                 await _unitOfWork.GetRepository<Customer>().InsertAsync(newCustomer);

@@ -12,7 +12,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public HouseTemplateResponse() { }
 
         public HouseTemplateResponse(Guid id, string name, string? description, int? numberOfFloor, int? numberOfBed,
-            int? numberOfFront, string? imgUrl, DateTime? insDate, List<SubTemplatesResponse> subTemplates,
+            string? imgUrl, DateTime? insDate, List<SubTemplatesResponse> subTemplates,
             List<PackageHouseResponse> packageHouses, List<MediaResponse> exteriorsUrls)
         {
             Id = id;
@@ -20,7 +20,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             Description = description;
             NumberOfFloor = numberOfFloor;
             NumberOfBed = numberOfBed;
-            NumberOfFront = numberOfFront;
             ImgUrl = imgUrl;
             InsDate = insDate;
             SubTemplates = subTemplates;
@@ -38,8 +37,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public int? NumberOfBed { get; set; }
 
-        public int? NumberOfFront { get; set; }
-
         public string? ImgUrl { get; set; }
 
         public DateTime? InsDate { get; set; }
@@ -56,14 +53,13 @@ namespace RHCQS_BusinessObject.Payload.Response
         public HouseTemplateResponseCustom() { }
 
         public HouseTemplateResponseCustom(Guid id, string name, string? description, int? numberOfFloor, int? numberOfBed,
-            int? numberOfFront, string? imgUrl, DateTime? insDate)
+            string? imgUrl, DateTime? insDate)
         {
             Id = id;
             Name = name;
             Description = description;
             NumberOfFloor = numberOfFloor;
             NumberOfBed = numberOfBed;
-            NumberOfFront = numberOfFront;
             ImgUrl = imgUrl;
             InsDate = insDate;
         }
@@ -78,7 +74,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public int? NumberOfBed { get; set; }
 
-        public int? NumberOfFront { get; set; }
 
         public string? ImgUrl { get; set; }
 

@@ -1,4 +1,6 @@
-﻿using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -21,5 +23,7 @@ namespace RHCQS_Services.Interface
         Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ);
         //Task<bool> CreateSubTemplate(TemplateRequestForCreateArea request);
         Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files);
+        Task<bool> CreatePackageHouse(PackageHouseRequest request);
+        Task<string> UploadFileNoMedia(IFormFile file, string folder);
     }
 }

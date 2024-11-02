@@ -147,5 +147,29 @@ namespace RHCQS_BE.Controllers
             var update = await _packageService.UpdatePackage(package, packageid);
             return Ok(update);
         }
+
+        #region GetDetailPackageByContainName
+        /// <summary>
+        /// Search name package by character
+        /// 
+        /// Role: CUSTOMER - SALE STAFF - MANAGER
+        /// </summary>
+        /// <returns>List of packages in the system</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Package.PackageAutoCharacter)]
+        [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<Package>>> GetDetailPackageByContainName(string name)
+        {
+            var package = await _packageService.GetDetailPackageByContainName(name);
+            var response = JsonConvert.SerializeObject(package, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
     }
 }

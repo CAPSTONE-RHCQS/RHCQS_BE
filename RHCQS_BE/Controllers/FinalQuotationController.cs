@@ -459,8 +459,97 @@ namespace RHCQS_BE.Controllers
 
         #region UpdateFinalQuotation
         /// <summary>
-        /// Update a final quotation.
+        /// Updates a final quotation.
         /// </summary>
+        /// <remarks>
+        /// This API allows users to update the final quotation information.
+        /// To perform this request, please provide the necessary information in the request body.
+        ///
+        /// **Sample Request:**
+        /// ```json
+        /// {
+        ///   "projectId": "7f1e0a03-91a5-46ab-aae8-65cd4092eb8b",
+        ///   "promotionId": null,
+        ///   "totalPrice": 0,
+        ///   "note": null,
+        ///   "batchPaymentInfos": [],
+        ///   "equipmentItems": [],
+        ///   "utilities": [
+        ///     {
+        ///       "utilitiesItemId": "b069d992-d30d-42a8-91d5-000e749c67eb",
+        ///       "coefficient": 0.03,
+        ///       "price": 23611500,
+        ///       "description": ""
+        ///     },
+        ///     {
+        ///       "utilitiesItemId": "a6dbeb8b-2853-4df4-8069-598171488373",
+        ///       "coefficient": 0.04,
+        ///       "price": 31482000,
+        ///       "description": ""
+        ///     },
+        ///     {
+        ///       "utilitiesItemId": "58559293-f989-4d06-af88-e318a370cd2e",
+        ///       "coefficient": 0,
+        ///       "price": 250000,
+        ///       "description": ""
+        ///     }
+        ///   ],
+        ///   "finalQuotationItems": [
+        ///     {
+        ///       "constructionItemId": "40AA0395-A4EF-423C-91F2-11D2889DC306",
+        ///       "quotationItems": [
+        ///         {
+        ///           "unit": "cuộn",
+        ///           "weight": 11,
+        ///           "unitPriceLabor": 0,
+        ///           "unitPriceRough": 13000.0,
+        ///           "unitPriceFinished": 0,
+        ///           "totalPriceLabor": 0,
+        ///           "totalPriceRough": 143000.0,
+        ///           "totalPriceFinished": 0,
+        ///           "note": "test",
+        ///           "quotationLabors": [],
+        ///           "quotationMaterials": [
+        ///             {
+        ///               "materialId": "4232C02F-912C-41C9-AAEF-0101A39DE9FD",
+        ///               "unit": "cuộn",
+        ///               "materialPrice": 13000.0
+        ///             }
+        ///           ]
+        ///         }
+        ///       ]
+        ///     },
+        ///     {
+        ///       "constructionItemId": "9696145F-BEBF-4120-8354-C8AEF681B351",
+        ///       "quotationItems": [
+        ///         {
+        ///           "unit": "m2",
+        ///           "weight": 11,
+        ///           "unitPriceLabor": 350000.0,
+        ///           "unitPriceRough": 0,
+        ///           "unitPriceFinished": 0,
+        ///           "totalPriceLabor": 3850000,
+        ///           "totalPriceRough": 0,
+        ///           "totalPriceFinished": 0,
+        ///           "note": "test",
+        ///           "quotationLabors": [
+        ///             {
+        ///               "laborId": "0D207781-EEBB-4A03-96CE-005434963F44",
+        ///               "laborPrice": 350000.0
+        ///             }
+        ///           ],
+        ///           "quotationMaterials": []
+        ///         }
+        ///       ]
+        ///     }
+        ///   ]
+        /// }
+        /// ```
+        /// </remarks>
+        /// <param name="request">The request containing the updated final quotation information.</param>
+        /// <returns>A result indicating whether the update was successful.</returns>
+        /// <response code="200">Returns success message if the update was successful.</response>
+        /// <response code="404">Returns if the specified quotation was not found.</response>
         #endregion
         [Authorize(Roles = "SalesStaff")]
         [HttpPut(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
@@ -488,19 +577,55 @@ namespace RHCQS_BE.Controllers
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CANCELFINAL : AppConstant.Message.ERROR);
         }
-
-        #region CreateFinalQuotation
+        #region ConfirmArgeeFinalFromCustomer
         /// <summary>
-        /// Create a final quotation.
+        /// Confirms the agreement of an final quotation from a customer.
+        /// 
+        /// ROLE: CUSTOMER
         /// </summary>
         #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.FinalQuotation.FinalQuotationCustomerAgree)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ConfirmArgeeInitialFromCustomer(Guid quotationId)
+        {
+            var result = await _finalQuotationService.ConfirmArgeeFinalFromCustomer(quotationId);
+
+            return Ok(result);
+        }
+        #region FeedbackFixFinalFromCustomer
+        /// <summary>
+        /// When customer need to fix quotation -> Customer comment and click "Gửi"
+        /// 
+        /// ROLE: CUSTOMER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPut(ApiEndPointConstant.FinalQuotation.FinalQuotationCustomerComment)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> FeedbackFixInitialFromCustomer(Guid finalid, FeedbackQuotationRequest request)
+        {
+            var result = await _finalQuotationService.FeedbackFixFinalFromCustomer(finalid, request);
+
+            return Ok(result);
+        }
+        #region CreateFinalQuotation
+        /// <summary>
+        /// Creates the first version of a Final Quotation based on a project
+        /// that has an Initial Quotation with the status of FINALIZED.
+        /// </summary>
+        /// <param name="projectid">The unique identifier of the project.</param>
+        /// <returns>A response indicating the success or failure of the creation process.</returns>
+        #endregion
         [Authorize(Roles = "SalesStaff")]
-        [HttpPost(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
+        [HttpPost(ApiEndPointConstant.FinalQuotation.FinalQuotationDetailByProjectIdEndpoint)]
         [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> CreateFinalQuotation([FromBody] FinalRequest request)
+        public async Task<IActionResult> CreateFinalQuotation([FromQuery] Guid projectid)
         {
-            bool quotation = await _finalQuotationService.CreateFinalQuotation(request);
+            bool quotation = await _finalQuotationService.CreateFinalQuotation(projectid);
 
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);
         }
@@ -530,5 +655,6 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
     }
 }

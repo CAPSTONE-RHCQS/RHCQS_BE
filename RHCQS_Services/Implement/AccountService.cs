@@ -1,4 +1,5 @@
 ﻿using Azure;
+using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
@@ -15,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static RHCQS_BusinessObjects.AppConstant;
+using Account = RHCQS_DataAccessObjects.Models.Account;
 using Role = RHCQS_DataAccessObjects.Models.Role;
 
 namespace RHCQS_Services.Implement
@@ -23,11 +25,13 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountService> _logger;
+        private readonly IUploadImgService _uploadImgService;
 
-        public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger)
+        public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IUploadImgService uploadImgService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _uploadImgService = uploadImgService;
         }
 
         public async Task<Account> GetAccountByIdAsync(Guid id)
@@ -153,7 +157,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<Account> UpdateAccountAsync(Guid id, Account account)
+        public async Task<Account> UpdateAccountAsync(Guid id, AccountRequestForUpdate account)
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();
             var _account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
@@ -169,7 +173,7 @@ namespace RHCQS_Services.Implement
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
             _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
-            _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
+            _account.ImageUrl =null;
             _account.UpsDate = DateTime.UtcNow;
 
             accountRepository.UpdateAsync(_account);
@@ -184,7 +188,7 @@ namespace RHCQS_Services.Implement
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
                     _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
-                    _customer.ImgUrl = account.ImageUrl == default ? null : account.ImageUrl;
+                    _customer.ImgUrl = null;
                     _customer.UpsDate = DateTime.UtcNow;
 
                     customerRepository.UpdateAsync(_customer);
@@ -201,7 +205,7 @@ namespace RHCQS_Services.Implement
 
             return _account;
         }
-        public async Task<Account> UpdateProfileAsync(Guid id, Account account)
+        public async Task<Account> UpdateProfileAsync(Guid id, AccountRequestForUpdateProfile account)
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();
             var _account = await accountRepository.FirstOrDefaultAsync(a => a.Id == id, include: q => q.Include(x => x.Role));
@@ -216,7 +220,7 @@ namespace RHCQS_Services.Implement
             _account.Username = account.Username != default ? account.Username : _account.Username;
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
-            _account.ImageUrl = account.ImageUrl == default ? null : account.ImageUrl;
+            _account.ImageUrl = null;
             _account.UpsDate = DateTime.UtcNow;
 
             accountRepository.UpdateAsync(_account);
@@ -230,7 +234,7 @@ namespace RHCQS_Services.Implement
                     _customer.Username = account.Username != default ? account.Username : _customer.Username;
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
-                    _customer.ImgUrl = account.ImageUrl == default ? null : account.ImageUrl;
+                    _customer.ImgUrl = null;
                     _customer.UpsDate = DateTime.UtcNow;
 
                     customerRepository.UpdateAsync(_customer);
@@ -324,6 +328,34 @@ namespace RHCQS_Services.Implement
 
             return true;
         }
+        public async Task<bool> CreateImageAccount(Guid accountId, ImageForAccount files)
+        {
+            var uploadResults = new List<string>();
+            string nameImage = null;
+            if (files.AccountImage != null)
+            {
+                nameImage = AppConstant.Profile.IMAGE;
+                var accountImg = await _uploadImgService.UploadFileForImageAccount(accountId, files.AccountImage, "profile", nameImage);
+                var accountinfo = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(x => x.Id == accountId);
+                accountinfo.ImageUrl = accountImg;
+                _unitOfWork.GetRepository<Account>().UpdateAsync(accountinfo);
+                if (accountinfo.Role.RoleName == UserRoleForRegister.Customer.ToString())
+                {
+                    var customerRepository = _unitOfWork.GetRepository<Customer>();
+                    var _customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == accountinfo.Email);
 
+                    if (_customer != null)
+                    {
+                        _customer.ImgUrl = accountinfo.ImageUrl;
+                        _customer.UpsDate = DateTime.UtcNow;
+                        customerRepository.UpdateAsync(_customer);
+                    }
+                }
+                await _unitOfWork.CommitAsync();
+                uploadResults.Add(accountImg);
+            }
+
+            return uploadResults.Count > 0;
+        }
     }
 }

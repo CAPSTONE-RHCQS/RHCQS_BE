@@ -19,7 +19,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             public List<BatchResponse> BatchResponse { get; set; }
         }
 
-        public PaymentResponse(int? priorty, Guid id, string type, DateTime? insDate, DateTime? upsDate,
+        public PaymentResponse(int? priorty, Guid id, string type, DateTime? insDate, DateTime? upsDate, 
             double? totalprice, DateTime? paymentDate, DateTime? paymentPhase, string? unit,
             string? percents, string? description)
         {

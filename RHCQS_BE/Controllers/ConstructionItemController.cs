@@ -126,11 +126,32 @@ namespace RHCQS_BE.Controllers
         /// <returns>Item construction in the system</returns>
         #endregion
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Construction.COnstructionDetailByNameEndpoint)]
+        [HttpGet(ApiEndPointConstant.Construction.ConstructionDetailByNameEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItemByName(string name)
         {
             var construction = await _constructionService.GetDetailConstructionItemByName(name);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region GetDetailConstructionItemByContainName
+        /// <summary>
+        /// Retrieves the construction item by name.
+        /// </summary>
+        /// <returns>Item construction in the system</returns>
+        #endregion
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.ConstructionContainNameEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailConstructionItemByContainName(string name)
+        {
+            var construction = await _constructionService.GetDetailConstructionItemByContainName(name);
             var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
             return new ContentResult()
             {

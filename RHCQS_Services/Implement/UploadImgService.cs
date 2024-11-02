@@ -30,16 +30,6 @@ namespace RHCQS_Services.Implement
             _converter = converter;
             _cloudinary = cloudinary;
         }
-        //public UploadImgService(IConfiguration configuration)
-        //{
-        //    var account = new Account(
-        //        cloud: configuration["Cloudinary:Cloudname"],
-        //        apiKey: configuration["Cloudinary:ApiKey"],
-        //        apiSecret: configuration["Cloudinary:ApiSecret"]
-        //    );
-        //    _cloudinary = new Cloudinary(account);
-        //    _cloudinary.Api.Secure = true;
-        //}
 
         public async Task<string> UploadImageAsync(string imagePathOrUrl, string folder)
         {
@@ -110,7 +100,62 @@ namespace RHCQS_Services.Implement
                 }
             }
         }
+        public async Task<string> UploadFile(Guid designTemplateId, IFormFile file, string folder, string nameImage)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true,
+                    Folder = folder
+                };
 
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    var mediaItem = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = nameImage,
+                        Url = uploadResult.Url.ToString(),
+                        InsDate = DateTime.Now,
+                        DesignTemplateId = designTemplateId
+                    };
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaItem);
+                    _unitOfWork.Commit();
+                    return uploadResult.Url.ToString();
+                }
+                else
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        uploadResult.Error.Message
+                    );
+                }
+            }
+        }
+        public async Task<string> UploadFileForImageAccount(Guid accountid, IFormFile file, string folder, string nameImage)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadParams = new ImageUploadParams
+                {
+                    File = new FileDescription(file.FileName, stream),
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true,
+                    Folder = folder
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                return uploadResult.Url.ToString();
+            }
+        }
         public async Task<List<string>> UploadImageDesignTemplate(List<IFormFile> files)
         {
             var uploadResults = new List<string>();
@@ -125,7 +170,7 @@ namespace RHCQS_Services.Implement
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true,
-                        Folder = "DesignHouse"
+                        Folder = "DesignHouse" 
                     };
 
                     var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -145,6 +190,70 @@ namespace RHCQS_Services.Implement
             }
 
             return uploadResults;
+        }
+
+        public async Task<string> UploadImageFolder(IFormFile file, string fileName, string folder)
+        {
+            if (file == null || file.Length == 0)
+                return "File is null or empty";
+
+            try
+            {
+                var publicId = fileName ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = folder,
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                return uploadResult.StatusCode == System.Net.HttpStatusCode.OK
+                    ? uploadResult.Url.ToString()
+                    : "Fail";
+            }
+            catch (Exception ex)
+            {
+                // Log error details for debugging
+                return $"Error: {ex.Message}";
+            }
+        }
+
+        public async Task<string> UploadImage(IFormFile file, string fileName)
+        {
+            if (file == null || file.Length == 0)
+                return "File is null or empty";
+
+            try
+            {
+                var publicId = fileName ?? Path.GetFileNameWithoutExtension(file.FileName);
+
+                var uploadParams = new ImageUploadParams()
+                {
+                    File = new FileDescription(file.FileName, file.OpenReadStream()),
+                    PublicId = publicId,
+                    Folder = "HouseDesignDrawing",
+                    UseFilename = true,
+                    UniqueFilename = false,
+                    Overwrite = true
+                };
+
+                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                return uploadResult.StatusCode == System.Net.HttpStatusCode.OK
+                    ? uploadResult.Url.ToString()
+                    : "Fail";
+            }
+            catch (Exception ex)
+            {
+                // Log error details for debugging
+                return $"Error: {ex.Message}";
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace RHCQS_BusinessObject.Payload.Request.DesignTemplate
+namespace RHCQS_BusinessObject.Payload.Request
 {
     public class HouseTemplateRequestForUpdate
     {
@@ -82,7 +82,9 @@ namespace RHCQS_BusinessObject.Payload.Request.DesignTemplate
 
         public int? NumberOfBed { get; set; }
 
-        public int? NumberOfFront { get; set; }
+        [Required(ErrorMessage = "Gói thi công là bắt buộc phải có.")]
+        public Guid PackageRoughId { get; set; }
+        public string? DescriptionPackage { get; set; }
 
         [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
         public List<SubTemplatesRequestForCreate> SubTemplates { get; set; } = new List<SubTemplatesRequestForCreate>();
@@ -113,4 +115,5 @@ namespace RHCQS_BusinessObject.Payload.Request.DesignTemplate
 
         public string? Unit { get; set; }
     }
+
 }

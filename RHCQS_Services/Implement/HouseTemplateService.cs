@@ -1,22 +1,14 @@
-﻿using Azure;
-using CloudinaryDotNet.Actions;
+﻿using CloudinaryDotNet.Actions;
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.Serialization.Formatters;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 
 namespace RHCQS_Services.Implement
@@ -26,12 +18,14 @@ namespace RHCQS_Services.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<HouseTemplateService> _logger;
         private readonly Cloudinary _cloudinary;
+        private readonly IUploadImgService _uploadImgService;
 
-        public HouseTemplateService(IUnitOfWork unitOfWork, ILogger<HouseTemplateService> logger, Cloudinary cloudinary)
+        public HouseTemplateService(IUnitOfWork unitOfWork, ILogger<HouseTemplateService> logger, Cloudinary cloudinary, IUploadImgService uploadImgService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cloudinary = cloudinary;
+            _uploadImgService = uploadImgService;
         }
         public async Task<List<HouseTemplateResponse>> GetListHouseTemplate()
         {
@@ -42,7 +36,6 @@ namespace RHCQS_Services.Implement
                     x.Description,
                     x.NumberOfFloor,
                     x.NumberOfBed,
-                    x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate,
                     x.SubTemplates.Select(
@@ -58,12 +51,12 @@ namespace RHCQS_Services.Implement
                                     item.Id,
                                     item.SubConstructionId == null
                                         ? item.ConstructionItem.Name
-                                        : (item.SubConstruction != null ? item.SubConstruction.Name : string.Empty),
+                                        : item.SubConstruction.Name,
                                     item.ConstructionItem.Id,
                                     item.SubConstructionId,
                                     item.SubConstructionId == null
                                         ? item.ConstructionItem.Coefficient
-                                        : (item.SubConstruction != null ? item.SubConstruction.Coefficient : 0),
+                                        : item.SubConstruction.Coefficient,
                                     item.Area,
                                     item.Unit,
                                     item.InsDate
@@ -127,13 +120,12 @@ namespace RHCQS_Services.Implement
                 Description = templ.Description,
                 NumberOfFloor = templ.NumberOfFloor,
                 NumberOfBed = templ.NumberOfBed,
-                NumberOfFront = templ.NumberOfFront,
                 ImgUrl = null,
                 InsDate = DateTime.Now,
                 SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
                 {
                     Id = Guid.NewGuid(),
-                    BuildingArea = sub.BuildingArea,
+                    BuildingArea = sub.BuildingArea ?? 0,
                     FloorArea = sub.FloorArea,
                     Size = sub.Size,
                     ImgUrl = null,
@@ -147,13 +139,47 @@ namespace RHCQS_Services.Implement
                         Unit = item.Unit,
                         InsDate = DateTime.Now,
                     }).ToList()
-                }).ToList()
+                }).ToList(),
+                PackageHouses = new List<PackageHouse>()
             };
+
+            //Rough package
+            var packageHouse = new PackageHouse
+            {
+                Id = Guid.NewGuid(),
+                PackageId = templ.PackageRoughId,
+                DesignTemplateId = houseTemplate.Id,
+                InsDate = DateTime.Now,
+                Description = templ.DescriptionPackage
+            };
+
+            houseTemplate.PackageHouses.Add(packageHouse);
 
             await _unitOfWork.GetRepository<DesignTemplate>().InsertAsync(houseTemplate);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return houseTemplate.Id;
         }
+
+        public async Task<bool> CreatePackageHouse(PackageHouseRequest request)
+        {
+
+            var packageItem = new PackageHouse
+            {
+                Id = Guid.NewGuid(),
+                PackageId = request.PackageId,
+                DesignTemplateId = request.DesginTemplateId,
+                InsDate = DateTime.Now,
+                Description = request.Description,
+                ImgUrl = request.PackageHouseImage
+            };
+
+            await _unitOfWork.GetRepository<PackageHouse>().InsertAsync(packageItem);
+
+
+            var saveSuccessful = await _unitOfWork.CommitAsync() > 0;
+            return saveSuccessful;
+        }
+
 
 
         //public async Task<bool> CreateSubTemplate(TemplateRequestForCreateArea request)
@@ -241,7 +267,6 @@ namespace RHCQS_Services.Implement
                     template.Description,
                     template.NumberOfFloor,
                     template.NumberOfBed,
-                    template.NumberOfFront,
                     template.ImgUrl,
                     template.InsDate,
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
@@ -266,7 +291,7 @@ namespace RHCQS_Services.Implement
                             item.InsDate
                         )).ToList(),
                         sub.Media
-                            .Where(media => media.Name!.Equals(AppConstant.Template.Drawing))
+                            .Where(media => media.Name.Equals(AppConstant.Template.Drawing))
                             .Select(media => new MediaResponse(
                                 media.Id,
                                 media.Name,
@@ -309,7 +334,6 @@ namespace RHCQS_Services.Implement
                     x.Description,
                     x.NumberOfFloor,
                     x.NumberOfBed,
-                    x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate
                 ),
@@ -329,7 +353,6 @@ namespace RHCQS_Services.Implement
                     x.Description,
                     x.NumberOfFloor,
                     x.NumberOfBed,
-                    x.NumberOfFront,
                     x.ImgUrl,
                     x.InsDate,
                     x.SubTemplates.Select(
@@ -345,12 +368,12 @@ namespace RHCQS_Services.Implement
                                     item.Id,
                                     item.SubConstructionId == null
                                         ? item.ConstructionItem.Name
-                                        : (item.SubConstruction != null ? item.SubConstruction.Name: string.Empty),
+                                        : item.SubConstruction.Name,
                                     item.ConstructionItem.Id,
                                     item.SubConstructionId,
                                     item.SubConstructionId == null
                                         ? item.ConstructionItem.Coefficient
-                                        : (item.SubConstruction != null ? item.SubConstruction.Coefficient : 0),
+                                        : item.SubConstruction.Coefficient,
                                     item.Area,
                                     item.Unit,
                                     item.InsDate
@@ -425,7 +448,6 @@ namespace RHCQS_Services.Implement
                     template.Description,
                     template.NumberOfFloor,
                     template.NumberOfBed,
-                    template.NumberOfFront,
                     template.ImgUrl,
                     template.InsDate,
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
@@ -514,7 +536,6 @@ namespace RHCQS_Services.Implement
             houseTemplate.Description = templ.Description;
             houseTemplate.NumberOfFloor = templ.NumberOfFloor;
             houseTemplate.NumberOfBed = templ.NumberOfBed;
-            houseTemplate.NumberOfFront = templ.NumberOfFront;
             houseTemplate.ImgUrl = templ.ImgURL;
 
             foreach (var media in templ.ExteriorsUrls)
@@ -540,7 +561,7 @@ namespace RHCQS_Services.Implement
                 var existingSubTemplate = houseTemplate.SubTemplates.FirstOrDefault(st => st.Id == sub.Id);
                 if (existingSubTemplate != null)
                 {
-                    existingSubTemplate.BuildingArea = sub.BuildingArea;
+                    existingSubTemplate.BuildingArea = sub.BuildingArea ?? 0;
                     existingSubTemplate.FloorArea = sub.FloorArea;
                     existingSubTemplate.Size = sub.Size;
                     existingSubTemplate.ImgUrl = sub.ImgURL;
@@ -613,12 +634,12 @@ namespace RHCQS_Services.Implement
         public async Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files)
         {
             var uploadResults = new List<string>();
-            string nameImage = "";
+            string nameImage = null;
             // Upload Overall Image
             if (files.OverallImage != null)
             {
                 nameImage = AppConstant.Template.OverallDrawing;
-                var overallImageUrl = await UploadFile(designTemplateId, files.OverallImage, "DesignHouse", nameImage);
+                var overallImageUrl = await _uploadImgService.UploadFile(designTemplateId, files.OverallImage, "DesignHouse", nameImage);
                 var designInfo = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(x => x.Id == designTemplateId);
                 designInfo.ImgUrl = overallImageUrl;
                 _unitOfWork.GetRepository<DesignTemplate>().UpdateAsync(designInfo);
@@ -630,7 +651,7 @@ namespace RHCQS_Services.Implement
             foreach (var file in files.OutSideImage)
             {
                 nameImage = AppConstant.Template.Exteriorsdrawings;
-                var outSideImageUrl = await UploadFile(designTemplateId, file, "DesignHouse", nameImage);
+                var outSideImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "DesignHouse", nameImage);
                 uploadResults.Add(outSideImageUrl);
             }
 
@@ -638,7 +659,7 @@ namespace RHCQS_Services.Implement
             foreach (var file in files.DesignDrawingImage)
             {
                 nameImage = AppConstant.Template.Drawing;
-                var designDrawingImageUrl = await UploadFile(designTemplateId, file, "DesignHouse", nameImage);
+                var designDrawingImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "DesignHouse", nameImage);
                 uploadResults.Add(designDrawingImageUrl);
             }
 
@@ -683,5 +704,50 @@ namespace RHCQS_Services.Implement
                 }
             }
         }
+
+        public async Task<string> UploadFileNoMedia(IFormFile file, string folder)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    throw new ArgumentException("The file is either null or empty.");
+                }
+
+                using (var stream = file.OpenReadStream())
+                {
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true,
+                        Folder = folder
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    stream.Dispose();
+
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        return uploadResult.Url.ToString();
+                    }
+                    else
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Bad_Request,
+                            uploadResult.Error.Message
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error occurred during file upload.");
+                throw;
+            }
+        }
+
+
     }
 }

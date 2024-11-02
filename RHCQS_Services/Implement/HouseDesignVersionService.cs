@@ -201,7 +201,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
         {
-            var drawingItem = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(x => x.Id == Id);
+            var drawingItem = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(x => x.Id == Id,
+                                                include: x => x.Include(x => x.HouseDesignDrawing));
 
             if (drawingItem == null) throw new AppConstant.MessageError((int)(AppConstant.ErrCode.Not_Found),
                                                AppConstant.ErrMessage.HouseDesignDrawing);
