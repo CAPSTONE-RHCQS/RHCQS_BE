@@ -85,7 +85,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Xảy ra lỗi khi đang khởi tạo nhân công mới."
+                    "An error while creating a new labor."
                 );
             }
         }
@@ -101,7 +101,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Nhân công không tồn tại."
+                        "Labor does not exist."
                     );
                 }
 
@@ -119,7 +119,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Có lỗi xảy ra khi cập nhật nhân công."
+                    "An error while updating a new labor."
                 );
             }
         }

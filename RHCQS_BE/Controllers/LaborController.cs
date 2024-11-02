@@ -9,6 +9,7 @@ using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -74,19 +75,11 @@ namespace RHCQS_BE.Controllers
         /// Sample request:
         /// 
         ///     POST /api/v1/labor
-        ///     {
-        ///  "supplierId": "5542A8DE-2E1C-4C44-B990-795AB05E3685",
-        ///  "materialTypeId": "FB2F4D82-F30E-4963-967A-156F763DEB94",
-        ///  "materialSectionId": "EB96AE7B-7D96-4AFF-850C-16D618E37EE4",
-        ///  "name": "Ngói xi măng màu xanh",
-        ///  "price": 16000,
-        ///  "unit": "viên",
-        ///  "size": "32cm x 32cm",
-        ///  "shape": "Hình vuông",
-        ///  "imgUrl": null,
-        ///  "description": "Ngói xi măng phủ sơn màu xanh, độ bền cao, chống thấm tốt.",
-        ///  "isAvailable": true,
-        ///  "unitPrice": "vnđ"
+        ///    {
+        ///    "name": "Thợ điện",
+        ///    "price": 150000,
+        ///    "deflag": true,
+        ///    "type": "Finished"
         ///     }
         /// </remarks>
         /// <param name="request">Labor request model</param>
@@ -105,6 +98,26 @@ namespace RHCQS_BE.Controllers
             return isCreated ? Ok(isCreated) : BadRequest();
         }
 
+        #region UpdateLabor
+        /// <summary>
+        /// Updates an existing labor.
+        /// Requires Manager role for authorization.
+        /// </summary>
+        /// <param name="id">The unique identifier of labor to be updated.</param>
+        /// <param name="request">The request body containing the updated labor details.</param>
+        /// <returns>A boolean value indicating the success or failure of the update operation.</returns>
+        /// <response code="200">Returns true if the update is successful.</response>
+        /// <response code="400">Returns BadRequest if the update fails or if validation issues occur.</response>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Labor.LaborEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateLabor(Guid id, [FromBody] LaborRequest request)
+        {
+            var isUpdated = await _laborService.UpdateLabor(id, request);
+            return isUpdated ? Ok(isUpdated) : BadRequest();
+        }
 
     }
 }
