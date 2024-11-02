@@ -197,6 +197,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     ConstructionItemId = iqi.ConstructionItemId,
+                    InsDate = DateTime.UtcNow,
                 }).ToList();
 
 
@@ -309,6 +310,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     ConstructionItemId = fqi.ConstructionItemId,
+                    InsDate = DateTime.UtcNow,
                     QuotationItems = fqi.QuotationItems.Select(qi => new QuotationItem
                     {
                         Id = Guid.NewGuid(),
