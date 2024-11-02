@@ -91,6 +91,27 @@ namespace RHCQS_BE.Controllers
             return isCreated ? Ok(isCreated) : BadRequest();
         }
 
+        #region UpdateMaterialSection
+        /// <summary>
+        /// Updates an existing material section.
+        /// Requires Manager role for authorization.
+        /// </summary>
+        /// <param name="id">The unique identifier of material section to be updated.</param>
+        /// <param name="request">The request body containing the updated material section details.</param>
+        /// <returns>A boolean value indicating the success or failure of the update operation.</returns>
+        /// <response code="200">Returns true if the update is successful.</response>
+        /// <response code="400">Returns BadRequest if the update fails or if validation issues occur.</response>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.MaterialSection.MaterialSectionEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateMaterialType(Guid id, [FromBody] MaterialSectionRequest request)
+        {
+            var isUpdated = await _materialSectionService.UpdateMaterialSection(id, request);
+            return isUpdated ? Ok(isUpdated) : BadRequest();
+        }
 
+        
     }
 }
