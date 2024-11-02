@@ -119,6 +119,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+
         #region SearchHouseTemplate
         /// <summary>
         /// Get detailhousetemplate by id.
