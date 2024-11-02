@@ -113,5 +113,25 @@ namespace RHCQS_BE.Controllers
             return isUpdated ? Ok(isUpdated) : BadRequest();
         }
 
+        #region SearchMaterialTypeByName
+        /// <summary>
+        /// Searches material types by name.
+        /// </summary>
+        /// <param name="name">The name or partial name of the material type.</param>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(IPaginate<MaterialTypeResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchMaterialTypeByName(string name, int page, int size)
+        {
+            var listSearchMaterialType = await _materialTypeService.SearchMaterialTypeByName(name, page, size);
+            var result = JsonConvert.SerializeObject(listSearchMaterialType, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }
