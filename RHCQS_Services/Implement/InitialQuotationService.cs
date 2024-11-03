@@ -762,7 +762,7 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                //Check version present dulicapte
+                //Check version present duplicate
                 double nextVersion = 1.0;
                 var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                     predicate: x => x.ProjectId == request.ProjectId,
@@ -824,6 +824,12 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
                 }
 
+                if (request.Packages.Count < 1)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                        AppConstant.ErrMessage.InvalidPackageQuotation);
+                }
+
                 foreach (var package in request.Packages!)
                 {
                     var packageQuotation = new PackageQuotation
@@ -838,33 +844,41 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
                 }
 
-                foreach (var utl in request.Utilities)
+                if (request.Utilities.Count > 0)
                 {
-                    //Check UtilityItem or UtilitySection
-                    var utilitiesItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(x => x.Id == utl.UtilitiesItemId);
-
-                    //If utilitiesItem  == null => UtilitiesSectionId = utl.UtilitiesItemId
-                    //Else utilitiesItem  != null => UtilitiesSectionId = utilitiesItem
-                    var sectionId = utilitiesItem?.SectionId ?? utl.UtilitiesItemId;
-                    var itemId = utilitiesItem?.Id ?? null;
-
-                    var utlItem = new QuotationUtility
+                    foreach (var utl in request.Utilities)
                     {
-                        Id = Guid.NewGuid(),
-                        UtilitiesItemId = itemId,
-                        UtilitiesSectionId = sectionId,
-                        FinalQuotationId = null,
-                        InitialQuotationId = initialItem.Id,
-                        Name = utl.Description!,
-                        Coefiicient = utl.Coefficient,
-                        Price = utl.Price,
-                        Description = utl.Description,
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now,
-                    };
-                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                        //Check UtilityItem or UtilitySection
+                        var utilitiesItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(x => x.Id == utl.UtilitiesItemId);
+
+                        //If utilitiesItem  == null => UtilitiesSectionId = utl.UtilitiesItemId
+                        //Else utilitiesItem  != null => UtilitiesSectionId = utilitiesItem
+                        var sectionId = utilitiesItem?.SectionId ?? utl.UtilitiesItemId;
+                        var itemId = utilitiesItem?.Id ?? null;
+
+                        var utlItem = new QuotationUtility
+                        {
+                            Id = Guid.NewGuid(),
+                            UtilitiesItemId = itemId,
+                            UtilitiesSectionId = sectionId,
+                            FinalQuotationId = null,
+                            InitialQuotationId = initialItem.Id,
+                            Name = utl.Description!,
+                            Coefiicient = utl.Coefficient,
+                            Price = utl.Price,
+                            Description = utl.Description,
+                            InsDate = DateTime.Now,
+                            UpsDate = DateTime.Now,
+                        };
+                        await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                    }
                 }
 
+                if (request.BatchPayments.Count < 1)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                        AppConstant.ErrMessage.InvalidBatchPayment);
+                }
                 var paymentType = await _unitOfWork.GetRepository<PaymentType>().FirstOrDefaultAsync(x => x.Name == AppConstant.General.PaymentDesign);
                 if (paymentType == null)
                 {
@@ -903,8 +917,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                                            predicate: x => x.Version == request.VersionPresent
-                    );
+                                            predicate: x => x.Version == request.VersionPresent);
 
                 initialVersionPresent.Status = AppConstant.QuotationStatus.REJECTED;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);

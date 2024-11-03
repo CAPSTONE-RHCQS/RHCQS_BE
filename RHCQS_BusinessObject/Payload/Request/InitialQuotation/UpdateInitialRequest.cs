@@ -33,8 +33,8 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền tiện ích phải là một số dương.")]
         public double? TotalUtilities { get; set; }
 
-        public List<InitialQuotaionItemUpdateRequest>? Items { get; set; }
-        public List<PackageQuotationUpdateRequest>? Packages { get; set; }
+        public List<InitialQuotaionItemUpdateRequest> Items { get; set; }
+        public List<PackageQuotationUpdateRequest> Packages { get; set; }
 
         public List<UtilitiesUpdateRequest>? Utilities { get; set; }
         public PromotionUpdateRequest? Promotions { get; set; }

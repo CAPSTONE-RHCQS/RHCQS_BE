@@ -243,6 +243,13 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+
+                //PackageQuotation
+                if (projectRequest.PackageQuotations.Count  < 1)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, 
+                        AppConstant.ErrMessage.InvalidPackageQuotation);
+                }
                 foreach (var package in projectRequest.PackageQuotations)
                 {
                     var packageQuotation = new PackageQuotation
@@ -275,53 +282,56 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
                 }
 
-                foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
+                if (projectRequest.PackageQuotations.Count > 0)
                 {
-                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
-                    Guid? sectionId = null;
-                    QuotationUtility utlItem;
-                    //UtilityItem - null => utl.UtilitiesItem = SectionId
-                    //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
-                    if (utilityItem == null)
+                    foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
                     {
-                        sectionId = utl.UtilitiesItemId;
-                        var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
-                        utlItem = new QuotationUtility
+                        var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
+                        Guid? sectionId = null;
+                        QuotationUtility utlItem;
+                        //UtilityItem - null => utl.UtilitiesItem = SectionId
+                        //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
+                        if (utilityItem == null)
                         {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = null,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = utl.Name,
-                            Coefiicient = 0,
-                            Price = utl.Price,
-                            Description = sectionItem.Description,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                            UtilitiesSectionId = sectionItem.Id
-                        };
-                    }
-                    else
-                    {
-                        sectionId = utilityItem.SectionId;
-                        utl.UtilitiesItemId = utilityItem.Id;
-                        utlItem = new QuotationUtility
+                            sectionId = utl.UtilitiesItemId;
+                            var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = null,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = utl.Name,
+                                Coefiicient = 0,
+                                Price = utl.Price,
+                                Description = sectionItem.Description,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = sectionItem.Id
+                            };
+                        }
+                        else
                         {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = utilityItem.Id,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = utilityItem.Name!,
-                            Coefiicient = utilityItem.Coefficient,
-                            Price = utl.Price,
-                            Description = null,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                            UtilitiesSectionId = utilityItem.SectionId
-                        };
-                    }
+                            sectionId = utilityItem.SectionId;
+                            utl.UtilitiesItemId = utilityItem.Id;
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = utilityItem.Id,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = utilityItem.Name!,
+                                Coefiicient = utilityItem.Coefficient,
+                                Price = utl.Price,
+                                Description = null,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = utilityItem.SectionId
+                            };
+                        }
 
-                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                        await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                    }
                 }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
