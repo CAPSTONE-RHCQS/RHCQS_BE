@@ -15,7 +15,7 @@ namespace RHCQS_Services.Interface
         Task<MaterialResponse> GetDetailMaterial(Guid id);
         Task<bool> CreateMaterial(MaterialRequest request);
         Task<bool> UpdateMaterial(Guid id, MaterialUpdateRequest request);
-        Task<IPaginate<MaterialResponse>> SearchMaterialByName(string name, int page, int size);
-        Task<IPaginate<MaterialResponse>> FilterMaterialByType(Guid materialTypeId, int page, int size);
+        Task<List<MaterialResponse>> SearchMaterialByName(string name);
+        Task<List<MaterialResponse>> FilterMaterialByType(Guid materialTypeId);
     }
 }

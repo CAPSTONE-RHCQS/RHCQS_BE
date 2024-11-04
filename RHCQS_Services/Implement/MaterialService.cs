@@ -169,9 +169,9 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<IPaginate<MaterialResponse>> SearchMaterialByName(string name, int page, int size)
+        public async Task<List<MaterialResponse>> SearchMaterialByName(string name)
         {
-            return await _unitOfWork.GetRepository<Material>().GetList(
+            return (List<MaterialResponse>)await _unitOfWork.GetRepository<Material>().GetListAsync(
                 selector: x => new MaterialResponse
                 {
                     Id = x.Id,
@@ -189,16 +189,16 @@ namespace RHCQS_Services.Implement
                     SupplierName = x.Supplier.Name
                 },
                 predicate: m => m.Name.Contains(name),
-                include: m => m.Include(m => m.MaterialType).Include(m => m.MaterialSection).Include(m => m.Supplier),
-                orderBy: x => x.OrderBy(x => x.InsDate),
-                page: page,
-                size: size
-            );
+                include: m => m.Include(m => m.MaterialType)
+                               .Include(m => m.MaterialSection)
+                               .Include(m => m.Supplier),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            ); 
         }
 
-        public async Task<IPaginate<MaterialResponse>> FilterMaterialByType(Guid materialTypeId, int page, int size)
+        public async Task<List<MaterialResponse>> FilterMaterialByType(Guid materialTypeId)
         {
-            return await _unitOfWork.GetRepository<Material>().GetList(
+            return (List<MaterialResponse>)await _unitOfWork.GetRepository<Material>().GetListAsync(
                 selector: x => new MaterialResponse
                 {
                     Id = x.Id,
@@ -217,9 +217,7 @@ namespace RHCQS_Services.Implement
                 },
                 predicate: m => m.MaterialTypeId == materialTypeId,
                 include: m => m.Include(m => m.MaterialType).Include(m => m.MaterialSection).Include(m => m.Supplier),
-                orderBy: x => x.OrderBy(x => x.InsDate),
-                page: page,
-                size: size
+                orderBy: x => x.OrderBy(x => x.InsDate)
             );
         }
     }

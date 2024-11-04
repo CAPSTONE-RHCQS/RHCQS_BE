@@ -129,12 +129,12 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <param name="name">The name or partial name of the material.</param>
         #endregion 
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet("search")]
-        [ProducesResponseType(typeof(IPaginate<MaterialResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchMaterialByName(string name, int page, int size)
+        [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchMaterialByName(string name)
         {
-            var listSearchMaterial = await _materialService.SearchMaterialByName(name, page, size);
+            var listSearchMaterial = await _materialService.SearchMaterialByName(name);
             var result = JsonConvert.SerializeObject(listSearchMaterial, Formatting.Indented);
             return new ContentResult()
             {
@@ -151,12 +151,12 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <param name="materialTypeId">The ID of the material type to filter by.</param>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet("filter")]
-        [ProducesResponseType(typeof(IPaginate<MaterialResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> FilterMaterialByType(Guid materialTypeId, int page, int size)
+        [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> FilterMaterialByType(Guid materialTypeId)
         {
-            var filterMaterial = await _materialService.FilterMaterialByType(materialTypeId, page, size);
+            var filterMaterial = await _materialService.FilterMaterialByType(materialTypeId);
             var result = JsonConvert.SerializeObject(filterMaterial, Formatting.Indented);
             return new ContentResult()
             {
