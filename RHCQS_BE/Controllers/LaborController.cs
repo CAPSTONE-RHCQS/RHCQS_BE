@@ -127,10 +127,10 @@ namespace RHCQS_BE.Controllers
         #endregion
         [Authorize(Roles = "Manager")]
         [HttpGet("search")]
-        [ProducesResponseType(typeof(IPaginate<LaborResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchLaborByName(string name, int page, int size)
+        [ProducesResponseType(typeof(List<LaborResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchLaborByName(string name)
         {
-            var listSearchLabor = await _laborService.SearchLaborByName(name, page, size);
+            var listSearchLabor = await _laborService.SearchLaborByName(name);
             var result = JsonConvert.SerializeObject(listSearchLabor, Formatting.Indented);
             return new ContentResult()
             {

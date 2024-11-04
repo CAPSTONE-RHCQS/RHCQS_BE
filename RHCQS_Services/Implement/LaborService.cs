@@ -124,9 +124,9 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<IPaginate<LaborResponse>> SearchLaborByName(string name, int page, int size)
+        public async Task<List<LaborResponse>> SearchLaborByName(string name)
         {
-            return await _unitOfWork.GetRepository<Labor>().GetList(
+            return (List<LaborResponse>)await _unitOfWork.GetRepository<Labor>().GetListAsync(
                 selector: x => new LaborResponse
                 {
                     Id = x.Id,
@@ -138,9 +138,7 @@ namespace RHCQS_Services.Implement
                     Type = x.Type
                 },
                 predicate: m => m.Name.Contains(name),
-                orderBy: x => x.OrderBy(x => x.InsDate),
-                page: page,
-                size: size
+                orderBy: x => x.OrderBy(x => x.InsDate)
             );
         }
     }

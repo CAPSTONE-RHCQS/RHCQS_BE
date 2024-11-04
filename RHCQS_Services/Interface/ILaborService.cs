@@ -17,6 +17,6 @@ namespace RHCQS_Services.Interface
         Task<LaborResponse> GetDetailLabor(Guid id);
         Task<bool> CreateLabor(LaborRequest request);
         Task<bool> UpdateLabor(Guid id, LaborRequest request);
-        Task<IPaginate<LaborResponse>> SearchLaborByName(string name, int page, int size);
+        Task<List<LaborResponse>> SearchLaborByName(string name);
     }
 }
