@@ -21,6 +21,7 @@ using static RHCQS_BusinessObjects.AppConstant;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using RHCQS_BusinessObject.Payload.Response.App;
 using System.Runtime.InteropServices;
+using Microsoft.IdentityModel.Tokens;
 
 namespace RHCQS_Services.Implement
 {
@@ -262,6 +263,23 @@ namespace RHCQS_Services.Implement
 
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
 
+                var projectExists = await _unitOfWork.GetRepository<Project>()
+                    .AnyAsync(p => p.Id == request.ProjectId);
+                if (!projectExists)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "ProjectId không tồn tại.");
+                }
+
+                if (request.PromotionId.HasValue)
+                {
+                    var promotionExists = await _unitOfWork.GetRepository<Promotion>()
+                        .AnyAsync(p => p.Id == request.PromotionId);
+                    if (!promotionExists)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "PromotionId không tồn tại.");
+                    }
+                }
+
                 var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
                     p => p.ProjectId == request.ProjectId,
                     orderBy: p => p.OrderByDescending(p => p.Version)
@@ -283,82 +301,181 @@ namespace RHCQS_Services.Implement
                     BatchPayments = new List<BatchPayment>()
                 };
 
-                foreach (var bp in request.BatchPaymentInfos)
+                if (request.BatchPaymentInfos != null)
                 {
-                    var payment = new Payment
+                    foreach (var bp in request.BatchPaymentInfos)
                     {
-                        Id = Guid.NewGuid(),
-                        PaymentTypeId = bp.PaymentTypeId,
-                        InsDate = DateTime.UtcNow,
-                        TotalPrice = bp.Price,
-                        Percents = bp.Percents,
-                        Description = bp.Description,
-                        Unit = AppConstant.Unit.UnitPrice
-                    };
+                        var paymentTypeExists = await _unitOfWork.GetRepository<PaymentType>()
+                            .AnyAsync(pt => pt.Id == bp.PaymentTypeId);
+                        if (!paymentTypeExists)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"PaymentTypeId {bp.PaymentTypeId} không tồn tại.");
+                        }
 
-                    var batchPayment = new BatchPayment
-                    {
-                        Id = Guid.NewGuid(),
-                        IntitialQuotationId = bp.InitIntitialQuotationId,
-                        ContractId = bp.ContractId,
-                        InsDate = DateTime.UtcNow,
-                        FinalQuotationId = finalQuotation.Id,
-                        Payment = payment,
-                        Status = bp.Status
-                    };
+                        var contractExists = await _unitOfWork.GetRepository<Contract>()
+                            .AnyAsync(c => c.Id == bp.ContractId);
+                        if (!contractExists)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"ContractId {bp.ContractId} không tồn tại.");
+                        }
 
-                    finalQuotation.BatchPayments.Add(batchPayment);
+                        var payment = new Payment
+                        {
+                            Id = Guid.NewGuid(),
+                            PaymentTypeId = bp.PaymentTypeId,
+                            InsDate = DateTime.UtcNow,
+                            TotalPrice = bp.Price,
+                            Percents = bp.Percents,
+                            Description = bp.Description,
+                            Unit = AppConstant.Unit.UnitPrice
+                        };
+
+                        var batchPayment = new BatchPayment
+                        {
+                            Id = Guid.NewGuid(),
+                            IntitialQuotationId = bp.InitIntitialQuotationId,
+                            ContractId = bp.ContractId,
+                            InsDate = DateTime.UtcNow,
+                            FinalQuotationId = finalQuotation.Id,
+                            Payment = payment,
+                            Status = bp.Status
+                        };
+
+                        finalQuotation.BatchPayments.Add(batchPayment);
+                    }
                 }
 
-                finalQuotation.EquipmentItems = request.EquipmentItems.Select(ei => new EquipmentItem
+                if (request.FinalQuotationItems != null)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = ei.Name,
-                    Unit = ei.Unit,
-                    Quantity = ei.Quantity,
-                    UnitOfMaterial = ei.UnitOfMaterial,
-                    TotalOfMaterial = ei.TotalOfMaterial,
-                    Note = ei.Note
-                }).ToList();
-
-                finalQuotation.FinalQuotationItems = request.FinalQuotationItems.Select(fqi => new FinalQuotationItem
-                {
-                    Id = Guid.NewGuid(),
-                    ConstructionItemId = fqi.ConstructionItemId,
-                    InsDate = DateTime.UtcNow,
-                    QuotationItems = fqi.QuotationItems.Select(qi => new QuotationItem
+                    foreach (var fqi in request.FinalQuotationItems)
                     {
-                        Id = Guid.NewGuid(),
-                        Unit = qi.Unit,
-                        Weight = qi.Weight,
-                        UnitPriceLabor = qi.UnitPriceLabor,
-                        UnitPriceRough = qi.UnitPriceRough,
-                        UnitPriceFinished = qi.UnitPriceFinished,
-                        TotalPriceLabor = qi.TotalPriceLabor,
-                        TotalPriceRough = qi.TotalPriceRough,
-                        TotalPriceFinished = qi.TotalPriceFinished,
-                        Note = qi.Note,
-                        QuotationLabors = qi.QuotationLabors == null ? null : new List<QuotationLabor>
+                        var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
+                            .AnyAsync(ci => ci.Id == fqi.ConstructionItemId);
+                        if (!constructionItemExists)
                         {
-                            new QuotationLabor
-                            {
-                            Id = Guid.NewGuid(),
-                            LaborId = qi.QuotationLabors.LaborId,
-                            LaborPrice = qi.QuotationLabors.LaborPrice
-                            }
-                        },
-                        QuotationMaterials = qi.QuotationMaterials == null ? null : new List<QuotationMaterial>
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"ConstructionItemId {fqi.ConstructionItemId} không tồn tại.");
+                        }
+
+                        var finalQuotationItem = new FinalQuotationItem
                         {
-                            new QuotationMaterial
-                            {
                             Id = Guid.NewGuid(),
-                            MaterialId = qi.QuotationMaterials.MaterialId,
-                            Unit = qi.QuotationMaterials.Unit,
-                            MaterialPrice = qi.QuotationMaterials.MaterialPrice
+                            ConstructionItemId = fqi.ConstructionItemId,
+                            InsDate = DateTime.UtcNow,
+                            QuotationItems = new List<QuotationItem>()
+                        };
+
+                        if (fqi.QuotationItems != null && fqi.QuotationItems.Count > 0)
+                        {
+                            foreach (var qi in fqi.QuotationItems)
+                            {
+                                var quotationItem = new QuotationItem
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Unit = qi.Unit,
+                                    Weight = qi.Weight,
+                                    UnitPriceLabor = qi.UnitPriceLabor,
+                                    UnitPriceRough = qi.UnitPriceRough,
+                                    UnitPriceFinished = qi.UnitPriceFinished,
+                                    TotalPriceLabor = qi.TotalPriceLabor,
+                                    TotalPriceRough = qi.TotalPriceRough,
+                                    TotalPriceFinished = qi.TotalPriceFinished,
+                                    Note = qi.Note
+                                };
+
+                                if (qi.QuotationLabors != null)
+                                {
+                                    var laborExists = await _unitOfWork.GetRepository<Labor>()
+                                        .AnyAsync(l => l.Id == qi.QuotationLabors.LaborId);
+                                    if (!laborExists)
+                                    {
+                                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"LaborId {qi.QuotationLabors.LaborId} không tồn tại.");
+                                    }
+                                    quotationItem.QuotationLabors = new List<QuotationLabor>
+                                    {
+                                        new QuotationLabor
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            LaborId = qi.QuotationLabors.LaborId,
+                                            LaborPrice = qi.QuotationLabors.LaborPrice
+                                        }
+                                    };
+                                }
+
+                                if (qi.QuotationMaterials != null)
+                                {
+                                    var materialExists = await _unitOfWork.GetRepository<Material>()
+                                        .AnyAsync(m => m.Id == qi.QuotationMaterials.MaterialId);
+                                    if (!materialExists)
+                                    {
+                                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"MaterialId {qi.QuotationMaterials.MaterialId} không tồn tại.");
+                                    }
+                                    quotationItem.QuotationMaterials = new List<QuotationMaterial>
+                                    {
+                                        new QuotationMaterial
+                                        {
+                                            Id = Guid.NewGuid(),
+                                            MaterialId = qi.QuotationMaterials.MaterialId,
+                                            Unit = qi.QuotationMaterials.Unit,
+                                            MaterialPrice = qi.QuotationMaterials.MaterialPrice
+                                        }
+                                    };
+                                }
+
+                                finalQuotationItem.QuotationItems.Add(quotationItem);
                             }
                         }
-                    }).ToList()
-                }).ToList();
+
+                        finalQuotation.FinalQuotationItems.Add(finalQuotationItem);
+                    }
+                }
+
+                if (request.EquipmentItems != null)
+                {
+                    foreach (var equipment in request.EquipmentItems)
+                    {
+                        var equipmentItem = new EquipmentItem
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = equipment.Name,
+                            Unit = equipment.Unit,
+                            Quantity = equipment.Quantity,
+                            UnitOfMaterial = equipment.UnitOfMaterial,
+                            TotalOfMaterial = equipment.TotalOfMaterial,
+                            Note = equipment.Note,
+                        };
+
+                        finalQuotation.EquipmentItems.Add(equipmentItem);
+                    }
+                }
+
+                // Handle Utilities
+                if (request.Utilities != null)
+                {
+                    foreach (var utility in request.Utilities)
+                    {
+                        var utilitiesItem = await _unitOfWork.GetRepository<UtilitiesItem>()
+                            .FirstOrDefaultAsync(u => u.Id == utility.UtilitiesItemId);
+
+                        if (utilitiesItem == null)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"UtilityId {utility.UtilitiesItemId} không tồn tại.");
+                        }
+                        var utilityItem = new QuotationUtility
+                        {
+                            Id = Guid.NewGuid(),
+                            UtilitiesItemId = utility.UtilitiesItemId,
+                            Name = utility.Name,
+                            UtilitiesSectionId = utilitiesItem.SectionId,
+                            FinalQuotationId = finalQuotation.Id,
+                            Coefiicient = utility.Coefficient,
+                            Price = utility.Price,
+                            Description = utility.Description,
+                            InsDate = DateTime.UtcNow
+                        };
+
+                        finalQuotation.QuotationUtilities.Add(utilityItem);
+                    }
+                }
 
                 await finalQuotationRepo.InsertAsync(finalQuotation);
 
@@ -377,6 +494,10 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
         }
+
+
+
+
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
         {
             var finalItem = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
@@ -506,6 +627,7 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(co => co.Material)
                                    .Include(x => x.BatchPayments!)
                                        .ThenInclude(p => p.Payment!)
+                                       .ThenInclude(p => p.PaymentType!)
                     );
 
                 if (finalQuotation == null)
@@ -517,6 +639,8 @@ namespace RHCQS_Services.Implement
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
                         bp?.Payment?.Id ?? Guid.Empty,
+                        bp?.Payment?.PaymentTypeId ?? Guid.Empty,
+                        bp?.Payment?.PaymentType?.Name ?? string.Empty,
                         bp?.IntitialQuotationId ?? Guid.Empty,
                         bp?.ContractId ?? Guid.Empty,
                         bp?.InsDate,
@@ -709,6 +833,7 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(co => co.Material)
                                    .Include(x => x.BatchPayments!)
                                        .ThenInclude(p => p.Payment!)
+                                       .ThenInclude(p => p.PaymentType!)
                     );
 
                 if (finalQuotation == null)
@@ -720,6 +845,8 @@ namespace RHCQS_Services.Implement
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
                         bp?.Payment!.Id ?? Guid.Empty,
+                        bp?.Payment?.PaymentTypeId ?? Guid.Empty,
+                        bp?.Payment?.PaymentType?.Name ?? string.Empty,
                         bp?.IntitialQuotationId ?? Guid.Empty,
                         bp?.ContractId ?? Guid.Empty,
                         bp.InsDate,
@@ -913,6 +1040,7 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(co => co.Material)
                                    .Include(x => x.BatchPayments!)
                                        .ThenInclude(p => p.Payment!)
+                                       .ThenInclude(p => p.PaymentType!)
                     );
 
                 if (finalQuotation == null)
@@ -924,6 +1052,8 @@ namespace RHCQS_Services.Implement
                 var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
                     new BatchPaymentResponse(
                         bp?.Payment.Id ?? Guid.Empty,
+                        bp?.Payment?.PaymentTypeId ?? Guid.Empty,
+                        bp?.Payment?.PaymentType?.Name ?? string.Empty,
                         bp?.IntitialQuotationId ?? Guid.Empty,
                         bp?.ContractId ?? Guid.Empty,
                         bp.InsDate,

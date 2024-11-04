@@ -93,6 +93,8 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public BatchPaymentResponse(
             Guid paymentId,
+            Guid paymentTypeId,
+            string? paymentTypeName,
             Guid intialquotationId,
             Guid contractId,
             DateTime? insDate,
@@ -107,6 +109,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         {
             InsDate = insDate;
             PaymentId = paymentId;
+            PaymentTypeId = paymentTypeId;
+            PaymentTypeName = paymentTypeName;
             InitailQuotationId = intialquotationId;
             ContractId = contractId;
             Status = status;
@@ -120,7 +124,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid PaymentId { get; set; }
-
+        public Guid PaymentTypeId { get; set; }
+        public string? PaymentTypeName { get; set; }
         public Guid InitailQuotationId { get; set; }
 
         public Guid ContractId { get; set; }
