@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Identity.Client;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -234,6 +235,8 @@ public static class AppConstant
         public const string Not_Finalized_Final_Quotation = "Báo giá chưa kết thúc!";
         public const string Conflict_Version = "Hiện tại đã có phiên bản báo giá này!";
         public const string Reason_Rejected_Required = "Cần phải có lý do báo giá bị từ chối!";
+        public const string InvalidPackageQuotation = "Bắt buộc phải có gói thi công! Hãy chọn gói thi công trước khi hoàn tất";
+        public const string InvalidBatchPayment = "Các đợt thanh toán hợp đồng là bắt buộc!";
 
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
