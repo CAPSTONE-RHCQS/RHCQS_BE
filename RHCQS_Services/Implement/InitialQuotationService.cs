@@ -102,7 +102,7 @@ namespace RHCQS_Services.Implement
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
                             item.Id,
-                            item.Description ?? string.Empty,
+                            item.Name ?? string.Empty,
                             item.Coefiicient ?? 0,
                             item.Price ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
@@ -846,30 +846,52 @@ namespace RHCQS_Services.Implement
 
                 if (request.Utilities.Count > 0)
                 {
-                    foreach (var utl in request.Utilities)
+                    foreach (var utl in request.Utilities!)
                     {
-                        //Check UtilityItem or UtilitySection
-                        var utilitiesItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(x => x.Id == utl.UtilitiesItemId);
-
-                        //If utilitiesItem  == null => UtilitiesSectionId = utl.UtilitiesItemId
-                        //Else utilitiesItem  != null => UtilitiesSectionId = utilitiesItem
-                        var sectionId = utilitiesItem?.SectionId ?? utl.UtilitiesItemId;
-                        var itemId = utilitiesItem?.Id ?? null;
-
-                        var utlItem = new QuotationUtility
+                        var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
+                        Guid? sectionId = null;
+                        QuotationUtility utlItem;
+                        //UtilityItem - null => utl.UtilitiesItem = SectionId
+                        //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
+                        if (utilityItem == null)
                         {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = itemId,
-                            UtilitiesSectionId = sectionId,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = utl.Description!,
-                            Coefiicient = utl.Coefficient,
-                            Price = utl.Price,
-                            Description = utl.Description,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                        };
+                            sectionId = utl.UtilitiesItemId;
+                            var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = null,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = sectionItem.Name!,
+                                Coefiicient = 0,
+                                Price = utl.Price,
+                                Description = sectionItem.Description,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = sectionItem.Id
+                            };
+                        }
+                        else
+                        {
+                            sectionId = utilityItem.SectionId;
+                            utl.UtilitiesItemId = utilityItem.Id;
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = utilityItem.Id,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = utilityItem.Name!,
+                                Coefiicient = utilityItem.Coefficient,
+                                Price = utl.Price,
+                                Description = null,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = utilityItem.SectionId
+                            };
+                        }
+
                         await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                     }
                 }
