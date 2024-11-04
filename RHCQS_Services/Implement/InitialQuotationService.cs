@@ -101,7 +101,7 @@ namespace RHCQS_Services.Implement
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.Id,
+                            item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefiicient ?? 0,
                             item.Price ?? 0
@@ -205,7 +205,7 @@ namespace RHCQS_Services.Implement
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.Id,
+                            item.UtilitiesSectionId,
                             item.Description ?? string.Empty,
                             item.Coefiicient ?? 0,
                             item.Price ?? 0
