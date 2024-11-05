@@ -351,15 +351,29 @@ namespace RHCQS_Services.Implement
                     {
                         var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
                             .AnyAsync(ci => ci.Id == fqi.ConstructionItemId);
-                        if (!constructionItemExists)
+
+                        Guid constructionOrSubConstructionId;
+                        if (constructionItemExists)
                         {
-                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"ConstructionItemId {fqi.ConstructionItemId} không tồn tại.");
+                            constructionOrSubConstructionId = fqi.ConstructionItemId;
+                        }
+                        else
+                        {
+                            var subConstructionItem = await _unitOfWork.GetRepository<SubConstructionItem>()
+                                .FirstOrDefaultAsync(sb => sb.Id == fqi.ConstructionItemId);
+
+                            if (subConstructionItem == null)
+                            {
+                                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"Construction or SubConstruction item with ID {fqi.ConstructionItemId} không tồn tại.");
+                            }
+
+                            constructionOrSubConstructionId = subConstructionItem.ConstructionItemsId;
                         }
 
                         var finalQuotationItem = new FinalQuotationItem
                         {
                             Id = Guid.NewGuid(),
-                            ConstructionItemId = fqi.ConstructionItemId,
+                            ConstructionItemId = constructionOrSubConstructionId,
                             InsDate = DateTime.UtcNow,
                             QuotationItems = new List<QuotationItem>()
                         };

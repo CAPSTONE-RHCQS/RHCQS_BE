@@ -514,7 +514,7 @@ namespace RHCQS_BE.Controllers
         ///     ],
         ///     "finalQuotationItems": [
         ///         {
-        ///             "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",
+        ///             "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",  // can be subcontructionid or constructionItemId
         ///             "quotationItems": [
         ///                 {
         ///                     "unit": "m2",
