@@ -46,6 +46,27 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetDetailSupplier
+        /// <summary>
+        /// Retrieves the supplier.
+        /// </summary>
+        /// <returns>Supplier in the system</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet(ApiEndPointConstant.Supplier.SupplierDetailEndpoint)]
+        [ProducesResponseType(typeof(SupplierResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailSupplier(Guid id)
+        {
+            var supplier = await _supplierService.GetDetailSupplier(id);
+            var result = JsonConvert.SerializeObject(supplier, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         
     }
 }
