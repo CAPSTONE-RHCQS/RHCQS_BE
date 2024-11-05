@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
@@ -19,6 +20,31 @@ namespace RHCQS_BE.Controllers
         public HouseDesignVersionController(IHouseDesignVersionService designVersionService)
         {
             _designVersionService = designVersionService;
+        }
+
+        #region GetDetailVersionById
+        /// <summary>
+        /// Return version item by versionId - App mobile
+        /// 
+        /// ROLE: CUSTOMER - DESIGNSTAFF - MANAGER
+        /// </summary>
+        /// <param name="versionId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Customer, Manager, DesignStaff")]
+        [HttpGet(ApiEndPointConstant.HouseDesignVersion.HouseDesignVersionDetailEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetDetailVersionById(Guid versionId)
+        {
+            var versionItem = await _designVersionService.GetDetailVersionById(versionId);
+            var result = JsonConvert.SerializeObject(versionItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CreateHouseDesignVersion

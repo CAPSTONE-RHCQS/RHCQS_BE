@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using System.Net.Http.Headers;
+using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 
 namespace RHCQS_Services.Implement
 {
@@ -30,6 +31,35 @@ namespace RHCQS_Services.Implement
             _logger = logger;
             _cloudinary = cloudinary;
         }
+
+        public async Task<HouseDesignVersionResponse> GetDetailVersionById(Guid versionId)
+        {
+            var version = await _unitOfWork.GetRepository<HouseDesignVersion>()
+                                           .FirstOrDefaultAsync(predicate: v => v.Id == versionId,
+                                                                include: v => v.Include(v => v.Media));
+
+            if (version == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
+            }
+
+            var fileUrl = version.Media?.FirstOrDefault(m => m.HouseDesignVersionId == versionId)!.Url ?? "Chưa hoàn thành"; 
+
+            var response = new HouseDesignVersionResponse(
+                id: version.Id,
+                name: version.Name,
+                version: version.Version,
+                fileUrl: fileUrl,
+                insDate: version.InsDate,
+                note: version.Note,
+                relatedDrawingId: version.RelatedDrawingId,
+                previousDrawingId: version.PreviousDrawingId
+            );
+
+            return response;
+        }
+
+
 
         public async Task<bool> CreateHouseDesignVersion(Guid accountId, HouseDesignVersionRequest request)
         {
