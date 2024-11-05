@@ -143,8 +143,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class EquipmentItemsResponse
     {
-        public EquipmentItemsResponse(Guid id, string? name, string? unit, int? quantity,
-            double? unitOfMaterial, double? totalOfMaterial, string? note)
+        public EquipmentItemsResponse(Guid id, string? name, string? unit, int? quantity, double? unitOfMaterial, double? totalOfMaterial, string? note, string? type)
         {
             Id = id;
             Name = name;
@@ -153,6 +152,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             UnitOfMaterial = unitOfMaterial;
             TotalOfMaterial = totalOfMaterial;
             Note = note;
+            Type = type;
         }
 
         public Guid Id { get; set; }
@@ -168,6 +168,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalOfMaterial { get; set; }
 
         public string? Note { get; set; }
+        public string? Type { get; set; }
     }
     public class FinalQuotationItemResponse
     {
@@ -250,15 +251,16 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class QuotationLaborResponse
     {
-        public QuotationLaborResponse(Guid id, string? laborName, double? laborPrice)
+        public QuotationLaborResponse(Guid id, Guid laborId, string? laborName, double? laborPrice)
         {
             Id = id;
+            LaborId = laborId;
             LaborName = laborName;
             LaborPrice = laborPrice;
         }
 
         public Guid Id { get; set; }
-
+        public Guid LaborId { get; set; }
         public string? LaborName { get; set; }
 
         public double? LaborPrice { get; set; }
@@ -266,15 +268,18 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class QuotationMaterialResponse
     {
-        public QuotationMaterialResponse(Guid id, string? materialName, string? unit, double? materialPrice)
+        public QuotationMaterialResponse(Guid id, Guid materialId, string? materialName, string? unit, double? materialPrice)
         {
             Id = id;
+            MaterialId = materialId;
             MaterialName = materialName;
             Unit = unit;
             MaterialPrice = materialPrice;
         }
 
         public Guid Id { get; set; }
+
+        public Guid MaterialId { get; set; }
 
         public string? MaterialName { get; set; }
 

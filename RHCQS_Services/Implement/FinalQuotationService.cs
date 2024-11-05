@@ -442,6 +442,7 @@ namespace RHCQS_Services.Implement
                             UnitOfMaterial = equipment.UnitOfMaterial,
                             TotalOfMaterial = equipment.TotalOfMaterial,
                             Note = equipment.Note,
+                            Type = equipment.Type
                         };
 
                         finalQuotation.EquipmentItems.Add(equipmentItem);
@@ -663,13 +664,15 @@ namespace RHCQS_Services.Implement
                         ei.Quantity,
                         ei.UnitOfMaterial,
                         ei.TotalOfMaterial,
-                        ei.Note
+                        ei.Note,
+                        ei.Type
                     )
                 ).ToList();
 
                 var QuotationLabors = (QuotationItem qi) => qi.QuotationLabors.Select(ql =>
                     new QuotationLaborResponse(
                         ql.Id,
+                        ql.Labor.Id,
                         ql.Labor.Name,
                         ql.LaborPrice
                     )
@@ -678,6 +681,7 @@ namespace RHCQS_Services.Implement
                 var QuotationMaterials = (QuotationItem qi) => qi.QuotationMaterials.Select(qm =>
                     new QuotationMaterialResponse(
                         qm.Id,
+                        qm.Material.Id,
                         qm.Material.Name,
                         qm.Unit,
                         qm.MaterialPrice
@@ -869,13 +873,15 @@ namespace RHCQS_Services.Implement
                         ei.Quantity,
                         ei.UnitOfMaterial,
                         ei.TotalOfMaterial,
-                        ei.Note
+                        ei.Note,
+                        ei.Type
                     )
                 ).ToList();
 
                 var QuotationLabors = (QuotationItem qi) => qi.QuotationLabors.Select(ql =>
                     new QuotationLaborResponse(
                         ql.Id,
+                        ql.Labor.Id,
                         ql.Labor.Name,
                         ql.LaborPrice
                     )
@@ -884,6 +890,7 @@ namespace RHCQS_Services.Implement
                 var QuotationMaterials = (QuotationItem qi) => qi.QuotationMaterials.Select(qm =>
                     new QuotationMaterialResponse(
                         qm.Id,
+                        qm.Material.Id,
                         qm.Material.Name,
                         qm.Unit,
                         qm.MaterialPrice
@@ -1076,13 +1083,15 @@ namespace RHCQS_Services.Implement
                         ei.Quantity,
                         ei.UnitOfMaterial,
                         ei.TotalOfMaterial,
-                        ei.Note
+                        ei.Note,
+                        ei.Type
                     )
                 ).ToList();
 
                 var QuotationLabors = (QuotationItem qi) => qi.QuotationLabors.Select(ql =>
                     new QuotationLaborResponse(
                         ql.Id,
+                        ql.Labor.Id,
                         ql.Labor.Name,
                         ql.LaborPrice
                     )
@@ -1091,6 +1100,7 @@ namespace RHCQS_Services.Implement
                 var QuotationMaterials = (QuotationItem qi) => qi.QuotationMaterials.Select(qm =>
                     new QuotationMaterialResponse(
                         qm.Id,
+                        qm.Material.Id,
                         qm.Material.Name,
                         qm.Unit,
                         qm.MaterialPrice

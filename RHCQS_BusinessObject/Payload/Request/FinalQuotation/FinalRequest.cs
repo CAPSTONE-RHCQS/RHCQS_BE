@@ -71,6 +71,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public double? TotalOfMaterial { get; set; }
 
         public string? Note { get; set; }
+        public string? Type { get; set; }
     }
 
     public class FinalQuotationItemRequest
