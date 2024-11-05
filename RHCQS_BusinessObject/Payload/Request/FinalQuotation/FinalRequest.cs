@@ -95,7 +95,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
 
-        public string? Description { get; set; }
+/*        public string? Description { get; set; }*/
 
     }
     public class QuotationItemRequest
