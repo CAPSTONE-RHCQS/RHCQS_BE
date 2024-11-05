@@ -249,7 +249,7 @@ namespace RHCQS_Services.Implement
             }
             catch (Exception ex) { throw; }
         }
-        public async Task<bool> UpdateFinalQuotation(FinalRequest request)
+        public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
             try
             {
@@ -488,16 +488,13 @@ namespace RHCQS_Services.Implement
                         AppConstant.ErrMessage.CreatePackage
                     );
                 }
-                return isSuccessful;
+                return finalQuotation.Id;
             }
             catch (Exception ex)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
         }
-
-
-
 
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
         {
@@ -745,6 +742,8 @@ namespace RHCQS_Services.Implement
 
                 var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
                     qUtility.Id,
+                    qUtility.UtilitiesItemId,
+                    qUtility.UtilitiesSectionId,
                     qUtility.Name,
                     qUtility.Description ?? string.Empty,
                     qUtility.Coefiicient ?? 0,
@@ -953,6 +952,8 @@ namespace RHCQS_Services.Implement
 
                 var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
                     qUtility.Id,
+                    qUtility.UtilitiesItemId,
+                    qUtility.UtilitiesSectionId,
                     qUtility.Name,
                     qUtility.Description ?? string.Empty,
                     qUtility.Coefiicient ?? 0,
@@ -1163,6 +1164,8 @@ namespace RHCQS_Services.Implement
 
                 var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
                     qUtility.Id,
+                    qUtility.UtilitiesItemId,
+                    qUtility.UtilitiesSectionId,
                     qUtility.Name,
                     qUtility.Description ?? string.Empty,
                     qUtility.Coefiicient ?? 0,

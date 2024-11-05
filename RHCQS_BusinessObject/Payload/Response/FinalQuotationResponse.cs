@@ -291,9 +291,12 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class UtilityInf
     {
-        public UtilityInf(Guid id, string name, string description, double coefficient, double price, double unitPrice, string unit)
+        public UtilityInf(Guid id, Guid? utilitiesItemId, Guid? utilitiesSectionId, string name, string description,
+            double coefficient, double price, double unitPrice, string unit)
         {
             Id = id;
+            this.utilitiesItemId = utilitiesItemId;
+            this.utilitiesSectionId = utilitiesSectionId;
             Name = name;
             Description = description;
             Coefficient = coefficient;
@@ -303,6 +306,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
+        public Guid? utilitiesItemId { get; set; }
+        public Guid? utilitiesSectionId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public double Coefficient { get; set; }

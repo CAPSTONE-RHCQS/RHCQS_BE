@@ -233,7 +233,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region GetDetailFinalQuotationById
+        #region GetDetailFinalQuotationByProjectId
         /// <summary>
         /// Retrieves the details of a specific final quotation by projectid.
         /// </summary>
@@ -560,16 +560,28 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns success message if the update was successful.</response>
         /// <response code="404">Returns if the specified quotation was not found.</response>
         #endregion
-
         [Authorize(Roles = "SalesStaff")]
         [HttpPut(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
         [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFinalQuotation([FromBody] FinalRequest request)
         {
-            bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
+/*            bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
 
-            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);*/
+
+            Guid? finalQuotationId = await _finalQuotationService.UpdateFinalQuotation(request);
+
+            if (finalQuotationId == null)
+            {
+                return NotFound(AppConstant.Message.ERROR);
+            }
+
+            return Ok(new
+            {
+                message = AppConstant.Message.SUCCESSFUL_FINAL,
+                id = finalQuotationId
+            });
         }
 
         #region CancelFinalQuotation
