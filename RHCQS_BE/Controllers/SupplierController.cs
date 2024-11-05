@@ -122,6 +122,25 @@ namespace RHCQS_BE.Controllers
             return isUpdated ? Ok(isUpdated) : BadRequest();
         }
 
-        
+        #region SearchSupplierByName
+        /// <summary>
+        /// Searches suppliers by name.
+        /// </summary>
+        /// <param name="name">The name or partial name of the supplier.</param>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet("search")]
+        [ProducesResponseType(typeof(List<SupplierResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchSupplierByName(string name)
+        {
+            var listSearchSupplier = await _supplierService.SearchSupplierByName(name);
+            var result = JsonConvert.SerializeObject(listSearchSupplier, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }
