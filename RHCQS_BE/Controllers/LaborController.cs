@@ -125,7 +125,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <param name="name">The name or partial name of the labor.</param>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet("search")]
         [ProducesResponseType(typeof(List<LaborResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchLaborByName(string name)
