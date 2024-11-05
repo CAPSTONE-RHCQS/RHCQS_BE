@@ -24,7 +24,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationResponse
     {
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, string type, string adress
+        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, Guid initialId, string type, string adress
             , double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
             string? status, bool? deflag, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
@@ -34,6 +34,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Id = id;
             AccountName = accountName;
             ProjectId = projectId;
+            InitailQuotationId = initialId;
             ProjectType = type;
             ProjectAddress = adress;
             TotalPrice = totalPrice;
@@ -57,6 +58,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
         public string AccountName { get; set; }
         public Guid ProjectId { get; set; }
+        public Guid InitailQuotationId { get; set; }
         public string? ProjectType { get; set; }
         public string? ProjectAddress { get; set; }
 
@@ -95,8 +97,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Guid paymentId,
             Guid paymentTypeId,
             string? paymentTypeName,
-            Guid intialquotationId,
-            Guid contractId,
+            Guid? contractId,
             DateTime? insDate,
             string? status,
             DateTime? upsDate,
@@ -111,7 +112,6 @@ namespace RHCQS_BusinessObject.Payload.Response
             PaymentId = paymentId;
             PaymentTypeId = paymentTypeId;
             PaymentTypeName = paymentTypeName;
-            InitailQuotationId = intialquotationId;
             ContractId = contractId;
             Status = status;
             UpsDate = upsDate;
@@ -128,7 +128,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? PaymentTypeName { get; set; }
         public Guid InitailQuotationId { get; set; }
 
-        public Guid ContractId { get; set; }
+        public Guid? ContractId { get; set; }
 
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }

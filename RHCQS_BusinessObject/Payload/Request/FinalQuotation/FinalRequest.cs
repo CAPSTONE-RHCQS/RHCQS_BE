@@ -38,8 +38,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Required(ErrorMessage = "PaymentTypeId là bắt buộc.")]
         public Guid PaymentTypeId { get; set; }
 
-        [Required(ErrorMessage = "ContractId là bắt buộc.")]
-        public Guid ContractId { get; set; }
+        public Guid? ContractId { get; set; }
 
         [Required(ErrorMessage = "Giá là bắt buộc.")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]

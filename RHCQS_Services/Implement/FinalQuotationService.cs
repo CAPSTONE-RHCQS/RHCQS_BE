@@ -657,7 +657,6 @@ namespace RHCQS_Services.Implement
                         bp?.Payment?.Id ?? Guid.Empty,
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
-                        bp?.IntitialQuotationId ?? Guid.Empty,
                         bp?.ContractId ?? Guid.Empty,
                         bp?.InsDate,
                         bp?.Status ?? string.Empty,
@@ -797,10 +796,12 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
+                var initialQuotationId = finalQuotation.BatchPayments.FirstOrDefault()?.IntitialQuotationId ?? Guid.Empty;
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
+                    initialQuotationId,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -868,7 +869,6 @@ namespace RHCQS_Services.Implement
                         bp?.Payment!.Id ?? Guid.Empty,
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
-                        bp?.IntitialQuotationId ?? Guid.Empty,
                         bp?.ContractId ?? Guid.Empty,
                         bp.InsDate,
                         bp.Status,
@@ -1007,10 +1007,12 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
+                var initialQuotationId = finalQuotation.BatchPayments.FirstOrDefault()?.IntitialQuotationId ?? Guid.Empty;
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
+                    initialQuotationId,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -1080,7 +1082,6 @@ namespace RHCQS_Services.Implement
                         bp?.Payment.Id ?? Guid.Empty,
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
-                        bp?.IntitialQuotationId ?? Guid.Empty,
                         bp?.ContractId ?? Guid.Empty,
                         bp.InsDate,
                         bp.Status,
@@ -1219,10 +1220,12 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
+                var initialQuotationId = finalQuotation.BatchPayments.FirstOrDefault()?.IntitialQuotationId ?? Guid.Empty;
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
+                    initialQuotationId,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
