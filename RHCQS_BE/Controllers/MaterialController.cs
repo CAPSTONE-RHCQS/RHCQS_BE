@@ -130,7 +130,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="name">The name or partial name of the material.</param>
         #endregion 
         [Authorize(Roles = "SalesStaff, Manager")]
-        [HttpGet("search")]
+        [HttpGet(ApiEndPointConstant.Material.SearchMaterialEndpoint)]
         [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchMaterialByName(string name)
         {
@@ -152,7 +152,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="materialTypeId">The ID of the material type to filter by.</param>
         #endregion
         [Authorize(Roles = "SalesStaff, Manager")]
-        [HttpGet("filter")]
+        [HttpGet(ApiEndPointConstant.Material.FilterMaterialEndpoint)]
         [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> FilterMaterialByType(Guid materialTypeId)
         {
