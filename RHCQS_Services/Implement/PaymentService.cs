@@ -33,7 +33,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
-                            selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!, p.InsDate,
+                            selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!,p.BatchPayments.FirstOrDefault(b => b.Id == p.Id)!.Status!, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
                                                                p.Unit, p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
@@ -57,6 +57,7 @@ namespace RHCQS_Services.Implement
                 bp.Payment!.Priority,
                 bp.Payment!.Id,
                 bp.Payment.PaymentType.Name!,
+                bp.Status!,
                 bp.InsDate,
                 bp.Payment.UpsDate,
                 bp.Payment.TotalPrice,
@@ -212,7 +213,8 @@ namespace RHCQS_Services.Implement
             var listBatch = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
                             predicate: x => x.Contract!.ProjectId == projectId,
                             include: x => x.Include(x => x.Payment!)
-                                           .ThenInclude(x => x.PaymentType),
+                                           .ThenInclude(x => x.PaymentType)
+                                           .Include(x => x.Contract!),
                             orderBy: x => x.OrderBy(x => x.Payment.Priority)
                             );
 
@@ -222,11 +224,11 @@ namespace RHCQS_Services.Implement
             }
 
             var payments = listBatch.Select(batch => batch.Payment).Distinct();
-
             var result = payments.Select(payment => new PaymentResponse(
                 priorty: payment.Priority,
                 id: payment!.Id,
                 type: payment.PaymentType.Name!,
+                status: payment.BatchPayments.FirstOrDefault(batch => batch.Contract!.ProjectId == projectId)?.Status ?? "",
                 insDate: payment.InsDate,
                 upsDate: payment.UpsDate,
                 totalprice: payment.TotalPrice,
@@ -236,6 +238,7 @@ namespace RHCQS_Services.Implement
                 percents: payment.Percents,
                 description: payment.Description
             )).ToList();
+
 
             return result;
         }
