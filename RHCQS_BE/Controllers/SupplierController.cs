@@ -67,6 +67,40 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region CreateSupplier
+        /// <summary>
+        /// Creates a new supplier in the system.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     POST /api/v1/supplier
+        ///     {
+        ///     "name": "string",
+        ///     "email": "string",
+        ///     "constractPhone": "string",
+        ///     "imgUrl": "string",
+        ///     "deflag": true,
+        ///     "shortDescription": "string",
+        ///     "description": "string"
+        ///     }
+        /// </remarks>
+        /// <param name="request">Supplier request model</param>
+        /// <returns>Returns true if the supplier is created successfully, otherwise false.</returns>
+        /// <response code="200">Supplier created successfully</response>
+        /// <response code="400">Failed to create the supplier</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Supplier.SupplierEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateSupplier([FromBody] SupplierRequest request)
+        {
+            var isCreated = await _supplierService.CreateSupplier(request);
+            return isCreated ? Ok(isCreated) : BadRequest();
+        }
+
         
     }
 }
