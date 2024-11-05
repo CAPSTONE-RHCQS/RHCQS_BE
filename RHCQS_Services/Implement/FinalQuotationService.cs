@@ -449,34 +449,51 @@ namespace RHCQS_Services.Implement
                     }
                 }
 
-                // Handle Utilities
-                if (request.Utilities != null)
+                if (request.Utilities != null && request.Utilities.Count > 0)
                 {
                     foreach (var utility in request.Utilities)
                     {
-                        var utilitiesItem = await _unitOfWork.GetRepository<UtilitiesItem>()
-                            .FirstOrDefaultAsync(u => u.Id == utility.UtilitiesItemId);
+                        var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utility.UtilitiesItemId);
+                        QuotationUtility utlItem;
 
-                        if (utilitiesItem == null)
+                        if (utilityItem == null) 
                         {
-                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"UtilityId {utility.UtilitiesItemId} không tồn tại.");
+                            var utilitiesSection = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == utility.UtilitiesItemId);
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = null,
+                                FinalQuotationId = finalQuotation.Id,
+                                Name = utilitiesSection.Name,
+                                Coefiicient = 0,
+                                Price = utility.Price,
+                                Description = utilitiesSection.Description,
+                                InsDate = DateTime.UtcNow,
+                                UpsDate = DateTime.UtcNow,
+                                UtilitiesSectionId = utilitiesSection.Id
+                            };
                         }
-                        var utilityItem = new QuotationUtility
+                        else
                         {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = utility.UtilitiesItemId,
-                            Name = utility.Name,
-                            UtilitiesSectionId = utilitiesItem.SectionId,
-                            FinalQuotationId = finalQuotation.Id,
-                            Coefiicient = utility.Coefficient,
-                            Price = utility.Price,
-                            Description = utility.Description,
-                            InsDate = DateTime.UtcNow
-                        };
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = utilityItem.Id,
+                                FinalQuotationId = finalQuotation.Id,
+                                Name = utilityItem.Name,
+                                Coefiicient = utilityItem.Coefficient,
+                                Price = utility.Price,
+                                Description = null,
+                                InsDate = DateTime.UtcNow,
+                                UpsDate = DateTime.UtcNow,
+                                UtilitiesSectionId = utilityItem.SectionId
+                            };
+                        }
 
-                        finalQuotation.QuotationUtilities.Add(utilityItem);
+                        await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                     }
                 }
+
 
                 await finalQuotationRepo.InsertAsync(finalQuotation);
 
@@ -604,6 +621,7 @@ namespace RHCQS_Services.Implement
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                     x => x.Project.Customer != null &&
+                         x.Version == 1 &&
                          x.Project.Customer.Username.Equals(name) &&
                          x.Deflag == true,
                     include: x => x.Include(x => x.Project)
@@ -1027,7 +1045,7 @@ namespace RHCQS_Services.Implement
             try
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
-                    x => x.ProjectId.Equals(projectid) && (x.Deflag == true),
+                    x => x.ProjectId.Equals(projectid) && x.Version == 1 && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Promotion)
@@ -1621,6 +1639,7 @@ namespace RHCQS_Services.Implement
                 <th>HỆ SỐ</th>
                 <th>ĐƠN GIÁ</th>
                 <th>THÀNH TIỀN</th>
+                <th>GHI CHÚ</th>
             </tr>
         </thead>
         <tbody>");
@@ -1631,10 +1650,11 @@ namespace RHCQS_Services.Implement
                 sb.Append($@"
             <tr>
                 <td>{++noUti}</td>
-                <td>{item.Description}</td>
+                <td>{item.Name}</td>
                 <td>{item.Coefficient:N0}</td>
                 <td>{item.UnitPrice:N0}</td>
                 <td>{item.Price:N0}</td>
+                <td>{item.Description:N0}</td>
             </tr>");
             }
 
