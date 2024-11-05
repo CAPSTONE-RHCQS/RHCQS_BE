@@ -20,13 +20,13 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public string? Note { get; set; }
 
-        public List<BatchPaymentInfoRequest> BatchPaymentInfos { get; set; }
+        public List<BatchPaymentInfoRequest>? BatchPaymentInfos { get; set; }
 
-        public List<EquipmentItemsRequest> EquipmentItems { get; set; }
+        public List<EquipmentItemsRequest>? EquipmentItems { get; set; }
 
         public List<UtilitiesUpdateRequestForFinal>? Utilities { get; set; }
 
-        public List<FinalQuotationItemRequest> FinalQuotationItems { get; set; }
+        public List<FinalQuotationItemRequest>? FinalQuotationItems { get; set; }
 
     }
 
@@ -38,8 +38,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Required(ErrorMessage = "PaymentTypeId là bắt buộc.")]
         public Guid PaymentTypeId { get; set; }
 
-        [Required(ErrorMessage = "ContractId là bắt buộc.")]
-        public Guid ContractId { get; set; }
+        public Guid? ContractId { get; set; }
 
         [Required(ErrorMessage = "Giá là bắt buộc.")]
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
@@ -71,6 +70,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public double? TotalOfMaterial { get; set; }
 
         public string? Note { get; set; }
+        public string? Type { get; set; }
     }
 
     public class FinalQuotationItemRequest
@@ -79,13 +79,14 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Required(ErrorMessage = "ConstructionItemId là bắt buộc.")]
         public Guid ConstructionItemId { get; set; }
 
-        public List<QuotationItemRequest> QuotationItems { get; set; }
+        public List<QuotationItemRequest>? QuotationItems { get; set; }
     }
 
     public class UtilitiesUpdateRequestForFinal
     {
-        [Required(ErrorMessage = "UltilitiesItemId là bắt buộc.")]
-        public Guid UtilitiesItemId { get; set; }
+        public Guid? UtilitiesItemId { get; set; }
+
+/*        public string? Name { get; set; }*/
 
         [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
         public double? Coefficient { get; set; }
@@ -93,7 +94,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
 
-        public string? Description { get; set; }
+/*        public string? Description { get; set; }*/
+
     }
     public class QuotationItemRequest
     {

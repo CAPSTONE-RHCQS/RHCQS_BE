@@ -301,7 +301,7 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = null,
                                 FinalQuotationId = null,
                                 InitialQuotationId = initialItem.Id,
-                                Name = utl.Name,
+                                Name = sectionItem.Name!,
                                 Coefiicient = 0,
                                 Price = utl.Price,
                                 Description = sectionItem.Description,
@@ -323,7 +323,7 @@ namespace RHCQS_Services.Implement
                                 Name = utilityItem.Name!,
                                 Coefiicient = utilityItem.Coefficient,
                                 Price = utl.Price,
-                                Description = null,
+                                Description = utilityItem.Name,
                                 InsDate = DateTime.Now,
                                 UpsDate = DateTime.Now,
                                 UtilitiesSectionId = utilityItem.SectionId

@@ -24,7 +24,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationResponse
     {
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, string type, string adress
+        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, Guid initialId, string type, string adress
             , double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
             string? status, bool? deflag, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
@@ -34,6 +34,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Id = id;
             AccountName = accountName;
             ProjectId = projectId;
+            InitailQuotationId = initialId;
             ProjectType = type;
             ProjectAddress = adress;
             TotalPrice = totalPrice;
@@ -57,6 +58,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
         public string AccountName { get; set; }
         public Guid ProjectId { get; set; }
+        public Guid InitailQuotationId { get; set; }
         public string? ProjectType { get; set; }
         public string? ProjectAddress { get; set; }
 
@@ -93,8 +95,9 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public BatchPaymentResponse(
             Guid paymentId,
-            Guid intialquotationId,
-            Guid contractId,
+            Guid paymentTypeId,
+            string? paymentTypeName,
+            Guid? contractId,
             DateTime? insDate,
             string? status,
             DateTime? upsDate,
@@ -107,7 +110,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         {
             InsDate = insDate;
             PaymentId = paymentId;
-            InitailQuotationId = intialquotationId;
+            PaymentTypeId = paymentTypeId;
+            PaymentTypeName = paymentTypeName;
             ContractId = contractId;
             Status = status;
             UpsDate = upsDate;
@@ -120,10 +124,11 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid PaymentId { get; set; }
-
+        public Guid PaymentTypeId { get; set; }
+        public string? PaymentTypeName { get; set; }
         public Guid InitailQuotationId { get; set; }
 
-        public Guid ContractId { get; set; }
+        public Guid? ContractId { get; set; }
 
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
@@ -138,8 +143,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class EquipmentItemsResponse
     {
-        public EquipmentItemsResponse(Guid id, string? name, string? unit, int? quantity,
-            double? unitOfMaterial, double? totalOfMaterial, string? note)
+        public EquipmentItemsResponse(Guid id, string? name, string? unit, int? quantity, double? unitOfMaterial, double? totalOfMaterial, string? note, string? type)
         {
             Id = id;
             Name = name;
@@ -148,6 +152,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             UnitOfMaterial = unitOfMaterial;
             TotalOfMaterial = totalOfMaterial;
             Note = note;
+            Type = type;
         }
 
         public Guid Id { get; set; }
@@ -163,6 +168,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalOfMaterial { get; set; }
 
         public string? Note { get; set; }
+        public string? Type { get; set; }
     }
     public class FinalQuotationItemResponse
     {
@@ -245,15 +251,16 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class QuotationLaborResponse
     {
-        public QuotationLaborResponse(Guid id, string? laborName, double? laborPrice)
+        public QuotationLaborResponse(Guid id, Guid laborId, string? laborName, double? laborPrice)
         {
             Id = id;
+            LaborId = laborId;
             LaborName = laborName;
             LaborPrice = laborPrice;
         }
 
         public Guid Id { get; set; }
-
+        public Guid LaborId { get; set; }
         public string? LaborName { get; set; }
 
         public double? LaborPrice { get; set; }
@@ -261,15 +268,18 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class QuotationMaterialResponse
     {
-        public QuotationMaterialResponse(Guid id, string? materialName, string? unit, double? materialPrice)
+        public QuotationMaterialResponse(Guid id, Guid materialId, string? materialName, string? unit, double? materialPrice)
         {
             Id = id;
+            MaterialId = materialId;
             MaterialName = materialName;
             Unit = unit;
             MaterialPrice = materialPrice;
         }
 
         public Guid Id { get; set; }
+
+        public Guid MaterialId { get; set; }
 
         public string? MaterialName { get; set; }
 
@@ -281,9 +291,12 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class UtilityInf
     {
-        public UtilityInf(Guid id, string name, string description, double coefficient, double price, double unitPrice, string unit)
+        public UtilityInf(Guid id, Guid? utilitiesItemId, Guid? utilitiesSectionId, string name, string description,
+            double coefficient, double price, double unitPrice, string unit)
         {
             Id = id;
+            this.utilitiesItemId = utilitiesItemId;
+            this.utilitiesSectionId = utilitiesSectionId;
             Name = name;
             Description = description;
             Coefficient = coefficient;
@@ -293,6 +306,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
+        public Guid? utilitiesItemId { get; set; }
+        public Guid? utilitiesSectionId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public double Coefficient { get; set; }

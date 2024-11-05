@@ -18,7 +18,7 @@ namespace RHCQS_Services.Interface
         Task<FinalQuotationResponse> GetDetailFinalQuotationByProjectId(Guid projectid);
         Task<FinalQuotationResponse> GetDetailFinalQuotationByCustomerName(string name);
         Task<string> ApproveFinalFromManager(Guid Id, ApproveQuotationRequest request);
-        Task<bool> UpdateFinalQuotation(FinalRequest request);
+        Task<Guid?> UpdateFinalQuotation(FinalRequest request);
         Task<bool> CreateFinalQuotation(Guid projectId);
         Task<bool> CancelFinalQuotation(Guid Id, CancelQuotation reason);
         Task<List<FinalAppResponse>> GetListFinalQuotationByProjectId(Guid projectId);

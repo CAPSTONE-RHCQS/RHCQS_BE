@@ -233,7 +233,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region GetDetailFinalQuotationById
+        #region GetDetailFinalQuotationByProjectId
         /// <summary>
         /// Retrieves the details of a specific final quotation by projectid.
         /// </summary>
@@ -468,81 +468,90 @@ namespace RHCQS_BE.Controllers
         /// **Sample Request:**
         /// ```json
         /// {
-        ///   "projectId": "7f1e0a03-91a5-46ab-aae8-65cd4092eb8b",
-        ///   "promotionId": null,
-        ///   "totalPrice": 0,
-        ///   "note": null,
-        ///   "batchPaymentInfos": [],
-        ///   "equipmentItems": [],
-        ///   "utilities": [
-        ///     {
-        ///       "utilitiesItemId": "b069d992-d30d-42a8-91d5-000e749c67eb",
-        ///       "coefficient": 0.03,
-        ///       "price": 23611500,
-        ///       "description": ""
-        ///     },
-        ///     {
-        ///       "utilitiesItemId": "a6dbeb8b-2853-4df4-8069-598171488373",
-        ///       "coefficient": 0.04,
-        ///       "price": 31482000,
-        ///       "description": ""
-        ///     },
-        ///     {
-        ///       "utilitiesItemId": "58559293-f989-4d06-af88-e318a370cd2e",
-        ///       "coefficient": 0,
-        ///       "price": 250000,
-        ///       "description": ""
-        ///     }
-        ///   ],
-        ///   "finalQuotationItems": [
-        ///     {
-        ///       "constructionItemId": "40AA0395-A4EF-423C-91F2-11D2889DC306",
-        ///       "quotationItems": [
+        ///     "projectId": "bdd78fb2-e758-4674-84e9-4e8b4406826e",
+        ///     "promotionId": null,
+        ///     "totalPrice": 1060391000,
+        ///     "note": "gg",
+        ///     "batchPaymentInfos": [
         ///         {
-        ///           "unit": "cuộn",
-        ///           "weight": 11,
-        ///           "unitPriceLabor": 0,
-        ///           "unitPriceRough": 13000.0,
-        ///           "unitPriceFinished": 0,
-        ///           "totalPriceLabor": 0,
-        ///           "totalPriceRough": 143000.0,
-        ///           "totalPriceFinished": 0,
-        ///           "note": "test",
-        ///           "quotationLabors": [],
-        ///           "quotationMaterials": [
-        ///             {
-        ///               "materialId": "4232C02F-912C-41C9-AAEF-0101A39DE9FD",
-        ///               "unit": "cuộn",
-        ///               "materialPrice": 13000.0
-        ///             }
-        ///           ]
-        ///         }
-        ///       ]
-        ///     },
-        ///     {
-        ///       "constructionItemId": "9696145F-BEBF-4120-8354-C8AEF681B351",
-        ///       "quotationItems": [
+        ///             "initIntitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
+        ///             "paymentTypeId": "2D4A2343-D102-4DC9-8A4F-6647EA397E6C",
+        ///             "contractId": "9d864292-9768-46d4-82f5-6b26cb1b9a3f",
+        ///             "price": 292261500,
+        ///             "percents": "50",
+        ///             "description": "Đợt 1 thanh toán 50%",
+        ///             "status": "Progress"
+        ///         },
         ///         {
-        ///           "unit": "m2",
-        ///           "weight": 11,
-        ///           "unitPriceLabor": 350000.0,
-        ///           "unitPriceRough": 0,
-        ///           "unitPriceFinished": 0,
-        ///           "totalPriceLabor": 3850000,
-        ///           "totalPriceRough": 0,
-        ///           "totalPriceFinished": 0,
-        ///           "note": "test",
-        ///           "quotationLabors": [
-        ///             {
-        ///               "laborId": "0D207781-EEBB-4A03-96CE-005434963F44",
-        ///               "laborPrice": 350000.0
-        ///             }
-        ///           ],
-        ///           "quotationMaterials": []
+        ///             "initIntitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
+        ///             "paymentTypeId": "2D4A2343-D102-4DC9-8A4F-6647EA397E6C",
+        ///             "contractId": "9d864292-9768-46d4-82f5-6b26cb1b9a3f",
+        ///             "price": 685552500,
+        ///             "percents": "50",
+        ///             "description": "Đợt 2 thanh toán 50% nghiệm thu bản vẽ thiết kế",
+        ///             "status": "Progress"
         ///         }
-        ///       ]
-        ///     }
-        ///   ]
+        ///     ],
+        ///     "equipmentItems": [
+        ///         {
+        ///             "name": "Lavabo màu trắng âm bàn, MS: L5125\n\n",
+        ///             "unit": "Bộ",
+        ///             "quantity": 6,
+        ///             "unitOfMaterial": 1111000,
+        ///             "totalOfMaterial": 7777000,
+        ///             "note": "gg",
+        ///             "type": "SANITATION"
+        ///         }
+        ///     ],
+        ///     "utilities": [
+        ///         {
+        ///             "utilitiesItemId": "422BB684-C541-47F5-AE3B-7F8F38E91E84",
+        ///             "name": "Hẻm 5m - 6m",
+        ///             "coefficient": 0.01,
+        ///             "price": 0,
+        ///             "description": "gg"
+        ///         }
+        ///     ],
+        ///     "finalQuotationItems": [
+        ///         {
+        ///             "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",
+        ///             "quotationItems": [
+        ///                 {
+        ///                     "unit": "m2",
+        ///                     "weight": 170,
+        ///                     "unitPriceLabor": 350000,
+        ///                     "unitPriceRough": 0,
+        ///                     "unitPriceFinished": 0,
+        ///                     "totalPriceLabor": 59500000,
+        ///                     "totalPriceRough": 0,
+        ///                     "totalPriceFinished": 0,
+        ///                     "note": "gg",
+        ///                     "quotationLabors": {
+        ///                         "laborId": "5ECFFEF5-6441-437C-903B-ED469E4A819A",
+        ///                         "laborPrice": 350000
+        ///                     },
+        ///                     "quotationMaterials": null
+        ///                 },
+        ///                 {
+        ///                     "unit": "bao",
+        ///                     "weight": 170,
+        ///                     "unitPriceLabor": 0,
+        ///                     "unitPriceRough": 90000,
+        ///                     "unitPriceFinished": 0,
+        ///                     "totalPriceLabor": 0,
+        ///                     "totalPriceRough": 15300000,
+        ///                     "totalPriceFinished": 0,
+        ///                     "note": "gg",
+        ///                     "quotationLabors": null,
+        ///                     "quotationMaterials": {
+        ///                         "materialId": "8961731D-9389-4B9A-A86E-23AD1F8211C5",
+        ///                         "unit": "bao",
+        ///                         "materialPrice": 90000.0
+        ///                     }
+        ///                 }
+        ///             ]
+        ///         }
+        ///     ]
         /// }
         /// ```
         /// </remarks>
@@ -557,9 +566,22 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFinalQuotation([FromBody] FinalRequest request)
         {
-            bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
+/*            bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
 
-            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);
+            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);*/
+
+            Guid? finalQuotationId = await _finalQuotationService.UpdateFinalQuotation(request);
+
+            if (finalQuotationId == null)
+            {
+                return NotFound(AppConstant.Message.ERROR);
+            }
+
+            return Ok(new
+            {
+                message = AppConstant.Message.SUCCESSFUL_FINAL,
+                id = finalQuotationId
+            });
         }
 
         #region CancelFinalQuotation
