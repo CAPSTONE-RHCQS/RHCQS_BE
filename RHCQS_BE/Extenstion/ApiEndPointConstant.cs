@@ -245,5 +245,13 @@ namespace RHCQS_BE.Extenstion
             public const string SearchMaterialSectionEndpoint = MaterialSectionEndpoint + "/name";
             public const string MaterialSectionDetailEndpoint = MaterialSectionEndpoint + "/id";
         }
+
+        public static class Supplier
+        {
+            public const string SupplierEndpoint = ApiEndpoint + "/supplier";
+            public const string SupplierListEndpoint = ApiEndpoint + "/allsuppliers";
+            public const string SearchSupplierEndpoint = SupplierEndpoint + "/name";
+            public const string SupplierDetailEndpoint = SupplierEndpoint + "/id";
+        }
     }
 }
