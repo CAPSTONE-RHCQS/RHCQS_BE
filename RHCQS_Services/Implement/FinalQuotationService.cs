@@ -251,8 +251,8 @@ namespace RHCQS_Services.Implement
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
-            try
-            {
+/*            try
+            {*/
                 if (request == null)
                 {
                     throw new AppConstant.MessageError(
@@ -316,32 +316,55 @@ namespace RHCQS_Services.Implement
                             .AnyAsync(c => c.Id == bp.ContractId);
                         if (!contractExists)
                         {
-                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"ContractId {bp.ContractId} không tồn tại.");
+                            var payment = new Payment
+                            {
+                                Id = Guid.NewGuid(),
+                                PaymentTypeId = bp.PaymentTypeId,
+                                InsDate = DateTime.UtcNow,
+                                TotalPrice = bp.Price,
+                                Percents = bp.Percents,
+                                Description = bp.Description,
+                                Unit = AppConstant.Unit.UnitPrice
+                            };
+
+                            var batchPayment = new BatchPayment
+                            {
+                                Id = Guid.NewGuid(),
+                                IntitialQuotationId = bp.InitIntitialQuotationId,
+                                ContractId =null,
+                                InsDate = DateTime.UtcNow,
+                                FinalQuotationId = finalQuotation.Id,
+                                Payment = payment,
+                                Status = bp.Status
+                            };
+                            finalQuotation.BatchPayments.Add(batchPayment);
+                        }
+                        else
+                        {
+                            var payment = new Payment
+                            {
+                                Id = Guid.NewGuid(),
+                                PaymentTypeId = bp.PaymentTypeId,
+                                InsDate = DateTime.UtcNow,
+                                TotalPrice = bp.Price,
+                                Percents = bp.Percents,
+                                Description = bp.Description,
+                                Unit = AppConstant.Unit.UnitPrice
+                            };
+
+                            var batchPayment = new BatchPayment
+                            {
+                                Id = Guid.NewGuid(),
+                                IntitialQuotationId = bp.InitIntitialQuotationId,
+                                ContractId = bp.ContractId,
+                                InsDate = DateTime.UtcNow,
+                                FinalQuotationId = finalQuotation.Id,
+                                Payment = payment,
+                                Status = bp.Status
+                            };
+                            finalQuotation.BatchPayments.Add(batchPayment);
                         }
 
-                        var payment = new Payment
-                        {
-                            Id = Guid.NewGuid(),
-                            PaymentTypeId = bp.PaymentTypeId,
-                            InsDate = DateTime.UtcNow,
-                            TotalPrice = bp.Price,
-                            Percents = bp.Percents,
-                            Description = bp.Description,
-                            Unit = AppConstant.Unit.UnitPrice
-                        };
-
-                        var batchPayment = new BatchPayment
-                        {
-                            Id = Guid.NewGuid(),
-                            IntitialQuotationId = bp.InitIntitialQuotationId,
-                            ContractId = bp.ContractId,
-                            InsDate = DateTime.UtcNow,
-                            FinalQuotationId = finalQuotation.Id,
-                            Payment = payment,
-                            Status = bp.Status
-                        };
-
-                        finalQuotation.BatchPayments.Add(batchPayment);
                     }
                 }
 
@@ -520,11 +543,11 @@ namespace RHCQS_Services.Implement
                     );
                 }
                 return finalQuotation.Id;
-            }
+/*            }
             catch (Exception ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            }
+                throw;
+            }*/
         }
 
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
