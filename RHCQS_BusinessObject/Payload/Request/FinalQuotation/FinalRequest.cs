@@ -103,7 +103,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public Guid? MaterialId { get; set; }
 
-        public string? Unit { get; set; }
+        //public string? Unit { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
         public double? Weight { get; set; }
