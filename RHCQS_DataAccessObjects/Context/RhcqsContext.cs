@@ -92,6 +92,8 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<Room> Rooms { get; set; }
+
     public virtual DbSet<SubConstructionItem> SubConstructionItems { get; set; }
 
     public virtual DbSet<SubTemplate> SubTemplates { get; set; }
@@ -298,11 +300,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.ConstructionItem).WithMany(p => p.FinalQuotationItems)
-                .HasForeignKey(d => d.ConstructionItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_FinalQuotationItem_ConstructionItems");
-
             entity.HasOne(d => d.FinalQuotation).WithMany(p => p.FinalQuotationItems)
                 .HasForeignKey(d => d.FinalQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -432,6 +429,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("MaterialSection");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
         });
@@ -480,12 +478,11 @@ public partial class RhcqsContext : DbContext
 
         modelBuilder.Entity<Message>(entity =>
         {
+            entity.HasKey(e => new { e.SenderId, e.RoomId });
+
             entity.ToTable("Message");
 
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Reciver).HasMaxLength(50);
-            entity.Property(e => e.Sender).HasMaxLength(50);
-            entity.Property(e => e.Time).HasColumnType("datetime");
+            entity.Property(e => e.SendAt).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Package>(entity =>
@@ -757,6 +754,22 @@ public partial class RhcqsContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.RoleName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<Room>(entity =>
+        {
+            entity.ToTable("Room");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Custome).WithMany(p => p.RoomCustomes)
+                .HasForeignKey(d => d.CustomeId)
+                .HasConstraintName("FK_Room_Account");
+
+            entity.HasOne(d => d.Sale).WithMany(p => p.RoomSales)
+                .HasForeignKey(d => d.SaleId)
+                .HasConstraintName("FK_Room_Account1");
         });
 
         modelBuilder.Entity<SubConstructionItem>(entity =>

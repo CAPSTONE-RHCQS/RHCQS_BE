@@ -468,14 +468,13 @@ namespace RHCQS_BE.Controllers
         /// **Sample Request:**
         /// ```json
         /// {
-        ///     "projectId": "bdd78fb2-e758-4674-84e9-4e8b4406826e",
+        ///     "projectId": "BDD78FB2-E758-4674-84E9-4E8B4406826E",
         ///     "promotionId": null,
-        ///     "totalPrice": 1060391000,
         ///     "note": "gg",
         ///     "batchPaymentInfos": [
         ///         {
         ///             "initIntitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
-        ///             "paymentTypeId": "2D4A2343-D102-4DC9-8A4F-6647EA397E6C",
+        ///             "paymentTypeId": "2d4a2343-d102-4dc9-8a4f-6647ea397e6c",
         ///             "contractId": "9d864292-9768-46d4-82f5-6b26cb1b9a3f",
         ///             "price": 292261500,
         ///             "percents": "50",
@@ -484,7 +483,7 @@ namespace RHCQS_BE.Controllers
         ///         },
         ///         {
         ///             "initIntitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
-        ///             "paymentTypeId": "2D4A2343-D102-4DC9-8A4F-6647EA397E6C",
+        ///             "paymentTypeId": "2d4a2343-d102-4dc9-8a4f-6647ea397e6c",
         ///             "contractId": "9d864292-9768-46d4-82f5-6b26cb1b9a3f",
         ///             "price": 685552500,
         ///             "percents": "50",
@@ -498,56 +497,33 @@ namespace RHCQS_BE.Controllers
         ///             "unit": "Bộ",
         ///             "quantity": 6,
         ///             "unitOfMaterial": 1111000,
-        ///             "totalOfMaterial": 7777000,
         ///             "note": "gg",
         ///             "type": "SANITATION"
         ///         }
         ///     ],
         ///     "utilities": [
         ///         {
-        ///             "utilitiesItemId": "422BB684-C541-47F5-AE3B-7F8F38E91E84",
-        ///             "name": "Hẻm 5m - 6m",
-        ///             "coefficient": 0.01,
-        ///             "price": 0,
-        ///             "description": "gg"
+        ///             "utilitiesItemId": "422bb684-c541-47f5-ae3b-7f8f38e91e84",
+        ///             "price": 777777
         ///         }
         ///     ],
         ///     "finalQuotationItems": [
         ///         {
-        ///             "constructionItemId": "75922602-9153-4CC3-A7DC-225C9BC30A5E",  // can be subcontructionid or constructionItemId
+        ///             "ConstructionId": "708BAD20-AF57-4AB6-96E9-C22A22273724",
         ///             "quotationItems": [
         ///                 {
-        ///                     "unit": "m2",
-        ///                     "weight": 170,
-        ///                     "unitPriceLabor": 350000,
-        ///                     "unitPriceRough": 0,
-        ///                     "unitPriceFinished": 0,
-        ///                     "totalPriceLabor": 59500000,
-        ///                     "totalPriceRough": 0,
-        ///                     "totalPriceFinished": 0,
-        ///                     "note": "gg",
-        ///                     "quotationLabors": {
-        ///                         "laborId": "5ECFFEF5-6441-437C-903B-ED469E4A819A",
-        ///                         "laborPrice": 350000
-        ///                     },
-        ///                     "quotationMaterials": null
-        ///                 },
-        ///                 {
+        ///                     "laborId": null,
+        ///                     "materialId": "8961731d-9389-4b9a-a86e-23ad1f8211c5",
         ///                     "unit": "bao",
         ///                     "weight": 170,
-        ///                     "unitPriceLabor": 0,
-        ///                     "unitPriceRough": 90000,
-        ///                     "unitPriceFinished": 0,
-        ///                     "totalPriceLabor": 0,
-        ///                     "totalPriceRough": 15300000,
-        ///                     "totalPriceFinished": 0,
-        ///                     "note": "gg",
-        ///                     "quotationLabors": null,
-        ///                     "quotationMaterials": {
-        ///                         "materialId": "8961731D-9389-4B9A-A86E-23AD1F8211C5",
-        ///                         "unit": "bao",
-        ///                         "materialPrice": 90000.0
-        ///                     }
+        ///                     "note": "gg"
+        ///                 },
+        ///                 {
+        ///                     "laborId": "5ecffef5-6441-437c-903b-ed469e4a819a",
+        ///                     "materialId": null,
+        ///                     "unit": "m2",
+        ///                     "weight": 170,
+        ///                     "note": "gg"
         ///                 }
         ///             ]
         ///         }
@@ -566,22 +542,16 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateFinalQuotation([FromBody] FinalRequest request)
         {
-/*            bool quotation = await _finalQuotationService.UpdateFinalQuotation(request);
-
-            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_FINAL : AppConstant.Message.ERROR);*/
 
             Guid? finalQuotationId = await _finalQuotationService.UpdateFinalQuotation(request);
-
-            if (finalQuotationId == null)
+            if (finalQuotationId == null) return NotFound(new { message = AppConstant.Message.ERROR });
+            var result = JsonConvert.SerializeObject(finalQuotationId, Formatting.Indented);
+            return new ContentResult()
             {
-                return NotFound(AppConstant.Message.ERROR);
-            }
-
-            return Ok(new
-            {
-                message = AppConstant.Message.SUCCESSFUL_FINAL,
-                id = finalQuotationId
-            });
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CancelFinalQuotation
@@ -647,9 +617,16 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> CreateFinalQuotation([FromQuery] Guid projectid)
         {
-            bool quotation = await _finalQuotationService.CreateFinalQuotation(projectid);
-
-            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);
+            var quotation = await _finalQuotationService.CreateFinalQuotation(projectid);
+            if (quotation == null) return NotFound(new { message = AppConstant.Message.ERROR });
+            var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+/*            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);*/
         }
 
         #region GetListFinalQuotationByProjectId
@@ -668,7 +645,7 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetListFinalQuotationByProjectId(Guid projectId)
         {
             var list = await _finalQuotationService.GetListFinalQuotationByProjectId(projectId);
-            if (list == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_FinalQuotaion});
+            if (list == null) return NotFound(new { message = AppConstant.Message.ERROR });
             var result = JsonConvert.SerializeObject(list, Formatting.Indented);
             return new ContentResult()
             {
@@ -677,6 +654,12 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-
+        [Authorize(Roles = "Manager")]
+        [HttpDelete(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
+        public async Task<IActionResult> DeleteFinalQuotation(Guid id)
+        {
+                await _finalQuotationService.DeleteFinalQuotation(id);
+                return NoContent(); // 204 No Content on successful deletion
+        }
     }
 }

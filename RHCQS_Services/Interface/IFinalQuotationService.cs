@@ -19,10 +19,11 @@ namespace RHCQS_Services.Interface
         Task<FinalQuotationResponse> GetDetailFinalQuotationByCustomerName(string name);
         Task<string> ApproveFinalFromManager(Guid Id, ApproveQuotationRequest request);
         Task<Guid?> UpdateFinalQuotation(FinalRequest request);
-        Task<bool> CreateFinalQuotation(Guid projectId);
+        Task<FinalQuotationResponse> CreateFinalQuotation(Guid projectId);
         Task<bool> CancelFinalQuotation(Guid Id, CancelQuotation reason);
         Task<List<FinalAppResponse>> GetListFinalQuotationByProjectId(Guid projectId);
         Task<string> FeedbackFixFinalFromCustomer(Guid finalId, FeedbackQuotationRequest comment);
         Task<string> ConfirmArgeeFinalFromCustomer(Guid finalId);
+        Task DeleteFinalQuotation(Guid finalQuotationId);
     }
 }

@@ -36,4 +36,8 @@ public partial class Account
     public virtual ICollection<HouseDesignDrawing> HouseDesignDrawings { get; set; } = new List<HouseDesignDrawing>();
 
     public virtual Role Role { get; set; } = null!;
+
+    public virtual ICollection<Room> RoomCustomes { get; set; } = new List<Room>();
+
+    public virtual ICollection<Room> RoomSales { get; set; } = new List<Room>();
 }

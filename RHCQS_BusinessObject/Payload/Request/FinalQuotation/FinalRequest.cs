@@ -15,8 +15,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public Guid? PromotionId { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền phải là một số dương.")]
-        public double? TotalPrice { get; set; }
+/*        [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền phải là một số dương.")]
+        public double? TotalPrice { get; set; }*/
 
         public string? Note { get; set; }
 
@@ -66,8 +66,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị phải là một số dương.")]
         public double? UnitOfMaterial { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền vật liệu phải là một số dương.")]
-        public double? TotalOfMaterial { get; set; }
+        //[Range(0, double.MaxValue, ErrorMessage = "Tổng tiền vật liệu phải là một số dương.")]
+        //public double? TotalOfMaterial { get; set; }
 
         public string? Note { get; set; }
         public string? Type { get; set; }
@@ -77,36 +77,38 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
     {
 
         [Required(ErrorMessage = "ConstructionItemId là bắt buộc.")]
-        public Guid ConstructionItemId { get; set; }
+        public Guid ConstructionId { get; set; }
 
         public List<QuotationItemRequest>? QuotationItems { get; set; }
     }
 
     public class UtilitiesUpdateRequestForFinal
     {
-        public Guid? UtilitiesItemId { get; set; }
+        public Guid UtilitiesItemId { get; set; }
 
-/*        public string? Name { get; set; }*/
+        /*        public string? Name { get; set; }*/
 
-        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
-        public double? Coefficient { get; set; }
+/*        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
+        public double? Coefficient { get; set; }*/
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
 
-/*        public string? Description { get; set; }*/
+        /*        public string? Description { get; set; }*/
 
     }
     public class QuotationItemRequest
     {
+        public Guid? LaborId { get; set; }
 
-        [Required(ErrorMessage = "Đơn vị là bắt buộc.")]
+        public Guid? MaterialId { get; set; }
+
         public string? Unit { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
         public double? Weight { get; set; }
 
-        public double? UnitPriceLabor { get; set; }
+/*        public double? UnitPriceLabor { get; set; }
 
         public double? UnitPriceRough { get; set; }
 
@@ -116,15 +118,15 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public double? TotalPriceRough { get; set; }
 
-        public double? TotalPriceFinished { get; set; }
+        public double? TotalPriceFinished { get; set; }*/
         public string ? Note { get; set; }
 
-        public QuotationLaborRequest? QuotationLabors { get; set; }
+/*        public QuotationLaborRequest? QuotationLabors { get; set; }
 
-        public QuotationMaterialRequest? QuotationMaterials { get; set; }
+        public QuotationMaterialRequest? QuotationMaterials { get; set; }*/
     }
 
-    public class QuotationLaborRequest
+/*    public class QuotationLaborRequest
     {
         [Required(ErrorMessage = "LaborId là bắt buộc.")]
         public Guid LaborId { get; set; }
@@ -144,6 +146,6 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Giá vật liệu phải là một số dương.")]
         public double? MaterialPrice { get; set; }
 
-    }
+    }*/
 
 }
