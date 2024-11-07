@@ -28,6 +28,7 @@ public static class AppConstant
         public const string Initial = "Báo giá sơ bộ";
         public const string Final = "Báo giá chi tiết";
         public const string Active = "Active";
+        public const double MaxVersion = 10.0;
     }
     public class Unit
     {
@@ -237,6 +238,7 @@ public static class AppConstant
         public const string Reason_Rejected_Required = "Cần phải có lý do báo giá bị từ chối!";
         public const string InvalidPackageQuotation = "Bắt buộc phải có gói thi công! Hãy chọn gói thi công trước khi hoàn tất";
         public const string InvalidBatchPayment = "Các đợt thanh toán hợp đồng là bắt buộc!";
+        public const string MaxVersionQuotation = "Báo giá đã đạt tới lần chỉnh sửa thứ 10, dự án sẽ bị hủy!";
 
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";

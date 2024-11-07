@@ -38,7 +38,7 @@ namespace RHCQS_Services.Implement
                 selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Customer!),
-                orderBy: x => x.OrderBy(w => w.InsDate),
+                orderBy: x => x.OrderByDescending(w => w.InsDate),
                 page: page,
                 size: size
                 );
@@ -378,7 +378,6 @@ namespace RHCQS_Services.Implement
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
 
-        //Cancel project    
         public async Task<bool> CancelProject(Guid projectId)
         {
             var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
