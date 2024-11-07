@@ -245,9 +245,16 @@ namespace RHCQS_Services.Implement
 
             var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
                 p => p.ProjectId == request.ProjectId,
-                orderBy: p => p.OrderByDescending(p => p.Version)
+                orderBy: p => p.OrderByDescending(p => p.Version),
+                include: p => p.Include(x => x.Project)
             );
-
+            if (highestFinalQuotation.Version >= AppConstant.General.MaxVersion)
+            {
+                highestFinalQuotation.Project.Status = AppConstant.ProjectStatus.ENDED;
+                _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
+                await _unitOfWork.CommitAsync();
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.MaxVersionQuotation);
+            }
             double newVersion = highestFinalQuotation?.Version + 1 ?? 1;
             var finalQuotation = new FinalQuotation
             {
