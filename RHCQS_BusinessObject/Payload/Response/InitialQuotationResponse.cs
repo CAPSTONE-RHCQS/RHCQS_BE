@@ -74,9 +74,8 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
         public string AccountName { get; set; }
+        public string Addres { get; set; }
         public Guid ProjectId { get; set; }
-        public Guid? PromotionId { get; set; }
-        public Guid PackageId { get; set; }
         public double? Area { get; set; }
         public int? TimeProcessing { get; set; }
         public int? TimeOthers { get; set; }
