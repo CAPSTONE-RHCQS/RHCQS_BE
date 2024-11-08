@@ -21,7 +21,7 @@ namespace RHCQS_Services.Interface
         Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id);
         Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
         Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ);
-        //Task<bool> CreateSubTemplate(TemplateRequestForCreateArea request);
+        Task<string> UpdateSubTemplate(Guid subTemplateId, UpdateSubTemplateRequest request);
         Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files);
         Task<bool> CreatePackageHouse(PackageHouseRequest request);
         Task<string> UploadFileNoMedia(IFormFile file, string folder);

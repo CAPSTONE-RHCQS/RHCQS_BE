@@ -78,6 +78,7 @@ namespace RHCQS_BE.Extenstion
             public const string SearchHouseTemplateEndpoint = HouseTemplateEndpoint + "/name";
             public const string HouseTemplateDetail = HouseTemplateEndpoint + "/id";
             public const string SubTemplateDesignEndpoint = ApiEndpoint + "/sub-template";
+            public const string SubTemplateDesignDetailEndpoint = SubTemplateDesignEndpoint + "/id";
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/upload-design-images";
             public const string PackageHouseEndpoint = ApiEndpoint + "/package-house";
             public const string UploadImagePackHouseEndpoint = ApiEndpoint + "/upload-package-house";

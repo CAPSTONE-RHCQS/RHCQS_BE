@@ -160,6 +160,7 @@ namespace RHCQS_BE.Controllers
         ///                 "buildingArea": 200,
         ///                 "floorArea": 120,
         ///                 "size": "R8 x D15",
+        ///                 "totalRough": 1560000000
         ///                 "templateItems": [
         ///                     {
         ///                         "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
@@ -202,16 +203,45 @@ namespace RHCQS_BE.Controllers
         }
 
 
-        //#region CreateSubTemplate
-        //#endregion
-        ////[Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
-        //[HttpPost(ApiEndPointConstant.HouseTemplate.SubTemplateDesignEndpoint)]
-        //[ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        //public async Task<IActionResult> CreateSubTemplate([FromBody] TemplateRequestForCreateArea request)
-        //{
-        //    var isCreate = await _houseService.CreateSubTemplate(request);
-        //    return isCreate ? Ok(isCreate) : BadRequest();
-        //}
+        #region UpdateSubTemplate
+        /// <summary>
+        /// Update sub-template with template items.
+        /// </summary>
+        /// <remarks>
+        /// Request mẫu:
+        /// 
+        /// ```json
+        /// {
+        ///   "buildingArea": 12,
+        ///   "floorArea": 12,
+        ///   "size": "D14xR9",
+        ///   "templateItems": [
+        ///     {
+        ///       "constructionItemId": "75922602-9153-4cc3-a7dc-225c9bc30a5e",
+        ///       "subConstructionItemId": null,
+        ///       "name": "Lầu 2",
+        ///       "area": 10,
+        ///       "unit": "m2"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
+        /// </remarks>
+        /// <param name="subTemplateId">ID của sub template cần được cập nhật</param>
+        /// <param name="request">Yêu cầu cập nhật thông tin cho sub template</param>
+        /// <returns>Trả về thông báo kết quả cập nhật</returns>
+        /// <response code="200">Cập nhật thành công</response>
+        /// <response code="400">Dữ liệu yêu cầu không hợp lệ hoặc cập nhật thất bại</response>
+        /// <response code="401">Không có quyền truy cập</response>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpPut(ApiEndPointConstant.HouseTemplate.SubTemplateDesignDetailEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateSubTemplate([FromQuery]Guid subTemplateId, [FromBody] UpdateSubTemplateRequest request)
+        {
+            var result = await _houseService.UpdateSubTemplate(subTemplateId, request);
+            return Ok(result);
+        }
 
 
         #region UpdateHouseTemplate
@@ -220,7 +250,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         #endregion
         [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
-        [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
+        [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateDetail)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequestForUpdate templ, Guid id)
         {

@@ -10,6 +10,8 @@ using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using System.Runtime.InteropServices;
 
 namespace RHCQS_Services.Implement
 {
@@ -125,11 +127,12 @@ namespace RHCQS_Services.Implement
                 SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
                 {
                     Id = Guid.NewGuid(),
-                    BuildingArea = sub.BuildingArea ?? 0,
+                    BuildingArea = sub.BuildingArea,
                     FloorArea = sub.FloorArea,
                     Size = sub.Size,
                     ImgUrl = null,
                     InsDate = DateTime.Now,
+                    TotalRough = sub.TotalRough,
                     TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
                     {
                         Id = Guid.NewGuid(),
@@ -182,66 +185,57 @@ namespace RHCQS_Services.Implement
 
 
 
-        //public async Task<bool> CreateSubTemplate(TemplateRequestForCreateArea request)
-        //{
-        //    var result = CreateMutilTemplateArea(request);
-        //    if (result == null)
-        //    {
-        //        return false;
-        //    }
-        //    return true;
-        //}
-        //private TemplateRequestForCreateArea CreateMutilTemplateArea(TemplateRequestForCreateArea request)
-        //{
-        //    var subTemplates = request.SubTemplates.Select(subRequest => new SubTemplate
-        //    {
-        //        Id = Guid.NewGuid(),
-        //        DesignTemplateId = request.DesignTemplateId,
-        //        BuildingArea = subRequest.BuildingArea,
-        //        FloorArea = subRequest.FloorArea,
-        //        Size = subRequest.Size,
-        //        ImgUrl = subRequest.ImgURL,
-        //        TemplateItems = subRequest.TemplateItems.Select(item => new TemplateItem
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            ConstructionItemId = item.ConstructionItemId,
-        //            SubConstructionId = item.SubConstructionItemId,
-        //            Area = item.Area,
-        //            Unit = item.Unit
-        //        }).ToList(),
-        //        Media = subRequest.Designdrawings.Select(drawing => new Medium
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            Name = AppConstant.Template.Drawing,
-        //            Url = drawing.MediaImgURL,
-        //            InsDate = DateTime.Now,
-        //        }).ToList()
-        //    }).ToList();
+        public async Task<string> UpdateSubTemplate(Guid subTemplateId, UpdateSubTemplateRequest request)
+        {
+            bool result = await UpdateTemplateArea(subTemplateId, request);
+            return result ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Fail_Save;
+        }
 
-        //    var resultSubTemplates = subTemplates.Select(subTemplate => new SubTemplatesRequestForCreate
-        //    {
-        //        BuildingArea = subTemplate.BuildingArea,
-        //        FloorArea = subTemplate.FloorArea,
-        //        Size = subTemplate.Size,
-        //        ImgURL = subTemplate.ImgUrl,
-        //        TemplateItems = subTemplate.TemplateItems.Select(item => new TemplateItemRequestForCreate
-        //        {
-        //            ConstructionItemId = item.ConstructionItemId,
-        //            SubConstructionItemId = (Guid)item.SubConstructionId,
-        //            Area = item.Area,
-        //            Unit = item.Unit
-        //        }).ToList(),
-        //        Designdrawings = subTemplate.Media.Select(media => new MediaRequest
-        //        {
-        //            MediaImgURL = media.Url,
-        //        }).ToList()
-        //    }).ToList();
+        private async Task<bool> UpdateTemplateArea(Guid subTemplateId, UpdateSubTemplateRequest request)
+        {
+            var templateItem = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
+                                predicate: s => s.Id == subTemplateId,
+                                include: s => s.Include(s => s.TemplateItems));
 
-        //    return new TemplateRequestForCreateArea
-        //    {
-        //        SubTemplates = resultSubTemplates,
-        //    };
-        //}
+            templateItem.BuildingArea = request.BuildingArea ?? templateItem.BuildingArea;
+            templateItem.FloorArea = request.FloorArea ?? templateItem.FloorArea;
+            templateItem.Size = request.Size ?? templateItem.Size;
+            templateItem.TotalRough = request.TotalRough.HasValue ? request.TotalRough.Value : templateItem.TotalRough;
+
+            _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
+
+            foreach(var item in templateItem.TemplateItems)
+            {
+                var temItem = await _unitOfWork.GetRepository<TemplateItem>().FirstOrDefaultAsync(
+                                predicate: t => t.ConstructionItemId == item.ConstructionItemId 
+                                || t.SubConstructionId == item.SubConstructionId);
+                if (temItem != null)
+                {
+                    temItem.Area = item.Area ?? temItem.Area;
+                    _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
+
+                } else
+                {
+                    var newTemplate = new TemplateItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ConstructionItemId = item.ConstructionItemId,
+                        SubConstructionId = item.SubConstructionId,
+                        Area = item.Area,
+                        Unit = item.Unit
+                    };
+                    await _unitOfWork.GetRepository<TemplateItem>().InsertAsync(newTemplate);
+                }
+            }
+
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.TemplateItemNotFound);
+            }
+
+            return isSuccessful;
+        }
 
         public async Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id)
         {
@@ -631,6 +625,7 @@ namespace RHCQS_Services.Implement
                    "Đơn giá trên chưa bao gồm VAT.";
         }
 
+        //Create object first -> upload url image design template
         public async Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files)
         {
             var uploadResults = new List<string>();

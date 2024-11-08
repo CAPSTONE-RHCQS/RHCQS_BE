@@ -78,7 +78,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Description { get; set; }
 
-        public int? NumberOfFloor { get; set; }
+        public int NumberOfFloor { get; set; }
 
         public int? NumberOfBed { get; set; }
 
@@ -91,12 +91,15 @@ namespace RHCQS_BusinessObject.Payload.Request
     }
     public class SubTemplatesRequestForCreate
     {
+        [Required(ErrorMessage = "Diện tích xây dựng là bắt buộc phải có.")]
+        public double BuildingArea { get; set; }
+        [Required(ErrorMessage = "Số lầu là bắt buộc phải có.")]
+        public double FloorArea { get; set; }
+        [Required(ErrorMessage = "Kích thước là bắt buộc phải có.")]
+        public string Size { get; set; }
 
-        public double? BuildingArea { get; set; }
-
-        public double? FloorArea { get; set; }
-
-        public string? Size { get; set; }
+        [Required(ErrorMessage = "Tổng tiền là bắt buộc phải có.")]
+        public double TotalRough { get; set; }
 
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequestForCreate> TemplateItems { get; set; } = new List<TemplateItemRequestForCreate>();
@@ -106,7 +109,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         [Required(ErrorMessage = "ConstructionItemId là bắt buộc phải có.")]
         public Guid ConstructionItemId { get; set; }
-        public Guid SubConstructionItemId { get; set; }
+        public Guid? SubConstructionItemId { get; set; }
 
         //[Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;
