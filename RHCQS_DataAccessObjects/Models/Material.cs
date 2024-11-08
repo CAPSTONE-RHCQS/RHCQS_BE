@@ -35,6 +35,8 @@ public partial class Material
 
     public Guid? MaterialSectionId { get; set; }
 
+    public string? Code { get; set; }
+
     public virtual MaterialSection? MaterialSection { get; set; }
 
     public virtual MaterialType MaterialType { get; set; } = null!;

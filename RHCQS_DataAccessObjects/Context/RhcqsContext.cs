@@ -388,6 +388,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Labor");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Type)
@@ -401,6 +402,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Material");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Shape).HasMaxLength(50);
@@ -810,6 +812,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Supplier");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(5);
             entity.Property(e => e.ConstractPhone).HasMaxLength(11);
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.InsDate).HasColumnType("datetime");

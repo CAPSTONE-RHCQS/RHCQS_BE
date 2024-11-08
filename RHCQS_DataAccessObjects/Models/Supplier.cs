@@ -25,5 +25,7 @@ public partial class Supplier
 
     public string? Description { get; set; }
 
+    public string Code { get; set; } = null!;
+
     public virtual ICollection<Material> Materials { get; set; } = new List<Material>();
 }

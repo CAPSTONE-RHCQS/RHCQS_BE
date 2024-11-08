@@ -11,7 +11,7 @@ public partial class MaterialSection
 
     public DateTime? InsDate { get; set; }
 
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     public virtual ICollection<Material> Materials { get; set; } = new List<Material>();
 
