@@ -852,11 +852,12 @@ namespace RHCQS_Services.Implement
                         var labor = qi.QuotationLabors.FirstOrDefault()?.Labor;
                         var displayName = labor?.Name;
                         var laborId = labor?.Id ?? Guid.Empty;
-
+                        var code = labor?.Code ?? string.Empty;
                         return new QuotationItemResponse(
                             qi.Id,
                             laborId,
                             displayName,
+                            code,
                             qi.Unit ?? "m2",
                             qi.Weight,
                             qi.UnitPriceLabor,
@@ -871,11 +872,12 @@ namespace RHCQS_Services.Implement
                         var material = qi.QuotationMaterials.FirstOrDefault()?.Material;
                         var displayName = material?.Name;
                         var materialId = material?.Id ?? Guid.Empty;
-
+                        var code = material?.Code ?? string.Empty;
                         return new QuotationItemResponse(
                             qi.Id,
                             materialId,
                             displayName,
+                            code,
                             qi.Unit,
                             qi.Weight,
                             qi.UnitPriceRough,
@@ -893,7 +895,9 @@ namespace RHCQS_Services.Implement
                     }
                 }).Where(response => response != null).ToList();
 
-                var finalQuotationItemsList = (await Task.WhenAll(finalQuotation.FinalQuotationItems.Select(async fqi =>
+                var finalQuotationItemsList = new List<FinalQuotationItemResponse>();
+
+                foreach (var fqi in finalQuotation.FinalQuotationItems)
                 {
                     var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
                     var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
@@ -903,14 +907,14 @@ namespace RHCQS_Services.Implement
                     Guid constructionOrSubConstructionId;
                     double? coefficient;
                     string constructionType;
-                    string name;
+                    string contructname;
 
                     if (constructionItem != null)
                     {
                         constructionOrSubConstructionId = fqi.ConstructionItemId;
                         coefficient = constructionItem.Coefficient;
                         constructionType = constructionItem.Type;
-                        name = constructionItem.Name;
+                        contructname = constructionItem.Name;
                     }
                     else
                     {
@@ -925,10 +929,10 @@ namespace RHCQS_Services.Implement
                         constructionOrSubConstructionId = subConstructionItem.ConstructionItemsId;
                         coefficient = subConstructionItem.Coefficient;
                         constructionType = subConstructionItem.ConstructionItems?.Type;
-                        name = subConstructionItem.Name;
+                        contructname = subConstructionItem.Name;
                     }
 
-                    return new FinalQuotationItemResponse(
+                    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                         fqi.Id,
                         constructionOrSubConstructionId,
                         name,
@@ -936,8 +940,8 @@ namespace RHCQS_Services.Implement
                         coefficient,
                         fqi.InsDate,
                         QuotationItems(fqi.QuotationItems.ToList())
-                    );
-                }))).ToList();
+                    ));
+                }
 
                 var batchPaymentsList = BatchPayments();
                 var equipmentItemsList = EquipmentItems();
@@ -1093,11 +1097,12 @@ namespace RHCQS_Services.Implement
                         var labor = qi.QuotationLabors.FirstOrDefault()?.Labor;
                         var displayName = labor?.Name;
                         var laborId = labor?.Id ?? Guid.Empty;
-
+                        var code = labor?.Code ?? string.Empty;
                         return new QuotationItemResponse(
                             qi.Id,
                             laborId,
                             displayName,
+                            code,
                             qi.Unit ?? "m2",
                             qi.Weight,
                             qi.UnitPriceLabor,
@@ -1112,11 +1117,12 @@ namespace RHCQS_Services.Implement
                         var material = qi.QuotationMaterials.FirstOrDefault()?.Material;
                         var displayName = material?.Name;
                         var materialId = material?.Id ?? Guid.Empty;
-
+                        var code = material?.Code ?? string.Empty;
                         return new QuotationItemResponse(
                             qi.Id,
                             materialId,
                             displayName,
+                            code,
                             qi.Unit,
                             qi.Weight,
                             qi.UnitPriceRough,
@@ -1133,7 +1139,9 @@ namespace RHCQS_Services.Implement
                         return null;
                     }
                 }).Where(response => response != null).ToList();
-                var finalQuotationItemsList = (await Task.WhenAll(finalQuotation.FinalQuotationItems.Select(async fqi =>
+                var finalQuotationItemsList = new List<FinalQuotationItemResponse>();
+
+                foreach (var fqi in finalQuotation.FinalQuotationItems)
                 {
                     var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
                     var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
@@ -1168,7 +1176,7 @@ namespace RHCQS_Services.Implement
                         name = subConstructionItem.Name;
                     }
 
-                    return new FinalQuotationItemResponse(
+                    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                         fqi.Id,
                         constructionOrSubConstructionId,
                         name,
@@ -1176,8 +1184,8 @@ namespace RHCQS_Services.Implement
                         coefficient,
                         fqi.InsDate,
                         QuotationItems(fqi.QuotationItems.ToList())
-                    );
-                }))).ToList();
+                    ));
+                }
 
                 var batchPaymentsList = BatchPayments();
                 var equipmentItemsList = EquipmentItems();
@@ -1335,11 +1343,12 @@ namespace RHCQS_Services.Implement
                         var labor = qi.QuotationLabors.FirstOrDefault()?.Labor;
                         var displayName = labor?.Name;
                         var laborId = labor?.Id ?? Guid.Empty;
-
+                        var code = labor?.Code ?? string.Empty;
                         return new QuotationItemResponse(
                             qi.Id,
                             laborId,
                             displayName,
+                            code,
                             qi.Unit ?? "m2",
                             qi.Weight,
                             qi.UnitPriceLabor,
@@ -1354,11 +1363,12 @@ namespace RHCQS_Services.Implement
                         var material = qi.QuotationMaterials.FirstOrDefault()?.Material;
                         var displayName = material?.Name;
                         var materialId = material?.Id ?? Guid.Empty;
-
+                        var code = material?.Code ?? string.Empty;
                         return new QuotationItemResponse(
                             qi.Id,
                             materialId,
                             displayName,
+                            code,
                             qi.Unit,
                             qi.Weight,
                             qi.UnitPriceRough,
@@ -1376,7 +1386,9 @@ namespace RHCQS_Services.Implement
                     }
                 }).Where(response => response != null).ToList();
 
-                var finalQuotationItemsList = (await Task.WhenAll(finalQuotation.FinalQuotationItems.Select(async fqi =>
+                var finalQuotationItemsList = new List<FinalQuotationItemResponse>();
+
+                foreach (var fqi in finalQuotation.FinalQuotationItems)
                 {
                     var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
                     var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
@@ -1411,7 +1423,7 @@ namespace RHCQS_Services.Implement
                         name = subConstructionItem.Name;
                     }
 
-                    return new FinalQuotationItemResponse(
+                    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                         fqi.Id,
                         constructionOrSubConstructionId,
                         name,
@@ -1419,9 +1431,8 @@ namespace RHCQS_Services.Implement
                         coefficient,
                         fqi.InsDate,
                         QuotationItems(fqi.QuotationItems.ToList())
-                    );
-                }))).ToList();
-
+                    ));
+                }
 
                 var batchPaymentsList = BatchPayments();
                 var equipmentItemsList = EquipmentItems();
