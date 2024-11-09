@@ -1238,13 +1238,14 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotationId = await _unitOfWork.GetRepository<InitialQuotation>()
+                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                     .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
+                Guid initialQuotationId = initialQuotation?.Id ?? Guid.Empty;
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId.Id,
+                    initialQuotationId,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -1486,13 +1487,14 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotationId = await _unitOfWork.GetRepository<InitialQuotation>()
+                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                     .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
+                Guid initialQuotationId = initialQuotation?.Id ?? Guid.Empty;
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId.Id,
+                    initialQuotationId,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
