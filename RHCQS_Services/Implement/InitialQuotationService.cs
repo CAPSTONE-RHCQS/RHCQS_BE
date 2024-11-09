@@ -79,10 +79,10 @@ namespace RHCQS_Services.Implement
                 .FirstOrDefault(item => item.Type == "FINISHED");
 
             var packageInfo = new PackageQuotationList(
-                roughPackage?.PackageId ?? Guid.Empty,
+                roughPackage?.PackageId == null ? null : roughPackage.PackageId,
                 roughPackage?.Package.PackageName ?? string.Empty,
                 roughPackage?.Package.Price ?? 0,
-                finishedPackage?.PackageId ?? Guid.Empty,
+                finishedPackage?.PackageId == null ? null : finishedPackage.PackageId,
                 finishedPackage?.Package.PackageName ?? string.Empty,
                 finishedPackage?.Package.Price ?? 0,
                 finishedPackage?.Package.Unit ?? string.Empty
@@ -188,14 +188,14 @@ namespace RHCQS_Services.Implement
                 .FirstOrDefault(item => item.Type == "FINISHED");
 
             var packageInfo = new PackageQuotationList(
-                roughPackage?.PackageId ?? Guid.Empty,
-                roughPackage?.Package.PackageName ?? string.Empty,
-                roughPackage?.Package.Price ?? 0,
-                finishedPackage?.PackageId ?? Guid.Empty,
-                finishedPackage?.Package.PackageName ?? string.Empty,
-                finishedPackage?.Package.Price ?? 0,
-                finishedPackage?.Package.Unit ?? string.Empty
-            );
+               roughPackage?.PackageId == null ? null : roughPackage.PackageId,
+               roughPackage?.Package.PackageName ?? string.Empty,
+               roughPackage?.Package.Price ?? 0,
+               finishedPackage?.PackageId == null ? null : finishedPackage.PackageId,
+               finishedPackage?.Package.PackageName ?? string.Empty,
+               finishedPackage?.Package.Price ?? 0,
+               finishedPackage?.Package.Unit ?? string.Empty
+           );
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
                             item.Id,
                             item.ConstructionItem?.Name,
@@ -292,10 +292,10 @@ namespace RHCQS_Services.Implement
                 .FirstOrDefault(item => item.Type == "FINISHED");
 
             var packageInfo = new PackageQuotationList(
-                roughPackage?.PackageId ?? Guid.Empty,
+                roughPackage?.PackageId == null ? null : roughPackage.PackageId,
                 roughPackage?.Package.PackageName ?? string.Empty,
                 roughPackage?.Package.Price ?? 0,
-                finishedPackage?.PackageId ?? Guid.Empty,
+                finishedPackage?.PackageId == null ? null : finishedPackage.PackageId,
                 finishedPackage?.Package.PackageName ?? string.Empty,
                 finishedPackage?.Package.Price ?? 0,
                 finishedPackage?.Package.Unit ?? string.Empty
