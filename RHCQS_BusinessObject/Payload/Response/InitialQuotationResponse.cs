@@ -140,8 +140,8 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class PackageQuotationList
     {
-        public PackageQuotationList(Guid idPackageRough, string packageRough, double unitPackageRough,
-            Guid idPackageFinished, string packageFinished, double unitPackageFinished, string unit)
+        public PackageQuotationList(Guid? idPackageRough, string packageRough, double unitPackageRough,
+            Guid? idPackageFinished, string packageFinished, double unitPackageFinished, string unit)
         {
             IdPackageRough = idPackageRough;
             PackageRough = packageRough;
@@ -152,10 +152,10 @@ namespace RHCQS_BusinessObject.Payload.Response
             Unit = unit;
         }
 
-        public Guid IdPackageRough { get; set; }
+        public Guid? IdPackageRough { get; set; }
         public string PackageRough { get; set; }
         public double UnitPackageRough { get; set; }
-        public Guid IdPackageFinished { get; set; }
+        public Guid? IdPackageFinished { get; set; }
         public string PackageFinished { get; set; }
         public double UnitPackageFinished { get; set; }
         public string Unit { get; set; }
