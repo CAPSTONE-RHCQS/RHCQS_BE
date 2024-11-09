@@ -337,10 +337,9 @@ namespace RHCQS_Services.Implement
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
-                Console.WriteLine($"Error occurred: {ex.Message}");
-                return false;
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error,  ex.Message);
             }
         }
 
