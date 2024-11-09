@@ -202,7 +202,6 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-
         #region UpdateSubTemplate
         /// <summary>
         /// Update sub-template with template items.

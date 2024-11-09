@@ -134,7 +134,7 @@ namespace RHCQS_Services.Implement
             {
                 Id = initialQuotation.Id,
                 AccountName = initialQuotation.Project!.Customer!.Username!,
-                Addres = initialQuotation.Project.Address!,
+                Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
@@ -243,7 +243,7 @@ namespace RHCQS_Services.Implement
             {
                 Id = initialQuotation.Id,
                 AccountName = initialQuotation.Project!.Customer!.Username!,
-                Addres = initialQuotation.Project.Address!,
+                Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
@@ -347,7 +347,7 @@ namespace RHCQS_Services.Implement
             {
                 Id = initialQuotation.Id,
                 AccountName = initialQuotation.Project!.Customer!.Username!,
-                Addres = initialQuotation.Project.Address!,
+                Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
@@ -765,10 +765,10 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> UpdateInitialQuotation(UpdateInitialRequest request)
         {
-            //try
-            //{
-            //Check version present duplicate
-            double nextVersion = 1.0;
+            try
+            {
+                //Check version present duplicate
+                double nextVersion = 1.0;
             var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                 predicate: x => x.ProjectId == request.ProjectId,
                                 orderBy: x => x.OrderByDescending(x => x.Version),
@@ -969,12 +969,12 @@ namespace RHCQS_Services.Implement
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful;
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            //}
         }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int) AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
+}
 
         public async Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId)
         {

@@ -6,8 +6,8 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
 {
     public class UpdateInitialRequest
     {
-        public string AccountName { get; set; }
-        public string Address { get; set; }
+        public string? AccountName { get; set; }
+        public string? Address { get; set; }
 
         [Required(ErrorMessage = "VersionPresent là bắt buộc.")]
         [Range(-1, double.MaxValue, ErrorMessage = "VersionPresent không phải số âm.")]
