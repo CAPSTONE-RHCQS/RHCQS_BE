@@ -76,9 +76,9 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
     public class FinalQuotationItemRequest
     {
 
-        [Required(ErrorMessage = "ConstructionItemId là bắt buộc.")]
+        [Required(ErrorMessage = "ConstructionId là bắt buộc.")]
         public Guid ConstructionId { get; set; }
-
+        public Guid? SubconstructionId { get; set; }
         public List<QuotationItemRequest>? QuotationItems { get; set; }
     }
 

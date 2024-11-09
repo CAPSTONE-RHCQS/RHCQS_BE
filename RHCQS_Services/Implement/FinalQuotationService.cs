@@ -132,7 +132,7 @@ namespace RHCQS_Services.Implement
             var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
             if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == projectId && p.Version == 0))
             {
-                await GetDetailFinalQuotationByProjectId(projectId);
+                return await GetDetailFinalQuotationByProjectId(projectId);
             }
 
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -186,7 +186,8 @@ namespace RHCQS_Services.Implement
             finalQuotation.FinalQuotationItems = initialQuotation.InitialQuotationItems.Select(iqi => new FinalQuotationItem
             {
                 Id = Guid.NewGuid(),
-                ConstructionItemId = iqi.ConstructionItemId,
+                ConstructionItemId = iqi.ConstructionItemId,        
+                SubContructionId = iqi.SubConstructionId,
                 InsDate = DateTime.UtcNow,
             }).ToList();
 
@@ -347,48 +348,55 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var fqi in request.FinalQuotationItems)
                 {
-                    var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
-                        .FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionId);
-                    Guid constructionOrSubConstructionId;
+                    var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
+                    var subConstructionItemExists = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubconstructionId);
+
+                    Guid constructionId;
+                    Guid subConstructionId;
                     Double? coefficient;
                     string contructionType;
 
-                    if (constructionItemExists != null)
+                    FinalQuotationItem finalQuotationItem;
+                    if (subConstructionItemExists != null)
                     {
-                        var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
-                        var subConstructionItemExists = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.ConstructionItemsId == fqi.ConstructionId);
-                        if (subConstructionItemExists != null)
-                        {
-                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-                                "If you enter a construction id, that construction cannot have a subconstruction");
-                        }
-                        constructionOrSubConstructionId = fqi.ConstructionId;
-                        coefficient = constructionItemExists.Coefficient;
+                        var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
+                            .FirstOrDefaultAsync(ci => ci.Id == subConstructionItemExists.ConstructionItemsId);
+                        constructionId = fqi.ConstructionId;
+                        subConstructionId = subConstructionItemExists.Id;
+                        coefficient = subConstructionItemExists.Coefficient;
                         contructionType = constructionItemExists.Type;
+
+                        finalQuotationItem = new FinalQuotationItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ConstructionItemId = constructionId,
+                            SubContructionId = subConstructionId,
+                            InsDate = DateTime.UtcNow,
+                            QuotationItems = new List<QuotationItem>()
+                        };
                     }
                     else
                     {
-                        var subConstructionItem = await _unitOfWork.GetRepository<SubConstructionItem>()
-                            .FirstOrDefaultAsync(sb => sb.Id == fqi.ConstructionId);
+                        var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
+                            .FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionId);
 
-                        if (subConstructionItem == null)
+                        if (constructionItemExists == null)
                         {
-                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"Construction or SubConstruction item with ID {fqi.ConstructionId} không tồn tại.");
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"Construction item with ID {fqi.ConstructionId} không tồn tại.");
                         }
-                        var Construction = await _unitOfWork.GetRepository<ConstructionItem>()
-                            .FirstOrDefaultAsync(sb => sb.Id == subConstructionItem.ConstructionItemsId);
-                        constructionOrSubConstructionId = subConstructionItem.Id;
-                        coefficient = subConstructionItem.Coefficient;
-                        contructionType = Construction.Type;
+                        constructionId = constructionItemExists.Id;
+                        coefficient = constructionItemExists.Coefficient;
+                        contructionType = constructionItemExists.Type;
+                        finalQuotationItem = new FinalQuotationItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ConstructionItemId = constructionId,
+                            SubContructionId = null,
+                            InsDate = DateTime.UtcNow,
+                            QuotationItems = new List<QuotationItem>()
+                        };
                     }
 
-                    var finalQuotationItem = new FinalQuotationItem
-                    {
-                        Id = Guid.NewGuid(),
-                        ConstructionItemId = constructionOrSubConstructionId,
-                        InsDate = DateTime.UtcNow,
-                        QuotationItems = new List<QuotationItem>()
-                    };
 
                     if (fqi.QuotationItems != null && fqi.QuotationItems.Count > 0)
                     {
@@ -1147,45 +1155,57 @@ namespace RHCQS_Services.Implement
                     var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
                     var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
 
-                    var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionItemId);
 
-                    Guid constructionOrSubConstructionId;
+                    var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
+                    Guid constructionId;
+                    Guid? subConstructionId;
                     double? coefficient;
                     string constructionType;
                     string name;
 
-                    if (constructionItem != null)
+                    if (subConstructionItem != null)
                     {
-                        constructionOrSubConstructionId = fqi.ConstructionItemId;
-                        coefficient = constructionItem.Coefficient;
-                        constructionType = constructionItem.Type;
-                        name = constructionItem.Name;
+                        var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
+                        subConstructionId = fqi.SubContructionId;
+                        coefficient = subConstructionItem.Coefficient;
+                        constructionType = constructionItem?.Type;
+                        name = subConstructionItem.Name;
+
+                        finalQuotationItemsList.Add(new FinalQuotationItemResponse(
+                            fqi.Id,
+                            fqi.ConstructionItemId,
+                            subConstructionId ?? Guid.Empty,
+                            name,
+                            constructionType,
+                            coefficient,
+                            fqi.InsDate,
+                            QuotationItems(fqi.QuotationItems.ToList())
+                        ));
                     }
                     else
                     {
-                        var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.ConstructionItemId);
-
-                        if (subConstructionItem == null)
+                        var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionItemId);
+                        if (constructionItem == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                                $"Construction or SubConstruction item with ID {fqi.ConstructionItemId} không tồn tại.");
+                                $"Construction item with ID {fqi.ConstructionItemId} không tồn tại.");
                         }
 
-                        constructionOrSubConstructionId = subConstructionItem.ConstructionItemsId;
-                        coefficient = subConstructionItem.Coefficient;
-                        constructionType = subConstructionItem.ConstructionItems?.Type;
-                        name = subConstructionItem.Name;
+                        constructionId = constructionItem.Id;
+                        coefficient = constructionItem.Coefficient;
+                        constructionType = constructionItem?.Type;
+                        name = constructionItem.Name;
+                        finalQuotationItemsList.Add(new FinalQuotationItemResponse(
+                            fqi.Id,
+                            constructionId,
+                            fqi.SubContructionId ?? Guid.Empty,
+                            name,
+                            constructionType,
+                            coefficient,
+                            fqi.InsDate,
+                            QuotationItems(fqi.QuotationItems.ToList())
+                        ));
                     }
-
-                    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
-                        fqi.Id,
-                        constructionOrSubConstructionId,
-                        name,
-                        constructionType,
-                        coefficient,
-                        fqi.InsDate,
-                        QuotationItems(fqi.QuotationItems.ToList())
-                    ));
                 }
 
                 var batchPaymentsList = BatchPayments();
@@ -1396,45 +1416,57 @@ namespace RHCQS_Services.Implement
                     var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
                     var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
 
-                    var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionItemId);
 
-                    Guid constructionOrSubConstructionId;
+                    var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
+                    Guid constructionId;
+                    Guid? subConstructionId;
                     double? coefficient;
                     string constructionType;
                     string name;
 
-                    if (constructionItem != null)
+                    if (subConstructionItem != null)
                     {
-                        constructionOrSubConstructionId = fqi.ConstructionItemId;
-                        coefficient = constructionItem.Coefficient;
-                        constructionType = constructionItem.Type;
-                        name = constructionItem.Name;
+                        var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
+                        subConstructionId = fqi.SubContructionId;
+                        coefficient = subConstructionItem.Coefficient;
+                        constructionType = constructionItem?.Type;
+                        name = subConstructionItem.Name;
+
+                        finalQuotationItemsList.Add(new FinalQuotationItemResponse(
+                            fqi.Id,
+                            fqi.ConstructionItemId,
+                            subConstructionId ?? Guid.Empty,
+                            name,
+                            constructionType,
+                            coefficient,
+                            fqi.InsDate,
+                            QuotationItems(fqi.QuotationItems.ToList())
+                        ));
                     }
                     else
                     {
-                        var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.ConstructionItemId);
-
-                        if (subConstructionItem == null)
+                        var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionItemId);
+                        if (constructionItem == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                                $"Construction or SubConstruction item with ID {fqi.ConstructionItemId} không tồn tại.");
+                                $"Construction item with ID {fqi.ConstructionItemId} không tồn tại.");
                         }
 
-                        constructionOrSubConstructionId = subConstructionItem.ConstructionItemsId;
-                        coefficient = subConstructionItem.Coefficient;
-                        constructionType = subConstructionItem.ConstructionItems?.Type;
-                        name = subConstructionItem.Name;
+                        constructionId = constructionItem.Id;
+                        coefficient = constructionItem.Coefficient;
+                        constructionType = constructionItem?.Type;
+                        name = constructionItem.Name;
+                        finalQuotationItemsList.Add(new FinalQuotationItemResponse(
+                            fqi.Id,
+                            constructionId,
+                            fqi.SubContructionId ?? Guid.Empty,
+                            name,
+                            constructionType,
+                            coefficient,
+                            fqi.InsDate,
+                            QuotationItems(fqi.QuotationItems.ToList())
+                        ));
                     }
-
-                    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
-                        fqi.Id,
-                        constructionOrSubConstructionId,
-                        name,
-                        constructionType,
-                        coefficient,
-                        fqi.InsDate,
-                        QuotationItems(fqi.QuotationItems.ToList())
-                    ));
                 }
 
                 var batchPaymentsList = BatchPayments();

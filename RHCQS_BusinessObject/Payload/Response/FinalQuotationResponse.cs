@@ -172,11 +172,12 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, Guid contructionId, string? contructionName, string? type, double? coefficient,
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid subcontructionId, string? contructionName, string? type, double? coefficient,
             DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
-            ContructionId = contructionId;
+            ConstructionId = contructionId;
+            SubconstructionId = subcontructionId;
             ContructionName = contructionName;
             Type = type;
             Coefficient = coefficient;
@@ -185,7 +186,9 @@ namespace RHCQS_BusinessObject.Payload.Response
         }
 
         public Guid Id { get; set; }
-        public Guid ContructionId { get; set; }
+        public Guid ConstructionId { get; set; }
+
+        public Guid? SubconstructionId { get; set; }
         public string? ContructionName { get; set; }
 
         public string? Type { get; set; }

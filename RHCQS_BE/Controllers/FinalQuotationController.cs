@@ -545,7 +545,12 @@ namespace RHCQS_BE.Controllers
 
             Guid? finalQuotationId = await _finalQuotationService.UpdateFinalQuotation(request);
             if (finalQuotationId == null) return NotFound(new { message = AppConstant.Message.ERROR });
-            var result = JsonConvert.SerializeObject(finalQuotationId, Formatting.Indented);
+            var response = new
+            {
+                Newid = finalQuotationId,
+                message = AppConstant.Message.SUCCESSFUL_UPDATE
+            };
+            var result = JsonConvert.SerializeObject(response, Formatting.Indented);
             return new ContentResult()
             {
                 Content = result,
