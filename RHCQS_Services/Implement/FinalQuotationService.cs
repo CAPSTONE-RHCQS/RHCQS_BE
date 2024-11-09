@@ -779,7 +779,7 @@ namespace RHCQS_Services.Implement
             return null;
         }
 
-        public async Task<FinalQuotationResponse> GetDetailFinalQuotationByCustomerName(string name)
+/*        public async Task<FinalQuotationResponse> GetDetailFinalQuotationByCustomerName(string name)
         {
             try
             {
@@ -993,12 +993,13 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotationId = finalQuotation.BatchPayments.FirstOrDefault()?.IntitialQuotationId ?? Guid.Empty;
+                var initialQuotationId = await _unitOfWork.GetRepository<InitialQuotation>()
+                    .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotationId.Id,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -1025,7 +1026,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
-        }
+        }*/
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id)
         {
@@ -1237,12 +1238,13 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotationId = finalQuotation.BatchPayments.FirstOrDefault()?.IntitialQuotationId ?? Guid.Empty;
+                var initialQuotationId = await _unitOfWork.GetRepository<InitialQuotation>()
+                    .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotationId.Id,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -1484,12 +1486,13 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotationId = finalQuotation.BatchPayments.FirstOrDefault()?.IntitialQuotationId ?? Guid.Empty;
+                var initialQuotationId = await _unitOfWork.GetRepository<InitialQuotation>()
+                    .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotationId.Id,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,

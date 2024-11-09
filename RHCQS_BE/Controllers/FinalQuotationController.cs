@@ -345,7 +345,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region GetDetailFinalQuotationByCustomerName
+/*        #region GetDetailFinalQuotationByCustomerName
         /// <summary>
         /// Retrieves the details of a specific final quotation by customer name.
         /// </summary>
@@ -455,7 +455,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
-        }
+        }*/
 
         #region UpdateFinalQuotation
         /// <summary>
