@@ -178,7 +178,7 @@ namespace RHCQS_Services.Implement
 
             if (initialQuotation == null)
             {
-                throw new AppConstant.MessageError((int) AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
             }
 
             var roughPackage = initialQuotation.PackageQuotations
@@ -282,7 +282,7 @@ namespace RHCQS_Services.Implement
                                        .Include(x => x.QuotationUtilities)
                                             .ThenInclude(x => x.UtilitiesItem)
                                        .Include(x => x.BatchPayments)
-                                            .ThenInclude(x => x.Payment!)    
+                                            .ThenInclude(x => x.Payment!)
 
                 );
             var roughPackage = initialQuotation.PackageQuotations
@@ -769,212 +769,212 @@ namespace RHCQS_Services.Implement
             {
                 //Check version present duplicate
                 double nextVersion = 1.0;
-            var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                                predicate: x => x.ProjectId == request.ProjectId,
-                                orderBy: x => x.OrderByDescending(x => x.Version),
-                                include: x => x.Include(x => x.Project)
-                            );
+                var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                    predicate: x => x.ProjectId == request.ProjectId,
+                                    orderBy: x => x.OrderByDescending(x => x.Version),
+                                    include: x => x.Include(x => x.Project)
+                                );
 
-            if (highestInitial.Version >= AppConstant.General.MaxVersion)
-            {
-                highestInitial.Project.Status = AppConstant.ProjectStatus.ENDED;
-                _unitOfWork.GetRepository<Project>().UpdateAsync(highestInitial.Project);
-                await _unitOfWork.CommitAsync();
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.MaxVersionQuotation);
-            }
-
-            if (highestInitial != null)
-            {
-                nextVersion = highestInitial.Version + 1;
-
-                var duplicateVersion = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                    predicate: x => x.ProjectId == request.ProjectId && x.Version == nextVersion
-                );
-
-                if (duplicateVersion != null)
+                if (highestInitial.Version >= AppConstant.General.MaxVersion)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Conflict_Version);
+                    highestInitial.Project.Status = AppConstant.ProjectStatus.ENDED;
+                    _unitOfWork.GetRepository<Project>().UpdateAsync(highestInitial.Project);
+                    await _unitOfWork.CommitAsync();
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.MaxVersionQuotation);
                 }
-            }
 
-
-            //Update project
-            var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                            predicate: x => x.Version == request.VersionPresent && x.ProjectId == request.ProjectId,
-                include: x => x.Include(x => x.Project));
-
-            initialVersionPresent.Project.Area = (request.Area.HasValue && request.Area.Value != 0.0) ?
-                                request.Area.Value : initialVersionPresent.Project.Area;
-            initialVersionPresent.Project.Address = string.IsNullOrEmpty(request.Address) ?
-                                  initialVersionPresent.Project.Address : request.Address;
-            initialVersionPresent.Status = AppConstant.QuotationStatus.REJECTED;
-
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
-
-            //Update version initial quotation
-            var initialItem = new InitialQuotation()
-            {
-                Id = Guid.NewGuid(),
-                ProjectId = request.ProjectId,
-                PromotionId = request.Promotions?.Id != null ? request.Promotions.Id : (Guid?)null,
-                Area = request.Area,
-                TimeProcessing = request.TimeProcessing,
-                TimeRough = request.TimeRough,
-                TimeOthers = request.TimeOthers,
-                OthersAgreement = request.OthersAgreement,
-                InsDate = DateTime.Now,
-                Status = AppConstant.QuotationStatus.REVIEWING,
-                Version = nextVersion,
-                IsTemplate = false,
-                Deflag = true,
-                Note = null,
-                TotalRough = request.TotalRough,
-                TotalUtilities = request.TotalUtilities,
-                Unit = AppConstant.Unit.UnitPrice,
-                ReasonReject = null
-            };
-            await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
-
-            foreach (var item in request.Items!)
-            {
-                var itemInitial = new InitialQuotationItem()
+                if (highestInitial != null)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = null,
-                    ConstructionItemId = item.ConstructionItemId,
-                    SubConstructionId = item.SubConstructionId,
-                    Area = item.Area,
-                    Price = item.Price,
-                    UnitPrice = AppConstant.Unit.UnitPriceD,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
-                    InitialQuotationId = initialItem.Id,
-                };
-                await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
-            }
+                    nextVersion = highestInitial.Version + 1;
 
-            if (request.Packages.Count < 1)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                    AppConstant.ErrMessage.InvalidPackageQuotation);
-            }
+                    var duplicateVersion = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                        predicate: x => x.ProjectId == request.ProjectId && x.Version == nextVersion
+                    );
 
-            foreach (var package in request.Packages!)
-            {
-                var packageQuotation = new PackageQuotation
-                {
-                    Id = Guid.NewGuid(),
-                    PackageId = package.PackageId,
-                    InitialQuotationId = initialItem.Id,
-                    Type = package.Type,
-                    InsDate = DateTime.Now
-                };
-
-                await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
-            }
-
-            if (request.Utilities.Count > 0)
-            {
-                foreach (var utl in request.Utilities!)
-                {
-                    var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
-                    Guid? sectionId = null;
-                    QuotationUtility utlItem;
-                    //UtilityItem - null => utl.UtilitiesItem = SectionId
-                    //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
-                    if (utilityItem == null)
+                    if (duplicateVersion != null)
                     {
-                        sectionId = utl.UtilitiesItemId;
-                        var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
-                        utlItem = new QuotationUtility
-                        {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = null,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = sectionItem.Name!,
-                            Coefiicient = 0,
-                            Price = utl.Price,
-                            Description = sectionItem.Description,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                            UtilitiesSectionId = sectionItem.Id
-                        };
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Conflict_Version);
                     }
-                    else
-                    {
-                        sectionId = utilityItem.SectionId;
-                        utl.UtilitiesItemId = utilityItem.Id;
-                        utlItem = new QuotationUtility
-                        {
-                            Id = Guid.NewGuid(),
-                            UtilitiesItemId = utilityItem.Id,
-                            FinalQuotationId = null,
-                            InitialQuotationId = initialItem.Id,
-                            Name = utilityItem.Name!,
-                            Coefiicient = utilityItem.Coefficient,
-                            Price = utl.Price,
-                            Description = null,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
-                            UtilitiesSectionId = utilityItem.SectionId
-                        };
-                    }
-
-                    await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                 }
-            }
 
-            if (request.BatchPayments.Count < 1)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                    AppConstant.ErrMessage.InvalidBatchPayment);
-            }
-            var paymentType = await _unitOfWork.GetRepository<PaymentType>().FirstOrDefaultAsync(x => x.Name == AppConstant.General.PaymentDesign);
-            if (paymentType == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Type_Not_Found);
-            }
 
-            //Create a batch payments
-            foreach (var item in request.BatchPayments)
-            {
-                var payment = new Payment
+                //Update project
+                var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                predicate: x => x.Version == request.VersionPresent && x.ProjectId == request.ProjectId,
+                    include: x => x.Include(x => x.Project));
+
+                initialVersionPresent.Project.Area = (request.Area.HasValue && request.Area.Value != 0.0) ?
+                                    request.Area.Value : initialVersionPresent.Project.Area;
+                initialVersionPresent.Project.Address = string.IsNullOrEmpty(request.Address) ?
+                                      initialVersionPresent.Project.Address : request.Address;
+                initialVersionPresent.Status = AppConstant.QuotationStatus.REJECTED;
+
+                _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
+
+                //Update version initial quotation
+                var initialItem = new InitialQuotation()
                 {
                     Id = Guid.NewGuid(),
-                    PaymentTypeId = paymentType.Id,
+                    ProjectId = request.ProjectId,
+                    PromotionId = request.Promotions?.Id != null ? request.Promotions.Id : (Guid?)null,
+                    Area = request.Area,
+                    TimeProcessing = request.TimeProcessing,
+                    TimeRough = request.TimeRough,
+                    TimeOthers = request.TimeOthers,
+                    OthersAgreement = request.OthersAgreement,
                     InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
-                    TotalPrice = item.Price,
-                    //PaymentDate = DateTime.Now,
-                    //PaymentPhase = DateTime.Now,
-                    Percents = item.Percents,
-                    Description = item.Description,
-                    Unit = AppConstant.Unit.UnitPrice
+                    Status = AppConstant.QuotationStatus.REVIEWING,
+                    Version = nextVersion,
+                    IsTemplate = false,
+                    Deflag = true,
+                    Note = null,
+                    TotalRough = request.TotalRough,
+                    TotalUtilities = request.TotalUtilities,
+                    Unit = AppConstant.Unit.UnitPrice,
+                    ReasonReject = null
                 };
-                await _unitOfWork.GetRepository<Payment>().InsertAsync(payment);
+                await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
 
-                var payItem = new BatchPayment
+                foreach (var item in request.Items!)
                 {
-                    Id = Guid.NewGuid(),
-                    ContractId = null,
-                    IntitialQuotationId = initialItem.Id,
-                    InsDate = DateTime.Now,
-                    FinalQuotationId = null,
-                    PaymentId = payment.Id,
-                    Status = AppConstant.PaymentStatus.PROGRESS
-                };
-                await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
-            }
+                    var itemInitial = new InitialQuotationItem()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = null,
+                        ConstructionItemId = item.ConstructionItemId,
+                        SubConstructionId = item.SubConstructionId,
+                        Area = item.Area,
+                        Price = item.Price,
+                        UnitPrice = AppConstant.Unit.UnitPriceD,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        InitialQuotationId = initialItem.Id,
+                    };
+                    await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
+                }
 
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return isSuccessful;
+                if (request.Packages.Count < 1)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                        AppConstant.ErrMessage.InvalidPackageQuotation);
+                }
+
+                foreach (var package in request.Packages!)
+                {
+                    var packageQuotation = new PackageQuotation
+                    {
+                        Id = Guid.NewGuid(),
+                        PackageId = package.PackageId,
+                        InitialQuotationId = initialItem.Id,
+                        Type = package.Type,
+                        InsDate = DateTime.Now
+                    };
+
+                    await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
+                }
+
+                if (request.Utilities.Count > 0)
+                {
+                    foreach (var utl in request.Utilities!)
+                    {
+                        var utilityItem = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utl.UtilitiesItemId);
+                        Guid? sectionId = null;
+                        QuotationUtility utlItem;
+                        //UtilityItem - null => utl.UtilitiesItem = SectionId
+                        //UtilityItem != null => utl.UltilitiesItemId = UtilityItem.Id, SectionId = UltilitiesItemId.SectionId
+                        if (utilityItem == null)
+                        {
+                            sectionId = utl.UtilitiesItemId;
+                            var sectionItem = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == sectionId);
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = null,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = sectionItem.Name!,
+                                Coefiicient = 0,
+                                Price = utl.Price,
+                                Description = sectionItem.Description,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = sectionItem.Id
+                            };
+                        }
+                        else
+                        {
+                            sectionId = utilityItem.SectionId;
+                            utl.UtilitiesItemId = utilityItem.Id;
+                            utlItem = new QuotationUtility
+                            {
+                                Id = Guid.NewGuid(),
+                                UtilitiesItemId = utilityItem.Id,
+                                FinalQuotationId = null,
+                                InitialQuotationId = initialItem.Id,
+                                Name = utilityItem.Name!,
+                                Coefiicient = utilityItem.Coefficient,
+                                Price = utl.Price,
+                                Description = null,
+                                InsDate = DateTime.Now,
+                                UpsDate = DateTime.Now,
+                                UtilitiesSectionId = utilityItem.SectionId
+                            };
+                        }
+
+                        await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
+                    }
+                }
+
+                if (request.BatchPayments.Count < 1)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                        AppConstant.ErrMessage.InvalidBatchPayment);
+                }
+                var paymentType = await _unitOfWork.GetRepository<PaymentType>().FirstOrDefaultAsync(x => x.Name == AppConstant.General.PaymentDesign);
+                if (paymentType == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Type_Not_Found);
+                }
+
+                //Create a batch payments
+                foreach (var item in request.BatchPayments)
+                {
+                    var payment = new Payment
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentTypeId = paymentType.Id,
+                        InsDate = DateTime.Now,
+                        UpsDate = DateTime.Now,
+                        TotalPrice = item.Price,
+                        //PaymentDate = DateTime.Now,
+                        //PaymentPhase = DateTime.Now,
+                        Percents = item.Percents,
+                        Description = item.Description,
+                        Unit = AppConstant.Unit.UnitPrice
+                    };
+                    await _unitOfWork.GetRepository<Payment>().InsertAsync(payment);
+
+                    var payItem = new BatchPayment
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = null,
+                        IntitialQuotationId = initialItem.Id,
+                        InsDate = DateTime.Now,
+                        FinalQuotationId = null,
+                        PaymentId = payment.Id,
+                        Status = AppConstant.PaymentStatus.PROGRESS
+                    };
+                    await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
+                }
+
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                return isSuccessful;
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
         }
-            catch (Exception ex)
-            {
-                throw new AppConstant.MessageError((int) AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            }
-}
 
         public async Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId)
         {
