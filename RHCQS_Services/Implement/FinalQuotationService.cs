@@ -215,8 +215,6 @@ namespace RHCQS_Services.Implement
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
-            /*            try
-                        {*/
             if (request == null)
             {
                 throw new AppConstant.MessageError(
@@ -414,7 +412,7 @@ namespace RHCQS_Services.Implement
                                 var quotationItemLabor = new QuotationItem
                                 {
                                     Id = Guid.NewGuid(),
-                                    Unit = "m2",
+                                    Unit = "ca làm",
                                     Weight = qi.Weight,
                                     UnitPriceLabor = laborExists.Price,
                                     UnitPriceRough = null,
@@ -585,11 +583,7 @@ namespace RHCQS_Services.Implement
                 );
             }
             return finalQuotation.Id;
-            /*            }
-                        catch (Exception ex)
-                        {
-                            throw;
-                        }*/
+
         }
         public async Task DeleteFinalQuotation(Guid finalQuotationId)
         {
