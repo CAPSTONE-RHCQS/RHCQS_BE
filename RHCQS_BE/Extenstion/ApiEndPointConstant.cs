@@ -82,6 +82,7 @@ namespace RHCQS_BE.Extenstion
             public const string UploadImageDrawingEndpoint = ApiEndpoint + "/upload-design-images";
             public const string PackageHouseEndpoint = ApiEndpoint + "/package-house";
             public const string UploadImagePackHouseEndpoint = ApiEndpoint + "/upload-package-house";
+            public const string UploadImageSubTemplateEndpoint = ApiEndpoint + "/upload-sub-template";
         }
 
         public static class Project

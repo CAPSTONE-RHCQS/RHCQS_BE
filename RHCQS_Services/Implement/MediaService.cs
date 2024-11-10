@@ -53,5 +53,48 @@ namespace RHCQS_Services.Implement
 
             return uploadResult.Url?.ToString();
         }
+
+        public async Task<string> UploadImageSubTemplate(IFormFile file, string folder)
+        {
+            try
+            {
+                if (file == null || file.Length == 0)
+                {
+                    throw new ArgumentException("The file is either null or empty.");
+                }
+
+                using (var stream = file.OpenReadStream())
+                {
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true,
+                        Folder = folder
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    stream.Dispose();
+
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        return uploadResult.Url.ToString();
+                    }
+                    else
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Bad_Request,
+                            uploadResult.Error.Message
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error occurred during file upload.");
+                throw;
+            }
+        }
     }
 }

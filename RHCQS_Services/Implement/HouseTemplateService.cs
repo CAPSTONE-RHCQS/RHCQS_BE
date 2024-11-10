@@ -22,13 +22,19 @@ namespace RHCQS_Services.Implement
         private readonly ILogger<HouseTemplateService> _logger;
         private readonly Cloudinary _cloudinary;
         private readonly IUploadImgService _uploadImgService;
+        private readonly IMediaService _mediaService;
 
-        public HouseTemplateService(IUnitOfWork unitOfWork, ILogger<HouseTemplateService> logger, Cloudinary cloudinary, IUploadImgService uploadImgService)
+        public HouseTemplateService(IUnitOfWork unitOfWork,
+            ILogger<HouseTemplateService> logger, 
+            Cloudinary cloudinary, 
+            IUploadImgService uploadImgService,
+            IMediaService mediaService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cloudinary = cloudinary;
             _uploadImgService = uploadImgService;
+            _mediaService = mediaService;
         }
         public async Task<List<HouseTemplateResponse>> GetListHouseTemplate()
         {
@@ -311,7 +317,7 @@ namespace RHCQS_Services.Implement
                             item.Unit,
                             item.InsDate
                         )).ToList(),
-                        sub.Media
+                        template.Media
                             .Where(media => media.Name.Equals(AppConstant.Template.Drawing))
                             .Select(media => new MediaResponse(
                                 media.Id,
@@ -778,6 +784,23 @@ namespace RHCQS_Services.Implement
             }
         }
 
+        public async Task<string> UploadImageSubTemplate(Guid subTemplateId, IFormFile file)
+        {
+            var subTemplate = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
+                                    predicate: x => x.Id == subTemplateId);
+
+            if (subTemplate == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.SubTemplateNotFound);
+            }
+
+            var urlTemplate = await _mediaService.UploadImageSubTemplate(file, "DesignHouse");
+            subTemplate.ImgUrl = urlTemplate.ToString();
+
+             _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(subTemplate);
+            var resutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+            return resutl;
+        }
 
     }
 }

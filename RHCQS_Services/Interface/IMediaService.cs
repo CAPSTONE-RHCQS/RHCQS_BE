@@ -10,5 +10,6 @@ namespace RHCQS_Services.Interface
     public interface IMediaService
     {
         Task<string> UploadImageAsync(IFormFile file, string folderName, string publicId);
+        Task<string> UploadImageSubTemplate(IFormFile file, string folder);
     }
 }

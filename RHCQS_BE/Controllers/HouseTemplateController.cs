@@ -373,5 +373,23 @@ namespace RHCQS_BE.Controllers
             var imgUrl = await _houseService.UploadFileNoMedia(request, "PackageHouse");
             return Ok(imgUrl);
         }
+
+        #region UploadImageSubTemplate
+        /// <summary>
+        /// Upload image sub house design template
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.HouseTemplate.UploadImageSubTemplateEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImageSubTemplate(Guid subTempateId, IFormFile request)
+        {
+            var imgUrl = await _houseService.UploadImageSubTemplate(subTempateId, request);
+            return Ok(imgUrl);
+        }
     }
 }
