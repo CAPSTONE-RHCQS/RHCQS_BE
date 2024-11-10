@@ -172,7 +172,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid subcontructionId, string? contructionName, string? type, double? coefficient,
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName, string? type, double? coefficient,
             DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
@@ -202,13 +202,13 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class QuotationItemResponse
     {
-        public QuotationItemResponse(Guid id,string? name, string? code, string? unit, double? weight, double? unitPriceLabor, double? unitPriceRough,
+        public QuotationItemResponse(Guid id,string? name/*, string? code*/, string? unit, double? weight, double? unitPriceLabor, double? unitPriceRough,
             double? unitPriceFinished, double? totalPriceLabor, double? totalPriceRough, double? totalPriceFinished,
             DateTime? insDate, DateTime? upsDate, string? note/*, List<QuotationLaborResponse> quotationLabors, List<QuotationMaterialResponse> quotationMaterials*/)
         {
             Id = id;
             Name = name;
-            Code = code;
+            //Code = code;
             Unit = unit;
             Weight = weight;
             UnitPriceLabor = unitPriceLabor;
@@ -224,13 +224,13 @@ namespace RHCQS_BusinessObject.Payload.Response
             QuotationMaterials = quotationMaterials;*/
         }
 
-        public QuotationItemResponse(Guid id, Guid laborId, string? name, string? code, string? unit, double? weight,
+        public QuotationItemResponse(Guid id, Guid laborId, string? name/*, string? code*/, string? unit, double? weight,
             double? unitPriceLabor, double? totalPriceLabor, DateTime? insDate, DateTime? upsDate, string? note)
         {
             Id = id;
             LaborId = laborId;
             Name = name;
-            Code = code;
+            //Code = code;
             Unit = unit;
             Weight = weight;
             UnitPriceLabor = unitPriceLabor;
@@ -240,14 +240,14 @@ namespace RHCQS_BusinessObject.Payload.Response
             Note = note;
         }
 
-        public QuotationItemResponse(Guid id, Guid materialId, string? name, string? code, string? unit, double? weight,
+        public QuotationItemResponse(Guid id, Guid materialId, string? name/*, string? code*/, string? unit, double? weight,
             double? unitPriceRough, double? unitPriceFinished, double? totalPriceRough,
             double? totalPriceFinished, DateTime? insDate, DateTime? upsDate, string? note)
         {
             Id = id;
             MaterialId = materialId;
             Name = name;
-            Code = code;
+            //Code = code;
             Unit = unit;
             Weight = weight;
             UnitPriceRough = unitPriceRough;
@@ -264,7 +264,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid? MaterialId { get; set; }
         public string? Name { get; set; }
 
-        public string? Code { get; set; }
+        //public string? Code { get; set; }
         public string? Unit { get; set; }
 
         public double? Weight { get; set; }
