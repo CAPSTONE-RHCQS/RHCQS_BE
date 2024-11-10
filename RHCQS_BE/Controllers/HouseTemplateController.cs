@@ -149,37 +149,43 @@ namespace RHCQS_BE.Controllers
         /// Sample request:
         ///
         ///     POST /api/housetemplate
-        ///     {
-        ///         "name": "Mẫu test",
-        ///         "description": "Test mẫu nhà",
-        ///         "numberOfFloor": 2,
-        ///         "numberOfBed": 3,
-        ///         "numberOfFront": 0,
-        ///         "subTemplates": [
-        ///             {
-        ///                 "buildingArea": 200,
-        ///                 "floorArea": 120,
-        ///                 "size": "R8 x D15",
-        ///                 "totalRough": 1560000000
-        ///                 "templateItems": [
-        ///                     {
-        ///                         "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
-        ///                         "subConstructionItemId": "00000000-0000-0000-0000-000000000000",
-        ///                         "name": "Trệt",
-        ///                         "area": 120,
-        ///                         "unit": "m2"
-        ///                     },
-        ///                     {
-        ///                         "constructionItemId": "EBA29420-A8DB-455C-86B0-B325A1DA4E1E",
-        ///                         "subConstructionItemId": "00000000-0000-0000-0000-000000000000",
-        ///                         "name": "Lầu 1",
-        ///                         "area": 80,
-        ///                         "unit": "m2"
-        ///                     }
-        ///                 ]
-        ///             }
-        ///         ]
-        ///     }
+        ///    {
+        ///    "name": "Mẫu test",
+        ///    "description": "Test mẫu nhà from Puanticuocsong",
+        ///    "numberOfFloor": 2,
+        ///    "numberOfBed": 3,
+        ///    "packageRoughId": "AA5057D8-9B30-4F17-A8EE-7AAD655B63CC",
+        ///    "descriptionPackage": "Test mẫu nhà API",
+        ///    "subTemplates": [
+        ///        {
+        ///            "buildingArea": 200,
+        ///            "floorArea": 120,
+        ///           "size": "R8 x D15",
+        ///            "templateItems": [
+        ///                {
+        ///                    "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
+        ///                    "subConstructionItemId": null,
+        ///                    "name": "Trệt",
+        ///                    "area": 120,
+        ///                    "unit": "m2"
+        ///                },
+        ///                {
+        ///                    "constructionItemId": "EBA29420-A8DB-455C-86B0-B325A1DA4E1E",
+        ///                    "subConstructionItemId": null,
+        ///                    "name": "Lầu 1",
+        ///                    "area": 80,
+        ///                    "unit": "m2"
+        ///                }
+        ///            ]
+        ///        }
+        ///    ],
+        ///    "packageFinished": [
+        ///        {
+        ///            "packageId": "ABEEDDF8-487D-4DEA-AFB9-173B3FEB0338",
+        ///            "description": "Gói hoàn thiện tiết kiệm"
+        ///        }
+        ///    ]
+        ///}
         ///
         /// </remarks>
         /// <param name="request">The house template details to be created.</param>
@@ -187,7 +193,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns `true` indicating successful creation of the house template.</response>
         /// <response code="400">Returns the validation errors or `false` if creation failed.</response>
         #endregion
-        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.HouseTemplate.HouseTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreateHouseTemplate([FromBody] HouseTemplateRequestForCreate request)

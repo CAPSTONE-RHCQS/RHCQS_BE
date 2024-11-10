@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Response;
+﻿using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
+using RHCQS_BusinessObject.Payload.Response;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -88,6 +89,9 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
         public List<SubTemplatesRequestForCreate> SubTemplates { get; set; } = new List<SubTemplatesRequestForCreate>();
+
+        [Required(ErrorMessage = "Danh sách gói thi công hoàn thiện là bắt buộc phải có.")]
+        public List<PackageHouseRequestForCreate> PackageFinished { get; set; }
     }
     public class SubTemplatesRequestForCreate
     {
@@ -117,6 +121,12 @@ namespace RHCQS_BusinessObject.Payload.Request
         public double? Area { get; set; }
 
         public string? Unit { get; set; }
+    }
+
+    public class PackageHouseRequestForCreate
+    {
+        public Guid PackageId { get; set; }
+        public string? Description { get; set; }
     }
 
 }

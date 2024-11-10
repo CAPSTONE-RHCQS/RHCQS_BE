@@ -12,6 +12,7 @@ using RHCQS_Services.Interface;
 using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Runtime.InteropServices;
+using Azure.Core;
 
 namespace RHCQS_Services.Implement
 {
@@ -104,63 +105,91 @@ namespace RHCQS_Services.Implement
 
         public async Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ)
         {
-
-            var templateRepo = _unitOfWork.GetRepository<DesignTemplate>();
-
-            if (await templateRepo.AnyAsync(x => x.Name == templ.Name))
+            try
             {
-                throw new AppConstant.MessageError(
-                    (int)AppConstant.ErrCode.Conflict,
-                    AppConstant.ErrMessage.DesignTemplate
-                );
-            }
+                var templateRepo = _unitOfWork.GetRepository<DesignTemplate>();
 
-            var houseTemplate = new DesignTemplate
-            {
-                Id = Guid.NewGuid(),
-                Name = templ.Name,
-                Description = templ.Description,
-                NumberOfFloor = templ.NumberOfFloor,
-                NumberOfBed = templ.NumberOfBed,
-                ImgUrl = null,
-                InsDate = DateTime.Now,
-                SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
+                if (await templateRepo.AnyAsync(x => x.Name == templ.Name))
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.DesignTemplate
+                    );
+                }
+
+                var houseTemplate = new DesignTemplate
                 {
                     Id = Guid.NewGuid(),
-                    BuildingArea = sub.BuildingArea,
-                    FloorArea = sub.FloorArea,
-                    Size = sub.Size,
+                    Name = templ.Name,
+                    Description = templ.Description,
+                    NumberOfFloor = templ.NumberOfFloor,
+                    NumberOfBed = templ.NumberOfBed,
                     ImgUrl = null,
                     InsDate = DateTime.Now,
-                    TotalRough = sub.TotalRough,
-                    TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
+                    SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
                     {
                         Id = Guid.NewGuid(),
-                        ConstructionItemId = item.ConstructionItemId,
-                        SubConstructionId = item.SubConstructionItemId != Guid.Empty ? item.SubConstructionItemId : (Guid?)null,
-                        Area = item.Area,
-                        Unit = item.Unit,
+                        BuildingArea = sub.BuildingArea,
+                        FloorArea = sub.FloorArea,
+                        Size = sub.Size,
+                        ImgUrl = null,
                         InsDate = DateTime.Now,
-                    }).ToList()
-                }).ToList(),
-                PackageHouses = new List<PackageHouse>()
-            };
+                        TotalRough = sub.TotalRough,
+                        TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ConstructionItemId = item.ConstructionItemId,
+                            SubConstructionId = item.SubConstructionItemId != Guid.Empty ? item.SubConstructionItemId : (Guid?)null,
+                            Area = item.Area,
+                            Unit = item.Unit,
+                            InsDate = DateTime.Now,
+                        }).ToList()
+                    }).ToList(),
+                    PackageHouses = new List<PackageHouse>()
+                };
 
-            //Rough package
-            var packageHouse = new PackageHouse
+                //Rough package
+                var packageHouse = new PackageHouse
+                {
+                    Id = Guid.NewGuid(),
+                    PackageId = templ.PackageRoughId,
+                    DesignTemplateId = houseTemplate.Id,
+                    InsDate = DateTime.Now,
+                    Description = templ.DescriptionPackage
+                };
+
+                houseTemplate.PackageHouses.Add(packageHouse);
+                await _unitOfWork.GetRepository<DesignTemplate>().InsertAsync(houseTemplate);
+
+                //Finished package
+                foreach (var pack in templ.PackageFinished)
+                {
+                    var isPackageExist = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
+                                                        predicate: x => x.Id == pack.PackageId);
+                    if (isPackageExist == null)
+                    {
+                        throw new Exception($"PackageId {pack.PackageId} does not exist.");
+                    }
+                    var packageItem = new PackageHouse
+                    {
+                        Id = Guid.NewGuid(),
+                        PackageId = pack.PackageId,
+                        DesignTemplateId = houseTemplate.Id,
+                        InsDate = DateTime.Now,
+                        Description = pack.Description,
+                        ImgUrl = null
+                    };
+
+                    await _unitOfWork.GetRepository<PackageHouse>().InsertAsync(packageItem);
+                }
+
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                return houseTemplate.Id;
+            }
+            catch (Exception ex)
             {
-                Id = Guid.NewGuid(),
-                PackageId = templ.PackageRoughId,
-                DesignTemplateId = houseTemplate.Id,
-                InsDate = DateTime.Now,
-                Description = templ.DescriptionPackage
-            };
-
-            houseTemplate.PackageHouses.Add(packageHouse);
-
-            await _unitOfWork.GetRepository<DesignTemplate>().InsertAsync(houseTemplate);
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return houseTemplate.Id;
+                throw new Exception(ex.Message, ex);
+            }
         }
 
         public async Task<bool> CreatePackageHouse(PackageHouseRequest request)
@@ -182,8 +211,6 @@ namespace RHCQS_Services.Implement
             var saveSuccessful = await _unitOfWork.CommitAsync() > 0;
             return saveSuccessful;
         }
-
-
 
         public async Task<string> UpdateSubTemplate(Guid subTemplateId, UpdateSubTemplateRequest request)
         {
@@ -656,6 +683,14 @@ namespace RHCQS_Services.Implement
                 nameImage = AppConstant.Template.Drawing;
                 var designDrawingImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "DesignHouse", nameImage);
                 uploadResults.Add(designDrawingImageUrl);
+            }
+
+            // Upload Package Finished Images
+            foreach(var file in files.PackageFinishedImage)
+            {
+                nameImage = AppConstant.Template.PackageFinished;
+                var finishedPackageImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "PackageHouse", nameImage);
+                uploadResults.Add(finishedPackageImageUrl);
             }
 
             return uploadResults.Count > 0;

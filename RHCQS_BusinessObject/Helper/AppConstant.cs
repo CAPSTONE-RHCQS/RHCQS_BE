@@ -101,6 +101,7 @@ public static class AppConstant
         public const string Structuredrawings = "Cấu trúc";
         public const string Exteriorsdrawings = "Ngoại cảnh";
         public const string OverallDrawing = "Tổng thể";
+        public const string PackageFinished = "Gói thi hoàn thiện";
     }
     public class Status
     {
