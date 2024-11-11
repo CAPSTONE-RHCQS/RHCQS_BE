@@ -13,6 +13,7 @@ using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Runtime.InteropServices;
 using Azure.Core;
+using Microsoft.AspNetCore.Routing.Template;
 
 namespace RHCQS_Services.Implement
 {
@@ -166,28 +167,6 @@ namespace RHCQS_Services.Implement
 
                 houseTemplate.PackageHouses.Add(packageHouse);
                 await _unitOfWork.GetRepository<DesignTemplate>().InsertAsync(houseTemplate);
-
-                //Finished package
-                foreach (var pack in templ.PackageFinished)
-                {
-                    var isPackageExist = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                                                        predicate: x => x.Id == pack.PackageId);
-                    if (isPackageExist == null)
-                    {
-                        throw new Exception($"PackageId {pack.PackageId} does not exist.");
-                    }
-                    var packageItem = new PackageHouse
-                    {
-                        Id = Guid.NewGuid(),
-                        PackageId = pack.PackageId,
-                        DesignTemplateId = houseTemplate.Id,
-                        InsDate = DateTime.Now,
-                        Description = pack.Description,
-                        ImgUrl = null
-                    };
-
-                    await _unitOfWork.GetRepository<PackageHouse>().InsertAsync(packageItem);
-                }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return houseTemplate.Id;
@@ -659,7 +638,7 @@ namespace RHCQS_Services.Implement
         }
 
         //Create object first -> upload url image design template
-        public async Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files)
+        public async Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files, List<PackageHouseRequestForCreate> package)
         {
             var uploadResults = new List<string>();
             string nameImage = null;
@@ -691,13 +670,44 @@ namespace RHCQS_Services.Implement
                 uploadResults.Add(designDrawingImageUrl);
             }
 
-            // Upload Package Finished Images
-            foreach(var file in files.PackageFinishedImage)
+            //Upload image package - Create package finished house
+            if (files.PackageFinishedImage.Count != package.Count)
             {
+                throw new Exception("Số lượng ảnh và số lượng gói package không khớp.");
+            }
+
+            for (int i = 0; i < package.Count; i++)
+            {
+                var file = files.PackageFinishedImage[i];
+                var pack = package[i];
+
                 nameImage = AppConstant.Template.PackageFinished;
-                var finishedPackageImageUrl = await _uploadImgService.UploadFile(designTemplateId, file, "PackageHouse", nameImage);
+                var finishedPackageImageUrl = await _uploadImgService.UploadImageFolder(file, nameImage, "PackageHouse");
+
+                var isPackageExist = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
+                                        predicate: x => x.Id == pack.PackageId);
+                if (isPackageExist == null)
+                {
+                    throw new Exception($"PackageId {pack.PackageId} does not exist.");
+                }
+
+                var packageItem = new PackageHouse
+                {
+                    Id = Guid.NewGuid(),
+                    PackageId = pack.PackageId,
+                    DesignTemplateId = designTemplateId,
+                    InsDate = DateTime.Now,
+                    Description = pack.Description,
+                    ImgUrl = finishedPackageImageUrl.ToString()
+                };
+
+                await _unitOfWork.GetRepository<PackageHouse>().InsertAsync(packageItem);
+
                 uploadResults.Add(finishedPackageImageUrl);
             }
+            await _unitOfWork.CommitAsync();
+
+
 
             return uploadResults.Count > 0;
         }

@@ -15,5 +15,6 @@ namespace RHCQS_BusinessObject.Payload.Request.DesignTemplate
         public List<IFormFile> OutSideImage { get; set; } = new List<IFormFile>();
         public List<IFormFile> DesignDrawingImage { get; set; } = new List<IFormFile>();
         public List<IFormFile> PackageFinishedImage { get; set; } = new List<IFormFile>();
+        //public List<PackageHouseRequestForCreate> Package {  get; set; }
     }
 }

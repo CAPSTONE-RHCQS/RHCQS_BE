@@ -22,7 +22,7 @@ namespace RHCQS_Services.Interface
         Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
         Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ);
         Task<string> UpdateSubTemplate(Guid subTemplateId, UpdateSubTemplateRequest request);
-        Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files);
+        Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files, List<PackageHouseRequestForCreate> package);
         Task<bool> CreatePackageHouse(PackageHouseRequest request);
         Task<string> UploadFileNoMedia(IFormFile file, string folder);
         Task<string> UploadImageSubTemplate(Guid subTemplateId, IFormFile file);

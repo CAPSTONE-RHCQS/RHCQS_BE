@@ -291,6 +291,21 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Upload Image drawing house template
         /// 
+        /// <remarks>
+        /// 
+        /// JSON: 
+        /// 
+        /// [
+        ///   {
+        ///     "packageId": "ABEEDDF8-487D-4DEA-AFB9-173B3FEB0338",
+        ///     "description": "Gói hoàn thiện cơ bản"
+        ///   },
+        ///   {
+        ///     "packageId": "A1625F79-0AF9-4FE6-8021-2F317EE68B0D",
+        ///     "description": "Gói hoàn thiện tiêu chuẩn"
+        ///   }
+        /// ]
+        /// </remarks>
         /// Role: MANAGER
         /// </summary>
         #endregion
@@ -298,7 +313,8 @@ namespace RHCQS_BE.Controllers
         [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImageDrawingEndpoint)]
         [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateImageDesignTemplate([FromQuery] Guid designTemplateId, [FromForm] ImageDesignDrawingRequest request)
+        public async Task<IActionResult> CreateImageDesignTemplate([FromQuery] Guid designTemplateId, 
+                                        [FromForm] ImageDesignDrawingRequest request, [FromForm] string packageJson)
         {
             if (request.OverallImage == null && (request.OutSideImage == null || request.OutSideImage.Count == 0)
                 && (request.DesignDrawingImage == null || request.DesignDrawingImage.Count == 0))
@@ -308,7 +324,8 @@ namespace RHCQS_BE.Controllers
 
             try
             {
-                var isUploaded = await _houseService.CreateImageDesignTemplate(designTemplateId, request);
+                var package = JsonConvert.DeserializeObject<List<PackageHouseRequestForCreate>>(packageJson);
+                var isUploaded = await _houseService.CreateImageDesignTemplate(designTemplateId, request, package);
                 if (isUploaded)
                 {
                     return Ok("Images uploaded successfully.");
