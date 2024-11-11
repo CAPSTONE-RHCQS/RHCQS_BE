@@ -187,6 +187,8 @@ namespace RHCQS_BE.Extenstion
             public const string ContractConstructionApproveEndpoint = ContractConstructionEndpoint + "/approved";
             public const string ContractConstructionSignCompletedEndpoint = ContractConstructionEndpoint + "/sign/completed";
             public const string ContractFileEndpoint = ContractEndpoint + "/file";
+            public const string PaymentBatchDesignConfirmEndpoint = ContractEndpoint + "/design/confirm";
+            public const string PaymentBatchConstructionConfirmEndpoint = ContractEndpoint + "/construction/confirm";
         }
 
         public static class Promotion
@@ -204,8 +206,6 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentDetailEndpoint = PaymentEndpoint + "/id";
             public const string PaymentTypeEndpoint = PaymentEndpoint + "/type";
             public const string PaymnetBatchEndpoint = PaymentEndpoint + "/batch/id";
-            public const string PaymentBatchDesignConfirmEndpoint = PaymentEndpoint + "/design/confirm";
-            public const string PaymentBatchConstructionConfirmEndpoint = PaymentEndpoint + "/construction/confirm";
             public const string PaymentBatchForCustomerEndpoint = PaymentEndpoint + "/list/app";
             public const string PaymentConfirmEndpoint = PaymentEndpoint + "/confirm";
         }

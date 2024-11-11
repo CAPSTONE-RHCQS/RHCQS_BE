@@ -9,6 +9,7 @@ using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Request.Contract;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using Xceed.Words.NET;
 
@@ -256,6 +257,56 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        #region BillContractContruction
+        /// <summary>
+        /// Manager upload bill payment contract design
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="paymentId">Approve payment contract design</param>
+        /// <param name="files"></param>
+        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
+        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
+        /// <response code="400">Failed to approve contract due to invalid input</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Contract.PaymentBatchDesignConfirmEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BillContractDesign(Guid paymentId, List<IFormFile> files)
+        {
+            var result = await _contractService.BillContractDesign(paymentId, files);
+            return Ok(result);
+        }
+
+        #region BillContractContruction
+        /// <summary>
+        /// Manager upload bill payment contract design 
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="paymentId">Approve payment contract design</param>
+        /// <param name="files"></param>
+        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
+        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
+        /// <response code="400">Failed to approve contract due to invalid input</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Contract.PaymentBatchConstructionConfirmEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BillContractContruction(Guid paymentId, List<IFormFile> files)
+        {
+            var result = await _contractService.BillContractContruction(paymentId, files);
+            return Ok(result);
         }
     }
 }

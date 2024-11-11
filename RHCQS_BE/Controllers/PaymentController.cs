@@ -64,56 +64,6 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region ApproveContractDesin
-        /// <summary>
-        /// Manager approve payment contract design "Approved"
-        /// 
-        /// Role: MANAGER
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="paymentId">Approve payment contract design</param>
-        /// <param name="files"></param>
-        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
-        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
-        /// <response code="400">Failed to approve contract due to invalid input</response>
-        /// 
-        #endregion
-        [Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.Payment.PaymentBatchDesignConfirmEndpoint)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ApproveContractDesin(Guid paymentId, List<IFormFile> files)
-        {
-            var result = await _paymentService.ApproveContractDesign(paymentId, files);
-            return Ok(result);
-        }
-
-        #region ApproveContractContruction
-        /// <summary>
-        /// Manager approve payment contract design 
-        /// 
-        /// Role: MANAGER
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="paymentId">Approve payment contract design</param>
-        /// <param name="files"></param>
-        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
-        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
-        /// <response code="400">Failed to approve contract due to invalid input</response>
-        /// 
-        #endregion
-        [Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.Payment.PaymentBatchConstructionConfirmEndpoint)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ApproveContractContruction(Guid paymentId, List<IFormFile> files)
-        {
-            var result = await _paymentService.ApproveContractContruction(paymentId, files);
-            return Ok(result);
-        }
-
         #region GetListBatchResponse
         /// <summary>
         /// List batch payment for customer - App
