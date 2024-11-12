@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using System.Net.Http.Headers;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
+using RHCQS_BusinessObject.Helper;
 
 namespace RHCQS_Services.Implement
 {
