@@ -103,7 +103,8 @@ namespace RHCQS_Services.Implement
                                             Version = i.Version,
                                             InsDate = i.InsDate,
                                             Status = i.Status
-                                        }).ToList() ?? new List<InitialInfo>();
+                                        }).OrderByDescending(i => i.InsDate)
+                                        .ToList() ?? new List<InitialInfo>();
 
             var finalItem = projectItem.FinalQuotations?
                               .Select(d => new FinalInfo
@@ -113,7 +114,8 @@ namespace RHCQS_Services.Implement
                                   Version = d.Version,
                                   InsDate = d.InsDate,
                                   Status = d.Status
-                              }).ToList() ?? new List<FinalInfo>();
+                              }).OrderByDescending(d => d.InsDate)
+                              .ToList() ?? new List<FinalInfo>();
 
 
             var houseDesignItem = projectItem.HouseDesignDrawings?
@@ -134,7 +136,8 @@ namespace RHCQS_Services.Implement
                 Name = c.Name,
                 Status = c.Status,
                 Note = c.Note
-            }).ToList() ?? new List<ContractInfo>();
+            })
+            .ToList() ?? new List<ContractInfo>();
 
 
             var projectDetailItem = new ProjectDetail
@@ -239,7 +242,8 @@ namespace RHCQS_Services.Implement
                     IsTemplate = false,
                     Deflag = false,
                     Note = null,
-                    ReasonReject = null
+                    ReasonReject = null,
+                    IsDraft = false
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);

@@ -16,6 +16,9 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         [Required(ErrorMessage = "ProjectId là bắt buộc.")]
         public Guid ProjectId { get; set; }
 
+        [Required(ErrorMessage = "Phải xác định trạng thái nháp và gửi !")]
+        public bool IsSave { get; set; }
+
         [Range(0, double.MaxValue, ErrorMessage = "Diện tích phải là một số dương.")]
         public double? Area { get; set; }
 

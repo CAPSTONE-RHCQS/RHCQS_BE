@@ -291,6 +291,8 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Upload Image drawing house template
         /// 
+        /// Role: MANAGER
+        /// </summary>
         /// <remarks>
         /// 
         /// JSON: 
@@ -306,10 +308,8 @@ namespace RHCQS_BE.Controllers
         ///   }
         /// ]
         /// </remarks>
-        /// Role: MANAGER
-        /// </summary>
         #endregion
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImageDrawingEndpoint)]
         [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
