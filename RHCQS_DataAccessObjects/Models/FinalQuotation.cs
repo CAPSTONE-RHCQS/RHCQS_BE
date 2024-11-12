@@ -27,6 +27,8 @@ public partial class FinalQuotation
 
     public string? ReasonReject { get; set; }
 
+    public bool? IsSave { get; set; }
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<EquipmentItem> EquipmentItems { get; set; } = new List<EquipmentItem>();

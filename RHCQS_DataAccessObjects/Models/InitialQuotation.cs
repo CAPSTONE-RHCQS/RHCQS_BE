@@ -41,6 +41,8 @@ public partial class InitialQuotation
 
     public string? ReasonReject { get; set; }
 
+    public bool? IsSave { get; set; }
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
