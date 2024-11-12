@@ -103,6 +103,15 @@ public static class AppConstant
         public const string OverallDrawing = "Tổng thể";
         public const string PackageFinished = "Gói thi hoàn thiện";
     }
+
+    public class NameTemplate
+    {
+        public const string Drawing = "Ban_ve";
+        public const string Structuredrawings = "Cau_truc";
+        public const string Exteriorsdrawings = "Ngoai_canh";
+        public const string OverallDrawing = "Tong_the";
+        public const string PackageFinished = "Goi_hoan_thien";
+    }
     public class Status
     {
         public const string PROCESSING = "Processing";

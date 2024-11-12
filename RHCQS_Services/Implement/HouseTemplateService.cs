@@ -675,13 +675,13 @@ namespace RHCQS_Services.Implement
             {
                 throw new Exception("Số lượng ảnh và số lượng gói package không khớp.");
             }
-
-            for (int i = 0; i < package.Count; i++)
+            int count = Math.Min(files.PackageFinishedImage.Count, package.Count);
+            for (int i = 0; i < count; i++)
             {
                 var file = files.PackageFinishedImage[i];
                 var pack = package[i];
 
-                nameImage = AppConstant.Template.PackageFinished[i].ToString();
+                nameImage = files.PackageFinishedImage[i].FileName;
                 var finishedPackageImageUrl = await _uploadImgService.UploadImageFolder(file, nameImage, "PackageHouse");
 
                 var isPackageExist = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
