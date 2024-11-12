@@ -89,12 +89,12 @@ namespace RHCQS_Services.Implement
                         Id = Guid.NewGuid(),
                         Name = request.Name,
                         Version = 1.0,
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                         HouseDesignDrawingId = request.HouseDesignDrawingId,
                         Note = "",
                         PreviousDrawingId = request.PreviousDrawingId ?? null,
                         RelatedDrawingId = request.RelatedDrawingId ?? null,
-                        UpsDate = DateTime.Now,
+                        UpsDate = LocalDateTime.VNDateTime(),
                         Deflag = false,
                     };
 
@@ -119,8 +119,8 @@ namespace RHCQS_Services.Implement
                         Name = request.Name,
                         HouseDesignVersionId = itemDesign.Id,
                         Url = request.FileUrl,
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime()
                     };
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
                 }
@@ -131,10 +131,10 @@ namespace RHCQS_Services.Implement
                         Id = Guid.NewGuid(),
                         Name = availableDrawing!.Name,
                         Version = availableDrawing.Version + 1,
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                         HouseDesignDrawingId = availableDrawing.HouseDesignDrawingId,
                         Note = null,
-                        UpsDate = DateTime.Now,
+                        UpsDate = LocalDateTime.VNDateTime(),
                         RelatedDrawingId = availableDrawing?.RelatedDrawingId,
                         PreviousDrawingId = availableDrawing?.PreviousDrawingId,
                     };
@@ -152,8 +152,8 @@ namespace RHCQS_Services.Implement
                         Name = request.Name,
                         HouseDesignVersionId = itemDesignUpdate.Id,
                         Url = request.FileUrl,
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime()
                     };
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
                 }
@@ -195,7 +195,7 @@ namespace RHCQS_Services.Implement
                     continue;
                 }
 
-                var publicId = $"{itemDrawing.Name + "_" + itemDrawing.Version}" + DateTime.Now.ToString() ?? Path.GetFileNameWithoutExtension(file.FileName);
+                var publicId = $"{itemDrawing.Name + "_" + itemDrawing.Version}" + LocalDateTime.VNDateTime().ToString() ?? Path.GetFileNameWithoutExtension(file.FileName);
 
                 var imageUrl = await _mediaService.UploadImageAsync(file, "HouseDesignDrawing", publicId);
 
@@ -210,15 +210,15 @@ namespace RHCQS_Services.Implement
                     HouseDesignVersionId = itemDrawing.Id,
                     Name = itemDrawing.Name,
                     Url = imageUrl,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime()
                 };
                 await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
                 itemDrawing.HouseDesignDrawing.Status = "Processing";
             }
 
             itemDrawing.HouseDesignDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
-            itemDrawing.UpsDate = DateTime.Now;
+            itemDrawing.UpsDate = LocalDateTime.VNDateTime();
 
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;

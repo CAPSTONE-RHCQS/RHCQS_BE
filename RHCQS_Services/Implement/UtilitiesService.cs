@@ -200,8 +200,8 @@ namespace RHCQS_Services.Implement
                        Name = request.Name,
                        Type = request.Type,
                        Deflag = true,
-                       InsDate = DateTime.Now,
-                       UpsDate = DateTime.Now
+                       InsDate = LocalDateTime.VNDateTime(),
+                       UpsDate = LocalDateTime.VNDateTime()
                    };
                 if (!request.Id.HasValue)
                 {
@@ -217,8 +217,8 @@ namespace RHCQS_Services.Implement
                             UtilitiesId = utility.Id,
                             Name = s.Name,
                             Deflag = true,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            UpsDate = LocalDateTime.VNDateTime(),
                             Description = s.Description,
                             UnitPrice = s.UnitPrice,
                             Unit = s.Unit,
@@ -239,8 +239,8 @@ namespace RHCQS_Services.Implement
                                 SectionId = section.Id,
                                 Name = i.Name,
                                 Coefficient = i.Coefficient,
-                                InsDate = DateTime.Now,
-                                UpsDate = DateTime.Now,
+                                InsDate = LocalDateTime.VNDateTime(),
+                                UpsDate = LocalDateTime.VNDateTime(),
                                 Deflag = true
                             };
                             await _unitOfWork.GetRepository<UtilitiesItem>().InsertAsync(item);
@@ -287,7 +287,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 utility.Name = request.Utility.Name ?? utility.Name;
-                utility.UpsDate = DateTime.Now;
+                utility.UpsDate = LocalDateTime.VNDateTime();
 
                 _unitOfWork.GetRepository<UtilityOption>().UpdateAsync(utility);
 
@@ -313,7 +313,7 @@ namespace RHCQS_Services.Implement
 
                 section.Name = request.Sections.Name ?? section.Name;
                 section.Description = request.Sections.Description ?? section.Description;
-                section.UpsDate = DateTime.Now;
+                section.UpsDate = LocalDateTime.VNDateTime();
                 section.UnitPrice = request.Sections.UnitPrice ?? section.UnitPrice;
                 section.Unit = request.Sections.Unit ?? section.Unit;
 
@@ -341,7 +341,7 @@ namespace RHCQS_Services.Implement
 
                 item.Name = request.Items.Name ?? item.Name;
                 item.Coefficient = request.Items.Coefficient ?? item.Coefficient;
-                item.UpsDate = DateTime.Now;
+                item.UpsDate = LocalDateTime.VNDateTime();
 
                 _unitOfWork.GetRepository<UtilitiesItem>().UpdateAsync(item);
             }

@@ -64,7 +64,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    InsDate = DateTime.Now
+                    InsDate = LocalDateTime.VNDateTime()
                 };
                 await _unitOfWork.GetRepository<MaterialSection>().InsertAsync(newMaterialSection);
                 return await _unitOfWork.CommitAsync() > 0;

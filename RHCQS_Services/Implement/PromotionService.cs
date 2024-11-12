@@ -76,7 +76,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> CreatePromotion(PromotionRequest request)
         {
-            if (request.StartTime <= DateTime.Now)
+            if (request.StartTime <= LocalDateTime.VNDateTime())
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.Invalid_Start_Time);
             }
@@ -91,7 +91,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 Code = GenerateRandom.GenerateRandomString(10),
                 Value = request.Value,
-                InsDate = DateTime.Now,
+                InsDate = LocalDateTime.VNDateTime(),
                 StartTime = request.StartTime,
                 Name = request.Name,
                 ExpTime = request.ExpTime,
@@ -111,7 +111,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 PackageId = request.PackageId,
                 PromotionId = promotion.Id,
-                InsDate = DateTime.Now
+                InsDate = LocalDateTime.VNDateTime()
             };
             await _unitOfWork.GetRepository<PackageMapPromotion>().InsertAsync(mapPackage);
 
@@ -132,12 +132,12 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Promotion_No_Update);
             }
 
-            if (request.StartTime.HasValue && request.StartTime < DateTime.Now)
+            if (request.StartTime.HasValue && request.StartTime < LocalDateTime.VNDateTime())
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.Invalid_Start_Time);
             }
 
-            if (request.ExpTime.HasValue && request.ExpTime < DateTime.Now)
+            if (request.ExpTime.HasValue && request.ExpTime < LocalDateTime.VNDateTime())
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.Invalid_Exp_Time);
             }

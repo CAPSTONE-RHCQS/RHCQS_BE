@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Runtime.InteropServices;
 using Azure.Core;
 using Microsoft.AspNetCore.Routing.Template;
+using RHCQS_BusinessObject.Helper;
 
 namespace RHCQS_Services.Implement
 {
@@ -132,7 +133,7 @@ namespace RHCQS_Services.Implement
                     NumberOfFloor = templ.NumberOfFloor,
                     NumberOfBed = templ.NumberOfBed,
                     ImgUrl = null,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     SubTemplates = templ.SubTemplates.Select(sub => new SubTemplate
                     {
                         Id = Guid.NewGuid(),
@@ -140,7 +141,7 @@ namespace RHCQS_Services.Implement
                         FloorArea = sub.FloorArea,
                         Size = sub.Size,
                         ImgUrl = null,
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                         TotalRough = sub.TotalRough,
                         TemplateItems = sub.TemplateItems.Select(item => new TemplateItem
                         {
@@ -149,7 +150,7 @@ namespace RHCQS_Services.Implement
                             SubConstructionId = item.SubConstructionItemId != Guid.Empty ? item.SubConstructionItemId : (Guid?)null,
                             Area = item.Area,
                             Unit = item.Unit,
-                            InsDate = DateTime.Now,
+                            InsDate = LocalDateTime.VNDateTime(),
                         }).ToList()
                     }).ToList(),
                     PackageHouses = new List<PackageHouse>()
@@ -161,7 +162,7 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     PackageId = templ.PackageRoughId,
                     DesignTemplateId = houseTemplate.Id,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     Description = templ.DescriptionPackage
                 };
 
@@ -185,7 +186,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 PackageId = request.PackageId,
                 DesignTemplateId = request.DesginTemplateId,
-                InsDate = DateTime.Now,
+                InsDate = LocalDateTime.VNDateTime(),
                 Description = request.Description,
                 ImgUrl = request.PackageHouseImage
             };
@@ -550,7 +551,7 @@ namespace RHCQS_Services.Implement
                 if (existingMedia != null)
                 {
                     existingMedia.Url = media.MediaImgURL;
-                    existingMedia.UpsDate = DateTime.Now;
+                    existingMedia.UpsDate = LocalDateTime.VNDateTime();
                 }
                 else
                 {
@@ -596,7 +597,7 @@ namespace RHCQS_Services.Implement
                         if (existingMedia != null)
                         {
                             existingMedia.Url = media.MediaImgURL;
-                            existingMedia.UpsDate = DateTime.Now;
+                            existingMedia.UpsDate = LocalDateTime.VNDateTime();
                         }
                         else
                         {
@@ -696,7 +697,7 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     PackageId = pack.PackageId,
                     DesignTemplateId = designTemplateId,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     Description = pack.Description,
                     ImgUrl = finishedPackageImageUrl.ToString()
                 };
@@ -734,7 +735,7 @@ namespace RHCQS_Services.Implement
                         Id = Guid.NewGuid(),
                         Name = nameImage,
                         Url = uploadResult.Url.ToString(),
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                         DesignTemplateId = designTemplateId
                     };
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaItem);

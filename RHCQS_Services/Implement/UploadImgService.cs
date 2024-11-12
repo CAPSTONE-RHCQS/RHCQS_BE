@@ -122,7 +122,7 @@ namespace RHCQS_Services.Implement
                         Id = Guid.NewGuid(),
                         Name = nameImage,
                         Url = uploadResult.Url.ToString(),
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                         DesignTemplateId = designTemplateId
                     };
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaItem);

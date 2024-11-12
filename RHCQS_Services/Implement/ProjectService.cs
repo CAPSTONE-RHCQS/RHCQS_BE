@@ -213,11 +213,11 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     CustomerId = customerInfo.Id,
-                    Name = "Báo giá sơ bộ " + DateTime.Now,
+                    Name = "Báo giá sơ bộ " + LocalDateTime.VNDateTime(),
                     Type = projectRequest.Type,
                     Status = AppConstant.ProjectStatus.PROCESSING,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     ProjectCode = GenerateRandom.GenerateRandomString(5),
                     Address = projectRequest.Address,
                     Area = projectRequest.Area
@@ -233,7 +233,7 @@ namespace RHCQS_Services.Implement
                     TimeProcessing = null,
                     TimeRough = null,
                     TimeOthers = null,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     Status = AppConstant.QuotationStatus.PENDING,
                     Version = 0.0,
                     IsTemplate = false,
@@ -258,7 +258,7 @@ namespace RHCQS_Services.Implement
                         PackageId = package.PackageId,
                         InitialQuotationId = initialItem.Id,
                         Type = package.Type,
-                        InsDate = DateTime.Now
+                        InsDate = LocalDateTime.VNDateTime()
                     };
 
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
@@ -275,8 +275,8 @@ namespace RHCQS_Services.Implement
                         Area = request.Area,
                         Price = request.Price,
                         UnitPrice = "đ",
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
                         InitialQuotationId = initialItem.Id
                     };
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
@@ -305,8 +305,8 @@ namespace RHCQS_Services.Implement
                                 Coefiicient = 0,
                                 Price = utl.Price,
                                 Description = sectionItem.Description,
-                                InsDate = DateTime.Now,
-                                UpsDate = DateTime.Now,
+                                InsDate = LocalDateTime.VNDateTime(),
+                                UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = sectionItem.Id
                             };
                         }
@@ -324,8 +324,8 @@ namespace RHCQS_Services.Implement
                                 Coefiicient = utilityItem.Coefficient,
                                 Price = utl.Price,
                                 Description = utilityItem.Name,
-                                InsDate = DateTime.Now,
-                                UpsDate = DateTime.Now,
+                                InsDate = LocalDateTime.VNDateTime(),
+                                UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId
                             };
                         }
@@ -361,7 +361,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 AccountId = accountId,
                 ProjectId = projectId,
-                InsDate = DateTime.Now
+                InsDate = LocalDateTime.VNDateTime()
             };
 
             //var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Version == 0.0);
@@ -515,11 +515,11 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     CustomerId = customerInfo.Id,
-                    Name = "Báo giá sơ bộ " + DateTime.Now,
+                    Name = "Báo giá sơ bộ " + LocalDateTime.VNDateTime(),
                     Type = AppConstant.Type.TEMPLATE,
                     Status = AppConstant.ProjectStatus.PROCESSING,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     ProjectCode = GenerateRandom.GenerateRandomString(5),
                     Address = request.Address,
                     Area = templateHouseInfo.BuildingArea
@@ -552,7 +552,7 @@ namespace RHCQS_Services.Implement
                     TimeProcessing = null,
                     TimeRough = null,
                     TimeOthers = null,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     Status = AppConstant.QuotationStatus.PENDING,
                     Version = 0.0,
                     IsTemplate = true,
@@ -571,7 +571,7 @@ namespace RHCQS_Services.Implement
                     PackageId = packageRough.Id,
                     InitialQuotationId = initialItem.Id,
                     Type = AppConstant.Type.ROUGH,
-                    InsDate = DateTime.Now
+                    InsDate = LocalDateTime.VNDateTime()
                 };
 
                 await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageRoughQuotation);
@@ -583,7 +583,7 @@ namespace RHCQS_Services.Implement
                     PackageId = request.PackageFinished,
                     InitialQuotationId = initialItem.Id,
                     Type = AppConstant.Type.FINISHED,
-                    InsDate = DateTime.Now
+                    InsDate = LocalDateTime.VNDateTime()
                 };
 
                 await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageFinishedQuotation);
@@ -599,8 +599,8 @@ namespace RHCQS_Services.Implement
                         Area = item.Area,
                         Price = item.Price,
                         UnitPrice = "đ",
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
                         InitialQuotationId = initialItem.Id
                     };
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
@@ -629,8 +629,8 @@ namespace RHCQS_Services.Implement
                                 Coefiicient = 0,
                                 Price = utl.Price,
                                 Description = sectionItem.Description,
-                                InsDate = DateTime.Now,
-                                UpsDate = DateTime.Now,
+                                InsDate = LocalDateTime.VNDateTime(),
+                                UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = sectionItem.Id
                             };
                         }
@@ -648,8 +648,8 @@ namespace RHCQS_Services.Implement
                                 Coefiicient = utilityItem.Coefficient,
                                 Price = utl.Price,
                                 Description = null,
-                                InsDate = DateTime.Now,
-                                UpsDate = DateTime.Now,
+                                InsDate = LocalDateTime.VNDateTime(),
+                                UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId
                             };
                         }

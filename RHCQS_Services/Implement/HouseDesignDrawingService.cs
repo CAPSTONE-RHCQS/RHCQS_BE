@@ -206,7 +206,7 @@ namespace RHCQS_Services.Implement
                     Status = statusDrawing,
                     Type = designType.ToTypeString(),
                     IsCompany = false,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     AccountId = designerId
                 };
 

@@ -18,7 +18,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         //[Range(0, double.MaxValue, ErrorMessage = "Tổng tiền phải là một số dương.")]
         //public double? TotalPrice { get; set; }
 
-        public bool IsDraft { get; set; }
+        //public bool IsDraft { get; set; }
         public string? Note { get; set; }
 
         public List<BatchPaymentInfoRequest>? BatchPaymentInfos { get; set; }

@@ -73,8 +73,8 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     Name = request.Name,
                     Price = request.Price,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     Deflag = request.Deflag,
                     Type = request.Type
                 };
@@ -110,7 +110,7 @@ namespace RHCQS_Services.Implement
                 labor.Deflag = request.Deflag ?? labor.Deflag;
                 labor.Type = request.Type ?? labor.Type;
 
-                labor.UpsDate = DateTime.Now;
+                labor.UpsDate = LocalDateTime.VNDateTime();
 
                 _unitOfWork.GetRepository<Labor>().UpdateAsync(labor);
                 return await _unitOfWork.CommitAsync() > 0;

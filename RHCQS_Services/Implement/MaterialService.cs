@@ -110,8 +110,8 @@ namespace RHCQS_Services.Implement
                     Shape = request.Shape,
                     ImgUrl = request.ImgUrl,
                     Description = request.Description,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     UnitPrice = request.UnitPrice,
                     IsAvailable = request.IsAvailable
                 };
@@ -155,7 +155,7 @@ namespace RHCQS_Services.Implement
                 material.UnitPrice = request.UnitPrice ?? material.UnitPrice;
                 material.IsAvailable = request.IsAvailable ?? material.IsAvailable;
 
-                material.UpsDate = DateTime.Now;
+                material.UpsDate = LocalDateTime.VNDateTime();
 
                 _unitOfWork.GetRepository<Material>().UpdateAsync(material);
                 return await _unitOfWork.CommitAsync() > 0;
