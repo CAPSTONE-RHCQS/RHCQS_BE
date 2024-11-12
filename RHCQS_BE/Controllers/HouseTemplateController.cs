@@ -309,7 +309,7 @@ namespace RHCQS_BE.Controllers
         /// ]
         /// </remarks>
         #endregion
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImageDrawingEndpoint)]
         [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

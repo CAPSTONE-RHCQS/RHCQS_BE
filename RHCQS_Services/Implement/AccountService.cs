@@ -1,10 +1,12 @@
 ﻿using Azure;
 using CloudinaryDotNet;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.CurrentUserModel;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -26,12 +28,17 @@ namespace RHCQS_Services.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AccountService> _logger;
         private readonly IUploadImgService _uploadImgService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AccountService(IUnitOfWork unitOfWork, ILogger<AccountService> logger, IUploadImgService uploadImgService)
+        public AccountService(IUnitOfWork unitOfWork, 
+            ILogger<AccountService> logger, 
+            IUploadImgService uploadImgService, 
+            IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _uploadImgService = uploadImgService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Account> GetAccountByIdAsync(Guid id)
@@ -358,11 +365,34 @@ namespace RHCQS_Services.Implement
             return uploadResults.Count > 0;
         }
 
-        public async Task<string> GetCurrentLoginUser()
+        public async Task<CurrentUserModel> GetCurrentLoginUser()
         {
-            var currentLoginUser = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync();
+            var userIdClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("UserId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out Guid userId))
+            {
+                throw new Exception("Cannot find the logged-in user.");
+            }
 
-            return "currentLoginUser";
+            var currentLoginUser = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
+                                    predicate: x => x.Id == userId
+                                );
+
+            if (currentLoginUser == null)
+            {
+                throw new Exception("User not found.");
+            }
+
+            var currentUserModel = new CurrentUserModel
+            {
+                Userid = currentLoginUser.Id,
+                Username = currentLoginUser.Username,
+                UserProfileImage = currentLoginUser.ImageUrl,
+                Email = currentLoginUser.Email,
+                Phonenumber = currentLoginUser.PhoneNumber,
+                IsBan = (bool)currentLoginUser.Deflag! ? false : true
+            };
+
+            return currentUserModel;
         }
     }
 }

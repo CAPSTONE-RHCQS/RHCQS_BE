@@ -489,6 +489,10 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.SendAt).HasColumnType("datetime");
 
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Message_Account");
+
             entity.HasOne(d => d.Room).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.RoomId)
                 .OnDelete(DeleteBehavior.ClientSetNull)

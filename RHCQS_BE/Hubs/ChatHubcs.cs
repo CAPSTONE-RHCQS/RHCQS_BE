@@ -2,12 +2,14 @@
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using RHCQS_BusinessObject.Payload.Request.Chat;
+using RHCQS_BusinessObject.Payload.Response.Chat;
 using RHCQS_Services.Interface;
 using System.Collections.Concurrent;
 
-namespace RHCQS_BE.Hub
+namespace RHCQS_BE.Hubs
 {
-    public class ChatHub
+    public class ChatHub : Hub
     {
         private readonly IMessageService _messageService;
         private readonly IAccountService _userService;
@@ -24,11 +26,11 @@ namespace RHCQS_BE.Hub
         public async Task SendMessageToRoom(Guid roomId, string messageContent)
         {
             var user = await _userService.GetCurrentLoginUser();
-            //var userId = user.Userid;
-            //if (userId == Guid.Empty)
-            //{
-            //    throw new HubException("Invalid user ID.");
-            //}
+            var userId = user.Userid;
+            if (userId == Guid.Empty)
+            {
+                throw new HubException("Invalid user ID.");
+            }
 
             var room = await _messageService.GetChatRoomByIdAsync(roomId);
             if (room == null)
@@ -36,20 +38,20 @@ namespace RHCQS_BE.Hub
                 throw new HubException("Room does not exist.");
             }
 
-            //var createMessageModel = new CreateMessageModel
-            //{
-            //    MessageContent = messageContent,
-            //    RoomId = roomId,
-            //    CreatedBy = userId
-            //};
+            var createMessage = new MessageRequest
+            {
+                MessageContent = messageContent,
+                RoomId = roomId,
+                CreatedBy = userId
+            };
 
-            //var message = await _messageService.CreateMessage(createMessageModel);
-            //if (message.CreatedBy == null)
-            //{
-            //    return;
-            //}
+            var message = await _messageService.CreateMessage(createMessage);
+            if (message.CreatedBy! == null)
+            {
+                return;
+            }
 
-            //await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", userId.ToString(), messageContent);
+            await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", userId.ToString(), messageContent);
         }
         [Authorize]
         public async Task JoinRoom(Guid chatRoomId)
@@ -60,20 +62,19 @@ namespace RHCQS_BE.Hub
                 throw new HubException("Invalid chatRoomId.");
             }
 
-            //await Groups.AddToGroupAsync(Context.ConnectionId, chatRoomId.ToString());
+            await Groups.AddToGroupAsync(Context.ConnectionId, chatRoomId.ToString());
 
-            //var chatRoomDto = await _messageService.GetMessagesByChatRoomId(chatRoomId);
-            //var messages = chatRoomDto.Messages;
+            var messages = await _messageService.GetMessagesByChatRoomId(chatRoomId);
 
-            //foreach (var message in messages)
-            //{
-            //    await Clients.Caller.SendAsync("ReceiveMessage", message.CreatedBy.ToString(), message.Content);
-            //}
+            foreach (var message in messages)
+            {
+                await Clients.Caller.SendAsync("ReceiveMessage", message.CreatedBy.ToString(), message.Content);
+            }
         }
         [Authorize]
         public async Task LeaveRoom(Guid chatRoomId)
         {
-            //await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatRoomId.ToString());
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatRoomId.ToString());
         }
     }
 }

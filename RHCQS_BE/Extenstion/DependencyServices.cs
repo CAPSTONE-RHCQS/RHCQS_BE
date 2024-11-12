@@ -91,6 +91,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IMaterialSectionService, MaterialSectionService>();
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IMediaService, MediaService>();
+            services.AddScoped<IMessageService, MessageService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();

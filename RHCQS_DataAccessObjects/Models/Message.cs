@@ -13,5 +13,9 @@ public partial class Message
 
     public Guid RoomId { get; set; }
 
+    public Guid? CreatedBy { get; set; }
+
+    public virtual Account? CreatedByNavigation { get; set; }
+
     public virtual Room Room { get; set; } = null!;
 }

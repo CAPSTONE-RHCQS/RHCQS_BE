@@ -41,6 +41,7 @@ namespace RHCQS_BE
 
             var configuration = builder.Configuration;
 
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddDatabase();
             builder.Services.AddUnitOfWork();
             builder.Services.AddServices();

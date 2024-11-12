@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Payload.Request.Chat;
 using RHCQS_BusinessObject.Payload.Response.Chat;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -31,6 +33,53 @@ namespace RHCQS_Services.Implement
                            chatroom.SenderId,
                            chatroom.ReceiverId,
                            chatroom.InsDate);
+
+            return response;
+        }
+
+        public async Task<MessageResponse> CreateMessage(MessageRequest request)
+        {
+            var message = new Message
+            {
+                Id = Guid.NewGuid(),
+                MessageContent = request.MessageContent,
+                RoomId = request.RoomId,
+                SendAt = DateTime.UtcNow,
+                CreatedBy = request.CreatedBy
+            };
+
+            await _unitOfWork.GetRepository<Message>().InsertAsync(message);
+            await _unitOfWork.CommitAsync();
+            var response = new MessageResponse
+            {
+                Id = message.Id,
+                MessageContent = message.MessageContent,
+                CreatedBy = (Guid)message.CreatedBy,
+                SendAt = message.SendAt,
+                RoomId = message.RoomId
+            };
+
+            return response;
+        }
+
+        public async Task<List<MessageInRoomResponse>> GetMessagesByChatRoomId(Guid chatRoomId)
+        {
+            var messages = await _unitOfWork.GetRepository<Message>()
+                                .GetListAsync(
+                                    predicate: x => x.RoomId == chatRoomId,
+                                     //include: x => x.Include(m => m.Account),
+                                    orderBy: x => x.OrderBy(m => m.SendAt));
+
+            var response = messages.Select(m => new MessageInRoomResponse
+            {
+                messageId = m.Id,
+                Content = m.MessageContent,
+                CreatedBy = m.CreatedBy,
+                CreatedByUserName =  "Tom",
+                CreatedDate = m.SendAt,
+                CreatedTime = m.SendAt,
+                Avatar = "no link"
+            }).ToList();
 
             return response;
         }

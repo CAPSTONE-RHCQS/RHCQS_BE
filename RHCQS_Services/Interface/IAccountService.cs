@@ -1,5 +1,6 @@
 ﻿using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.CurrentUserModel;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using System;
@@ -23,6 +24,6 @@ namespace RHCQS_Services.Interface
         Task<Account> UpdateDeflagAccountAsync(Guid id);
         Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword);
         Task<bool> CreateImageAccount(Guid accountId, ImageForAccount files);
-        Task<string> GetCurrentLoginUser();
+        Task<CurrentUserModel> GetCurrentLoginUser();
     }
 }
