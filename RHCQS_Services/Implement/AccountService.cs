@@ -357,5 +357,12 @@ namespace RHCQS_Services.Implement
 
             return uploadResults.Count > 0;
         }
+
+        public async Task<string> GetCurrentLoginUser()
+        {
+            var currentLoginUser = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync();
+
+            return "currentLoginUser";
+        }
     }
 }

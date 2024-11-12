@@ -7,13 +7,15 @@ public partial class Room
 {
     public Guid Id { get; set; }
 
-    public Guid? CustomeId { get; set; }
+    public Guid? SenderId { get; set; }
 
-    public Guid? SaleId { get; set; }
+    public Guid? ReceiverId { get; set; }
 
     public DateTime? InsDate { get; set; }
 
-    public virtual Account? Custome { get; set; }
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 
-    public virtual Account? Sale { get; set; }
+    public virtual Account? Receiver { get; set; }
+
+    public virtual Account? Sender { get; set; }
 }

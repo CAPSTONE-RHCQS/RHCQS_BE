@@ -5,11 +5,13 @@ namespace RHCQS_DataAccessObjects.Models;
 
 public partial class Message
 {
-    public Guid SenderId { get; set; }
+    public Guid Id { get; set; }
 
-    public string? Context { get; set; }
+    public string? MessageContent { get; set; }
 
     public DateTime? SendAt { get; set; }
 
     public Guid RoomId { get; set; }
+
+    public virtual Room Room { get; set; } = null!;
 }
