@@ -767,6 +767,11 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                if (request.IsSave == true)
+                {
+
+                }
+
                 //Check version present duplicate
                 double nextVersion = 1.0;
                 var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -807,7 +812,8 @@ namespace RHCQS_Services.Implement
                                     request.Area.Value : initialVersionPresent.Project.Area;
                 initialVersionPresent.Project.Address = string.IsNullOrEmpty(request.Address) ?
                                       initialVersionPresent.Project.Address : request.Address;
-                initialVersionPresent.Status = AppConstant.QuotationStatus.REJECTED;
+                //Note: Version initial quotation - PROCESSING
+                initialVersionPresent.Status = AppConstant.QuotationStatus.PROCESSING;
 
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
 
@@ -823,7 +829,7 @@ namespace RHCQS_Services.Implement
                     TimeOthers = request.TimeOthers,
                     OthersAgreement = request.OthersAgreement,
                     InsDate = LocalDateTime.VNDateTime(),
-                    Status = AppConstant.QuotationStatus.REVIEWING,
+                    Status = AppConstant.QuotationStatus.PROCESSING,
                     Version = nextVersion,
                     IsTemplate = false,
                     Deflag = true,
@@ -831,7 +837,8 @@ namespace RHCQS_Services.Implement
                     TotalRough = request.TotalRough,
                     TotalUtilities = request.TotalUtilities,
                     Unit = AppConstant.Unit.UnitPrice,
-                    ReasonReject = null
+                    ReasonReject = null,
+                    IsDraft = true
                 };
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
 
@@ -976,107 +983,124 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId)
+        public async Task<string> SendToManagerQuotation(SendInitialRequest request)
         {
-            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
-                                    include: x => x.Include(x => x.Project)
-                                                    .ThenInclude(x => x.Customer!));
-
-            if (initialItem != null)
+            var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                            predicate: x => x.ProjectId == request.ProjectId && x.Version == request.VersionPresent);
+            if (initialInfo == null)
             {
-                initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+            }
+
+            initialInfo.IsDraft = false;
+            initialInfo.Status = AppConstant.QuotationStatus.REVIEWING;
+
+            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
+            var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Send_Fail;
+            return result;
+        }
+
+            public async Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId)
+            {
+                var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
+                                        include: x => x.Include(x => x.Project)
+                                                        .ThenInclude(x => x.Customer!));
+
+                if (initialItem != null)
+                {
+                    initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
+                    _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
+                    //Contract design is coming ....
+                    var contractDrawing = new Contract
+                    {
+                        Id = Guid.NewGuid(),
+                        ProjectId = initialItem.ProjectId,
+                        Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
+                        CustomerName = initialItem.Project.Customer!.Username,
+                        ContractCode = null,
+                        StartDate = null,
+                        EndDate = null,
+                        ValidityPeriod = null,
+                        TaxCode = null,
+                        Area = initialItem.Area,
+                        UnitPrice = AppConstant.Unit.UnitPrice,
+                        ContractValue = null,
+                        UrlFile = null,
+                        Note = null,
+                        Deflag = true,
+                        RoughPackagePrice = 0,
+                        FinishedPackagePrice = 0,
+                        Status = AppConstant.ConstractStatus.PROCESSING,
+                        Type = AppConstant.ContractType.Design.ToString(),
+                    };
+                    await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+
+                    var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+                    return isSuccessful;
+                }
+                else if (initialItem == null)
+                {
+                    var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
+                                                include: x => x.Include(x => x.Project)
+                                                                .ThenInclude(x => x.Customer!));
+                    if (finalInfo == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_FinalQuotaion);
+                    }
+                    finalInfo.Status = AppConstant.QuotationStatus.FINALIZED;
+                    _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalInfo);
+
+                    //Contract construction is coming ....
+                    var contractDrawing = new Contract
+                    {
+                        Id = Guid.NewGuid(),
+                        ProjectId = finalInfo.ProjectId,
+                        Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Construction),
+                        CustomerName = finalInfo.Project.Customer!.Username,
+                        ContractCode = null,
+                        StartDate = null,
+                        EndDate = null,
+                        ValidityPeriod = null,
+                        TaxCode = null,
+                        Area = finalInfo.Project.Area,
+                        UnitPrice = AppConstant.Unit.UnitPrice,
+                        ContractValue = null,
+                        UrlFile = null,
+                        Note = null,
+                        Deflag = true,
+                        RoughPackagePrice = 0,
+                        FinishedPackagePrice = 0,
+                        Status = AppConstant.ConstractStatus.PROCESSING,
+                        Type = AppConstant.ContractType.Construction.ToString(),
+                    };
+                    await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+
+                    var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+                    return isSuccessful;
+                }
+                else
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+                }
+            }
+
+
+            public async Task<string> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest comment)
+            {
+                var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
+
+                if (initialItem == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+                }
+
+                initialItem.Note = comment.Note;
+                initialItem.Status = AppConstant.QuotationStatus.PROCESSING;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
 
-                //Contract design is coming ....
-                var contractDrawing = new Contract
-                {
-                    Id = Guid.NewGuid(),
-                    ProjectId = initialItem.ProjectId,
-                    Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
-                    CustomerName = initialItem.Project.Customer!.Username,
-                    ContractCode = null,
-                    StartDate = null,
-                    EndDate = null,
-                    ValidityPeriod = null,
-                    TaxCode = null,
-                    Area = initialItem.Area,
-                    UnitPrice = AppConstant.Unit.UnitPrice,
-                    ContractValue = null,
-                    UrlFile = null,
-                    Note = null,
-                    Deflag = true,
-                    RoughPackagePrice = 0,
-                    FinishedPackagePrice = 0,
-                    Status = AppConstant.ConstractStatus.PROCESSING,
-                    Type = AppConstant.ContractType.Design.ToString(),
-                };
-                await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
-
                 var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
                 return isSuccessful;
             }
-            else if (initialItem == null)
-            {
-                var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
-                                            include: x => x.Include(x => x.Project)
-                                                            .ThenInclude(x => x.Customer!));
-                if (finalInfo == null)
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_FinalQuotaion);
-                }
-                finalInfo.Status = AppConstant.QuotationStatus.FINALIZED;
-                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalInfo);
-
-                //Contract construction is coming ....
-                var contractDrawing = new Contract
-                {
-                    Id = Guid.NewGuid(),
-                    ProjectId = finalInfo.ProjectId,
-                    Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Construction),
-                    CustomerName = finalInfo.Project.Customer!.Username,
-                    ContractCode = null,
-                    StartDate = null,
-                    EndDate = null,
-                    ValidityPeriod = null,
-                    TaxCode = null,
-                    Area = finalInfo.Project.Area,
-                    UnitPrice = AppConstant.Unit.UnitPrice,
-                    ContractValue = null,
-                    UrlFile = null,
-                    Note = null,
-                    Deflag = true,
-                    RoughPackagePrice = 0,
-                    FinishedPackagePrice = 0,
-                    Status = AppConstant.ConstractStatus.PROCESSING,
-                    Type = AppConstant.ContractType.Construction.ToString(),
-                };
-                await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
-
-                var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
-                return isSuccessful;
-            }
-            else
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
-            }
-        }
-
-
-        public async Task<string> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest comment)
-        {
-            var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
-
-            if (initialItem == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
-            }
-
-            initialItem.Note = comment.Note;
-            initialItem.Status = AppConstant.QuotationStatus.PROCESSING;
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
-
-            var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
-            return isSuccessful;
         }
     }
-}

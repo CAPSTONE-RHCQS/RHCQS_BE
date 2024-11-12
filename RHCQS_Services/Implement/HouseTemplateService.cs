@@ -682,7 +682,7 @@ namespace RHCQS_Services.Implement
                 var file = files.PackageFinishedImage[i];
                 var pack = package[i];
 
-                nameImage = AppConstant.Template.PackageFinished;
+                nameImage = AppConstant.Template.PackageFinished[i].ToString();
                 var finishedPackageImageUrl = await _uploadImgService.UploadImageFolder(file, nameImage, "PackageHouse");
 
                 var isPackageExist = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
