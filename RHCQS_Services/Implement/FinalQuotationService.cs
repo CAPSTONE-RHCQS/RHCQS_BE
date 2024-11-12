@@ -122,7 +122,7 @@ namespace RHCQS_Services.Implement
             project.Status = AppConstant.ProjectStatus.FINALIZED;
             _unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
-            finalquotation.Status = AppConstant.QuotationStatus.REVIEWING;
+            finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
@@ -252,7 +252,7 @@ namespace RHCQS_Services.Implement
                 include: p => p.Include(x => x.Project)
             );
 
-            highestFinalQuotation.Status = AppConstant.QuotationStatus.REJECTED;
+            highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
 
             if (highestFinalQuotation.Version >= AppConstant.General.MaxVersion)
@@ -273,7 +273,7 @@ namespace RHCQS_Services.Implement
                 Version = newVersion,
                 InsDate = LocalDateTime.VNDateTime(),
                 UpsDate = LocalDateTime.VNDateTime(),
-                Status = AppConstant.QuotationStatus.REVIEWING,
+                Status = AppConstant.QuotationStatus.PROCESSING,
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
             };
