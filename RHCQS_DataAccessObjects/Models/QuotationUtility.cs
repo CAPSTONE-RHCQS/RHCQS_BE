@@ -15,7 +15,7 @@ public partial class QuotationUtility
 
     public string Name { get; set; } = null!;
 
-    public double? Coefiicient { get; set; }
+    public double? Coefficient { get; set; }
 
     public double? Price { get; set; }
 

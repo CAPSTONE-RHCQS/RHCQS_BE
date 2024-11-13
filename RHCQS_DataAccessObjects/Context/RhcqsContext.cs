@@ -108,10 +108,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=database.techtheworld.id.vn;Database=RHCQS;User Id=rhcqs;Password=E77A6576-4A1F-4A0B-9BE4-AD6D189B86E5;Encrypt=True;TrustServerCertificate=True");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -488,6 +484,10 @@ public partial class RhcqsContext : DbContext
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.SendAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Message_Account");
 
             entity.HasOne(d => d.Room).WithMany(p => p.Messages)
                 .HasForeignKey(d => d.RoomId)
