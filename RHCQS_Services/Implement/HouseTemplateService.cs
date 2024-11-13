@@ -57,6 +57,7 @@ namespace RHCQS_Services.Implement
                             sub.InsDate,
                             sub.Size,
                             sub.ImgUrl,
+                            sub.TotalRough,
                             sub.TemplateItems.Select(
                                 item => new TemplateItemReponse(
                                     item.Id,
@@ -70,7 +71,8 @@ namespace RHCQS_Services.Implement
                                         : item.SubConstruction.Coefficient,
                                     item.Area,
                                     item.Unit,
-                                    item.InsDate
+                                    item.InsDate,
+                                    item.Price
                                 )
                             ).ToList(),
                             sub.Media
@@ -109,7 +111,6 @@ namespace RHCQS_Services.Implement
 
             return listHouseTemplate.ToList();
         }
-
 
         public async Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ)
         {
@@ -283,6 +284,7 @@ namespace RHCQS_Services.Implement
                         sub.InsDate,
                         sub.Size,
                         sub.ImgUrl,
+                        sub.TotalRough,
                         sub.TemplateItems.Select(item => new TemplateItemReponse(
                             item.Id,
                             item.SubConstructionId == null
@@ -295,7 +297,8 @@ namespace RHCQS_Services.Implement
                                 : item.ConstructionItem.SubConstructionItems.FirstOrDefault(sci => sci.Id == item.SubConstructionId)?.Coefficient,
                             item.Area,
                             item.Unit,
-                            item.InsDate
+                            item.InsDate,
+                            item.Price
                         )).ToList(),
                         template.Media
                             .Where(media => media.Name.Equals(AppConstant.Template.Drawing))
@@ -370,6 +373,7 @@ namespace RHCQS_Services.Implement
                             sub.InsDate,
                             sub.Size,
                             sub.ImgUrl,
+                            sub.TotalRough,
                             sub.TemplateItems.Select(
                                 item => new TemplateItemReponse(
                                     item.Id,
@@ -383,7 +387,8 @@ namespace RHCQS_Services.Implement
                                         : item.SubConstruction.Coefficient,
                                     item.Area,
                                     item.Unit,
-                                    item.InsDate
+                                    item.InsDate,
+                                    item.Price
                                 )
                             ).ToList(),
                             sub.Media
@@ -464,6 +469,7 @@ namespace RHCQS_Services.Implement
                         sub.InsDate,
                         sub.Size,
                         sub.ImgUrl,
+                        sub.TotalRough,
                         sub.TemplateItems.Select(item => new TemplateItemReponse(
                             item.Id,
                             item.SubConstructionId == null
@@ -476,7 +482,8 @@ namespace RHCQS_Services.Implement
                                 : item.ConstructionItem.SubConstructionItems.FirstOrDefault(sci => sci.Id == item.SubConstructionId)?.Coefficient,
                             item.Area,
                             item.Unit,
-                            item.InsDate
+                            item.InsDate,
+                            item.Price
                         )).ToList(),
                         sub.Media
                             .Where(media => media.Name == AppConstant.Template.Drawing)

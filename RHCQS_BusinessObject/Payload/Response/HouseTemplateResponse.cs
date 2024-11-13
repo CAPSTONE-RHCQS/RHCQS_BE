@@ -83,7 +83,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class SubTemplatesResponse
     {
         public SubTemplatesResponse(Guid id, double? buildingArea, double? floorArea, DateTime? insDate, string? size,
-            string? url, List<TemplateItemReponse> templateItems, List<MediaResponse> designdrawings)
+            string? url,double? totalRough, List<TemplateItemReponse> templateItems, List<MediaResponse> designdrawings)
         {
             Id = id;
             BuildingArea = buildingArea;
@@ -91,6 +91,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             InsDate = insDate;
             Size = size;
             Url = url;
+            TotalRough = totalRough;
             TemplateItems = templateItems;
             Designdrawings = designdrawings;
         }
@@ -106,6 +107,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Size { get; set; }
 
         public string? Url { get; set; }
+        public double? TotalRough { get; set; }
 
         public List<TemplateItemReponse> TemplateItems { get; set; }
 
@@ -135,7 +137,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class TemplateItemReponse
     {
         public TemplateItemReponse(Guid id, string? name, Guid contructionid, Guid? subcontructionid, 
-            double? coefficient, double? area, string? unit, DateTime? insDate)
+            double? coefficient, double? area, string? unit, DateTime? insDate, double? price)
         {
             Id = id;
             Name = name;
@@ -145,6 +147,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Area = area;
             Unit = unit;
             InsDate = insDate;
+            Price = price;
         }
         public Guid Id { get; set; }
 
@@ -161,6 +164,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Unit { get; set; }
 
         public DateTime? InsDate { get; set; }
+        public double? Price { get; set; }
 
     }
     public class PackageHouseResponse

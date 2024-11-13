@@ -83,6 +83,7 @@ namespace RHCQS_Services.Implement
 
                 var availableDrawing = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(
                                                 v => v.HouseDesignDrawingId == request.HouseDesignDrawingId,
+                                                include: x => x.Include(v => v.HouseDesignDrawing),
                                                 orderBy: v => v.OrderByDescending(v => v.Version));
                 if (availableDrawing == null)
                 {
