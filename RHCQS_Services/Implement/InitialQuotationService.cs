@@ -983,22 +983,22 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<string> SendToManagerQuotation(SendInitialRequest request)
-        {
-            var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                            predicate: x => x.ProjectId == request.ProjectId && x.Version == request.VersionPresent);
-            if (initialInfo == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
-            }
+        //public async Task<string> SendToManagerQuotation(SendInitialRequest request)
+        //{
+        //    var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+        //                    predicate: x => x.ProjectId == request.ProjectId && x.Version == request.VersionPresent);
+        //    if (initialInfo == null)
+        //    {
+        //        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+        //    }
 
-            initialInfo.IsDraft = false;
-            initialInfo.Status = AppConstant.QuotationStatus.REVIEWING;
+        //    initialInfo.IsDraft = false;
+        //    initialInfo.Status = AppConstant.QuotationStatus.REVIEWING;
 
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
-            var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Send_Fail;
-            return result;
-        }
+        //    _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
+        //    var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Send_Fail;
+        //    return result;
+        //}
 
             public async Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId)
             {

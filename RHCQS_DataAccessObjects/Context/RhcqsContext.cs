@@ -108,6 +108,10 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseSqlServer("Server=database.techtheworld.id.vn;Database=RHCQS;User Id=rhcqs;Password=E77A6576-4A1F-4A0B-9BE4-AD6D189B86E5;Encrypt=True;TrustServerCertificate=True");
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -480,11 +484,15 @@ public partial class RhcqsContext : DbContext
 
         modelBuilder.Entity<Message>(entity =>
         {
-            entity.HasKey(e => new { e.SenderId, e.RoomId });
-
             entity.ToTable("Message");
 
+            entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.SendAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Room).WithMany(p => p.Messages)
+                .HasForeignKey(d => d.RoomId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Message_Room");
         });
 
         modelBuilder.Entity<Package>(entity =>
@@ -765,13 +773,13 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Custome).WithMany(p => p.RoomCustomes)
-                .HasForeignKey(d => d.CustomeId)
-                .HasConstraintName("FK_Room_Account");
-
-            entity.HasOne(d => d.Sale).WithMany(p => p.RoomSales)
-                .HasForeignKey(d => d.SaleId)
+            entity.HasOne(d => d.Receiver).WithMany(p => p.RoomReceivers)
+                .HasForeignKey(d => d.ReceiverId)
                 .HasConstraintName("FK_Room_Account1");
+
+            entity.HasOne(d => d.Sender).WithMany(p => p.RoomSenders)
+                .HasForeignKey(d => d.SenderId)
+                .HasConstraintName("FK_Room_Account");
         });
 
         modelBuilder.Entity<SubConstructionItem>(entity =>

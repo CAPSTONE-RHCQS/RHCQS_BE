@@ -37,7 +37,7 @@ public partial class Account
 
     public virtual Role Role { get; set; } = null!;
 
-    public virtual ICollection<Room> RoomCustomes { get; set; } = new List<Room>();
+    public virtual ICollection<Room> RoomReceivers { get; set; } = new List<Room>();
 
-    public virtual ICollection<Room> RoomSales { get; set; } = new List<Room>();
+    public virtual ICollection<Room> RoomSenders { get; set; } = new List<Room>();
 }
