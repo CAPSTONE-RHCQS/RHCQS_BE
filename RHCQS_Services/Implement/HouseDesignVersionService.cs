@@ -17,6 +17,7 @@ using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using System.Net.Http.Headers;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObject.Helper;
+using RHCQS_BusinessObject.Payload.Request.HaveDrawing;
 
 namespace RHCQS_Services.Implement
 {
@@ -290,5 +291,12 @@ namespace RHCQS_Services.Implement
             string saveResutl = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return saveResutl;
         }
+
+        //public async Task UploadFileDrawingHaveAvailable(FileDrawingRequest files)
+        //{
+
+        //    var result = await _mediaService.UploadFileAsync(files, "HouseDesignDrawing");
+        //    var imageUrl = _mediaService.GetImageUrl(result);
+        //}
     }
 }

@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
@@ -155,8 +156,31 @@ namespace RHCQS_Services.Implement
             var statusDrawing = "Pending";
             Guid designerId = Guid.Empty;
 
+            var projectCheck = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                            predicate: p => p.Id == item.ProjectId,
+                            include: p => p.Include(p => p.InitialQuotations)
+                                            .Include(p => p.Contracts));
+            //Check project
+            if (projectCheck == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ProjectNotExit);
+            }
+
+            //Check initial quotation finalized ?
+            if (!projectCheck.InitialQuotations.Any(i => i.Status == AppConstant.QuotationStatus.FINALIZED))
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.NotFinalizedQuotationInitial);
+            }
+            //Check contract desgin finished ?
+            if (projectCheck.Contracts != null &&
+            !projectCheck.Contracts.Any(c => c.Type == ContractType.Design.ToString() && c.Status == AppConstant.ContractStatus.FINISHED))
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.NotFinishedContractDesign);
+            }
+
+            //Check number of drawing
             int existingDrawingsCount = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                                                         .CountAsync(d => d.ProjectId == item.ProjectId);
+                                                     .CountAsync(d => d.ProjectId == item.ProjectId);
 
             if (existingDrawingsCount >= 4)
             {

@@ -141,7 +141,7 @@ namespace RHCQS_Services.Implement
                             Deflag = true,
                             RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
                             FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
-                            Status = AppConstant.ConstractStatus.PROCESSING,
+                            Status = AppConstant.ContractStatus.PROCESSING,
                             Type = request.Type,
                         };
                         await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
@@ -160,7 +160,7 @@ namespace RHCQS_Services.Implement
                         avaibleContract.Deflag = true;
                         avaibleContract.RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price;
                         avaibleContract.FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price;
-                        avaibleContract.Status = AppConstant.ConstractStatus.COMPLETED;
+                        avaibleContract.Status = AppConstant.ContractStatus.COMPLETED;
                         avaibleContract.Type = avaibleContract.Type;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(avaibleContract);
                         contractDrawing = avaibleContract;
@@ -272,7 +272,7 @@ namespace RHCQS_Services.Implement
                     Deflag = true,
                     RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
                     FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
-                    Status = AppConstant.ConstractStatus.PROCESSING,
+                    Status = AppConstant.ContractStatus.PROCESSING,
                     Type = AppConstant.ContractType.Construction.ToString(),
                 };
 
@@ -461,7 +461,7 @@ namespace RHCQS_Services.Implement
                     var contract = payBatchInfo.First().Contract;
                     if (contract != null)
                     {
-                        contract.Status = AppConstant.ConstractStatus.FINISHED;
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
                     }
                 }
@@ -549,7 +549,7 @@ namespace RHCQS_Services.Implement
                     var contract = payBatchInfo.First().Contract;
                     if (contract != null)
                     {
-                        contract.Status = AppConstant.ConstractStatus.FINISHED;
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
                     }
                 }

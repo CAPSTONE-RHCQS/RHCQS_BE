@@ -98,6 +98,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectTemplateHouseEndpoint = ProjectEndpoint + "/template-house";
             public const string ProjectDeleteEndpoint = ProjectEndpoint + "/delete";
             public const string ProjectFilterByStatusEndpoint = ProjectEndpoint + "/filter";
+            public const string ProjectSearchByContainName = ProjectEndpoint + "/contain/name";
         }
 
         public static class Construction

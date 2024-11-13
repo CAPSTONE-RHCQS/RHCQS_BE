@@ -71,6 +71,30 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region SearchProjectByName
+        /// <summary>
+        /// Search project by contain name
+        /// 
+        /// Role: MANAGER - SALE STAFF
+        /// Retrieves the list of all project.
+        /// </summary>
+        /// <returns>List of project in the system</returns>
+        #endregion
+        [Authorize(Roles = "Manager, SalesStaff")]
+        [HttpGet(ApiEndPointConstant.Project.ProjectSearchByContainName)]
+        [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchProjectByName(string name, int page, int size)
+        {
+            var listProjects = await _projectService.SearchProjectByName(name, page, size);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetListProjectBySalesStaff
         /// <summary>
         /// Role: SALE STAFF

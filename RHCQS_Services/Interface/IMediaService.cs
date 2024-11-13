@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CloudinaryDotNet.Actions;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace RHCQS_Services.Interface
     {
         Task<string> UploadImageAsync(IFormFile file, string folderName, string publicId);
         Task<string> UploadImageSubTemplate(IFormFile file, string folder);
+        Task<ImageUploadResult> UploadFileAsync(IFormFile file, string folderName, string publicId = null);
+        string GetImageUrl(ImageUploadResult result);
     }
 }

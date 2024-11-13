@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Project;
@@ -79,6 +80,28 @@ namespace RHCQS_Services.Implement
 
             return paginatedProjects;
         }
+
+        public async Task<IPaginate<ProjectResponse>> SearchProjectByName(string name, int page, int size)
+        {
+            string normalizedName = name.ToUpper();
+            IPaginate<ProjectResponse> listProjects =
+            await _unitOfWork.GetRepository<Project>().GetList(
+                //predicate: x => x.Name.ToUpper() == name.ToUpper(),
+                predicate: x => x.Name.ToUpper().StartsWith(normalizedName),
+                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                                                    x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
+                include: x => x.Include(w => w.Customer!),
+                orderBy: x => x.OrderBy(w => w.InsDate),
+                page: page,
+                size: size
+                );
+            if (listProjects.Items.Count == 0)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
+            }
+            return listProjects;
+        }
+
 
         public async Task<ProjectDetail> GetDetailProjectById(Guid id)
         {
@@ -343,7 +366,7 @@ namespace RHCQS_Services.Implement
             }
             catch (AppConstant.MessageError ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error,  ex.Message);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
         }
 

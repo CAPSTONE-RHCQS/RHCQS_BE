@@ -88,7 +88,7 @@ public static class AppConstant
         public const string ACCEPTED = "Accepted";
     }
 
-    public class ConstractStatus
+    public class ContractStatus
     {
         public const string PROCESSING = "Processing";
         public const string COMPLETED = "Completed";
@@ -260,6 +260,9 @@ public static class AppConstant
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
         public const string QuotationHasStaff = "Dự án đã có nhân viên đảm nhận!";
+        public const string NotFinalizedQuotationInitial = "Báo giá sơ bộ chưa kết thúc! Hãy hoàn thành báo giá sơ bộ trước khi phân công!";
+        public const string NotFinishedContractDesign = "Hợp đồng thiết kế chưa được hoàn thành! " +
+            "Hãy hoàn thành hợp đồng thiết kế trước khi phân công";
 
         //Package
         public const string CreatePackage = "Tạo packaget thất bại.";

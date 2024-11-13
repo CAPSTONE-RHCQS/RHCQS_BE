@@ -829,7 +829,7 @@ namespace RHCQS_Services.Implement
                     TimeOthers = request.TimeOthers,
                     OthersAgreement = request.OthersAgreement,
                     InsDate = LocalDateTime.VNDateTime(),
-                    Status = AppConstant.QuotationStatus.PROCESSING,
+                    Status = AppConstant.QuotationStatus.REVIEWING,
                     Version = nextVersion,
                     IsTemplate = false,
                     Deflag = true,
@@ -1031,7 +1031,7 @@ namespace RHCQS_Services.Implement
                         Deflag = true,
                         RoughPackagePrice = 0,
                         FinishedPackagePrice = 0,
-                        Status = AppConstant.ConstractStatus.PROCESSING,
+                        Status = AppConstant.ContractStatus.PROCESSING,
                         Type = AppConstant.ContractType.Design.ToString(),
                     };
                     await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
@@ -1071,7 +1071,7 @@ namespace RHCQS_Services.Implement
                         Deflag = true,
                         RoughPackagePrice = 0,
                         FinishedPackagePrice = 0,
-                        Status = AppConstant.ConstractStatus.PROCESSING,
+                        Status = AppConstant.ContractStatus.PROCESSING,
                         Type = AppConstant.ContractType.Construction.ToString(),
                     };
                     await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
