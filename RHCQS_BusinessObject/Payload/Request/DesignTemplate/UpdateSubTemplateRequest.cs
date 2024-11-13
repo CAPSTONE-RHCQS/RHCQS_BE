@@ -32,5 +32,7 @@ namespace RHCQS_BusinessObject.Payload.Request.DesignTemplate
         public double? Area { get; set; }
 
         public string? Unit { get; set; }
+        [Required(ErrorMessage = "Chi phí xây dựng của từng hạng mục là bắt buộc phải có.")]
+        public double Price { get; set; }
     }
 }

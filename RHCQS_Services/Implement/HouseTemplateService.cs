@@ -152,6 +152,7 @@ namespace RHCQS_Services.Implement
                             Area = item.Area,
                             Unit = item.Unit,
                             InsDate = LocalDateTime.VNDateTime(),
+                            Price = item.Price
                         }).ToList()
                     }).ToList(),
                     PackageHouses = new List<PackageHouse>()
@@ -226,6 +227,7 @@ namespace RHCQS_Services.Implement
                 if (temItem != null)
                 {
                     temItem.Area = item.Area ?? temItem.Area;
+                    temItem.Price = item.Price ?? temItem.Price;
                     _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
 
                 } else
@@ -236,7 +238,8 @@ namespace RHCQS_Services.Implement
                         ConstructionItemId = item.ConstructionItemId,
                         SubConstructionId = item.SubConstructionId,
                         Area = item.Area,
-                        Unit = item.Unit
+                        Unit = item.Unit,
+                        Price = item.Price
                     };
                     await _unitOfWork.GetRepository<TemplateItem>().InsertAsync(newTemplate);
                 }

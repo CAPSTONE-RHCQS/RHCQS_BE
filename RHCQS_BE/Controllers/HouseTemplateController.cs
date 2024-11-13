@@ -174,7 +174,8 @@ namespace RHCQS_BE.Controllers
         ///                    "subConstructionItemId": null,
         ///                    "name": "Lầu 1",
         ///                    "area": 80,
-        ///                    "unit": "m2"
+        ///                    "unit": "m2",
+        ///                    "price: 180000000
         ///                }
         ///            ]
         ///        }
@@ -226,7 +227,8 @@ namespace RHCQS_BE.Controllers
         ///       "subConstructionItemId": null,
         ///       "name": "Lầu 2",
         ///       "area": 10,
-        ///       "unit": "m2"
+        ///       "unit": "m2",
+        ///       "price: 180000000
         ///     }
         ///   ]
         /// }
