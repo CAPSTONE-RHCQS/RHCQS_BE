@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
@@ -34,8 +35,8 @@ namespace RHCQS_Services.Implement
                     Name = request.Name,
                     Email = request.Email,
                     ConstractPhone = request.ConstractPhone,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     Deflag = request.Deflag,
                     ShortDescription = request.ShortDescription,
                     Description = request.Description
@@ -140,7 +141,7 @@ namespace RHCQS_Services.Implement
                 supplier.ShortDescription = request.ShortDescription ?? supplier.ShortDescription;
                 supplier.Description = request.Description ?? supplier.Description;
 
-                supplier.UpsDate = DateTime.Now;
+                supplier.UpsDate = LocalDateTime.VNDateTime();
 
                 _unitOfWork.GetRepository<Supplier>().UpdateAsync(supplier);
                 return await _unitOfWork.CommitAsync() > 0;

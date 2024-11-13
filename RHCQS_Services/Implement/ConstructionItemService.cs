@@ -241,8 +241,8 @@ namespace RHCQS_Services.Implement
                     Name = item.Name,
                     Coefficient = item.Coefficient,
                     Unit = item.Unit,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     Type = item.Type,
                     IsFinalQuotation = item.IsFinalQuotation
                 };
@@ -258,7 +258,7 @@ namespace RHCQS_Services.Implement
                             Name = sub.Name,
                             Coefficient = sub.Coefficient,
                             Unit = sub.Unit,
-                            InsDate = DateTime.Now,
+                            InsDate = LocalDateTime.VNDateTime(),
                         };
                         await _unitOfWork.GetRepository<SubConstructionItem>().InsertAsync(subContructionItem);
                     }

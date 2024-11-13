@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
@@ -68,8 +69,8 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    InsDate = DateTime.Now,
-                    UpsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     Deflag = request.Deflag
                 };
                 await _unitOfWork.GetRepository<MaterialType>().InsertAsync(newMaterialType);
@@ -102,7 +103,7 @@ namespace RHCQS_Services.Implement
                 materialType.Name = request.Name ?? materialType.Name;
                 materialType.Deflag = request.Deflag ?? materialType.Deflag;
 
-                materialType.UpsDate = DateTime.Now;
+                materialType.UpsDate = LocalDateTime.VNDateTime();
 
                 _unitOfWork.GetRepository<MaterialType>().UpdateAsync(materialType);
                 return await _unitOfWork.CommitAsync() > 0;

@@ -179,11 +179,11 @@ namespace RHCQS_Services.Implement
                         {
                             Id = Guid.NewGuid(),
                             PaymentTypeId = paymentType.Id,
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            UpsDate = LocalDateTime.VNDateTime(),
                             TotalPrice = request.ContractValue,
-                            PaymentDate = DateTime.Now,
-                            PaymentPhase = DateTime.Now,
+                            PaymentDate = LocalDateTime.VNDateTime(),
+                            PaymentPhase = LocalDateTime.VNDateTime(),
                             Unit = AppConstant.Unit.UnitPrice,
                             Percents = pay.Percents,
                             Description = pay.Description,
@@ -196,7 +196,7 @@ namespace RHCQS_Services.Implement
                             Id = Guid.NewGuid(),
                             ContractId = contractDrawing!.Id,
                             IntitialQuotationId = initialInfo!.Id,
-                            InsDate = DateTime.Now,
+                            InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = null,
                             PaymentId = payInfo.Id,
                             Status = AppConstant.PaymentStatus.PROGRESS
@@ -436,8 +436,8 @@ namespace RHCQS_Services.Implement
                         HouseDesignVersionId = null,
                         Name = AppConstant.General.Bill,
                         Url = uploadResult.Url.ToString(),
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
                         SubTemplateId = null,
                         PaymentId = payBatchInfo.ElementAt(i).PaymentId
                     };
@@ -526,8 +526,8 @@ namespace RHCQS_Services.Implement
                         HouseDesignVersionId = null,
                         Name = AppConstant.General.Bill,
                         Url = uploadResult.Url.ToString(),
-                        InsDate = DateTime.Now,
-                        UpsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
                         SubTemplateId = null,
                         PaymentId = payBatchList[i].PaymentId
                     };

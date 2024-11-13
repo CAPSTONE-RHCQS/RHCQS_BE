@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
@@ -64,7 +65,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    InsDate = DateTime.Now
+                    InsDate = LocalDateTime.VNDateTime()
                 };
                 await _unitOfWork.GetRepository<MaterialSection>().InsertAsync(newMaterialSection);
                 return await _unitOfWork.CommitAsync() > 0;

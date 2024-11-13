@@ -23,6 +23,7 @@ using RHCQS_BusinessObject.Payload.Response.App;
 using System.Runtime.InteropServices;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.Metrics;
+using RHCQS_BusinessObject.Helper;
 
 namespace RHCQS_Services.Implement
 {
@@ -71,10 +72,13 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.CancelFinalQuotaionAlready
                 );
             }
+            var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalQuotation.ProjectId);
+            project.Status = AppConstant.ProjectStatus.ENDED;
+            _unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
             finalQuotation.Status = AppConstant.QuotationStatus.CANCELED;
             finalQuotation.ReasonReject = reason.ReasonCancel;
-            finalQuotation.UpsDate = DateTime.UtcNow;
+            finalQuotation.UpsDate = LocalDateTime.VNDateTime();
             finalQuotation.Deflag = false;
 
             finalQuotationRepo.UpdateAsync(finalQuotation);
@@ -118,7 +122,7 @@ namespace RHCQS_Services.Implement
             project.Status = AppConstant.ProjectStatus.FINALIZED;
             _unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
-            finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
+            finalquotation.Status = AppConstant.QuotationStatus.REVIEWING;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
@@ -168,7 +172,7 @@ namespace RHCQS_Services.Implement
                 TotalPrice = 0,
                 Note = null,
                 Version = 0,
-                InsDate = DateTime.UtcNow,
+                InsDate = LocalDateTime.VNDateTime(),
                 Status = AppConstant.QuotationStatus.PENDING,
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>(),
@@ -179,7 +183,7 @@ namespace RHCQS_Services.Implement
             foreach (var batchPayment in initialQuotation.BatchPayments)
             {
                 batchPayment.FinalQuotationId = finalQuotation.Id;
-                batchPayment.InsDate = DateTime.UtcNow;
+                batchPayment.InsDate = LocalDateTime.VNDateTime();
                 BatchPaymentRepo.UpdateAsync(batchPayment);
             }
 
@@ -188,14 +192,14 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 ConstructionItemId = iqi.ConstructionItemId,        
                 SubContructionId = iqi.SubConstructionId,
-                InsDate = DateTime.UtcNow,
+                InsDate = LocalDateTime.VNDateTime(),
             }).ToList();
 
             var QuotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
             foreach (var initialUtility in initialQuotation.QuotationUtilities)
             {
                 initialUtility.FinalQuotationId = finalQuotation.Id;
-                initialUtility.UpsDate = DateTime.UtcNow;
+                initialUtility.UpsDate = LocalDateTime.VNDateTime();
                 QuotationUtilityRepo.UpdateAsync(initialUtility);
             }
 
@@ -247,6 +251,10 @@ namespace RHCQS_Services.Implement
                 orderBy: p => p.OrderByDescending(p => p.Version),
                 include: p => p.Include(x => x.Project)
             );
+
+            highestFinalQuotation.Status = AppConstant.QuotationStatus.REJECTED;
+            _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
+
             if (highestFinalQuotation.Version >= AppConstant.General.MaxVersion)
             {
                 highestFinalQuotation.Project.Status = AppConstant.ProjectStatus.ENDED;
@@ -263,8 +271,8 @@ namespace RHCQS_Services.Implement
                 TotalPrice = 0,
                 Note = request.Note,
                 Version = newVersion,
-                InsDate = DateTime.UtcNow,
-                UpsDate = DateTime.UtcNow,
+                InsDate = LocalDateTime.VNDateTime(),
+                UpsDate = LocalDateTime.VNDateTime(),
                 Status = AppConstant.QuotationStatus.REVIEWING,
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
@@ -292,7 +300,7 @@ namespace RHCQS_Services.Implement
                         {
                             Id = Guid.NewGuid(),
                             PaymentTypeId = bp.PaymentTypeId,
-                            InsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
                             TotalPrice = bp.Price,
                             Percents = bp.Percents,
                             Description = bp.Description,
@@ -304,7 +312,7 @@ namespace RHCQS_Services.Implement
                             Id = Guid.NewGuid(),
                             IntitialQuotationId = bp.InitIntitialQuotationId,
                             ContractId = null,
-                            InsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = finalQuotation.Id,
                             Payment = payment,
                             Status = bp.Status
@@ -318,7 +326,7 @@ namespace RHCQS_Services.Implement
                         {
                             Id = Guid.NewGuid(),
                             PaymentTypeId = bp.PaymentTypeId,
-                            InsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
                             TotalPrice = bp.Price,
                             Percents = bp.Percents,
                             Description = bp.Description,
@@ -330,7 +338,7 @@ namespace RHCQS_Services.Implement
                             Id = Guid.NewGuid(),
                             IntitialQuotationId = bp.InitIntitialQuotationId,
                             ContractId = bp.ContractId,
-                            InsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = finalQuotation.Id,
                             Payment = payment,
                             Status = bp.Status
@@ -369,7 +377,7 @@ namespace RHCQS_Services.Implement
                             Id = Guid.NewGuid(),
                             ConstructionItemId = constructionId,
                             SubContructionId = subConstructionId,
-                            InsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
                             QuotationItems = new List<QuotationItem>()
                         };
                     }
@@ -390,7 +398,7 @@ namespace RHCQS_Services.Implement
                             Id = Guid.NewGuid(),
                             ConstructionItemId = constructionId,
                             SubContructionId = null,
-                            InsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
                             QuotationItems = new List<QuotationItem>()
                         };
                     }
@@ -540,8 +548,8 @@ namespace RHCQS_Services.Implement
                             Coefiicient = item.Coefficient ?? 0,
                             Price = utility.Price,
                             Description = utilitiesSection.Description,
-                            InsDate = DateTime.UtcNow,
-                            UpsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            UpsDate = LocalDateTime.VNDateTime(),
                             UtilitiesSectionId = utilitiesSection.Id
                         };
                         totalUtilities += (item.Coefficient != 0) ? utility.Price * utilityItem.Coefficient : utility.Price;
@@ -558,8 +566,8 @@ namespace RHCQS_Services.Implement
                             Coefiicient = utilityItem.Coefficient,
                             Price = utility.Price,
                             Description = section.Description,
-                            InsDate = DateTime.UtcNow,
-                            UpsDate = DateTime.UtcNow,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            UpsDate = LocalDateTime.VNDateTime(),
                             UtilitiesSectionId = utilityItem.SectionId
                         };
                         totalUtilities += utility.Price * utilityItem.Coefficient;
@@ -746,8 +754,8 @@ namespace RHCQS_Services.Implement
                             HouseDesignVersionId = null,
                             Name = AppConstant.General.Final,
                             Url = uploadResult.Url.ToString(),
-                            InsDate = DateTime.Now,
-                            UpsDate = DateTime.Now,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            UpsDate = LocalDateTime.VNDateTime(),
                             SubTemplateId = null,
                             PaymentId = null,
                             FinalQuotationId = finalItem.Id,

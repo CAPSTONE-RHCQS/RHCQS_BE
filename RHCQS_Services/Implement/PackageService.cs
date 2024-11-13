@@ -239,24 +239,24 @@ namespace RHCQS_Services.Implement
                 Unit = packageRequest.Unit,
                 Price = packageRequest.Price,
                 Status = packageRequest.Status,
-                InsDate = DateTime.Now,
+                InsDate = LocalDateTime.VNDateTime(),
                 PackageDetails = packageRequest.PackageDetails.Select(pd => new PackageDetail
                 {
                     Id = Guid.NewGuid(),
                     Type = pd.Type,
-                    InsDate = DateTime.Now,
+                    InsDate = LocalDateTime.VNDateTime(),
                     PackageLabors = pd.PackageLabors?.Select(pl => new PackageLabor
                     {
                         Id = Guid.NewGuid(),
                         LaborId = pl.LaborId,
                         Price = pl.TotalPrice,
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                     }).ToList(),
                     PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
                     {
                         Id = Guid.NewGuid(),
                         MaterialSectionId = pm.MaterialSectionId,
-                        InsDate = DateTime.Now
+                        InsDate = LocalDateTime.VNDateTime()
                     }).ToList()
                 }).ToList(),
                 PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
@@ -265,7 +265,7 @@ namespace RHCQS_Services.Implement
                     DesignTemplateId = ph.DesignTemplateId,
                     ImgUrl = ph.ImgUrl,
                     Description = ph.Description,
-                    InsDate = DateTime.Now
+                    InsDate = LocalDateTime.VNDateTime()
                 }).ToList()
             };
 
@@ -316,7 +316,7 @@ namespace RHCQS_Services.Implement
             existingPackage.Unit = packageRequest.Unit;
             existingPackage.Price = packageRequest.Price;
             existingPackage.Status = packageRequest.Status;
-            existingPackage.UpsDate = DateTime.Now;
+            existingPackage.UpsDate = LocalDateTime.VNDateTime();
 
             foreach (var pd in packageRequest.PackageDetails)
             {

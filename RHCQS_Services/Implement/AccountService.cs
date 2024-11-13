@@ -181,7 +181,7 @@ namespace RHCQS_Services.Implement
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
             _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
             _account.ImageUrl =null;
-            _account.UpsDate = DateTime.UtcNow;
+            _account.UpsDate = LocalDateTime.VNDateTime();
 
             accountRepository.UpdateAsync(_account);
             if (_account.Role.RoleName == UserRoleForRegister.Customer.ToString())
@@ -196,7 +196,7 @@ namespace RHCQS_Services.Implement
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
                     _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
                     _customer.ImgUrl = null;
-                    _customer.UpsDate = DateTime.UtcNow;
+                    _customer.UpsDate = LocalDateTime.VNDateTime();
 
                     customerRepository.UpdateAsync(_customer);
                 }
@@ -228,7 +228,7 @@ namespace RHCQS_Services.Implement
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
             _account.ImageUrl = null;
-            _account.UpsDate = DateTime.UtcNow;
+            _account.UpsDate = LocalDateTime.VNDateTime();
 
             accountRepository.UpdateAsync(_account);
             if (_account.Role.RoleName == UserRoleForRegister.Customer.ToString())
@@ -242,7 +242,7 @@ namespace RHCQS_Services.Implement
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
                     _customer.ImgUrl = null;
-                    _customer.UpsDate = DateTime.UtcNow;
+                    _customer.UpsDate = LocalDateTime.VNDateTime();
 
                     customerRepository.UpdateAsync(_customer);
                 }
@@ -272,7 +272,7 @@ namespace RHCQS_Services.Implement
             }
 
             account.Deflag = false;
-            account.UpsDate = DateTime.UtcNow;
+            account.UpsDate = LocalDateTime.VNDateTime();
 
             accountRepository.UpdateAsync(account);
             if (account.Role.RoleName == UserRoleForRegister.Customer.ToString())
@@ -283,7 +283,7 @@ namespace RHCQS_Services.Implement
                 if (customer != null)
                 {
                     customer.Deflag = false;
-                    customer.UpsDate = DateTime.UtcNow;
+                    customer.UpsDate = LocalDateTime.VNDateTime();
 
                     customerRepository.UpdateAsync(customer);
                 }
@@ -321,7 +321,7 @@ namespace RHCQS_Services.Implement
             }
 
             account.PasswordHash = PasswordHash.HashPassword(newPassword);
-            account.UpsDate = DateTime.UtcNow;
+            account.UpsDate = LocalDateTime.VNDateTime();
 
             accountRepository.UpdateAsync(account);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -354,7 +354,7 @@ namespace RHCQS_Services.Implement
                     if (_customer != null)
                     {
                         _customer.ImgUrl = accountinfo.ImageUrl;
-                        _customer.UpsDate = DateTime.UtcNow;
+                        _customer.UpsDate = LocalDateTime.VNDateTime();
                         customerRepository.UpdateAsync(_customer);
                     }
                 }

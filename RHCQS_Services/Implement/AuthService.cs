@@ -116,8 +116,8 @@ namespace RHCQS_Services.Implement
                 Email = registerRequest.Email,
                 PasswordHash = PasswordHash.HashPassword(registerRequest.Password),
                 Username = registerRequest.Email,
-                InsDate = DateTime.UtcNow,
-                UpsDate = DateTime.UtcNow,
+                InsDate = LocalDateTime.VNDateTime(),
+                UpsDate = LocalDateTime.VNDateTime(),
                 RoleId = role.Id,
                 Deflag = true
             };
@@ -128,8 +128,8 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     Email = registerRequest.Email,
                     Username = registerRequest.Email,
-                    InsDate = DateTime.UtcNow,
-                    UpsDate = DateTime.UtcNow,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    UpsDate = LocalDateTime.VNDateTime(),
                     Deflag = true,
                     AccountId = newAccount.Id
                 };
@@ -171,7 +171,7 @@ namespace RHCQS_Services.Implement
             var keyString = _configuration["Jwt:Key"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(7);
+            var expires = LocalDateTime.VNDateTime().AddDays(7);
 
             var token = new JwtSecurityToken(
                 claims: claims,

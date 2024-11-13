@@ -61,7 +61,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Name = packageType.Name,
-                    InsDate = DateTime.UtcNow,
+                    InsDate = LocalDateTime.VNDateTime(),
                 };
 
                 await _unitOfWork.GetRepository<PackageType>().InsertAsync(newPackageType);

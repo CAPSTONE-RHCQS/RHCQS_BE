@@ -4,6 +4,7 @@ using DinkToPdf.Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -122,7 +123,7 @@ namespace RHCQS_Services.Implement
                         Id = Guid.NewGuid(),
                         Name = nameImage,
                         Url = uploadResult.Url.ToString(),
-                        InsDate = DateTime.Now,
+                        InsDate = LocalDateTime.VNDateTime(),
                         DesignTemplateId = designTemplateId
                     };
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaItem);

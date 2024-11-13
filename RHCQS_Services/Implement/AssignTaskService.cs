@@ -48,7 +48,7 @@ namespace RHCQS_Services.Implement
         //            AccountId = itemTask.AccountId,
         //            Name = "",
         //            Status = "Pending",
-        //            InsDate = DateTime.Now
+        //            InsDate = LocalDateTime.VNDateTime()
         //        };
         //        await _unitOfWork.GetRepository<AssignTask>().InsertAsync(task);
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
@@ -153,7 +154,7 @@ namespace RHCQS_Services.Implement
                 SubHeading = request.SubHeading,
                 Context = request.Context,
                 ImgUrl = request.ImgUrl,
-                InsDate = DateTime.UtcNow
+                InsDate = LocalDateTime.VNDateTime()
             };
 
             await _unitOfWork.GetRepository<Blog>().InsertAsync(blog);
@@ -176,7 +177,7 @@ namespace RHCQS_Services.Implement
             blog.SubHeading = request.SubHeading;
             blog.Context = request.Context;
             blog.ImgUrl = request.ImgUrl;
-            blog.UpsDate = DateTime.UtcNow;
+            blog.UpsDate = LocalDateTime.VNDateTime();
 
             _unitOfWork.GetRepository<Blog>().UpdateAsync(blog);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
