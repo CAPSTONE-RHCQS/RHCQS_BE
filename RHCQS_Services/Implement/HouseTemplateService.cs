@@ -215,7 +215,7 @@ namespace RHCQS_Services.Implement
             templateItem.BuildingArea = request.BuildingArea ?? templateItem.BuildingArea;
             templateItem.FloorArea = request.FloorArea ?? templateItem.FloorArea;
             templateItem.Size = request.Size ?? templateItem.Size;
-            templateItem.TotalRough = request.TotalRough.HasValue ? request.TotalRough.Value : templateItem.TotalRough;
+            templateItem.TotalRough = request.TotalRough != 0 ? request.TotalRough : templateItem.TotalRough;
 
             _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
 
@@ -227,7 +227,7 @@ namespace RHCQS_Services.Implement
                 if (temItem != null)
                 {
                     temItem.Area = item.Area ?? temItem.Area;
-                    temItem.Price = item.Price ?? temItem.Price;
+                    temItem.Price = item.Price != 0 ? item.Price : temItem.Price;
                     _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
 
                 } else

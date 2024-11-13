@@ -2052,7 +2052,9 @@ namespace RHCQS_Services.Implement
         {
             var paginatedList = await _unitOfWork.GetRepository<FinalQuotation>()
                 .GetList(
-                    predicate: x => x.ProjectId == projectId,
+                    predicate: x => x.ProjectId == projectId && 
+                                (x.Status == AppConstant.QuotationStatus.APPROVED ||
+                                x.Status == AppConstant.QuotationStatus.FINALIZED),
                     selector: x => new FinalAppResponse(
                         x.Id,
                         x.Version,

@@ -15,7 +15,7 @@ namespace RHCQS_BusinessObject.Payload.Request.DesignTemplate
         public double? FloorArea { get; set; }
         public string? Size { get; set; }
 
-        public double? TotalRough { get; set; }
+        public double TotalRough { get; set; }
 
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequestForUpdate> TemplateItems { get; set; } = new List<TemplateItemRequestForUpdate>();

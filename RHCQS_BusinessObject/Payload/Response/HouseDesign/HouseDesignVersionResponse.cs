@@ -14,6 +14,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             string fileUrl,
             DateTime? insDate,
             string? note,
+            string? reason,
             Guid? relatedDrawingId,
             Guid? previousDrawingId)
         {
@@ -23,6 +24,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             FileUrl = fileUrl;
             InsDate = insDate;
             Note = note;
+            Reason = reason;
             RelatedDrawingId = relatedDrawingId;
             PreviousDrawingId = previousDrawingId;
         }
@@ -36,6 +38,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
         public DateTime? InsDate { get; set; }
 
         public string? Note { get; set; }
+        public string? Reason { get; set; }
 
         public Guid? RelatedDrawingId { get; set; }
 

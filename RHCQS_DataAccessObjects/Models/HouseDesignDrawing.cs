@@ -17,7 +17,7 @@ public partial class HouseDesignDrawing
 
     public string? Type { get; set; }
 
-    public bool? IsCompany { get; set; }
+    public bool? HaveDrawing { get; set; }
 
     public DateTime? InsDate { get; set; }
 

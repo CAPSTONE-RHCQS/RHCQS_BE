@@ -34,7 +34,7 @@ namespace RHCQS_Services.Implement
         {
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                         selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.Type, x.HaveDrawing, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
                                                                           v => new HouseDesignVersionResponse(
                                                                               v.Id,
@@ -58,7 +58,7 @@ namespace RHCQS_Services.Implement
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                         predicate: x => x.Account!.Id == accountId,
                         selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.Type, x.HaveDrawing, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
                                                                           v => new HouseDesignVersionResponse(
                                                                               v.Id,
@@ -95,7 +95,7 @@ namespace RHCQS_Services.Implement
                        drawingItem.Step,
                        drawingItem.Status,
                        drawingItem.Type,
-                       drawingItem.IsCompany,
+                       drawingItem.HaveDrawing,
                        drawingItem.InsDate,
                        drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
                             version.Id,
@@ -134,7 +134,7 @@ namespace RHCQS_Services.Implement
                 drawingItem.Step,
                 drawingItem.Status,
                 drawingItem.Type,
-                drawingItem.IsCompany,
+                drawingItem.HaveDrawing,
                 drawingItem.InsDate,
                 drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
                         version.Id,
@@ -230,7 +230,7 @@ namespace RHCQS_Services.Implement
                     Step = stepDrawing++,
                     Status = statusDrawing,
                     Type = designType.ToTypeString(),
-                    IsCompany = false,
+                    HaveDrawing = false,
                     InsDate = LocalDateTime.VNDateTime(),
                     AccountId = designerId
                 };
@@ -248,7 +248,7 @@ namespace RHCQS_Services.Implement
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                 predicate: x => x.Account!.Id == accountId,
                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                          x.Type, x.IsCompany, x.InsDate,
+                                                          x.Type, x.HaveDrawing, x.InsDate,
                                                           x.HouseDesignVersions.Select(
                                                               v => new HouseDesignVersionResponse(
                                                                   v.Id,
@@ -283,7 +283,7 @@ namespace RHCQS_Services.Implement
                 var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                 .GetList(predicate: x => x.ProjectId == projectId && x.Step < infoDesign.Step,
                                                  selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.Type, x.HaveDrawing, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
                                                                           v => new HouseDesignVersionResponse(
                                                                               v.Id,
@@ -306,7 +306,7 @@ namespace RHCQS_Services.Implement
             var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                 .GetList(predicate: x => x.ProjectId == projectId,
                                                  selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.IsCompany, x.InsDate,
+                                                                      x.Type, x.HaveDrawing, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
                                                                           v => new HouseDesignVersionResponse(
                                                                               v.Id,

@@ -19,7 +19,7 @@ public partial class SubTemplate
 
     public string? ImgUrl { get; set; }
 
-    public double? TotalRough { get; set; }
+    public double TotalRough { get; set; }
 
     public virtual DesignTemplate DesignTemplate { get; set; } = null!;
 

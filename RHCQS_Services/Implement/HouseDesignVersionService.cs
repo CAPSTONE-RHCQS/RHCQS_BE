@@ -60,14 +60,13 @@ namespace RHCQS_Services.Implement
                 fileUrl: fileUrl,
                 insDate: version.InsDate,
                 note: version.Note,
+                reason: version.Reason,
                 relatedDrawingId: version.RelatedDrawingId,
                 previousDrawingId: version.PreviousDrawingId
             );
 
             return response;
         }
-
-
 
         public async Task<bool> CreateHouseDesignVersion(Guid accountId, HouseDesignVersionRequest request)
         {
