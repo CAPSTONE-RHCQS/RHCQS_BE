@@ -544,7 +544,7 @@ namespace RHCQS_Services.Implement
                         utlItem = new QuotationUtility
                         {
                             Id = Guid.NewGuid(),
-                            UtilitiesItemId = utilitiesSection.UtilitiesId,
+                            UtilitiesItemId = null,
                             FinalQuotationId = finalQuotation.Id,
                             Name = item?.Name ?? itemOption?.Name ?? utilitiesSection.Name ?? string.Empty,
                             Coefficient = item?.Coefficient ?? 0,
