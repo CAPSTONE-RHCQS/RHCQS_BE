@@ -106,7 +106,7 @@ namespace RHCQS_Services.Implement
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
                             item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
-                            item.Coefiicient ?? 0,
+                            item.Coefficient ?? 0,
                             item.Price ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
 
@@ -215,7 +215,7 @@ namespace RHCQS_Services.Implement
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
                             item.UtilitiesSectionId,
                             item.Description ?? string.Empty,
-                            item.Coefiicient ?? 0,
+                            item.Coefficient ?? 0,
                             item.Price ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
 
@@ -319,7 +319,7 @@ namespace RHCQS_Services.Implement
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
                             item.UtilitiesSectionId,
                             item.Description ?? string.Empty,
-                            item.Coefiicient ?? 0,
+                            item.Coefficient ?? 0,
                             item.Price ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
 
@@ -900,7 +900,7 @@ namespace RHCQS_Services.Implement
                                 FinalQuotationId = null,
                                 InitialQuotationId = initialItem.Id,
                                 Name = sectionItem.Name!,
-                                Coefiicient = 0,
+                                Coefficient = 0,
                                 Price = utl.Price,
                                 Description = sectionItem.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
@@ -919,7 +919,7 @@ namespace RHCQS_Services.Implement
                                 FinalQuotationId = null,
                                 InitialQuotationId = initialItem.Id,
                                 Name = utilityItem.Name!,
-                                Coefiicient = utilityItem.Coefficient,
+                                Coefficient = utilityItem.Coefficient,
                                 Price = utl.Price,
                                 Description = null,
                                 InsDate = LocalDateTime.VNDateTime(),

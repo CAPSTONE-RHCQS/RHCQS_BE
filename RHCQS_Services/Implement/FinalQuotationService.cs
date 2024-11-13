@@ -122,7 +122,7 @@ namespace RHCQS_Services.Implement
             project.Status = AppConstant.ProjectStatus.FINALIZED;
             _unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
-            finalquotation.Status = AppConstant.QuotationStatus.REVIEWING;
+            finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
@@ -252,7 +252,7 @@ namespace RHCQS_Services.Implement
                 include: p => p.Include(x => x.Project)
             );
 
-            highestFinalQuotation.Status = AppConstant.QuotationStatus.REJECTED;
+            highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
 
             if (highestFinalQuotation.Version >= AppConstant.General.MaxVersion)
@@ -273,7 +273,7 @@ namespace RHCQS_Services.Implement
                 Version = newVersion,
                 InsDate = LocalDateTime.VNDateTime(),
                 UpsDate = LocalDateTime.VNDateTime(),
-                Status = AppConstant.QuotationStatus.REVIEWING,
+                Status = AppConstant.QuotationStatus.PROCESSING,
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
             };
@@ -539,20 +539,25 @@ namespace RHCQS_Services.Implement
                     {
                         var utilitiesSection = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == utility.UtilitiesItemId);
                         var item = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.SectionId == utilitiesSection.Id);
+                        var itemOption = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(u => u.Id == utilitiesSection.UtilitiesId);
+
                         utlItem = new QuotationUtility
                         {
                             Id = Guid.NewGuid(),
-                            UtilitiesItemId = null,
+                            UtilitiesItemId = item?.Id ?? null,
                             FinalQuotationId = finalQuotation.Id,
-                            Name = utilitiesSection.Name,
-                            Coefiicient = item.Coefficient ?? 0,
+                            Name = item?.Name ?? itemOption?.Name ?? utilitiesSection.Name ?? string.Empty,
+                            Coefficient = item?.Coefficient ?? 0,
                             Price = utility.Price,
-                            Description = utilitiesSection.Description,
+                            Description =  utilitiesSection.Description,
                             InsDate = LocalDateTime.VNDateTime(),
                             UpsDate = LocalDateTime.VNDateTime(),
                             UtilitiesSectionId = utilitiesSection.Id
                         };
-                        totalUtilities += (item.Coefficient != 0) ? utility.Price * utilityItem.Coefficient : utility.Price;
+
+                        // Update totalUtilities based on available coefficient from item or itemOption
+                        var coefficient = item?.Coefficient ?? 0;
+                        totalUtilities += (coefficient != 0) ? utility.Price * coefficient : utility.Price;
                     }
                     else
                     {
@@ -562,8 +567,8 @@ namespace RHCQS_Services.Implement
                             Id = Guid.NewGuid(),
                             UtilitiesItemId = utilityItem.Id,
                             FinalQuotationId = finalQuotation.Id,
-                            Name = utilityItem.Name,
-                            Coefiicient = utilityItem.Coefficient,
+                            Name = utilityItem.Name ?? string.Empty,
+                            Coefficient = utilityItem.Coefficient,
                             Price = utility.Price,
                             Description = section.Description,
                             InsDate = LocalDateTime.VNDateTime(),
@@ -970,7 +975,7 @@ namespace RHCQS_Services.Implement
                     qUtility.UtilitiesSectionId,
                     qUtility.Name,
                     qUtility.Description ?? string.Empty,
-                    qUtility.Coefiicient ?? 0,
+                    qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
                     qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
@@ -1227,7 +1232,7 @@ namespace RHCQS_Services.Implement
                     qUtility.UtilitiesSectionId,
                     qUtility.Name,
                     qUtility.Description ?? string.Empty,
-                    qUtility.Coefiicient ?? 0,
+                    qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
                     qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
@@ -1488,7 +1493,7 @@ namespace RHCQS_Services.Implement
                     qUtility.UtilitiesSectionId,
                     qUtility.Name,
                     qUtility.Description ?? string.Empty,
-                    qUtility.Coefiicient ?? 0,
+                    qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
                     qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
