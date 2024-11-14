@@ -241,21 +241,40 @@ namespace RHCQS_Services.Implement
 
                 _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
 
+                var existingTemplate = await _unitOfWork.GetRepository<TemplateItem>().GetListAsync(
+                                    predicate: x => x.SubTemplateId == subTemplateId);
+
+                var requestConstructionItemIds = request.TemplateItems
+                                                .Select(i => i.ConstructionItemId)
+                                                .ToList();
+                //Case 1: Not existing in request - DB have it => Remove item in DB
+                foreach (var item in existingTemplate)
+                {
+                    if (!requestConstructionItemIds.Contains(item.ConstructionItemId))
+                    {
+                        _unitOfWork.GetRepository<TemplateItem>().DeleteAsync(item);
+                    }
+                }
+
+
                 foreach (var item in request.TemplateItems)
                 {
 
                     var temItem = await _unitOfWork.GetRepository<TemplateItem>()
                                     .FirstOrDefaultAsync(
-                                    predicate: t => t.SubTemplateId == templateItem.Id
-                                    && (t.ConstructionItemId == item.ConstructionItemId
-                                    ));
-                    if (temItem != null)
+                                    predicate: t => t.SubTemplateId == subTemplateId
+                                    && t.ConstructionItemId == item.ConstructionItemId);
+
+                   
+                    //Case 2: Existing -> Update field
+                    if (temItem != null && item != null)
                     {
                         temItem.Area = item.Area != 0 ? item.Area : temItem.Area;
                         temItem.Price = item.Price != 0 ? item.Price : temItem.Price;
 
                         _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
                     }
+                    //Case 3: Not existing in database -> Create 
                     else
                     {
                         var newTemplate = new TemplateItem

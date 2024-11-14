@@ -212,6 +212,8 @@ namespace RHCQS_BE.Controllers
         #region UpdateSubTemplate
         /// <summary>
         /// Update sub-template with template items.
+        /// 
+        /// Role: MANAGER
         /// </summary>
         /// <remarks>
         /// Request mẫu:
@@ -241,7 +243,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Dữ liệu yêu cầu không hợp lệ hoặc cập nhật thất bại</response>
         /// <response code="401">Không có quyền truy cập</response>
         #endregion
-        //[Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.SubTemplateDesignDetailEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateSubTemplate([FromQuery]Guid subTemplateId, [FromBody] UpdateSubTemplateRequest request)
