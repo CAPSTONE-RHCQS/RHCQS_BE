@@ -1,19 +1,26 @@
-﻿using System;
+﻿using RHCQS_DataAccessObjects.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static RHCQS_BusinessObjects.AppConstant;
 
-namespace RHCQS_BusinessObject.Payload.Response
+namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
 {
     public class HouseDesignDrawingResponse
     {
-        public HouseDesignDrawingResponse(Guid id, Guid projectId, string? name, int? step, 
-            string? status, string? type, bool? isCompany, DateTime? insDate, 
+        public HouseDesignDrawingResponse(Guid id, Guid projectId,
+            string staffName, double? versionPresent,
+            string? name, int? step,
+            string? status, string? type,
+            bool? isCompany, DateTime? insDate,
             List<HouseDesignVersionResponse> versions)
         {
             Id = id;
             ProjectId = projectId;
+            StaffName = staffName;
+            VersionPresent = versionPresent;
             Name = name;
             Step = step;
             Status = status;
@@ -26,6 +33,9 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
 
         public Guid ProjectId { get; set; }
+
+        public string StaffName { get; set; }
+        public double? VersionPresent { get; set; }
 
         public string? Name { get; set; }
 
@@ -56,8 +66,8 @@ namespace RHCQS_BusinessObject.Payload.Response
             NamePrevious = namePrevious;
         }
 
-        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? fileUrl, 
-            DateTime? insDate,Guid? previousDrawingId, string? note)
+        public HouseDesignVersionResponse(Guid id, string? name, double? version, string? fileUrl,
+            DateTime? insDate, Guid? previousDrawingId, string? note, string? reason)
         {
             Id = id;
             Name = name;
@@ -66,6 +76,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             InsDate = insDate;
             PreviousDrawingId = previousDrawingId;
             Note = note;
+            Reason = reason;
         }
 
         public Guid Id { get; set; }
@@ -79,5 +90,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? NamePrevious { get; set; }
 
         public string? Note { get; set; }
+        public string? Reason { get; set; }
     }
 }

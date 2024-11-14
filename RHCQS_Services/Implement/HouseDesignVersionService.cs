@@ -40,7 +40,7 @@ namespace RHCQS_Services.Implement
             _mediaService = mediaService;
         }
 
-        public async Task<HouseDesignVersionResponse> GetDetailVersionById(Guid versionId)
+        public async Task<HouseDesignVersionItemResponse> GetDetailVersionById(Guid versionId)
         {
             var version = await _unitOfWork.GetRepository<HouseDesignVersion>()
                                            .FirstOrDefaultAsync(predicate: v => v.Id == versionId,
@@ -53,7 +53,7 @@ namespace RHCQS_Services.Implement
 
             var fileUrl = version.Media?.FirstOrDefault(m => m.HouseDesignVersionId == versionId)!.Url ?? "Chưa hoàn thành"; 
 
-            var response = new HouseDesignVersionResponse(
+            var response = new HouseDesignVersionItemResponse(
                 id: version.Id,
                 name: version.Name,
                 version: version.Version,

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
 using System.Security.Claims;
@@ -132,7 +132,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListTaskByAccount()
         {
-            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var design = await _houseService.GetListTaskByAccount(accountId);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
@@ -259,7 +259,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingListEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewDrawingByProjectId(Guid projectId)

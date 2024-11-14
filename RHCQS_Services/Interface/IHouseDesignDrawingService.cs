@@ -1,5 +1,5 @@
 ﻿using RHCQS_BusinessObject.Payload.Request.HouseDesign;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -11,14 +11,14 @@ namespace RHCQS_Services.Interface
 {
     public interface IHouseDesignDrawingService
     {
-        Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawings(int page, int size);
+        Task<IPaginate<ListHouseDesginResponse>> GetListHouseDesignDrawings(int page, int size);
+        Task<IPaginate<ListHouseDesginResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId);
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawing(Guid id);
         Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type);
-        Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId);
+        Task<List<ListHouseDesginResponse>> GetListTaskByAccount(Guid accountId);
         Task<(bool IsSuccess, string Message)> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item);
-        Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId);
-        Task<List<HouseDesignDrawingResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId);
-        Task<List<HouseDesignDrawingResponse>> ViewDrawingByProjectId(Guid projectId);
+        Task<List<ListHouseDesginResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId);
+        Task<List<ListHouseDesginResponse>> ViewDrawingByProjectId(Guid projectId);
 
     }
 }
