@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using RHCQS_BusinessObject.Payload.Response;
 using System;
 using System.Collections.Generic;
@@ -9,8 +10,6 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class HouseTemplateRequestForUpdate
     {
-
-        [Required(ErrorMessage = "Tên là bắt buộc phải có.")]
         public string Name { get; set; } = null!;
 
         public string? Description { get; set; }
@@ -19,13 +18,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public int? NumberOfBed { get; set; }
 
-        public int? NumberOfFront { get; set; }
-
-        public string? ImgURL { get; set; }
-
-        [Required(ErrorMessage = "Danh sách mẫu phụ là bắt buộc phải có.")]
-        public List<SubTemplatesRequest> SubTemplates { get; set; } = new List<SubTemplatesRequest>();
-        public List<MediaRequest> ExteriorsUrls { get; set; } = new List<MediaRequest>();
+        public IFormFile? Img { get; set; }
     }
 
     public class SubTemplatesRequest
@@ -103,7 +96,9 @@ namespace RHCQS_BusinessObject.Payload.Request
         public string Size { get; set; }
 
         [Required(ErrorMessage = "Tổng tiền là bắt buộc phải có.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền không được là số âm.")]
         public double TotalRough { get; set; }
+
 
         [Required(ErrorMessage = "Danh sách mục mẫu là bắt buộc phải có.")]
         public List<TemplateItemRequestForCreate> TemplateItems { get; set; } = new List<TemplateItemRequestForCreate>();
@@ -122,6 +117,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Unit { get; set; }
         [Required(ErrorMessage = "Chi phí xây dựng của từng hạng mục là bắt buộc phải có.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Chi phí xây dựng của từng hạng mục không được là số âm.")]
         public double Price { get; set; }
     }
 

@@ -256,36 +256,12 @@ namespace RHCQS_BE.Controllers
         /// Update a house tempalte.
         /// </summary>
         #endregion
-        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateDetail)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateHouseTemplate([FromBody] HouseTemplateRequestForUpdate templ, Guid id)
+        public async Task<IActionResult> UpdateHouseTemplate([FromForm] HouseTemplateRequestForUpdate request, Guid id)
         {
-            if (!string.IsNullOrEmpty(templ.ImgURL))
-            {
-                string imageUrl = await _uploadImgService.UploadImageAsync(templ.ImgURL, "DesignHouse");
-                templ.ImgURL = imageUrl;
-            }
-            foreach (var exterior in templ.ExteriorsUrls)
-            {
-                if (!string.IsNullOrEmpty(exterior.MediaImgURL))
-                {
-                    string mediaUrl = await _uploadImgService.UploadImageAsync(exterior.MediaImgURL, "DesignHouse");
-                    exterior.MediaImgURL = mediaUrl;
-                }
-            }
-            foreach (var subTemplate in templ.SubTemplates)
-            {
-                foreach (var media in subTemplate.Designdrawings)
-                {
-                    if (!string.IsNullOrEmpty(media.Name))
-                    {
-                        string mediaUrl = await _uploadImgService.UploadImageAsync(media.MediaImgURL!, "DesignHouse");
-                        media.MediaImgURL = mediaUrl;
-                    }
-                }
-            }
-            var update = await _houseService.UpdateHouseTemplate(templ, id);
+            var update = await _houseService.UpdateHouseTemplate(request, id);
             return Ok(update);
         }
 

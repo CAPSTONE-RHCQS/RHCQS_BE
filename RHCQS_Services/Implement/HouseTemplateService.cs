@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using Azure.Core;
 using Microsoft.AspNetCore.Routing.Template;
 using RHCQS_BusinessObject.Helper;
+using RHCQS_BusinessObject.Payload.Response.HouseTemplate;
 
 namespace RHCQS_Services.Implement
 {
@@ -27,8 +28,8 @@ namespace RHCQS_Services.Implement
         private readonly IMediaService _mediaService;
 
         public HouseTemplateService(IUnitOfWork unitOfWork,
-            ILogger<HouseTemplateService> logger, 
-            Cloudinary cloudinary, 
+            ILogger<HouseTemplateService> logger,
+            Cloudinary cloudinary,
             IUploadImgService uploadImgService,
             IMediaService mediaService)
         {
@@ -41,7 +42,8 @@ namespace RHCQS_Services.Implement
         public async Task<List<HouseTemplateResponse>> GetListHouseTemplate()
         {
             var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetListAsync(
-                selector: x => new HouseTemplateResponse(
+                selector: x => new
+                {
                     x.Id,
                     x.Name,
                     x.Description,
@@ -49,7 +51,8 @@ namespace RHCQS_Services.Implement
                     x.NumberOfBed,
                     x.ImgUrl,
                     x.InsDate,
-                    x.SubTemplates.Select(
+                    PackageRough = x.PackageHouses.FirstOrDefault(pkg => pkg.Package.PackageType.Name == "ROUGH"),
+                    SubTemplates = x.SubTemplates.Select(
                         sub => new SubTemplatesResponse(
                             sub.Id,
                             sub.BuildingArea,
@@ -86,7 +89,7 @@ namespace RHCQS_Services.Implement
                                 )).ToList()
                         )
                     ).ToList(),
-                    x.PackageHouses.Select(
+                    PackageHouses = x.PackageHouses.Select(
                         pgk => new PackageHouseResponse(
                             pgk.Id,
                             pgk.PackageId,
@@ -96,7 +99,7 @@ namespace RHCQS_Services.Implement
                             pgk.Description
                         )
                     ).ToList(),
-                    x.Media
+                    ExteriorsUrls = x.Media
                         .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
                         .Select(media => new MediaResponse(
                             media.Id,
@@ -105,11 +108,29 @@ namespace RHCQS_Services.Implement
                             media.InsDate,
                             media.UpsDate
                         )).ToList()
-                ),
+                },
                 orderBy: x => x.OrderBy(x => x.InsDate)
             );
 
-            return listHouseTemplate.ToList();
+            var result = listHouseTemplate.Select(template => new HouseTemplateResponse(
+                template.Id,
+                template.Name,
+                template.Description,
+                template.NumberOfFloor,
+                template.NumberOfBed,
+                template.ImgUrl,
+                template.InsDate,
+
+                template.PackageRough?.PackageId ?? Guid.Empty,
+                template.PackageRough?.Package.Price ?? 0,
+                template.PackageRough?.Package.PackageName ?? "N/A",
+
+                template.SubTemplates,
+                template.PackageHouses,
+                template.ExteriorsUrls
+            )).ToList();
+
+            return result;
         }
 
         public async Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ)
@@ -219,10 +240,10 @@ namespace RHCQS_Services.Implement
 
             _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
 
-            foreach(var item in templateItem.TemplateItems)
+            foreach (var item in templateItem.TemplateItems)
             {
                 var temItem = await _unitOfWork.GetRepository<TemplateItem>().FirstOrDefaultAsync(
-                                predicate: t => t.ConstructionItemId == item.ConstructionItemId 
+                                predicate: t => t.ConstructionItemId == item.ConstructionItemId
                                 || t.SubConstructionId == item.SubConstructionId);
                 if (temItem != null)
                 {
@@ -230,7 +251,8 @@ namespace RHCQS_Services.Implement
                     temItem.Price = item.Price != 0 ? item.Price : temItem.Price;
                     _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
 
-                } else
+                }
+                else
                 {
                     var newTemplate = new TemplateItem
                     {
@@ -272,6 +294,14 @@ namespace RHCQS_Services.Implement
 
             if (template != null)
             {
+                //Package ROUGH
+                var roughPackage = template.PackageHouses
+                    .FirstOrDefault(pkg => pkg.Package.PackageType.Name == "ROUGH");
+
+                var packageRoughId = roughPackage?.PackageId ?? Guid.Empty;
+                var packageRoughPrice = roughPackage?.Package.Price ?? 0;
+                var packageRoughName = roughPackage?.Package.PackageName ?? "N/A";
+
                 var result = new HouseTemplateResponse(
                     template.Id,
                     template.Name,
@@ -280,6 +310,9 @@ namespace RHCQS_Services.Implement
                     template.NumberOfBed,
                     template.ImgUrl,
                     template.InsDate,
+                    packageRoughId,
+                    packageRoughPrice,
+                    packageRoughName,
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
                         sub.Id,
                         sub.BuildingArea,
@@ -311,19 +344,18 @@ namespace RHCQS_Services.Implement
                                 media.Url,
                                 media.InsDate,
                                 media.UpsDate
-                            )).ToList() // Designdrawings
+                            )).ToList() // DesignDrawings
                     )).ToList(),
                     template.PackageHouses
-                    .Where(pkg => pkg.Package.PackageType.Name != "ROUGH")
-                    .Select(pkg => new PackageHouseResponse(
-                        pkg.Id,
-                        pkg.PackageId,
-                        pkg.Package.PackageName,
-                        pkg.ImgUrl,
-                        pkg.InsDate,
-                        pkg.Description
-
-                    )).ToList(),
+                        .Where(pkg => pkg.Package.PackageType.Name != "ROUGH")
+                        .Select(pkg => new PackageHouseResponse(
+                            pkg.Id,
+                            pkg.PackageId,
+                            pkg.Package.PackageName,
+                            pkg.ImgUrl,
+                            pkg.InsDate,
+                            pkg.Description
+                        )).ToList(),
                     template.Media
                         .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
                         .Select(media => new MediaResponse(
@@ -338,6 +370,7 @@ namespace RHCQS_Services.Implement
             }
             return null;
         }
+
         public async Task<IPaginate<HouseTemplateResponseCustom>> GetListHouseTemplateForShortVersionAsync(int page, int size)
         {
             var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetList(
@@ -357,10 +390,10 @@ namespace RHCQS_Services.Implement
 
             return listHouseTemplate;
         }
-        public async Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size)
+        public async Task<IPaginate<IPaginateHouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size)
         {
             var listHouseTemplate = await _unitOfWork.GetRepository<DesignTemplate>().GetList(
-                selector: x => new HouseTemplateResponse(
+                selector: x => new IPaginateHouseTemplateResponse(
                     x.Id,
                     x.Name,
                     x.Description,
@@ -369,7 +402,7 @@ namespace RHCQS_Services.Implement
                     x.ImgUrl,
                     x.InsDate,
                     x.SubTemplates.Select(
-                        sub => new SubTemplatesResponse(
+                        sub => new IPaginateSubTemplatesResponse(
                             sub.Id,
                             sub.BuildingArea,
                             sub.FloorArea,
@@ -396,7 +429,7 @@ namespace RHCQS_Services.Implement
                             ).ToList(),
                             sub.Media
                                 .Where(media => media.Name == AppConstant.Template.Drawing)
-                                .Select(media => new MediaResponse(
+                                .Select(media => new IPaginateMediaResponse(
                                     media.Id,
                                     media.Name,
                                     media.Url,
@@ -406,7 +439,7 @@ namespace RHCQS_Services.Implement
                         )
                     ).ToList(),
                     x.PackageHouses.Select(
-                        pgk => new PackageHouseResponse(
+                        pgk => new IPaginatePackageHouseResponse(
                             pgk.Id,
                             pgk.PackageId,
                             pgk.Package.PackageName,
@@ -417,7 +450,7 @@ namespace RHCQS_Services.Implement
                     ).ToList(),
                     x.Media
                         .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
-                        .Select(media => new MediaResponse(
+                        .Select(media => new IPaginateMediaResponse(
                             media.Id,
                             media.Name,
                             media.Url,
@@ -440,6 +473,7 @@ namespace RHCQS_Services.Implement
             return listHouseTemplate;
         }
 
+
         public async Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name)
         {
             var template = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(
@@ -457,6 +491,14 @@ namespace RHCQS_Services.Implement
 
             if (template != null)
             {
+                //Package ROUGH
+                var roughPackage = template.PackageHouses
+                    .FirstOrDefault(pkg => pkg.Package.PackageType.Name == "ROUGH");
+
+                var packageRoughId = roughPackage?.PackageId ?? Guid.Empty;
+                var packageRoughPrice = roughPackage?.Package.Price ?? 0;
+                var packageRoughName = roughPackage?.Package.PackageName ?? "N/A";
+
                 var result = new HouseTemplateResponse(
                     template.Id,
                     template.Name,
@@ -465,6 +507,9 @@ namespace RHCQS_Services.Implement
                     template.NumberOfBed,
                     template.ImgUrl,
                     template.InsDate,
+                    packageRoughId,
+                    packageRoughPrice,
+                    packageRoughName,
                     template.SubTemplates.Select(sub => new SubTemplatesResponse(
                         sub.Id,
                         sub.BuildingArea,
@@ -488,24 +533,26 @@ namespace RHCQS_Services.Implement
                             item.InsDate,
                             item.Price
                         )).ToList(),
-                        sub.Media
-                            .Where(media => media.Name == AppConstant.Template.Drawing)
+                        template.Media
+                            .Where(media => media.Name.Equals(AppConstant.Template.Drawing))
                             .Select(media => new MediaResponse(
                                 media.Id,
                                 media.Name,
                                 media.Url,
                                 media.InsDate,
                                 media.UpsDate
-                            )).ToList() // Designdrawings
+                            )).ToList() // DesignDrawings
                     )).ToList(),
-                    template.PackageHouses.Select(pkg => new PackageHouseResponse(
-                        pkg.Id,
-                        pkg.PackageId,
-                        pkg.Package.PackageName,
-                        pkg.ImgUrl,
-                        pkg.InsDate,
-                        pkg.Description
-                    )).ToList(),
+                    template.PackageHouses
+                        .Where(pkg => pkg.Package.PackageType.Name != "ROUGH")
+                        .Select(pkg => new PackageHouseResponse(
+                            pkg.Id,
+                            pkg.PackageId,
+                            pkg.Package.PackageName,
+                            pkg.ImgUrl,
+                            pkg.InsDate,
+                            pkg.Description
+                        )).ToList(),
                     template.Media
                         .Where(media => media.Name == AppConstant.Template.Exteriorsdrawings)
                         .Select(media => new MediaResponse(
@@ -521,7 +568,7 @@ namespace RHCQS_Services.Implement
             return null;
         }
 
-        public async Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid templateId)
+        public async Task<string> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid templateId)
         {
             if (templ == null)
             {
@@ -548,86 +595,13 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.Not_Found_Resource
                 );
             }
+            var imageCloudianry = await _mediaService.UploadFileAsync(templ.Img, "DesignTemplate");
 
-            houseTemplate.Name = templ.Name;
-            houseTemplate.Description = templ.Description;
-            houseTemplate.NumberOfFloor = templ.NumberOfFloor;
-            houseTemplate.NumberOfBed = templ.NumberOfBed;
-            houseTemplate.ImgUrl = templ.ImgURL;
-
-            foreach (var media in templ.ExteriorsUrls)
-            {
-                var existingMedia = houseTemplate.Media.FirstOrDefault(m => m.DesignTemplateId == templateId);
-                if (existingMedia != null)
-                {
-                    existingMedia.Url = media.MediaImgURL;
-                    existingMedia.UpsDate = LocalDateTime.VNDateTime();
-                }
-                else
-                {
-                    continue;
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.Not_Found_Media
-                    );
-                }
-            }
-
-            foreach (var sub in templ.SubTemplates)
-            {
-                var existingSubTemplate = houseTemplate.SubTemplates.FirstOrDefault(st => st.Id == sub.Id);
-                if (existingSubTemplate != null)
-                {
-                    existingSubTemplate.BuildingArea = sub.BuildingArea ?? 0;
-                    existingSubTemplate.FloorArea = sub.FloorArea;
-                    existingSubTemplate.Size = sub.Size;
-                    existingSubTemplate.ImgUrl = sub.ImgURL;
-
-                    foreach (var item in sub.TemplateItems)
-                    {
-                        var existingTemplateItem = existingSubTemplate.TemplateItems.FirstOrDefault(ti => ti.Id == item.Id);
-                        if (existingTemplateItem != null)
-                        {
-                            existingTemplateItem.Area = item.Area;
-                            existingTemplateItem.Unit = item.Unit;
-                            existingTemplateItem.ConstructionItemId = item.ConstructionItemId;
-                        }
-                        else
-                        {
-                            continue;
-                            throw new AppConstant.MessageError(
-                                (int)AppConstant.ErrCode.Conflict,
-                                AppConstant.ErrMessage.TemplateItemNotFound
-                            );
-                        }
-                    }
-                    foreach (var media in sub.Designdrawings)
-                    {
-                        var existingMedia = existingSubTemplate.Media.FirstOrDefault(m => m.SubTemplateId == sub.Id);
-                        if (existingMedia != null)
-                        {
-                            existingMedia.Url = media.MediaImgURL;
-                            existingMedia.UpsDate = LocalDateTime.VNDateTime();
-                        }
-                        else
-                        {
-                            continue;
-                            throw new AppConstant.MessageError(
-                                (int)AppConstant.ErrCode.Conflict,
-                                AppConstant.ErrMessage.Not_Found_Media
-                            );
-                        }
-                    }
-                }
-                else
-                {
-                    continue;
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.SubTemplateNotFound
-                    );
-                }
-            }
+            houseTemplate.Name = templ.Name ?? houseTemplate.Name;
+            houseTemplate.Description = templ.Description ?? houseTemplate.Description;
+            houseTemplate.NumberOfFloor = templ.NumberOfFloor ?? houseTemplate.NumberOfFloor;
+            houseTemplate.NumberOfBed = templ.NumberOfBed ?? houseTemplate.NumberOfBed;
+            houseTemplate.ImgUrl = imageCloudianry.Url.ToString() ?? houseTemplate.ImgUrl;
 
             templateRepo.UpdateAsync(houseTemplate);
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -639,7 +613,7 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            return houseTemplate;
+            return isSuccessful ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
         }
         private string GenerateDescription(PackageHouse package, DesignTemplate templ, SubTemplate sub)
         {
@@ -818,7 +792,7 @@ namespace RHCQS_Services.Implement
             var urlTemplate = await _mediaService.UploadImageSubTemplate(file, "DesignHouse");
             subTemplate.ImgUrl = urlTemplate.ToString();
 
-             _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(subTemplate);
+            _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(subTemplate);
             var resutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
             return resutl;
         }

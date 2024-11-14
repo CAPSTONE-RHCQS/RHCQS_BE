@@ -2,6 +2,7 @@
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.HouseTemplate;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using System;
@@ -14,12 +15,12 @@ namespace RHCQS_Services.Interface
 {
     public interface IHouseTemplateService
     {
-        public Task<IPaginate<HouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size);
+        Task<IPaginate<IPaginateHouseTemplateResponse>> GetListHouseTemplateAsync(int page, int size);
         public Task<IPaginate<HouseTemplateResponseCustom>> GetListHouseTemplateForShortVersionAsync(int page, int size);
         public Task<List<HouseTemplateResponse>> GetListHouseTemplate();
         Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name);
         Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id);
-        Task<DesignTemplate> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
+        Task<string> UpdateHouseTemplate(HouseTemplateRequestForUpdate templ, Guid id);
         Task<Guid> CreateHouseTemplate(HouseTemplateRequestForCreate templ);
         Task<string> UpdateSubTemplate(Guid subTemplateId, UpdateSubTemplateRequest request);
         Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files, List<PackageHouseRequestForCreate> package);
