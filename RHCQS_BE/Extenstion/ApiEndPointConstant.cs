@@ -62,6 +62,11 @@ namespace RHCQS_BE.Extenstion
             public const string UploadImageProfileEndpoint = ApiEndpoint + "/upload-profile-images";
 
         }
+        public static class EquiqmentExcel
+        {
+            public const string EquimentExcelEndpoint = ApiEndpoint + "/equiqment/excel";
+
+        }
 
         public static class AssignTask
         {
