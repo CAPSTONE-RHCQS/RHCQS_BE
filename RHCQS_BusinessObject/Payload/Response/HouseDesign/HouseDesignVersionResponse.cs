@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
 {
-    public class HouseDesignVersionResponse
+    public class HouseDesignVersionItemResponse
     {
-        public HouseDesignVersionResponse(Guid id,
+        public HouseDesignVersionItemResponse(Guid id,
             string? name,
             double version,
             string fileUrl,

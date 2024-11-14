@@ -11,7 +11,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IHouseDesignVersionService
     {
-        Task<HouseDesignVersionResponse> GetDetailVersionById(Guid versionId);
+        Task<HouseDesignVersionItemResponse> GetDetailVersionById(Guid versionId);
         Task<bool> CreateHouseDesignVersion(Guid accountId, HouseDesignVersionRequest request);
         Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId);
         Task<bool> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request);

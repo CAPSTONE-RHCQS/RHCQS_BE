@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -30,22 +30,28 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        public async Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawings(int page, int size)
+        public async Task<IPaginate<ListHouseDesginResponse>> GetListHouseDesignDrawings(int page, int size)
         {
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
-                        selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.HaveDrawing, x.InsDate,
+                        selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,x.Account.Username!, 
+                                                                      x.Name, 
+                                                                      x.Step, 
+                                                                      x.Status,
+                                                                      x.Type,
+                                                                      x.HaveDrawing, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
-                                                                          v => new HouseDesignVersionResponse(
+                                                                          v => new HouseDesignVersionResponseList(
                                                                               v.Id,
                                                                               v.Name,
                                                                               v.Version,
                                                                               v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
-                                                                              v.Note)).ToList()),
+                                                                              v.Note,
+                                                                              v.Reason)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
-                                               .ThenInclude(x => x.Media),
+                                               .ThenInclude(x => x.Media)
+                                               .Include(x => x.Account!),
                         orderBy: x => x.OrderBy(x => x.InsDate),
                         page: page,
                         size: size
@@ -53,23 +59,29 @@ namespace RHCQS_Services.Implement
             return list;
         }
 
-        public async Task<IPaginate<HouseDesignDrawingResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId)
+        public async Task<IPaginate<ListHouseDesginResponse>> GetListHouseDesignDrawingsForDesignStaff(int page, int size, Guid accountId)
         {
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                         predicate: x => x.Account!.Id == accountId,
-                        selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.HaveDrawing, x.InsDate,
+                         selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId, x.Account!.Username!, 
+                                                                      x.Name, 
+                                                                      x.Step, 
+                                                                      x.Status,
+                                                                      x.Type,
+                                                                      x.HaveDrawing, x.InsDate,
                                                                       x.HouseDesignVersions.Select(
-                                                                          v => new HouseDesignVersionResponse(
+                                                                          v => new HouseDesignVersionResponseList(
                                                                               v.Id,
                                                                               v.Name,
                                                                               v.Version,
                                                                               v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
-                                                                              v.Note)).ToList()),
+                                                                              v.Note,
+                                                                              v.Reason)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
-                                            .ThenInclude(x => x.Media),
+                                            .ThenInclude(x => x.Media)
+                                            .Include(x => x.Account!),
                         orderBy: x => x.OrderBy(x => x.InsDate),
                         page: page,
                         size: size
@@ -88,9 +100,11 @@ namespace RHCQS_Services.Implement
 
             if (drawingItem != null)
             {
-                var resutl = new HouseDesignDrawingResponse(
+                var result = new HouseDesignDrawingResponse(
                        drawingItem.Id,
                        drawingItem.ProjectId,
+                       drawingItem.Account.Username,
+                       drawingItem.HouseDesignVersions.Max(v => v.Version),
                        drawingItem.Name,
                        drawingItem.Step,
                        drawingItem.Status,
@@ -104,10 +118,11 @@ namespace RHCQS_Services.Implement
                             version.Media.Select(m => m.Url).FirstOrDefault(),
                             version.InsDate,
                             version.PreviousDrawingId,
-                            version.Note
+                            version.Note,
+                            version.Reason
                            )).ToList()
                     );
-                return resutl;
+                return result;
             }
 
             return null;
@@ -128,24 +143,27 @@ namespace RHCQS_Services.Implement
             }
 
             var result = new HouseDesignDrawingResponse(
-                drawingItem.Id,
-                drawingItem.ProjectId,
-                drawingItem.Name,
-                drawingItem.Step,
-                drawingItem.Status,
-                drawingItem.Type,
-                drawingItem.HaveDrawing,
-                drawingItem.InsDate,
-                drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
-                        version.Id,
-                        version.Name,
-                        version.Version,
-                        version.Media.Select(m => m.Url).FirstOrDefault(),
-                        version.InsDate,
-                        version.PreviousDrawingId,
-                        version.Note
-                       )).ToList()
-            );
+                       drawingItem.Id,
+                       drawingItem.ProjectId,
+                       drawingItem.Account.Username,
+                       drawingItem.HouseDesignVersions.Max(v => v.Version),
+                       drawingItem.Name,
+                       drawingItem.Step,
+                       drawingItem.Status,
+                       drawingItem.Type,
+                       drawingItem.HaveDrawing,
+                       drawingItem.InsDate,
+                       drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
+                            version.Id,
+                            version.Name,
+                            version.Version,
+                            version.Media.Select(m => m.Url).FirstOrDefault(),
+                            version.InsDate,
+                            version.PreviousDrawingId,
+                            version.Note,
+                            version.Reason
+                           )).ToList()
+                    );
 
             return result;
         }
@@ -243,21 +261,24 @@ namespace RHCQS_Services.Implement
             return isSuccessful ? (true, AppConstant.Message.APPROVED) : (false, "Error occurred during saving.");
         }
 
-        public async Task<List<HouseDesignDrawingResponse>> GetListTaskByAccount(Guid accountId)
+        public async Task<List<ListHouseDesginResponse>> GetListTaskByAccount(Guid accountId)
         {
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                 predicate: x => x.Account!.Id == accountId,
-                selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
+                selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId, 
+                                                          x.Account!.Username,
+                                                          x.Name, x.Step, x.Status,
                                                           x.Type, x.HaveDrawing, x.InsDate,
                                                           x.HouseDesignVersions.Select(
-                                                              v => new HouseDesignVersionResponse(
+                                                              v => new HouseDesignVersionResponseList(
                                                                   v.Id,
                                                                   v.Name,
                                                                   v.Version,
                                                                   v.Media.Select(m => m.Url).FirstOrDefault(),
                                                                   v.InsDate,
                                                                   v.PreviousDrawingId,
-                                                                  v.Note)).ToList()),
+                                                                  v.Note,
+                                                                  v.Reason)).ToList()),
                 include: x => x.Include(x => x.Account!)
                                 .Include(x => x.HouseDesignVersions)
                                    .ThenInclude(x => x.Media)
@@ -265,7 +286,7 @@ namespace RHCQS_Services.Implement
             return listTask;
         }
 
-        public async Task<List<HouseDesignDrawingResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId)
+        public async Task<List<ListHouseDesginResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId)
         {
             //Check design staff in step?
             var infoDesign = await _unitOfWork.GetRepository<HouseDesignDrawing>()
@@ -275,49 +296,57 @@ namespace RHCQS_Services.Implement
             //Case Drawing "Phối cảnh"
             if (infoDesign.Step == 1)
             {
-                return new List<HouseDesignDrawingResponse>();
+                return new List<ListHouseDesginResponse>();
             }
             //Case other...
             else
             {
                 var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                 .GetList(predicate: x => x.ProjectId == projectId && x.Step < infoDesign.Step,
-                                                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.HaveDrawing, x.InsDate,
-                                                                      x.HouseDesignVersions.Select(
-                                                                          v => new HouseDesignVersionResponse(
-                                                                              v.Id,
-                                                                              v.Name,
-                                                                              v.Version,
-                                                                              v.Media.Select(m => m.Url).FirstOrDefault(),
-                                                                              v.InsDate,
-                                                                              v.PreviousDrawingId,
-                                                                              v.Note)).ToList()),
+                                                 selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,
+                                                          x.Account.Username!,
+                                                          x.Name, x.Step, x.Status,
+                                                          x.Type, x.HaveDrawing, x.InsDate,
+                                                          x.HouseDesignVersions.Select(
+                                                              v => new HouseDesignVersionResponseList(
+                                                                  v.Id,
+                                                                  v.Name,
+                                                                  v.Version,
+                                                                  v.Media.Select(m => m.Url).FirstOrDefault(),
+                                                                  v.InsDate,
+                                                                  v.PreviousDrawingId,
+                                                                  v.Note,
+                                                                  v.Reason)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
-                                        .ThenInclude(x => x.Media),
+                                        .ThenInclude(x => x.Media)
+                                        .Include(x => x.Account!),
                         orderBy: x => x.OrderBy(x => x.Step));
                 return listDrawingPrevious.Items.ToList();
 
             }
         }
 
-        public async Task<List<HouseDesignDrawingResponse>> ViewDrawingByProjectId(Guid projectId)
+        public async Task<List<ListHouseDesginResponse>> ViewDrawingByProjectId(Guid projectId)
         {
             var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                 .GetList(predicate: x => x.ProjectId == projectId,
-                                                 selector: x => new HouseDesignDrawingResponse(x.Id, x.ProjectId, x.Name, x.Step, x.Status,
-                                                                      x.Type, x.HaveDrawing, x.InsDate,
-                                                                      x.HouseDesignVersions.Select(
-                                                                          v => new HouseDesignVersionResponse(
-                                                                              v.Id,
-                                                                              v.Name,
-                                                                              v.Version,
-                                                                              v.Media.Select(m => m.Url).FirstOrDefault(),
-                                                                              v.InsDate,
-                                                                              v.PreviousDrawingId,
-                                                                              v.Note)).ToList()),
+                                                 selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,
+                                                          x.Account.Username!,
+                                                          x.Name, x.Step, x.Status,
+                                                          x.Type, x.HaveDrawing, x.InsDate,
+                                                          x.HouseDesignVersions.Select(
+                                                              v => new HouseDesignVersionResponseList(
+                                                                  v.Id,
+                                                                  v.Name,
+                                                                  v.Version,
+                                                                  v.Media.Select(m => m.Url).FirstOrDefault(),
+                                                                  v.InsDate,
+                                                                  v.PreviousDrawingId,
+                                                                  v.Note,
+                                                                  v.Reason)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
-                                        .ThenInclude(x => x.Media),
+                                        .ThenInclude(x => x.Media)
+                                        .Include(x => x.Account!),
                         orderBy: x => x.OrderBy(x => x.Step));
             return listDrawingPrevious.Items.ToList();
         }
