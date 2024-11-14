@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -17,7 +18,7 @@ namespace RHCQS_BE.Controllers
         {
             _excelImportService = excelImportService;
         }
-
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.EquiqmentExcel.EquimentExcelEndpoint)]
         [ProducesResponseType(typeof(EquiqmentExcelResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ImportExcel(IFormFile file)

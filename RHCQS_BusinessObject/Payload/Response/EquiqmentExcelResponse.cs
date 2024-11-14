@@ -9,6 +9,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class EquiqmentExcelResponse
     {
+        public string? STT { get; set; }
         public string? Code { get; set; }
 
         public string? Name { get; set; }

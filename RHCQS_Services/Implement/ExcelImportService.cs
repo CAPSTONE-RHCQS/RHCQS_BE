@@ -18,18 +18,19 @@ namespace RHCQS_Services.Implement
             using var workbook = new XLWorkbook(excelStream);
             var worksheet = workbook.Worksheet(1);
 
-            foreach (var row in worksheet.RowsUsed().Skip(1))
+            foreach (var row in worksheet.RowsUsed().Skip(4))
             {
                 var data = new EquiqmentExcelResponse
                 {
-                    Code = row.Cell(1).GetValue<string>(),
-                    Name = row.Cell(2).GetValue<string>(),
-                    Unit = row.Cell(3).GetValue<string>(),
-                    Quantity = row.Cell(4).GetValue<int?>(),
-                    UnitOfMaterial = row.Cell(5).GetValue<double?>(),
-                    TotalOfMaterial = row.Cell(6).GetValue<double?>(),
-                    Note = row.Cell(7).GetValue<string?>(),
-                    Type = row.Cell(8).GetValue<string?>()
+                    STT = row.Cell(1).GetValue<string>(),
+                    Code = row.Cell(2).GetValue<string>(),
+                    Name = row.Cell(3).GetValue<string>(),
+                    Unit = row.Cell(4).GetValue<string>(),
+                    Quantity = row.Cell(5).GetValue<int?>(),
+                    UnitOfMaterial = row.Cell(6).GetValue<double?>(),
+                    TotalOfMaterial = row.Cell(7).GetValue<double?>(),
+                    Note = row.Cell(8).GetValue<string?>(),
+                    Type = row.Cell(9).GetValue<string?>()
                 };
                 result.Add(data);
             }
