@@ -241,7 +241,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Dữ liệu yêu cầu không hợp lệ hoặc cập nhật thất bại</response>
         /// <response code="401">Không có quyền truy cập</response>
         #endregion
-        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        //[Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.SubTemplateDesignDetailEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateSubTemplate([FromQuery]Guid subTemplateId, [FromBody] UpdateSubTemplateRequest request)
@@ -256,7 +256,7 @@ namespace RHCQS_BE.Controllers
         /// Update a house tempalte.
         /// </summary>
         #endregion
-        //[Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseTemplate.HouseTemplateDetail)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateHouseTemplate([FromForm] HouseTemplateRequestForUpdate request, Guid id)

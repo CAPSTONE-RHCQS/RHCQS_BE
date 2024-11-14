@@ -229,51 +229,62 @@ namespace RHCQS_Services.Implement
 
         private async Task<bool> UpdateTemplateArea(Guid subTemplateId, UpdateSubTemplateRequest request)
         {
-            var templateItem = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
-                                predicate: s => s.Id == subTemplateId,
-                                include: s => s.Include(s => s.TemplateItems));
-
-            templateItem.BuildingArea = request.BuildingArea ?? templateItem.BuildingArea;
-            templateItem.FloorArea = request.FloorArea ?? templateItem.FloorArea;
-            templateItem.Size = request.Size ?? templateItem.Size;
-            templateItem.TotalRough = request.TotalRough != 0 ? request.TotalRough : templateItem.TotalRough;
-
-            _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
-
-            foreach (var item in templateItem.TemplateItems)
+            try
             {
-                var temItem = await _unitOfWork.GetRepository<TemplateItem>().FirstOrDefaultAsync(
-                                predicate: t => t.ConstructionItemId == item.ConstructionItemId
-                                || t.SubConstructionId == item.SubConstructionId);
-                if (temItem != null)
-                {
-                    temItem.Area = item.Area ?? temItem.Area;
-                    temItem.Price = item.Price != 0 ? item.Price : temItem.Price;
-                    _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
+                var templateItem = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
+                                    predicate: s => s.Id == subTemplateId);
 
-                }
-                else
+                templateItem.BuildingArea = request.BuildingArea ?? templateItem.BuildingArea;
+                templateItem.FloorArea = request.FloorArea ?? templateItem.FloorArea;
+                templateItem.Size = request.Size ?? templateItem.Size;
+                templateItem.TotalRough = request.TotalRough != 0 ? request.TotalRough : templateItem.TotalRough;
+
+                _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
+
+                foreach (var item in request.TemplateItems)
                 {
-                    var newTemplate = new TemplateItem
+
+                    var temItem = await _unitOfWork.GetRepository<TemplateItem>()
+                                    .FirstOrDefaultAsync(
+                                    predicate: t => t.SubTemplateId == templateItem.Id
+                                    && (t.ConstructionItemId == item.ConstructionItemId
+                                    ));
+                    if (temItem != null)
                     {
-                        Id = Guid.NewGuid(),
-                        ConstructionItemId = item.ConstructionItemId,
-                        SubConstructionId = item.SubConstructionId,
-                        Area = item.Area,
-                        Unit = item.Unit,
-                        Price = item.Price
-                    };
-                    await _unitOfWork.GetRepository<TemplateItem>().InsertAsync(newTemplate);
+                        temItem.Area = item.Area != 0 ? item.Area : temItem.Area;
+                        temItem.Price = item.Price != 0 ? item.Price : temItem.Price;
+
+                        _unitOfWork.GetRepository<TemplateItem>().UpdateAsync(temItem);
+                    }
+                    else
+                    {
+                        var newTemplate = new TemplateItem
+                        {
+                            Id = Guid.NewGuid(),
+                            SubTemplateId = subTemplateId,
+                            ConstructionItemId = item.ConstructionItemId,
+                            SubConstructionId = item.SubConstructionItemId,
+                            Area = item.Area,
+                            Unit = item.Unit,
+                            Price = item.Price
+                        };
+                        await _unitOfWork.GetRepository<TemplateItem>().InsertAsync(newTemplate);
+                    }
                 }
-            }
+                _unitOfWork.GetRepository<SubTemplate>().UpdateAsync(templateItem);
 
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            if (!isSuccessful)
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                if (!isSuccessful)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.TemplateItemNotFound);
+                }
+                return isSuccessful;
+            }
+            catch (Exception ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.TemplateItemNotFound);
+                Console.WriteLine("Unexpected error: " + ex.Message);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, "An unexpected error occurred: " + ex.Message);
             }
-
-            return isSuccessful;
         }
 
         public async Task<HouseTemplateResponse> GetHouseTemplateDetail(Guid id)
