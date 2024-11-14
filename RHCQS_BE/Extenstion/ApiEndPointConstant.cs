@@ -28,6 +28,11 @@ namespace RHCQS_BE.Extenstion
             public const string RoleEndpoint = ApiEndpoint + "/role";
             public const string TotalRoleEndpoint = RoleEndpoint + "/total";
         }
+        public static class Notification
+        {
+            public const string NotificationEndpoint = ApiEndpoint + "/notification";
+            public const string SendNotificationRoleEndpoint = NotificationEndpoint + "/send";
+        }
         public static class PackageType
         {
             public const string PackageTypeEndpoint = ApiEndpoint + "/packagetype";

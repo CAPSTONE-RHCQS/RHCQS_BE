@@ -147,47 +147,48 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <remarks>
         /// Sample request:
-        ///
-        ///     POST /api/housetemplate
-        ///    {
-        ///    "name": "Mẫu test",
-        ///    "description": "Test mẫu nhà from Puanticuocsong",
-        ///    "numberOfFloor": 2,
-        ///    "numberOfBed": 3,
-        ///    "packageRoughId": "AA5057D8-9B30-4F17-A8EE-7AAD655B63CC",
-        ///    "descriptionPackage": "Test mẫu nhà API",
-        ///    "subTemplates": [
-        ///        {
-        ///            "buildingArea": 200,
-        ///            "floorArea": 120,
-        ///           "size": "R8 x D15",
-        ///            "templateItems": [
-        ///                {
-        ///                    "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
-        ///                    "subConstructionItemId": null,
-        ///                    "name": "Trệt",
-        ///                    "area": 120,
-        ///                    "unit": "m2"
-        ///                },
-        ///                {
-        ///                    "constructionItemId": "EBA29420-A8DB-455C-86B0-B325A1DA4E1E",
-        ///                    "subConstructionItemId": null,
-        ///                    "name": "Lầu 1",
-        ///                    "area": 80,
-        ///                    "unit": "m2",
-        ///                    "price: 180000000
-        ///                }
-        ///            ]
-        ///        }
-        ///    ],
-        ///    "packageFinished": [
-        ///        {
-        ///            "packageId": "ABEEDDF8-487D-4DEA-AFB9-173B3FEB0338",
-        ///            "description": "Gói hoàn thiện tiết kiệm"
-        ///        }
-        ///    ]
-        ///}
-        ///
+        /// 
+        /// ```json
+        /// POST /api/housetemplate
+        /// {
+        ///   "name": "Sample Template",
+        ///   "description": "Test house template from Puanticuocsong",
+        ///   "numberOfFloor": 2,
+        ///   "numberOfBed": 3,
+        ///   "packageRoughId": "AA5057D8-9B30-4F17-A8EE-7AAD655B63CC",
+        ///   "descriptionPackage": "Test house template API",
+        ///   "subTemplates": [
+        ///     {
+        ///       "buildingArea": 200,
+        ///       "floorArea": 120,
+        ///       "size": "R8 x D15",
+        ///       "templateItems": [
+        ///         {
+        ///           "constructionItemId": "BE6C6DB7-CEA1-4275-9B18-2FBCFE9B2353",
+        ///           "subConstructionItemId": null,
+        ///           "name": "Ground Floor",
+        ///           "area": 120,
+        ///           "unit": "m2"
+        ///         },
+        ///         {
+        ///           "constructionItemId": "EBA29420-A8DB-455C-86B0-B325A1DA4E1E",
+        ///           "subConstructionItemId": null,
+        ///           "name": "First Floor",
+        ///           "area": 80,
+        ///           "unit": "m2",
+        ///           "price": 180000000
+        ///         }
+        ///       ]
+        ///     }
+        ///   ],
+        ///   "packageFinished": [
+        ///     {
+        ///       "packageId": "ABEEDDF8-487D-4DEA-AFB9-173B3FEB0338",
+        ///       "description": "Economical finishing package"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
         /// </remarks>
         /// <param name="request">The house template details to be created.</param>
         /// <returns>Returns `true` if the creation is successful, otherwise `false`.</returns>
@@ -276,7 +277,7 @@ namespace RHCQS_BE.Controllers
         /// <remarks>
         /// 
         /// JSON: 
-        /// 
+        /// ```json
         /// [
         ///   {
         ///     "packageId": "ABEEDDF8-487D-4DEA-AFB9-173B3FEB0338",
@@ -287,6 +288,7 @@ namespace RHCQS_BE.Controllers
         ///     "description": "Gói hoàn thiện tiêu chuẩn"
         ///   }
         /// ]
+        /// ```
         /// </remarks>
         #endregion
         [Authorize(Roles = "Manager")]
@@ -320,20 +322,21 @@ namespace RHCQS_BE.Controllers
                 return BadRequest($"Error uploading images: {ex.Message}");
             }
         }
-        
+
         #region CreatePackageHouse
         /// <summary>
         /// Creates a new package for a house design template.
         /// </summary>
         /// <remarks>
         /// Example request:
-        /// 
+        /// ```json
         /// {
         ///   "packageId": "5245F485-C546-4051-B04E-954FD773811E",
         ///   "designTemplateId": "AC0E955C-3F03-4788-9DB8-C9C32069FC3F",
         ///   "description": "This price applies to standard urban villas. It includes construction area over 365 m², with 1 floor and 2 rooms. Note that the listed price does not include VAT.",
         ///   "packageHouseImage": "http://res.cloudinary.com/de7pulfdj/image/upload/v1730463742/PackageHouse/Flexible_package.png"
         /// }
+        /// ```
         /// </remarks>
         /// <param name="request">An object containing details for creating the house package</param>
         /// <returns>A URL of the created package house image if successful</returns>

@@ -17,6 +17,8 @@ using DinkToPdf;
 using DinkToPdf.Contracts;
 using RHCQS_DataAccessObjects.Context;
 using System.Runtime.InteropServices;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 
 namespace RHCQS_BE.Extenstion
@@ -195,6 +197,22 @@ namespace RHCQS_BE.Extenstion
                     Example = OpenApiAnyFactory.CreateFromJson("\"13:45:42.0000000\"")
                 });
             });
+            return services;
+        }
+        public static IServiceCollection AddFirebase(this IServiceCollection services, IConfiguration configuration)
+        {
+            var firebaseCredentialFilePath = configuration["Firebase:CredentialFilePath"];
+
+            if (string.IsNullOrEmpty(firebaseCredentialFilePath) || !File.Exists(firebaseCredentialFilePath))
+            {
+                throw new Exception("Firebase credential file is missing or path is incorrect.");
+            }
+
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(firebaseCredentialFilePath)
+            });
+
             return services;
         }
         public static IServiceCollection AddApiBehavior(this IServiceCollection services)

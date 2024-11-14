@@ -51,6 +51,7 @@ namespace RHCQS_BE
             builder.Services.AddSingletonJson();
             builder.Services.AddJwtValidation(configuration);
             builder.Services.AddSignalRServices();
+            builder.Services.AddFirebase(builder.Configuration);
 
             var app = builder.Build();
 
