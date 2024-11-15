@@ -97,7 +97,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<ImageUploadResult> UploadFileAsync(IFormFile file, string folderName, string publicId = null)
+        public async Task<string> UploadFileAsync(IFormFile file, string folderName, string publicId = null)
         {
             if (file == null || file.Length == 0)
             {
@@ -123,7 +123,7 @@ namespace RHCQS_Services.Implement
                 if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
                 {
                     _logger.LogInformation($"Image uploaded successfully: {uploadResult.Url}");
-                    return uploadResult;
+                    return uploadResult.Url.ToString();
                 }
                 else
                 {

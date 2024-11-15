@@ -27,5 +27,7 @@ namespace RHCQS_Services.Interface
         Task<bool> CreatePackageHouse(PackageHouseRequest request);
         Task<string> UploadFileNoMedia(IFormFile file, string folder);
         Task<string> UploadImageSubTemplate(Guid subTemplateId, IFormFile file);
+        Task<string> UploadImageOutSide(IFormFile image, Guid designTemplateId);
+        Task<string> UploadImagePackageHouse(Guid packageId, IFormFile file);
     }
 }

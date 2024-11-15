@@ -417,6 +417,28 @@ namespace RHCQS_BE.Controllers
             return Ok(isCreate);
         }
 
+        #region CreateProjectHaveDrawing
+        /// <summary>
+        /// Role: CUSTOMER - SALE STAFF  
+        /// Creates a new house project template with a specific sub-template and package.
+        /// </summary>
+        /// <param name="request">The request model for creating a project</param>
+        /// <returns>
+        /// Returns true if the project is created successfully; otherwise, false.
+        /// </returns>
+        /// <response code="200">Project created successfully</response>
+        /// <response code="400">Failed to create the project due to validation errors</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff")]
+        [HttpPost(ApiEndPointConstant.Project.ProjectHaveDrawingEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateProjectHaveDrawing([FromForm] ProjectHaveDrawingRequest request)
+        {
+            var isCreate = await _projectService.CreateProjectHaveDrawing(request);
+            return Ok(isCreate);
+        }
+
         [HttpDelete(ApiEndPointConstant.Project.ProjectDeleteEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

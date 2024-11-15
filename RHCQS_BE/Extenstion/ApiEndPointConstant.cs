@@ -93,6 +93,8 @@ namespace RHCQS_BE.Extenstion
             public const string PackageHouseEndpoint = ApiEndpoint + "/package-house";
             public const string UploadImagePackHouseEndpoint = ApiEndpoint + "/upload-package-house";
             public const string UploadImageSubTemplateEndpoint = ApiEndpoint + "/upload-sub-template";
+            public const string UploadImageOutSideEndpoint = ApiEndpoint + "/upload-out-side";
+            public const string UploadImagePackageHouseEndpoint = ApiEndpoint + "/upload-package";
         }
 
         public static class Project
@@ -109,6 +111,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectDeleteEndpoint = ProjectEndpoint + "/delete";
             public const string ProjectFilterByStatusEndpoint = ProjectEndpoint + "/filter";
             public const string ProjectSearchByContainName = ProjectEndpoint + "/contain/name";
+            public const string ProjectHaveDrawingEndpoint = ProjectEndpoint + "/drawing-have";
         }
 
         public static class Construction

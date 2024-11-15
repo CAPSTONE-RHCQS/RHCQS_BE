@@ -1,10 +1,13 @@
 ﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -23,19 +26,23 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<HouseDesignDrawingService> _logger;
+        private readonly IMediaService _mediaService;
 
-        public HouseDesignDrawingService(IUnitOfWork unitOfWork, ILogger<HouseDesignDrawingService> logger)
+        public HouseDesignDrawingService(IUnitOfWork unitOfWork,
+            ILogger<HouseDesignDrawingService> logger,
+            IMediaService mediaService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _mediaService = mediaService;
         }
 
         public async Task<IPaginate<ListHouseDesginResponse>> GetListHouseDesignDrawings(int page, int size)
         {
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
-                        selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,x.Account.Username!, 
-                                                                      x.Name, 
-                                                                      x.Step, 
+                        selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId, x.Account.Username!,
+                                                                      x.Name,
+                                                                      x.Step,
                                                                       x.Status,
                                                                       x.Type,
                                                                       x.HaveDrawing, x.InsDate,
@@ -63,9 +70,9 @@ namespace RHCQS_Services.Implement
         {
             var list = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                         predicate: x => x.Account!.Id == accountId,
-                         selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId, x.Account!.Username!, 
-                                                                      x.Name, 
-                                                                      x.Step, 
+                         selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId, x.Account!.Username!,
+                                                                      x.Name,
+                                                                      x.Step,
                                                                       x.Status,
                                                                       x.Type,
                                                                       x.HaveDrawing, x.InsDate,
@@ -191,9 +198,9 @@ namespace RHCQS_Services.Implement
             }
             //Check contract desgin finished ?
             if (projectCheck.Contracts != null &&
-            !projectCheck.Contracts.Any(c => c.Type == ContractType.Design.ToString() && c.Status == AppConstant.ContractStatus.FINISHED))
+            !projectCheck.Contracts.Any(c => c.Type == ContractType.Design.ToString()))
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.NotFinishedContractDesign);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, AppConstant.ErrMessage.NotStartContractDesign);
             }
 
             //Check number of drawing
@@ -265,7 +272,7 @@ namespace RHCQS_Services.Implement
         {
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(
                 predicate: x => x.Account!.Id == accountId,
-                selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId, 
+                selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,
                                                           x.Account!.Username,
                                                           x.Name, x.Step, x.Status,
                                                           x.Type, x.HaveDrawing, x.InsDate,
@@ -351,5 +358,91 @@ namespace RHCQS_Services.Implement
             return listDrawingPrevious.Items.ToList();
         }
 
+        public async Task<string> CreateProjectHaveDrawing(Guid projectId, Guid accountId, ProjectHaveDrawingRequest files)
+        {
+            async Task AddDrawingAndVersions(string name, int step, string type, IEnumerable<IFormFile> images)
+            {
+                var houseDrawing = new HouseDesignDrawing
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = projectId,
+                    Name = name,
+                    Step = step,
+                    Status = AppConstant.HouseDesignStatus.PROCESSING,
+                    Type = type,
+                    HaveDrawing = true,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    AccountId = accountId
+                };
+
+                await _unitOfWork.GetRepository<HouseDesignDrawing>().InsertAsync(houseDrawing);
+
+                foreach (var imageFile in images)
+                {
+                    var imageUrl = await _mediaService.UploadFileAsync(imageFile, "DrawingHave");
+                    if (imageUrl != null)
+                    {
+                        var houseDesignVersion = new HouseDesignVersion
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = name,
+                            Version = 0.0,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            HouseDesignDrawingId = houseDrawing.Id,
+                            UpsDate = LocalDateTime.VNDateTime(),
+                            RelatedDrawingId = null,
+                            PreviousDrawingId = null,
+                            Reason = null,
+                            Deflag = true
+                        };
+
+                        await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(houseDesignVersion);
+
+                        var media = new Medium
+                        {
+                            Id = Guid.NewGuid(),
+                            HouseDesignVersionId = houseDesignVersion.Id,
+                            Name = AppConstant.Template.Drawing,
+                            Url = imageUrl,
+                            InsDate = LocalDateTime.VNDateTime(),
+                            UpsDate = LocalDateTime.VNDateTime()
+                        };
+
+                        await _unitOfWork.GetRepository<Medium>().InsertAsync(media);
+                    }
+                }
+            }
+
+            await AddDrawingAndVersions(
+                DesignDrawingExtensions.ToTypeString(AppConstant.DesignDrawing.Perspective),
+                1,
+                AppConstant.Type.PHOICANH,
+                files.PerspectiveImage
+            );
+
+            await AddDrawingAndVersions(
+                DesignDrawingExtensions.ToTypeString(AppConstant.DesignDrawing.Architecture),
+                2,
+                AppConstant.Type.KIENTRUC,
+                files.ArchitectureImage
+            );
+
+            await AddDrawingAndVersions(
+                DesignDrawingExtensions.ToTypeString(AppConstant.DesignDrawing.Structure),
+                3,
+                AppConstant.Type.KETCAU,
+                files.StructureImage
+            );
+
+            await AddDrawingAndVersions(
+                DesignDrawingExtensions.ToTypeString(AppConstant.DesignDrawing.ElectricityWater),
+                4,
+                AppConstant.Type.DIENNUOC,
+                files.ElectricityWaterImage
+            );
+
+            var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+            return result;
+        }
     }
 }
