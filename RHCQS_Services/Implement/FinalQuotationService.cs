@@ -273,7 +273,7 @@ namespace RHCQS_Services.Implement
                 Version = newVersion,
                 InsDate = LocalDateTime.VNDateTime(),
                 UpsDate = LocalDateTime.VNDateTime(),
-                Status = AppConstant.QuotationStatus.PROCESSING,
+                Status = AppConstant.QuotationStatus.REVIEWING,
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
             };
