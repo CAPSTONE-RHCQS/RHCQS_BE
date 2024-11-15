@@ -19,6 +19,14 @@ namespace RHCQS_BusinessObject.Payload.Request
         public int? NumberOfBed { get; set; }
 
         public IFormFile? Img { get; set; }
+
+        public List<PackageHouseRequestForUpdate> Packages { get; set; }
+    }
+
+    public class PackageHouseRequestForUpdate
+    {
+        public Guid PackageId { get; set; }
+        public string? Description { get; set; }
     }
 
     public class SubTemplatesRequest

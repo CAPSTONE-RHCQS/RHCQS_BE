@@ -53,6 +53,7 @@ public static class AppConstant
         public const string KIENTRUC = "KIENTRUC";
         public const string KETCAU = "KETCAU";
         public const string DIENNUOC = "DIENNUOC";
+        public const string DRAWINGHAVE = "HAVE_DRAWING";
     }
 
     public class ProjectStatus
@@ -192,6 +193,7 @@ public static class AppConstant
         public const string PhoneIsEmpty = "Nhập lại số điện thoại của khách hàng";
         public const string Fail_Save = "Lưu thất bại!";
         public const string Send_Fail = "Gửi thất bại!";
+        public const string InvalidData = "Dữ liệu không hợp lệ!";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
@@ -235,6 +237,10 @@ public static class AppConstant
         public const string DesignNoAccess = "Không có quyền truy cập dự án này!";
         public const string HouseDesignDrawing = "Bản thiết kế không tồn tại!";
         public const string House_Design_Not_Found = "Không tìm thấy bản vẽ!";
+        public const string Invalid_Perspective = "Cần cung cấp đủ bản vẽ phối cảnh";
+        public const string Invalid_Architecture = "Cần cung cấp đủ bản vẽ kiến trúc";
+        public const string Invalid_Structure = "Cần cung cấp đủ bản vẽ kết cấu";
+        public const string Invalid_ElectricityWater = "Cần cung cấp đủ bản vẽ điện & nước";
 
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
@@ -263,6 +269,7 @@ public static class AppConstant
         public const string NotFinalizedQuotationInitial = "Báo giá sơ bộ chưa kết thúc! Hãy hoàn thành báo giá sơ bộ trước khi phân công!";
         public const string NotFinishedContractDesign = "Hợp đồng thiết kế chưa được hoàn thành! " +
             "Hãy hoàn thành hợp đồng thiết kế trước khi phân công";
+        public const string NotStartContractDesign = "Hợp đồng thiết chưa thống nhất! Hãy kí hợp đồng trước khi phân công!";
 
         //Package
         public const string CreatePackage = "Tạo packaget thất bại.";

@@ -363,7 +363,7 @@ namespace RHCQS_BE.Controllers
         /// <returns></returns>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.HouseTemplate.UploadImagePackHouseEndpoint)]
+        [HttpPatch(ApiEndPointConstant.HouseTemplate.UploadImagePackHouseEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadImgPackageHouse(IFormFile request)
         {
@@ -381,12 +381,44 @@ namespace RHCQS_BE.Controllers
         /// <returns></returns>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpPut(ApiEndPointConstant.HouseTemplate.UploadImageSubTemplateEndpoint)]
+        [HttpPatch(ApiEndPointConstant.HouseTemplate.UploadImageSubTemplateEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UploadImageSubTemplate(Guid subTempateId, IFormFile request)
         {
             var imgUrl = await _houseService.UploadImageSubTemplate(subTempateId, request);
             return Ok(imgUrl);
+        }
+
+        #region UploadImageOutSide
+        /// <summary>
+        /// Upload Image OutSide
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPatch(ApiEndPointConstant.HouseTemplate.UploadImageOutSideEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImageOutSide([FromForm] Guid designTemplateId, IFormFile image)
+        {
+            var update = await _houseService.UploadImageOutSide(image, designTemplateId);
+            return Ok(update);
+        }
+
+        #region UploadImagePackageHouse
+        /// <summary>
+        /// Upload image Package house
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPatch(ApiEndPointConstant.HouseTemplate.UploadImagePackageHouseEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UploadImagePackageHouse([FromForm] Guid packageId, IFormFile image)
+        {
+            var update = await _houseService.UploadImagePackageHouse(packageId, image);
+            return Ok(update);
         }
     }
 }

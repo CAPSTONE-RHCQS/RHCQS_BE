@@ -23,13 +23,18 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<ProjectService> _logger;
+        private readonly IHouseDesignDrawingService _drawingService;
         public IAuthService _authService { get; private set; }
 
-        public ProjectService(IUnitOfWork unitOfWork, ILogger<ProjectService> logger, IAuthService authService)
+        public ProjectService(IUnitOfWork unitOfWork, 
+            ILogger<ProjectService> logger, 
+            IAuthService authService,
+            IHouseDesignDrawingService drawingService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _authService = authService;
+            _drawingService = drawingService;
         }
 
         public async Task<IPaginate<ProjectResponse>> GetProjects(int page, int size)
@@ -874,6 +879,57 @@ namespace RHCQS_Services.Implement
             }
         }
 
+        public async Task<string> CreateProjectHaveDrawing(ProjectHaveDrawingRequest request)
+        {
+            //Check amount of drawing - 4 type drawing
+            //1.Perspective - Phối cảnh
+            if (request.PerspectiveImage == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_Perspective); 
+            }
 
+            //2. Architerture - Kiến trúc
+            if (request.ArchitectureImage == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_Architecture);
+            }
+
+            //3. Structure - Kết cấu
+            if (request.StructureImage == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_Structure);
+            }
+
+            //4. Electricity Water - Điện & nước
+            if (request.ElectricityWaterImage == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_ElectricityWater);
+            }
+
+            var customerInfo = await _unitOfWork.GetRepository<Customer>().FirstOrDefaultAsync(
+                                predicate: x => x.AccountId == request.AccountId);
+
+            var project = new Project()
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = customerInfo.Id,
+                Name = "Dự án báo giá " + LocalDateTime.VNDateTime(),
+                Type = AppConstant.Type.DRAWINGHAVE,
+                Status = AppConstant.ProjectStatus.PROCESSING,
+                InsDate = LocalDateTime.VNDateTime(),
+                UpsDate = LocalDateTime.VNDateTime(),
+                ProjectCode = GenerateRandom.GenerateRandomString(5),
+                Address = request.Address,
+                Area = request.Area
+            };
+
+            await _unitOfWork.GetRepository<Project>().InsertAsync(project);
+            await _unitOfWork.CommitAsync();
+
+
+            var result = await _drawingService.CreateProjectHaveDrawing(project.Id, request.AccountId, request);
+
+            return result;
+        }
     }
 }

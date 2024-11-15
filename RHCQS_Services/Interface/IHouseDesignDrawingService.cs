@@ -1,5 +1,6 @@
 ﻿using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace RHCQS_Services.Interface
         Task<(bool IsSuccess, string Message)> CreateListTaskHouseDesignDrawing(HouseDesignDrawingRequest item);
         Task<List<ListHouseDesginResponse>> ViewDrawingPreviousStep(Guid accountId, Guid projectId);
         Task<List<ListHouseDesginResponse>> ViewDrawingByProjectId(Guid projectId);
+        Task<string> CreateProjectHaveDrawing(Guid projectId, Guid accountId, ProjectHaveDrawingRequest files);
 
     }
 }

@@ -503,7 +503,6 @@ namespace RHCQS_Services.Implement
             return listHouseTemplate;
         }
 
-
         public async Task<HouseTemplateResponse> SearchHouseTemplateByNameAsync(string name)
         {
             var template = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(
@@ -625,15 +624,37 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.Not_Found_Resource
                 );
             }
-            var imageCloudianry = await _mediaService.UploadFileAsync(templ.Img, "DesignTemplate");
 
             houseTemplate.Name = templ.Name ?? houseTemplate.Name;
             houseTemplate.Description = templ.Description ?? houseTemplate.Description;
             houseTemplate.NumberOfFloor = templ.NumberOfFloor ?? houseTemplate.NumberOfFloor;
             houseTemplate.NumberOfBed = templ.NumberOfBed ?? houseTemplate.NumberOfBed;
-            houseTemplate.ImgUrl = imageCloudianry.Url.ToString() ?? houseTemplate.ImgUrl;
+            houseTemplate.ImgUrl = houseTemplate.ImgUrl;
 
             templateRepo.UpdateAsync(houseTemplate);
+
+
+            foreach(var pack in templ.Packages)
+            {
+                var packageInfo = await _unitOfWork.GetRepository<PackageHouse>().FirstOrDefaultAsync(
+                                   predicate: p => p.PackageId == pack.PackageId);
+                if (packageInfo == null)
+                {
+                    //var newPackage = new PackageHouse()
+                    //{
+                    //    Id = Guid.NewGuid(),
+                    //    PackageId = pack.PackageId,
+                    //    DesignTemplateId = templateId,
+                    //    InsDate = LocalDateTime.VNDateTime(),
+                    //    Description = pack.Description,
+                    //};
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.PackageNotFound);
+                }
+                packageInfo.Description = pack.Description ?? packageInfo.Description;
+
+                _unitOfWork.GetRepository<PackageHouse>().UpdateAsync(packageInfo);
+            }
+
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
             {
@@ -653,7 +674,8 @@ namespace RHCQS_Services.Implement
         }
 
         //Create object first -> upload url image design template
-        public async Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files, List<PackageHouseRequestForCreate> package)
+        public async Task<bool> CreateImageDesignTemplate(Guid designTemplateId, ImageDesignDrawingRequest files, 
+            List<PackageHouseRequestForCreate> package)
         {
             var uploadResults = new List<string>();
             string nameImage = null;
@@ -827,5 +849,40 @@ namespace RHCQS_Services.Implement
             return resutl;
         }
 
+        public async Task<string> UploadImageOutSide(IFormFile image, Guid designTemplateId)
+        {
+            var desginTemplateInfo = await _unitOfWork.GetRepository<DesignTemplate>().FirstOrDefaultAsync(
+                                      predicate: d => d.Id == designTemplateId);
+            if (desginTemplateInfo == null || image == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidData);
+            }
+            var imageCloudianry = await _mediaService.UploadFileAsync(image, "DesignTemplate");
+            
+            desginTemplateInfo.ImgUrl = imageCloudianry.ToString();
+
+            _unitOfWork.GetRepository<DesignTemplate>().UpdateAsync(desginTemplateInfo);
+
+            var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Fail_Save;
+            return result;
+        }
+
+        public async Task<string> UploadImagePackageHouse(Guid packageId, IFormFile file)
+        {
+            var packageHouse = await _unitOfWork.GetRepository<PackageHouse>().FirstOrDefaultAsync(
+                                    predicate: x => x.PackageId == packageId);
+
+            if (packageHouse == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.PackageHouseNotFound);
+            }
+
+            var urlTemplate = await _mediaService.UploadImageSubTemplate(file, "PackageHouse");
+            packageHouse.ImgUrl = urlTemplate.ToString();
+
+            _unitOfWork.GetRepository<PackageHouse>().UpdateAsync(packageHouse);
+            var resutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Fail_Save;
+            return resutl;
+        }
     }
 }
