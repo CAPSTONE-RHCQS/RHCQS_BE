@@ -112,6 +112,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectFilterByStatusEndpoint = ProjectEndpoint + "/filter";
             public const string ProjectSearchByContainName = ProjectEndpoint + "/contain/name";
             public const string ProjectHaveDrawingEndpoint = ProjectEndpoint + "/drawing-have";
+            public const string FilterProjectsMultiParams = ProjectEndpoint + "/multi-filter";
         }
 
         public static class Construction

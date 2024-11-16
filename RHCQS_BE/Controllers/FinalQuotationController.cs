@@ -120,7 +120,7 @@ namespace RHCQS_BE.Controllers
                 return Ok(new { Url = pdfUrl });
             }
 
-            return BadRequest(AppConstant.Message.ERROR);
+            return Ok(AppConstant.Message.SUCCESSFUL_UPDATE);
         }
         #region GetDetailFinalQuotationById
         /// <summary>

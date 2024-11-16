@@ -33,6 +33,14 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<ProjectResponse>> SearchProjectByName(string name, int page, int size);
 
         Task<string> CreateProjectHaveDrawing(ProjectHaveDrawingRequest request);
+        Task<IPaginate<ProjectResponse>> FilterProjectsMultiParams(
+                int page,
+                int size,
+                DateTime? startTime,
+                string? status,
+                string? type,
+                string? code,
+                string? phone);
 
     }
 }

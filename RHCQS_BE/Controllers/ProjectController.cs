@@ -10,7 +10,9 @@ using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using static RHCQS_BusinessObjects.AppConstant;
 
 namespace RHCQS_BE.Controllers
 {
@@ -439,13 +441,55 @@ namespace RHCQS_BE.Controllers
             return Ok(isCreate);
         }
 
-        [HttpDelete(ApiEndPointConstant.Project.ProjectDeleteEndpoint)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        #region FilterProjectsMultiParams
+        /// <summary>
+        /// Filters projects based on multiple parameters.
+        /// </summary>
+        /// <param name="page">The page number for pagination (required).</param>
+        /// <param name="size">The number of items per page for pagination (required).</param>
+        /// <param name="startTime">The start time(optional).</param>
+        /// <param name="status">The project status(optional).</param>
+        /// <param name="type">The project type (optional): TEMPLATE(Mẫu nhà), FINISHED(Hoàn thiện), ROUGH(Thô), ALL(Thô + Hoàn thiện)</param>
+        /// <param name="code">The project code(optional).</param>
+        /// <param name="phone">The customer's phone number(optional).</param>
+        /// <returns>
+        /// A paginated list of projects that match the filtering criteria.
+        /// Returns a JSON object with the paginated results.
+        /// </returns>
+        /// <response code="200">Returns the list of filtered projects in JSON format.</response>
+        /// <response code="400">If any invalid parameter is provided.</response>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager, DesignStaff")]
+        [HttpGet(ApiEndPointConstant.Project.FilterProjectsMultiParams)]
+        [ProducesResponseType(typeof(IPaginate<ProjectResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeleteProjectAsync(Guid projectId)
+        public async Task<IActionResult> FilterProjectsMultiParams(
+            [FromQuery, Required(ErrorMessage = "Page is required")] int page,
+            [FromQuery, Required(ErrorMessage = "Size is required")] int size,
+            [FromQuery] DateTime? startTime,
+            [FromQuery] string? status,
+            [FromQuery] string? type,
+            [FromQuery] string? code,
+            [FromQuery] string? phone)
         {
-            var isCreate = await _projectService.DeleteProjectAsync(projectId);
-            return Ok(isCreate);
+            var listProjects = await _projectService.FilterProjectsMultiParams(page, size, startTime, status, type, code, phone);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
+
+
+        //[HttpDelete(ApiEndPointConstant.Project.ProjectDeleteEndpoint)]
+        //[ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //public async Task<IActionResult> DeleteProjectAsync(Guid projectId)
+        //{
+        //    var isCreate = await _projectService.DeleteProjectAsync(projectId);
+        //    return Ok(isCreate);
+        //}
     }
 }
