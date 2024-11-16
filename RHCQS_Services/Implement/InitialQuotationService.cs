@@ -492,6 +492,7 @@ namespace RHCQS_Services.Implement
                 initialItem.Status = AppConstant.QuotationStatus.REJECTED;
                 initialItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+                return AppConstant.Message.REJECTED;
             }
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;

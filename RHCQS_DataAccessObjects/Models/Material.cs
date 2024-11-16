@@ -9,8 +9,6 @@ public partial class Material
 
     public Guid SupplierId { get; set; }
 
-    public Guid MaterialTypeId { get; set; }
-
     public string? Name { get; set; }
 
     public double? Price { get; set; }
@@ -38,8 +36,6 @@ public partial class Material
     public string? Code { get; set; }
 
     public virtual MaterialSection? MaterialSection { get; set; }
-
-    public virtual MaterialType MaterialType { get; set; } = null!;
 
     public virtual ICollection<QuotationMaterial> QuotationMaterials { get; set; } = new List<QuotationMaterial>();
 

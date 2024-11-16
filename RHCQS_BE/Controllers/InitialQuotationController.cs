@@ -385,11 +385,11 @@ namespace RHCQS_BE.Controllers
             {
                 return Ok(new { Url = pdfUrl });
             }
-            if (request.Type == AppConstant.QuotationStatus.REJECTED)
+            if (pdfUrl == AppConstant.Message.REJECTED)
             {
                 return Ok(AppConstant.Message.REJECTED);
             }
-            return BadRequest(AppConstant.Message.ERROR);
+            else return BadRequest(AppConstant.Message.ERROR);
         }
 
         #region UpdateInitialQuotation

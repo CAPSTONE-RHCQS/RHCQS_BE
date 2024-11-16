@@ -9,7 +9,6 @@ namespace RHCQS_BusinessObject.Payload.Request.Mate
     public class MaterialRequest
     {
         public Guid SupplierId { get; set; }
-        public Guid MaterialTypeId { get; set; }
         public Guid? MaterialSectionId { get; set; }
         public string Name { get; set; }
         public double? Price { get; set; }

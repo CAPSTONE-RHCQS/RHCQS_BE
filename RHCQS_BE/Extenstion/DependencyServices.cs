@@ -89,7 +89,6 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IBlogService, BlogService>();
             services.AddScoped<IMaterialService, MaterialService>();
             services.AddScoped<ILaborService, LaborService>();
-            services.AddScoped<IMaterialTypeService, MaterialTypeService>();
             services.AddScoped<IMaterialSectionService, MaterialSectionService>();
             services.AddScoped<ISupplierService, SupplierService>();
             services.AddScoped<IMediaService, MediaService>();

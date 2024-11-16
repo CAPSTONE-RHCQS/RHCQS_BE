@@ -788,6 +788,7 @@ namespace RHCQS_Services.Implement
                 finalItem.Status = AppConstant.QuotationStatus.REJECTED;
                 finalItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
+                return AppConstant.Message.REJECTED;
             }
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -1743,7 +1744,7 @@ namespace RHCQS_Services.Implement
 
                 sb.Append($@"
             <tr>
-                <td></td>
+                <td>{noCount++}</td>
                 <td>{utilityTypeDisplay}</td>
                 <td></td>
                 <td></td>

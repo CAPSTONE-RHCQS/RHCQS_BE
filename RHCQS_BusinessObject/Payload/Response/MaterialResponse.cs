@@ -18,7 +18,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string Description { get; set; }
         public bool? IsAvailable { get; set; }
         public string UnitPrice { get; set; }
-        public string MaterialTypeName { get; set; } 
+        //public string MaterialTypeName { get; set; } 
         public string MaterialSectionName { get; set; }
         public string SupplierName { get; set; }
     }

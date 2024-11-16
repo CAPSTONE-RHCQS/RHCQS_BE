@@ -52,8 +52,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<MaterialSection> MaterialSections { get; set; }
 
-    public virtual DbSet<MaterialType> MaterialTypes { get; set; }
-
     public virtual DbSet<Medium> Media { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
@@ -107,10 +105,6 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Server=database.techtheworld.id.vn;Database=RHCQS;User Id=rhcqs;Password=E77A6576-4A1F-4A0B-9BE4-AD6D189B86E5;Encrypt=True;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -419,11 +413,6 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.MaterialSectionId)
                 .HasConstraintName("Material_MaterialSection_FK");
 
-            entity.HasOne(d => d.MaterialType).WithMany(p => p.Materials)
-                .HasForeignKey(d => d.MaterialTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Material_MaterialType");
-
             entity.HasOne(d => d.Supplier).WithMany(p => p.Materials)
                 .HasForeignKey(d => d.SupplierId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
@@ -438,16 +427,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<MaterialType>(entity =>
-        {
-            entity.ToTable("MaterialType");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(50);
-            entity.Property(e => e.UpsDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<Medium>(entity =>

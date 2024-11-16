@@ -145,18 +145,18 @@ namespace RHCQS_BE.Controllers
         }
         
 
-        #region FilterMaterialByType
+        #region FilterMaterialBySection
         /// <summary>
-        /// Filters materials by material type.
+        /// Filters materials by material section.
         /// </summary>
-        /// <param name="materialTypeId">The ID of the material type to filter by.</param>
+        /// <param name="materialTypeId">The ID of the material section to filter by.</param>
         #endregion
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Material.FilterMaterialEndpoint)]
         [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> FilterMaterialByType(Guid materialTypeId)
+        public async Task<IActionResult> FilterMaterialBySection(Guid materialSectionId)
         {
-            var filterMaterial = await _materialService.FilterMaterialByType(materialTypeId);
+            var filterMaterial = await _materialService.FilterMaterialBySection(materialSectionId);
             var result = JsonConvert.SerializeObject(filterMaterial, Formatting.Indented);
             return new ContentResult()
             {
