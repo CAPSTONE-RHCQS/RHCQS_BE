@@ -13,6 +13,7 @@ using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using static RHCQS_BusinessObjects.AppConstant;
@@ -135,6 +136,7 @@ namespace RHCQS_Services.Implement
                                         .ToList() ?? new List<InitialInfo>();
 
             var finalItem = projectItem.FinalQuotations?
+                                .Where(d => d.Version > 0)
                               .Select(d => new FinalInfo
                               {
                                   Id = d.Id,
@@ -931,5 +933,56 @@ namespace RHCQS_Services.Implement
 
             return result;
         }
+
+        public async Task<IPaginate<ProjectResponse>> FilterProjectsMultiParams(
+                int page,
+                int size,
+                DateTime? startTime,
+                string? status,
+                string? type,
+                string? code,
+                string? phone)
+        {
+            Expression<Func<Project, bool>> predicate = x => true;
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                predicate = predicate.And(x => x.Status != null && x.Status.ToUpper() == status.ToUpper());
+            }
+
+            if (!string.IsNullOrEmpty(type))
+            {
+                predicate = predicate.And(x => x.Type != null && x.Type.ToUpper() == type.ToUpper());
+            }
+
+            if (!string.IsNullOrEmpty(code))
+            {
+                predicate = predicate.And(x => x.ProjectCode != null && x.ProjectCode.Contains(code));
+            }
+
+            if (!string.IsNullOrEmpty(phone))
+            {
+                predicate = predicate.And(x => x.Customer != null && x.Customer.PhoneNumber.Contains(phone));
+            }
+
+            if (startTime.HasValue)
+            {
+                predicate = predicate.And(x => x.InsDate >= startTime.Value);
+            }
+
+            // Thực hiện query
+            var listProjects = await _unitOfWork.GetRepository<Project>().GetList(
+                predicate: predicate,
+                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                                                   x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
+                include: x => x.Include(w => w.Customer!),
+                orderBy: x => x.OrderBy(w => w.InsDate),
+                page: page,
+                size: size
+            );
+
+            return listProjects;
+        }
+
     }
 }
