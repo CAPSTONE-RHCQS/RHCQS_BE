@@ -132,10 +132,25 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Supplier.SupplierEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateSupplier(Guid id, [FromBody] SupplierRequest request)
+        public async Task<IActionResult> UpdateSupplier(Guid id, [FromForm] SupplierRequest request)
         {
-            var isUpdated = await _supplierService.UpdateSupplier(id, request);
-            return isUpdated ? Ok(isUpdated) : BadRequest();
+            try
+            {
+                string? imageUrl = null;
+
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    imageUrl = await _supplierService.UploadSupplierImage(request.Image);
+                    request.ImgUrl = imageUrl;
+                }
+
+                var isUpdated = await _supplierService.UpdateSupplier(id, request);
+                return isUpdated ? Ok(isUpdated) : BadRequest("Failed to update supplier.");
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
 
         #region SearchSupplierByName
