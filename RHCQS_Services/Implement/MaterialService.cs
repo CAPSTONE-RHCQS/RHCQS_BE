@@ -41,6 +41,8 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
@@ -71,6 +73,8 @@ namespace RHCQS_Services.Implement
                 Description = material.Description,
                 IsAvailable = material.IsAvailable,
                 UnitPrice = material.UnitPrice,
+                MaterialSectionId = material.MaterialSectionId,
+                SupplierId = material.SupplierId,
                 MaterialSectionName = material.MaterialSection.Name,
                 SupplierName = material.Supplier.Name
             };
@@ -179,6 +183,8 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
@@ -204,6 +210,8 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
