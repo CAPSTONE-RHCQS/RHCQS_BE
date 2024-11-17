@@ -94,7 +94,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
-                        "MaterialType or MaterialSection or Supplier does not exist."
+                        "MaterialSection or Supplier does not exist."
                     );
                 }
 
