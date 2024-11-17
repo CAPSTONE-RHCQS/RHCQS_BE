@@ -127,9 +127,12 @@ namespace RHCQS_Services.Implement
                             version.PreviousDrawingId,
                             version.Note,
                             version.Reason
-                           )).ToList()
+                           )).OrderByDescending(v => v.Version).ToList()
                     );
                 return result;
+            } else
+            {
+                throw new MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
             return null;

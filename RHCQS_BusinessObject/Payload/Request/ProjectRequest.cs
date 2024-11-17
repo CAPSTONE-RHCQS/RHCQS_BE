@@ -35,8 +35,18 @@ namespace RHCQS_BusinessObject.Payload.Request
         public InitialQuotationRequest InitialQuotation { get; set; }
 
         public List<QuotationUtilitiesRequest>? QuotationUtilitiesRequest { get; set; }
+
+        public PromotionCreate? Promotion {  get; set; }
     }
 
+    public class PromotionCreate
+    {
+        [Required(ErrorMessage = "Mã khuyến mãi là bắt buộc.")]
+        public Guid Id { get; set; }
+        [Required(ErrorMessage = "Tiền khuyến mãi là bắt buộc.")]
+
+        public double Discount { get; set; }
+    }
     public class PackageQuotationRequest
     {
         [Required(ErrorMessage = "PackageId là bắt buộc.")]

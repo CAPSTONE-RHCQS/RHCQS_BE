@@ -114,7 +114,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Returns the details of the promotion</response>
         /// <response code="404">If the promotion is not found</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Promotion.PromotionNameEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchPromotion(string name)

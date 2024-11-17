@@ -81,7 +81,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Project
     public class HouseDesignDrawingInfo
     {
         public Guid Id { get; set; }
-        //public string? Version { get; set; }
+        public string DesignName { get; set; }
         public int? Step { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
