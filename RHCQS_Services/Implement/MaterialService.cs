@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Mate;
@@ -18,11 +19,13 @@ namespace RHCQS_Services.Implement
     public class MaterialService : IMaterialService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUploadImgService _uploadImgService;
         private readonly ILogger<MaterialService> _logger;
 
-        public MaterialService(IUnitOfWork unitOfWork, ILogger<MaterialService> logger)
+        public MaterialService(IUnitOfWork unitOfWork, IUploadImgService uploadImgService,ILogger<MaterialService> logger)
         {
             _unitOfWork = unitOfWork;
+            _uploadImgService = uploadImgService;
             _logger = logger;
         }
 
@@ -125,6 +128,20 @@ namespace RHCQS_Services.Implement
                     "An error occurred while creating the material."
                 );
             }
+        }
+
+        public async Task<string> UploadMaterialImage(IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    "No image file uploaded."
+                );
+            }
+
+            var imageUrl = await _uploadImgService.UploadImage(image, "Material");
+            return imageUrl;
         }
 
         public async Task<bool> UpdateMaterial(Guid id, MaterialUpdateRequest request)
