@@ -6,6 +6,7 @@ using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -96,10 +97,24 @@ namespace RHCQS_BE.Controllers
         [HttpPost(ApiEndPointConstant.Material.MaterialEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateMaterial([FromBody] MaterialRequest request)
+        public async Task<IActionResult> CreateMaterial([FromForm] MaterialRequest request)
         {
-            var isCreated = await _materialService.CreateMaterial(request);
-            return isCreated ? Ok(isCreated) : BadRequest();
+            try
+            {
+                string? imageUrl = null;
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    imageUrl = await _materialService.UploadMaterialImage(request.Image);
+                }
+                request.ImgUrl = imageUrl;
+
+                var isCreated = await _materialService.CreateMaterial(request);
+                return isCreated ? Ok(isCreated) : BadRequest("Failed to create a new material.");
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
 
         #region UpdateMaterial
@@ -117,10 +132,24 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Material.MaterialEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateMaterial(Guid id, [FromBody] MaterialUpdateRequest request)
+        public async Task<IActionResult> UpdateMaterial(Guid id, [FromForm] MaterialUpdateRequest request)
         {
-            var isUpdated = await _materialService.UpdateMaterial(id, request);
-            return isUpdated ? Ok(isUpdated) : BadRequest();
+            try
+            {
+                string? imageUrl = null;
+
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    imageUrl = await _materialService.UploadMaterialImage(request.Image);
+                    request.ImgUrl = imageUrl;
+                }
+                var isUpdated = await _materialService.UpdateMaterial(id, request);
+                return isUpdated ? Ok(isUpdated) : BadRequest();
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
 
         #region SearchMaterialByName
@@ -143,7 +172,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-        
+
 
         #region FilterMaterialBySection
         /// <summary>
@@ -165,6 +194,6 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-        
+
     }
 }

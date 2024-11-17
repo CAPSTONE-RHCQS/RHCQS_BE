@@ -27,5 +27,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? ShortDescription { get; set; }
 
         public string? Description { get; set; }
+
+        public string Code { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
@@ -14,6 +15,7 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<SupplierResponse>> GetListSupplier(int page, int size);
         Task<SupplierResponse> GetDetailSupplier(Guid id);
         Task<bool> CreateSupplier(SupplierRequest request);
+        Task<string?> UploadSupplierImage(IFormFile image);
         Task<bool> UpdateSupplier(Guid id, SupplierRequest request);
         Task<List<SupplierResponse>> SearchSupplierByName(string name);
     }

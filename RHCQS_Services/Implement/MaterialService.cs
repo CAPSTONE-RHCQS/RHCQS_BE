@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Mate;
@@ -18,11 +19,13 @@ namespace RHCQS_Services.Implement
     public class MaterialService : IMaterialService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUploadImgService _uploadImgService;
         private readonly ILogger<MaterialService> _logger;
 
-        public MaterialService(IUnitOfWork unitOfWork, ILogger<MaterialService> logger)
+        public MaterialService(IUnitOfWork unitOfWork, IUploadImgService uploadImgService,ILogger<MaterialService> logger)
         {
             _unitOfWork = unitOfWork;
+            _uploadImgService = uploadImgService;
             _logger = logger;
         }
 
@@ -41,6 +44,8 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
@@ -71,6 +76,8 @@ namespace RHCQS_Services.Implement
                 Description = material.Description,
                 IsAvailable = material.IsAvailable,
                 UnitPrice = material.UnitPrice,
+                MaterialSectionId = material.MaterialSectionId,
+                SupplierId = material.SupplierId,
                 MaterialSectionName = material.MaterialSection.Name,
                 SupplierName = material.Supplier.Name
             };
@@ -90,7 +97,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
-                        "MaterialType or MaterialSection or Supplier does not exist."
+                        "MaterialSection or Supplier does not exist."
                     );
                 }
 
@@ -123,6 +130,20 @@ namespace RHCQS_Services.Implement
             }
         }
 
+        public async Task<string> UploadMaterialImage(IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    "No image file uploaded."
+                );
+            }
+
+            var imageUrl = await _uploadImgService.UploadImage(image, "Material");
+            return imageUrl;
+        }
+
         public async Task<bool> UpdateMaterial(Guid id, MaterialUpdateRequest request)
         {
             try
@@ -136,6 +157,12 @@ namespace RHCQS_Services.Implement
                         (int)AppConstant.ErrCode.NotFound,
                         "Material không tồn tại."
                     );
+                }
+
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    var imageUrl = await _uploadImgService.UploadImage(request.Image, "Material");
+                    material.ImgUrl = imageUrl;
                 }
 
                 material.Name = request.Name ?? material.Name;
@@ -179,6 +206,8 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
@@ -204,6 +233,8 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
