@@ -345,8 +345,9 @@ namespace RHCQS_Services.Implement
                 var accountImg = await _uploadImgService.UploadFileForImageAccount(accountId, files.AccountImage, "profile", nameImage);
                 var accountinfo = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(x => x.Id == accountId);
                 accountinfo.ImageUrl = accountImg;
+                var role = await _unitOfWork.GetRepository<Role>().FirstOrDefaultAsync(x => x.Id == accountinfo.RoleId);
                 _unitOfWork.GetRepository<Account>().UpdateAsync(accountinfo);
-                if (accountinfo.Role.RoleName == UserRoleForRegister.Customer.ToString())
+                if (role.RoleName == UserRoleForRegister.Customer.ToString())
                 {
                     var customerRepository = _unitOfWork.GetRepository<Customer>();
                     var _customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == accountinfo.Email);
