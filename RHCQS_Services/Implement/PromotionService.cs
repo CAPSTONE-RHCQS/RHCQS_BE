@@ -54,8 +54,12 @@ namespace RHCQS_Services.Implement
 
         public async Task<List<PromotionResponse>> SearchPromotionByName(string promotionName)
         {
+            var currentTime = LocalDateTime.VNDateTime();
             var promotionList = await _unitOfWork.GetRepository<Promotion>().GetListAsync(
-       predicate: p => p.Name!.ToLower().Contains(promotionName.ToLower()));
+                predicate: p => p.Name!.ToLower().Contains(promotionName.ToLower())
+                                && p.ExpTime >= currentTime
+                                && p.IsRunning == true);
+
 
             if (promotionList == null || !promotionList.Any())
             {
@@ -73,6 +77,32 @@ namespace RHCQS_Services.Implement
                 promotionItem.IsRunning
             )).ToList();
         }
+
+        //public async Task<List<PromotionResponse>> SearchPromotionByName(string promotionName)
+        //{
+        //    var currentTime = LocalDateTime.VNDateTime();
+        //    var promotionList = await _unitOfWork.GetRepository<Promotion>().GetListAsync(
+        //        predicate: p => p.Name!.ToLower().Contains(promotionName.ToLower())
+        //                        && p.ExpTime >= currentTime
+        //                        && p.IsRunning == true);
+
+
+        //    if (promotionList == null || !promotionList.Any())
+        //    {
+        //        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_Promotion);
+        //    }
+
+        //    return promotionList.Select(promotionItem => new PromotionResponse(
+        //        promotionItem.Id,
+        //        promotionItem.Name,
+        //        promotionItem.Code,
+        //        promotionItem.Value,
+        //        promotionItem.InsDate,
+        //        promotionItem.StartTime,
+        //        promotionItem.ExpTime,
+        //        promotionItem.IsRunning
+        //    )).ToList();
+        //}
 
         public async Task<bool> CreatePromotion(PromotionRequest request)
         {
