@@ -219,6 +219,11 @@ namespace RHCQS_Services.Implement
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
+            double? totalBatchPayments = 0;
+            double? totalUtilities = 0;
+            double? totalEquipmentItems = 0;
+            double? totalQuotationItems = 0;
+            double? promotation = 0;
             if (request == null)
             {
                 throw new AppConstant.MessageError(
@@ -239,11 +244,12 @@ namespace RHCQS_Services.Implement
             if (request.PromotionId.HasValue)
             {
                 var promotionExists = await _unitOfWork.GetRepository<Promotion>()
-                    .AnyAsync(p => p.Id == request.PromotionId);
-                if (!promotionExists)
+                    .FirstOrDefaultAsync(p => p.Id == request.PromotionId);
+                if (promotionExists == null)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "PromotionId không tồn tại.");
                 }
+                promotation = promotionExists.Value;
             }
 
             var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
@@ -277,10 +283,7 @@ namespace RHCQS_Services.Implement
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
             };
-            double? totalBatchPayments = 0;
-            double? totalUtilities = 0;
-            double? totalEquipmentItems = 0;
-            double? totalQuotationItems = 0;
+
             if (request.BatchPaymentInfos != null)
             {
                 foreach (var bp in request.BatchPaymentInfos)
@@ -583,7 +586,8 @@ namespace RHCQS_Services.Implement
                 }
             }
 
-            finalQuotation.TotalPrice = totalBatchPayments + totalUtilities + totalEquipmentItems + totalQuotationItems;
+            finalQuotation.TotalPrice = totalBatchPayments + totalUtilities + totalEquipmentItems + totalQuotationItems - promotation;
+
 
             await finalQuotationRepo.InsertAsync(finalQuotation);
 
