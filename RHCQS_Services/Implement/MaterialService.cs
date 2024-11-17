@@ -159,6 +159,12 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    var imageUrl = await _uploadImgService.UploadImage(request.Image, "Material");
+                    material.ImgUrl = imageUrl;
+                }
+
                 material.Name = request.Name ?? material.Name;
                 material.Price = request.Price.HasValue ? (double)request.Price.Value : material.Price;
                 material.Unit = request.Unit ?? material.Unit;
