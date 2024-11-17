@@ -180,7 +180,6 @@ namespace RHCQS_Services.Implement
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
             _account.Deflag = account.Deflag != default ? account.Deflag : _account.Deflag;
-            _account.ImageUrl =null;
             _account.UpsDate = LocalDateTime.VNDateTime();
 
             accountRepository.UpdateAsync(_account);
@@ -195,7 +194,6 @@ namespace RHCQS_Services.Implement
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
                     _customer.Deflag = account.Deflag != default ? account.Deflag : _customer.Deflag;
-                    _customer.ImgUrl = null;
                     _customer.UpsDate = LocalDateTime.VNDateTime();
 
                     customerRepository.UpdateAsync(_customer);
@@ -227,7 +225,6 @@ namespace RHCQS_Services.Implement
             _account.Username = account.Username != default ? account.Username : _account.Username;
             _account.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _account.PhoneNumber;
             _account.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth : _account.DateOfBirth;
-            _account.ImageUrl = null;
             _account.UpsDate = LocalDateTime.VNDateTime();
 
             accountRepository.UpdateAsync(_account);
@@ -241,7 +238,6 @@ namespace RHCQS_Services.Implement
                     _customer.Username = account.Username != default ? account.Username : _customer.Username;
                     _customer.PhoneNumber = account.PhoneNumber != default ? account.PhoneNumber : _customer.PhoneNumber;
                     _customer.DateOfBirth = account.DateOfBirth != default ? account.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue) : _customer.DateOfBirth;
-                    _customer.ImgUrl = null;
                     _customer.UpsDate = LocalDateTime.VNDateTime();
 
                     customerRepository.UpdateAsync(_customer);
