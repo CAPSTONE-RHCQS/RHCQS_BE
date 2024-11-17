@@ -13,5 +13,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Name { get; set; }
 
         public DateTime? InsDate { get; set; }
+        public string Code { get; set; }
     }
 }

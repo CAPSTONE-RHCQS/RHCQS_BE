@@ -10,5 +10,6 @@ namespace RHCQS_BusinessObject.Payload.Request
     public class MaterialSectionRequest
     {
         public string? Name { get; set; }
+        public string Code { get; set; }
     }
 }
