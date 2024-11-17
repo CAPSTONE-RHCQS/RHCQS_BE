@@ -155,10 +155,15 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    var imageUrl = await _uploadImgService.UploadImage(request.Image, "Supplier");
+                    supplier.ImgUrl = imageUrl;
+                }
+
                 supplier.Name = request.Name ?? supplier.Name;
                 supplier.Email = request.Email ?? supplier.Email;
                 supplier.ConstractPhone = request.ConstractPhone ?? supplier.ConstractPhone;
-                supplier.ImgUrl = request.ImgUrl ?? supplier.ImgUrl;
                 supplier.Deflag = request.Deflag ?? supplier.Deflag;
                 supplier.ShortDescription = request.ShortDescription ?? supplier.ShortDescription;
                 supplier.Description = request.Description ?? supplier.Description;
