@@ -268,6 +268,18 @@ namespace RHCQS_Services.Implement
             }
 
             designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ACCEPTED;
+            if (designVersionInfo.HouseDesignDrawing.Step == 4)
+            {
+                var contract = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                   predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId);
+                if (contract == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Contract_Not_Found);
+                }
+                contract.Status = AppConstant.ContractStatus.COMPLETED;
+                _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+            }
+
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);
 
             string saveResutl = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;

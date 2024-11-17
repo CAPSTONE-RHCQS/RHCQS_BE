@@ -132,12 +132,12 @@ namespace RHCQS_Services.Implement
                             StartDate = request.StartDate,
                             EndDate = request.EndDate,
                             ValidityPeriod = request.ValidityPeriod,
-                            TaxCode = null,
+                            TaxCode = request.TaxCode ?? null,
                             Area = infoProject.Area,
                             UnitPrice = AppConstant.Unit.UnitPrice,
                             ContractValue = request.ContractValue,
                             UrlFile = request.UrlFile,
-                            Note = null,
+                            Note = request.Note ?? null,
                             Deflag = true,
                             RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
                             FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
@@ -152,11 +152,11 @@ namespace RHCQS_Services.Implement
                         avaibleContract.StartDate = request.StartDate;
                         avaibleContract.EndDate = request.EndDate;
                         avaibleContract.ValidityPeriod = request.ValidityPeriod;
-                        avaibleContract.TaxCode = null;
+                        avaibleContract.TaxCode = request.TaxCode ?? null;
                         avaibleContract.Area = infoProject.Area ?? avaibleContract.Area;
                         avaibleContract.ContractValue = request.ContractValue;
                         avaibleContract.UrlFile = request.UrlFile;
-                        avaibleContract.Note = null;
+                        avaibleContract.Note = request.Note ?? null;
                         avaibleContract.Deflag = true;
                         avaibleContract.RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price;
                         avaibleContract.FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price;
