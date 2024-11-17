@@ -16,6 +16,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Routing.Template;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Response.HouseTemplate;
+using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 
 namespace RHCQS_Services.Implement
 {
@@ -61,33 +62,33 @@ namespace RHCQS_Services.Implement
                             sub.Size,
                             sub.ImgUrl,
                             sub.TotalRough,
-                            sub.TemplateItems.Select(
-                                item => new TemplateItemReponse(
-                                    item.Id,
-                                    item.SubConstructionId == null
-                                        ? item.ConstructionItem.Name
-                                        : item.SubConstruction.Name,
-                                    item.ConstructionItem.Id,
-                                    item.SubConstructionId,
-                                    item.SubConstructionId == null
-                                        ? item.ConstructionItem.Coefficient
-                                        : item.SubConstruction.Coefficient,
-                                    item.Area,
-                                    item.Unit,
-                                    item.InsDate,
-                                    item.Price
-                                )
-                            ).ToList(),
-                            sub.Media
-                                .Where(media => media.Name == AppConstant.Template.Drawing)
-                                .Select(media => new MediaResponse(
-                                    media.Id,
-                                    media.Name,
-                                    media.Url,
-                                    media.InsDate,
-                                    media.UpsDate
-                                )).ToList()
+                    sub.TemplateItems.Select(
+                        item => new TemplateItemReponse(
+                            item.Id,
+                            item.SubConstructionId == null
+                                ? item.ConstructionItem.Name
+                                : item.SubConstruction.Name,
+                            item.ConstructionItem.Id,
+                            item.SubConstructionId,
+                            item.SubConstructionId == null
+                                ? item.ConstructionItem.Coefficient
+                                : item.SubConstruction.Coefficient,
+                            item.Area,
+                            item.Unit,
+                            item.InsDate,
+                            item.Price
                         )
+                    ).ToList(),
+                    sub.Media
+                        .Where(media => media.Name == AppConstant.Template.Drawing)
+                        .Select(media => new MediaResponse(
+                            media.Id,
+                            media.Name,
+                            media.Url,
+                            media.InsDate,
+                            media.UpsDate
+                        )).ToList()
+                    )
                     ).ToList(),
                     PackageHouses = x.PackageHouses.Select(
                         pgk => new PackageHouseResponse(
@@ -109,7 +110,9 @@ namespace RHCQS_Services.Implement
                             media.UpsDate
                         )).ToList()
                 },
-                orderBy: x => x.OrderBy(x => x.InsDate)
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                include: x => x.Include(x => x.PackageHouses)
+                                .ThenInclude(x => x.Package)
             );
 
             var result = listHouseTemplate.Select(template => new HouseTemplateResponse(
@@ -125,9 +128,9 @@ namespace RHCQS_Services.Implement
                 template.PackageRough?.Package.Price ?? 0,
                 template.PackageRough?.Package.PackageName ?? "N/A",
 
-                template.SubTemplates,
-                template.PackageHouses,
-                template.ExteriorsUrls
+            template.SubTemplates,
+            template.PackageHouses,
+            template.ExteriorsUrls
             )).ToList();
 
             return result;
