@@ -15,7 +15,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             string? name, int? step,
             string? status, string? type,
             bool? isCompany, DateTime? insDate,
-            List<HouseDesignVersionResponse> versions)
+            List<HouseDesignVersionResponse>? versions)
         {
             Id = id;
             ProjectId = projectId;
@@ -48,7 +48,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
         public bool? IsCompany { get; set; }
 
         public DateTime? InsDate { get; set; }
-        public List<HouseDesignVersionResponse> Versions { get; set; }
+        public List<HouseDesignVersionResponse>? Versions { get; set; }
     }
 
     public class HouseDesignVersionResponse

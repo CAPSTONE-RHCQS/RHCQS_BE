@@ -111,7 +111,9 @@ namespace RHCQS_Services.Implement
                        drawingItem.Id,
                        drawingItem.ProjectId,
                        drawingItem.Account.Username,
-                       drawingItem.HouseDesignVersions.Max(v => v.Version),
+                       drawingItem.HouseDesignVersions.Any()
+                            ? drawingItem.HouseDesignVersions.Max(v => v.Version)
+                            : 0.0,
                        drawingItem.Name,
                        drawingItem.Step,
                        drawingItem.Status,
