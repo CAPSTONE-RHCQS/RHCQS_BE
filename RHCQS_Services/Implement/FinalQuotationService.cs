@@ -359,7 +359,7 @@ namespace RHCQS_Services.Implement
 
                     Guid constructionId;
                     Guid subConstructionId;
-                    Double? coefficient;
+                    //Double? coefficient;
                     string contructionType;
 
                     FinalQuotationItem finalQuotationItem;
@@ -369,7 +369,7 @@ namespace RHCQS_Services.Implement
                             .FirstOrDefaultAsync(ci => ci.Id == subConstructionItemExists.ConstructionItemsId);
                         constructionId = fqi.ConstructionId;
                         subConstructionId = subConstructionItemExists.Id;
-                        coefficient = subConstructionItemExists.Coefficient;
+                        //coefficient = subConstructionItemExists.Coefficient;
                         contructionType = constructionItemExists.Type;
 
                         finalQuotationItem = new FinalQuotationItem
@@ -391,7 +391,7 @@ namespace RHCQS_Services.Implement
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"Construction item with ID {fqi.ConstructionId} không tồn tại.");
                         }
                         constructionId = constructionItemExists.Id;
-                        coefficient = constructionItemExists.Coefficient;
+                        //coefficient = constructionItemExists.Coefficient;
                         contructionType = constructionItemExists.Type;
                         finalQuotationItem = new FinalQuotationItem
                         {
@@ -425,8 +425,8 @@ namespace RHCQS_Services.Implement
                                     UnitPriceLabor = laborExists.Price,
                                     UnitPriceRough = null,
                                     UnitPriceFinished = null,
-                                    TotalPriceLabor = (coefficient != 0) ? (laborExists.Price) * (qi.Weight) * coefficient
-                                    : (laborExists.Price) * (qi.Weight),
+                                    TotalPriceLabor =/* (coefficient != 0) ? (laborExists.Price) * (qi.Weight) * coefficient
+                                    : */(laborExists.Price) * (qi.Weight),
                                     TotalPriceRough = null,
                                     TotalPriceFinished = null,
                                     Note = qi.Note
@@ -469,15 +469,15 @@ namespace RHCQS_Services.Implement
                                 {
                                     case "ROUGH":
                                         quotationItemMaterial.UnitPriceRough = materialExists.Price;
-                                        quotationItemMaterial.TotalPriceRough = (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
-                                            : (materialExists.Price) * (qi.Weight);
+                                        quotationItemMaterial.TotalPriceRough =/* (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
+                                            : */(materialExists.Price) * (qi.Weight);
                                         quotationMaterialPrice = quotationItemMaterial.TotalPriceRough ?? 0;
                                         break;
 
                                     case "FINISHED":
                                         quotationItemMaterial.UnitPriceFinished = materialExists.Price;
-                                        quotationItemMaterial.TotalPriceFinished = (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
-                                            : (materialExists.Price) * (qi.Weight);
+                                        quotationItemMaterial.TotalPriceFinished =/* (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
+                                            : */(materialExists.Price) * (qi.Weight);
                                         quotationMaterialPrice = quotationItemMaterial.TotalPriceFinished ?? 0;
                                         break;
 
@@ -1167,7 +1167,7 @@ namespace RHCQS_Services.Implement
                     var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
                     Guid constructionId;
                     Guid? subConstructionId;
-                    double? coefficient;
+                    //double? coefficient;
                     string constructionType;
                     string name;
 
@@ -1175,7 +1175,7 @@ namespace RHCQS_Services.Implement
                     {
                         var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
                         subConstructionId = fqi.SubContructionId;
-                        coefficient = subConstructionItem.Coefficient;
+                        //coefficient = subConstructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = subConstructionItem.Name;
 
@@ -1185,7 +1185,7 @@ namespace RHCQS_Services.Implement
                             subConstructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1200,7 +1200,7 @@ namespace RHCQS_Services.Implement
                         }
 
                         constructionId = constructionItem.Id;
-                        coefficient = constructionItem.Coefficient;
+                        //coefficient = constructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = constructionItem.Name;
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
@@ -1209,7 +1209,7 @@ namespace RHCQS_Services.Implement
                             fqi.SubContructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1428,7 +1428,7 @@ namespace RHCQS_Services.Implement
                     var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
                     Guid constructionId;
                     Guid? subConstructionId;
-                    double? coefficient;
+                    //double? coefficient;
                     string constructionType;
                     string name;
 
@@ -1436,7 +1436,7 @@ namespace RHCQS_Services.Implement
                     {
                         var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
                         subConstructionId = fqi.SubContructionId;
-                        coefficient = subConstructionItem.Coefficient;
+                        //coefficient = subConstructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = subConstructionItem.Name;
 
@@ -1446,7 +1446,7 @@ namespace RHCQS_Services.Implement
                             subConstructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1461,7 +1461,7 @@ namespace RHCQS_Services.Implement
                         }
 
                         constructionId = constructionItem.Id;
-                        coefficient = constructionItem.Coefficient;
+                        //coefficient = constructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = constructionItem.Name;
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
@@ -1470,7 +1470,7 @@ namespace RHCQS_Services.Implement
                             fqi.SubContructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
