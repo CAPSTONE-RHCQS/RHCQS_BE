@@ -118,7 +118,8 @@ namespace RHCQS_Services.Implement
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    InsDate = x.InsDate
+                    InsDate = x.InsDate,
+                    Code = x.Code
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate),
