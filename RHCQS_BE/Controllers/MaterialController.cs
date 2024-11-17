@@ -132,10 +132,24 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Material.MaterialEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateMaterial(Guid id, [FromBody] MaterialUpdateRequest request)
+        public async Task<IActionResult> UpdateMaterial(Guid id, [FromForm] MaterialUpdateRequest request)
         {
-            var isUpdated = await _materialService.UpdateMaterial(id, request);
-            return isUpdated ? Ok(isUpdated) : BadRequest();
+            try
+            {
+                string? imageUrl = null;
+
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    imageUrl = await _materialService.UploadMaterialImage(request.Image);
+                    request.ImgUrl = imageUrl;
+                }
+                var isUpdated = await _materialService.UpdateMaterial(id, request);
+                return isUpdated ? Ok(isUpdated) : BadRequest();
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
 
         #region SearchMaterialByName
@@ -158,7 +172,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-        
+
 
         #region FilterMaterialBySection
         /// <summary>
@@ -180,6 +194,6 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-        
+
     }
 }
