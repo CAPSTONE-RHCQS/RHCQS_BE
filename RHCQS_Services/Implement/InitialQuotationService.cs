@@ -769,12 +769,7 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                if (request.IsSave == true)
-                {
-
-                }
-
-                //Check version present duplicate
+                #region Check version present duplicate
                 double nextVersion = 1.0;
                 var highestInitial = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                     predicate: x => x.ProjectId == request.ProjectId,
@@ -803,6 +798,29 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Conflict_Version);
                     }
                 }
+                #endregion
+
+                #region Check promotion
+                if (request.Promotions != null)
+                {
+                    var promotionInfo = await _unitOfWork.GetRepository<Promotion>().FirstOrDefaultAsync(
+                                    predicate: p => p.Id == request.Promotions.Id && p.ExpTime >= LocalDateTime.VNDateTime() && p.IsRunning == true,
+                                    include: p => p.Include(p => p.PackageMapPromotions)
+                                                    .ThenInclude(p => p.Package));
+
+                    if (promotionInfo == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.PromotionIllegal);
+                    }
+
+                    if (!request.Packages
+                        .Any(package => promotionInfo.PackageMapPromotions
+                            .Any(p => p.PackageId == package.PackageId)))
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.PromotionIllegal);
+                    }
+                }
+                #endregion
 
 
                 //Update project
@@ -819,7 +837,7 @@ namespace RHCQS_Services.Implement
 
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
 
-                //Update version initial quotation
+                #region Create initial quotation
                 var initialItem = new InitialQuotation()
                 {
                     Id = Guid.NewGuid(),
@@ -843,7 +861,9 @@ namespace RHCQS_Services.Implement
                     IsDraft = true
                 };
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+                #endregion
 
+                #region Create initial quotation item
                 foreach (var item in request.Items!)
                 {
                     var itemInitial = new InitialQuotationItem()
@@ -861,7 +881,9 @@ namespace RHCQS_Services.Implement
                     };
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
                 }
+                #endregion
 
+                #region Create package quotation
                 if (request.Packages.Count < 1)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
@@ -881,7 +903,9 @@ namespace RHCQS_Services.Implement
 
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
                 }
+                #endregion
 
+                #region Create Utility
                 if (request.Utilities.Count > 0)
                 {
                     foreach (var utl in request.Utilities!)
@@ -933,7 +957,9 @@ namespace RHCQS_Services.Implement
                         await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                     }
                 }
+                #endregion
 
+                #region Create batch payment
                 if (request.BatchPayments.Count < 1)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
@@ -975,6 +1001,7 @@ namespace RHCQS_Services.Implement
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
                 }
+                #endregion
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;
