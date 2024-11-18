@@ -98,6 +98,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 materialSection.Name = request.Name ?? materialSection.Name;
+                materialSection.Code = request.Code ?? materialSection.Code;
 
                 _unitOfWork.GetRepository<MaterialSection>().UpdateAsync(materialSection);
                 return await _unitOfWork.CommitAsync() > 0;
