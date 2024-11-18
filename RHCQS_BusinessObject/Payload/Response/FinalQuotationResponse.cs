@@ -24,7 +24,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationResponse
     {
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, Guid initialId, string type, string adress
+/*        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, Guid initialId, string type, string adress
             , double? totalPrice, string? note, double? version, DateTime? insDate, DateTime? upsDate,
             string? status, bool? deflag, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
@@ -53,12 +53,49 @@ namespace RHCQS_BusinessObject.Payload.Response
             ConstructionRough = constructionRough;
             ConstructionFinished = constructionFinished;
             Equitment = equitment;
+        }*/
+
+        public FinalQuotationResponse(Guid id, string accountName, Guid projectId, Guid initailQuotationId,
+            double? initailQuotationVersion, List<HouseDrawingVersionInf>? houseDrawingVersionInf, string? projectType,
+            string? projectAddress, double? totalPrice, string? note, double? version, DateTime? insDate,
+            DateTime? upsDate, string? status, bool? deflag, string? reasonReject,
+            List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
+            List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo,
+            List<UtilityInf>? utilityInfos, ConstructionSummary constructionRough, ConstructionSummary constructionFinished, ConstructionSummary equitment)
+        {
+            Id = id;
+            AccountName = accountName;
+            ProjectId = projectId;
+            InitailQuotationId = initailQuotationId;
+            InitailQuotationVersion = initailQuotationVersion;
+            HouseDrawingVersionInf = houseDrawingVersionInf;
+            ProjectType = projectType;
+            ProjectAddress = projectAddress;
+            TotalPrice = totalPrice;
+            Note = note;
+            Version = version;
+            InsDate = insDate;
+            UpsDate = upsDate;
+            Status = status;
+            Deflag = deflag;
+            ReasonReject = reasonReject;
+            BatchPaymentInfos = batchPaymentInfos;
+            EquipmentItems = equipmentItems;
+            FinalQuotationItems = finalQuotationItems;
+            PromotionInfo = promotionInfo;
+            UtilityInfos = utilityInfos;
+            ConstructionRough = constructionRough;
+            ConstructionFinished = constructionFinished;
+            Equitment = equitment;
         }
 
         public Guid Id { get; set; }
         public string AccountName { get; set; }
         public Guid ProjectId { get; set; }
         public Guid InitailQuotationId { get; set; }
+        public double? InitailQuotationVersion { get; set; }
+        public List<HouseDrawingVersionInf>? HouseDrawingVersionInf { get; set; }
+
         public string? ProjectType { get; set; }
         public string? ProjectAddress { get; set; }
 
@@ -172,7 +209,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName, string? type, double? coefficient,
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName, string? type/*, double? coefficient*/,
             DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
@@ -180,7 +217,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             SubconstructionId = subcontructionId;
             ContructionName = contructionName;
             Type = type;
-            Coefficient = coefficient;
+            //Coefficient = coefficient;
             InsDate = insDate;
             QuotationItems = quotationItems;
         }
@@ -193,7 +230,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Type { get; set; }
 
-        public double? Coefficient { get; set; }
+        //public double? Coefficient { get; set; }
 
         public DateTime? InsDate { get; set; }
 
@@ -356,6 +393,20 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double Price { get; set; }
         public double UnitPrice { get; set; }
         public string Unit { get; set; }
+    }
+    public class HouseDrawingVersionInf
+    {
+        public HouseDrawingVersionInf(Guid versionid, string versionname, double? version)
+        {
+            VersionId = versionid;
+            VersionName = versionname;
+            Version = version;
+        }
+
+        public Guid VersionId { get; set; }
+        public string VersionName { get; set; }
+        public double? Version { get; set; }
+
     }
     public class ConstructionSummary
     {

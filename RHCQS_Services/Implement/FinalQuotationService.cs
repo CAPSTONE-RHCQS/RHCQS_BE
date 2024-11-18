@@ -219,6 +219,11 @@ namespace RHCQS_Services.Implement
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
+            double? totalBatchPayments = 0;
+            double? totalUtilities = 0;
+            double? totalEquipmentItems = 0;
+            double? totalQuotationItems = 0;
+            double? promotation = 0;
             if (request == null)
             {
                 throw new AppConstant.MessageError(
@@ -239,11 +244,12 @@ namespace RHCQS_Services.Implement
             if (request.PromotionId.HasValue)
             {
                 var promotionExists = await _unitOfWork.GetRepository<Promotion>()
-                    .AnyAsync(p => p.Id == request.PromotionId);
-                if (!promotionExists)
+                    .FirstOrDefaultAsync(p => p.Id == request.PromotionId);
+                if (promotionExists == null)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "PromotionId không tồn tại.");
                 }
+                promotation = promotionExists.Value;
             }
 
             var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
@@ -277,10 +283,7 @@ namespace RHCQS_Services.Implement
                 Deflag = true,
                 BatchPayments = new List<BatchPayment>()
             };
-            double? totalBatchPayments = 0;
-            double? totalUtilities = 0;
-            double? totalEquipmentItems = 0;
-            double? totalQuotationItems = 0;
+
             if (request.BatchPaymentInfos != null)
             {
                 foreach (var bp in request.BatchPaymentInfos)
@@ -359,7 +362,7 @@ namespace RHCQS_Services.Implement
 
                     Guid constructionId;
                     Guid subConstructionId;
-                    Double? coefficient;
+                    //Double? coefficient;
                     string contructionType;
 
                     FinalQuotationItem finalQuotationItem;
@@ -369,7 +372,7 @@ namespace RHCQS_Services.Implement
                             .FirstOrDefaultAsync(ci => ci.Id == subConstructionItemExists.ConstructionItemsId);
                         constructionId = fqi.ConstructionId;
                         subConstructionId = subConstructionItemExists.Id;
-                        coefficient = subConstructionItemExists.Coefficient;
+                        //coefficient = subConstructionItemExists.Coefficient;
                         contructionType = constructionItemExists.Type;
 
                         finalQuotationItem = new FinalQuotationItem
@@ -391,7 +394,7 @@ namespace RHCQS_Services.Implement
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"Construction item with ID {fqi.ConstructionId} không tồn tại.");
                         }
                         constructionId = constructionItemExists.Id;
-                        coefficient = constructionItemExists.Coefficient;
+                        //coefficient = constructionItemExists.Coefficient;
                         contructionType = constructionItemExists.Type;
                         finalQuotationItem = new FinalQuotationItem
                         {
@@ -425,8 +428,8 @@ namespace RHCQS_Services.Implement
                                     UnitPriceLabor = laborExists.Price,
                                     UnitPriceRough = null,
                                     UnitPriceFinished = null,
-                                    TotalPriceLabor = (coefficient != 0) ? (laborExists.Price) * (qi.Weight) * coefficient
-                                    : (laborExists.Price) * (qi.Weight),
+                                    TotalPriceLabor =/* (coefficient != 0) ? (laborExists.Price) * (qi.Weight) * coefficient
+                                    : */(laborExists.Price) * (qi.Weight),
                                     TotalPriceRough = null,
                                     TotalPriceFinished = null,
                                     Note = qi.Note
@@ -469,15 +472,15 @@ namespace RHCQS_Services.Implement
                                 {
                                     case "ROUGH":
                                         quotationItemMaterial.UnitPriceRough = materialExists.Price;
-                                        quotationItemMaterial.TotalPriceRough = (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
-                                            : (materialExists.Price) * (qi.Weight);
+                                        quotationItemMaterial.TotalPriceRough =/* (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
+                                            : */(materialExists.Price) * (qi.Weight);
                                         quotationMaterialPrice = quotationItemMaterial.TotalPriceRough ?? 0;
                                         break;
 
                                     case "FINISHED":
                                         quotationItemMaterial.UnitPriceFinished = materialExists.Price;
-                                        quotationItemMaterial.TotalPriceFinished = (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
-                                            : (materialExists.Price) * (qi.Weight);
+                                        quotationItemMaterial.TotalPriceFinished =/* (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
+                                            : */(materialExists.Price) * (qi.Weight);
                                         quotationMaterialPrice = quotationItemMaterial.TotalPriceFinished ?? 0;
                                         break;
 
@@ -583,7 +586,8 @@ namespace RHCQS_Services.Implement
                 }
             }
 
-            finalQuotation.TotalPrice = totalBatchPayments + totalUtilities + totalEquipmentItems + totalQuotationItems;
+            finalQuotation.TotalPrice = totalBatchPayments + totalUtilities + totalEquipmentItems + totalQuotationItems - promotation;
+
 
             await finalQuotationRepo.InsertAsync(finalQuotation);
 
@@ -1167,7 +1171,7 @@ namespace RHCQS_Services.Implement
                     var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
                     Guid constructionId;
                     Guid? subConstructionId;
-                    double? coefficient;
+                    //double? coefficient;
                     string constructionType;
                     string name;
 
@@ -1175,7 +1179,7 @@ namespace RHCQS_Services.Implement
                     {
                         var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
                         subConstructionId = fqi.SubContructionId;
-                        coefficient = subConstructionItem.Coefficient;
+                        //coefficient = subConstructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = subConstructionItem.Name;
 
@@ -1185,7 +1189,7 @@ namespace RHCQS_Services.Implement
                             subConstructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1200,7 +1204,7 @@ namespace RHCQS_Services.Implement
                         }
 
                         constructionId = constructionItem.Id;
-                        coefficient = constructionItem.Coefficient;
+                        //coefficient = constructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = constructionItem.Name;
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
@@ -1209,7 +1213,7 @@ namespace RHCQS_Services.Implement
                             fqi.SubContructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1268,12 +1272,22 @@ namespace RHCQS_Services.Implement
                 );
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                     .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
-                Guid initialQuotationId = initialQuotation?.Id ?? Guid.Empty;
+
+                var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
+                    .SelectMany(hd => hd.HouseDesignVersions)
+                    .Select(hd => new HouseDrawingVersionInf(
+                        hd.Id,
+                        hd.Name ?? string.Empty,
+                        hd.Version
+                    ))
+                    .ToList();
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotation.Id,
+                    initialQuotation.Version,
+                    houseDesignDrawingsList,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -1311,6 +1325,9 @@ namespace RHCQS_Services.Implement
                     x => x.ProjectId.Equals(projectid) && x.Version == 0 && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
+                                   .Include(x=> x.Project)
+                                       .ThenInclude(x => x.HouseDesignDrawings)
+                                       .ThenInclude(x => x.HouseDesignVersions)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
@@ -1428,7 +1445,7 @@ namespace RHCQS_Services.Implement
                     var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
                     Guid constructionId;
                     Guid? subConstructionId;
-                    double? coefficient;
+                    //double? coefficient;
                     string constructionType;
                     string name;
 
@@ -1436,7 +1453,7 @@ namespace RHCQS_Services.Implement
                     {
                         var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
                         subConstructionId = fqi.SubContructionId;
-                        coefficient = subConstructionItem.Coefficient;
+                        //coefficient = subConstructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = subConstructionItem.Name;
 
@@ -1446,7 +1463,7 @@ namespace RHCQS_Services.Implement
                             subConstructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1461,7 +1478,7 @@ namespace RHCQS_Services.Implement
                         }
 
                         constructionId = constructionItem.Id;
-                        coefficient = constructionItem.Coefficient;
+                        //coefficient = constructionItem.Coefficient;
                         constructionType = constructionItem?.Type;
                         name = constructionItem.Name;
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
@@ -1470,7 +1487,7 @@ namespace RHCQS_Services.Implement
                             fqi.SubContructionId,
                             name,
                             constructionType,
-                            coefficient,
+                            //coefficient,
                             fqi.InsDate,
                             QuotationItems(fqi.QuotationItems.ToList())
                         ));
@@ -1529,12 +1546,23 @@ namespace RHCQS_Services.Implement
                 );
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                     .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
-                Guid initialQuotationId = initialQuotation?.Id ?? Guid.Empty;
+
+                var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
+                    .SelectMany(hd => hd.HouseDesignVersions)
+                    .Select(hd => new HouseDrawingVersionInf(
+                        hd.Id,
+                        hd.Name ?? string.Empty,
+                        hd.Version
+                    ))
+                    .ToList();
+
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotation.Id,
+                    initialQuotation.Version,
+                    houseDesignDrawingsList,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,

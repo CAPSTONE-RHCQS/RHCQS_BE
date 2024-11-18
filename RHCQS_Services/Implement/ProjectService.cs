@@ -27,8 +27,8 @@ namespace RHCQS_Services.Implement
         private readonly IHouseDesignDrawingService _drawingService;
         public IAuthService _authService { get; private set; }
 
-        public ProjectService(IUnitOfWork unitOfWork, 
-            ILogger<ProjectService> logger, 
+        public ProjectService(IUnitOfWork unitOfWork,
+            ILogger<ProjectService> logger,
             IAuthService authService,
             IHouseDesignDrawingService drawingService)
         {
@@ -118,6 +118,8 @@ namespace RHCQS_Services.Implement
                                                 .Include(p => p.InitialQuotations)
                                                 .Include(p => p.FinalQuotations)
                                                 .Include(p => p.HouseDesignDrawings)
+                                                    .ThenInclude(p => p.Account)
+                                                .Include(p => p.HouseDesignDrawings)
                                                     .ThenInclude(h => h.HouseDesignVersions)
                                                 .Include(p => p.HouseDesignDrawings)
                                                 .Include(p => p.Contracts));
@@ -152,7 +154,7 @@ namespace RHCQS_Services.Implement
                                                                      .Select(h => new HouseDesignDrawingInfo
                                                                      {
                                                                          Id = h.Id,
-                                                                         //Version = h.HouseDesignVersions,
+                                                                         DesignName = h.Account!.Username!,
                                                                          Step = h.Step,
                                                                          Name = h.Name!,
                                                                          Type = h.Type!,
@@ -242,11 +244,48 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Customer);
                 }
+
+                if (projectRequest.Promotion != null)
+                {
+                    var promotionInfo = await _unitOfWork.GetRepository<Promotion>().FirstOrDefaultAsync(
+                                    predicate: p => p.Id == projectRequest.Promotion.Id && p.ExpTime >= LocalDateTime.VNDateTime() && p.IsRunning == true,
+                                    include: p => p.Include(p => p.PackageMapPromotions)
+                                                    .ThenInclude(p => p.Package));
+
+                    if (promotionInfo == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.PromotionIllegal);
+                    }
+
+                    if (!projectRequest.PackageQuotations
+                        .Any(package => promotionInfo.PackageMapPromotions
+                            .Any(p => p.PackageId == package.PackageId)))
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.PromotionIllegal);
+                    }
+                }
+                string projectName;
+                switch (projectRequest.Type)
+                {
+                    case AppConstant.Type.ALL:
+                        projectName = "Báo giá trọn gói " + LocalDateTime.VNDateTime();
+                        break;
+                    case AppConstant.Type.FINISHED:
+                        projectName = "Báo giá phần hoàn thiện " + LocalDateTime.VNDateTime();
+                        break;
+                    case AppConstant.Type.ROUGH:
+                        projectName = "Báo giá phần thô " + LocalDateTime.VNDateTime();
+                        break;
+                    default:
+                        projectName = "Dự án báo giá " + LocalDateTime.VNDateTime();
+                        break;
+                }
+
                 var projectItem = new Project
                 {
                     Id = Guid.NewGuid(),
                     CustomerId = customerInfo.Id,
-                    Name = "Báo giá sơ bộ " + LocalDateTime.VNDateTime(),
+                    Name = projectName,
                     Type = projectRequest.Type,
                     Status = AppConstant.ProjectStatus.PROCESSING,
                     InsDate = LocalDateTime.VNDateTime(),
@@ -261,7 +300,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     ProjectId = projectItem.Id,
-                    PromotionId = projectRequest.InitialQuotation.PromotionId,
+                    PromotionId = projectRequest.Promotion.Id,
                     Area = projectRequest.Area,
                     TimeProcessing = null,
                     TimeRough = null,
@@ -381,6 +420,7 @@ namespace RHCQS_Services.Implement
         {
             var projectCount = await _unitOfWork.GetRepository<AssignTask>()
                                                 .CountAsync(a => a.AccountId == accountId);
+            var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == projectId);
 
             var projectAval = await _unitOfWork.GetRepository<AssignTask>().CountAsync(a => a.ProjectId == projectId);
             if (projectAval >= 1) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.QuotationHasStaff);
@@ -388,7 +428,6 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Too_Many_Requests, AppConstant.ErrMessage.OverloadStaff);
             }
-
 
             var assignItem = new AssignTask
             {
@@ -403,9 +442,12 @@ namespace RHCQS_Services.Implement
             await _unitOfWork.GetRepository<AssignTask>().InsertAsync(assignItem);
 
             //Update Initial quotation status PENDING -> PROCESSING
-            var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.ProjectId == projectId);
-            initialInfo.Status = AppConstant.QuotationStatus.PROCESSING;
-            _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
+            if (projectInfo.Type != AppConstant.Type.DRAWINGHAVE)
+            {
+                var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.ProjectId == projectId);
+                initialInfo.Status = AppConstant.QuotationStatus.PROCESSING;
+                _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialInfo);
+            }
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
@@ -418,6 +460,8 @@ namespace RHCQS_Services.Implement
                             include: x => x.Include(x => x.InitialQuotations)
                                            .Include(x => x.FinalQuotations)
                                            .Include(x => x.HouseDesignDrawings)
+                                           .Include(x => x.Contracts)
+
                 );
             if (infoProject == null)
             {
@@ -452,6 +496,12 @@ namespace RHCQS_Services.Implement
                     {
                         item.Status = AppConstant.HouseDesignStatus.CANCELED;
                         _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(item);
+                    }
+
+                    foreach (var item in infoProject.Contracts)
+                    {
+                        item.Status = AppConstant.ContractStatus.ENDED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(item);
                     }
 
                     bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -887,7 +937,7 @@ namespace RHCQS_Services.Implement
             //1.Perspective - Phối cảnh
             if (request.PerspectiveImage == null)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_Perspective); 
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_Perspective);
             }
 
             //2. Architerture - Kiến trúc

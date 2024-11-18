@@ -28,10 +28,10 @@ namespace RHCQS_Services.Implement
         private readonly Cloudinary _cloudinary;
         private readonly IMediaService _mediaService;
 
-        public HouseDesignVersionService(IUnitOfWork unitOfWork, 
+        public HouseDesignVersionService(IUnitOfWork unitOfWork,
             ILogger<HouseDesignVersionService> logger,
-            Cloudinary cloudinary, 
-            IConfiguration configuration, 
+            Cloudinary cloudinary,
+            IConfiguration configuration,
             IMediaService mediaService)
         {
             _unitOfWork = unitOfWork;
@@ -44,14 +44,15 @@ namespace RHCQS_Services.Implement
         {
             var version = await _unitOfWork.GetRepository<HouseDesignVersion>()
                                            .FirstOrDefaultAsync(predicate: v => v.Id == versionId,
-                                                                include: v => v.Include(v => v.Media));
+                                                                include: v => v.Include(v => v.Media)
+                                                                                .Include(v => v.HouseDesignDrawing));
 
             if (version == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
-            var fileUrl = version.Media?.FirstOrDefault(m => m.HouseDesignVersionId == versionId)!.Url ?? "Chưa hoàn thành"; 
+            var fileUrl = version.Media?.FirstOrDefault(m => m.HouseDesignVersionId == versionId)!.Url ?? "Chưa hoàn thành";
 
             var response = new HouseDesignVersionItemResponse(
                 id: version.Id,
@@ -170,7 +171,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
-            
+
         }
 
         public async Task<bool> UploadDesignDrawing(List<IFormFile> files, Guid versionId)
@@ -260,19 +261,49 @@ namespace RHCQS_Services.Implement
         public async Task<string> ConfirmDesignDrawingFromCustomer(Guid versionId)
         {
             var designVersionInfo = await _unitOfWork.GetRepository<HouseDesignVersion>()
-                                          .FirstOrDefaultAsync(predicate: x => x.Id == versionId,
-                                                               include: x => x.Include(x => x.HouseDesignDrawing));
+                                           .FirstOrDefaultAsync(predicate: x => x.Id == versionId,
+                                                                include: x => x.Include(x => x.HouseDesignDrawing));
             if (designVersionInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
             designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ACCEPTED;
+
+            var nextStep = designVersionInfo.HouseDesignDrawing.Step + 1;
+
+            if (nextStep == 2 || nextStep == 3||nextStep == 4)
+            { 
+                var nextStepDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                    .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId && x.Step == nextStep);
+
+                if (nextStepDrawing != null && nextStepDrawing.Status != AppConstant.HouseDesignStatus.ACCEPTED)
+                {
+                    nextStepDrawing.Status = AppConstant.HouseDesignStatus.PROCESSING;
+                    _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(nextStepDrawing);
+                }
+            }
+
+            if (designVersionInfo.HouseDesignDrawing.Step == 4)
+            {
+                var contract = await _unitOfWork.GetRepository<Contract>()
+                    .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId);
+
+                if (contract == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Contract_Not_Found);
+                }
+
+                contract.Status = AppConstant.ContractStatus.COMPLETED;
+                _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+            }
+
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);
 
-            string saveResutl = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
-            return saveResutl;
+            string saveResult = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+            return saveResult;
         }
+
 
         public async Task<string> CommentDesignDrawingFromCustomer(Guid versionId, FeedbackHouseDesignDrawingRequest comment)
         {
@@ -291,12 +322,5 @@ namespace RHCQS_Services.Implement
             string saveResutl = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return saveResutl;
         }
-
-        //public async Task UploadFileDrawingHaveAvailable(FileDrawingRequest files)
-        //{
-
-        //    var result = await _mediaService.UploadFileAsync(files, "HouseDesignDrawing");
-        //    var imageUrl = _mediaService.GetImageUrl(result);
-        //}
     }
 }

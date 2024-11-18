@@ -57,7 +57,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of contract in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Contract.ContractDesignDetailEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailContract(Guid contractId)

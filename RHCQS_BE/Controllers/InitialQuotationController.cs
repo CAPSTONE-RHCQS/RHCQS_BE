@@ -374,7 +374,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="request">The request body containing the reason for approval or rejection.</param>
         /// <returns>Returns a success or error message based on the approval result.</returns>
         #endregion
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.InitialQuotation.ApproveInitialEndpoint)]
         [ProducesResponseType(typeof(ApproveQuotationRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

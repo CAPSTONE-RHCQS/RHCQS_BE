@@ -15,7 +15,8 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             string? name, int? step,
             string? status, string? type,
             bool? isCompany, DateTime? insDate,
-            List<HouseDesignVersionResponse> versions)
+            DependOnVersion dependOnVersion,
+            List<HouseDesignVersionResponse>? versions)
         {
             Id = id;
             ProjectId = projectId;
@@ -27,6 +28,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             Type = type;
             IsCompany = isCompany;
             InsDate = insDate;
+            DependOnVersion = dependOnVersion;
             Versions = versions;
         }
 
@@ -48,7 +50,8 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
         public bool? IsCompany { get; set; }
 
         public DateTime? InsDate { get; set; }
-        public List<HouseDesignVersionResponse> Versions { get; set; }
+        public DependOnVersion? DependOnVersion { get; set; }
+        public List<HouseDesignVersionResponse>? Versions { get; set; }
     }
 
     public class HouseDesignVersionResponse
@@ -91,5 +94,13 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
 
         public string? Note { get; set; }
         public string? Reason { get; set; }
+    }
+
+    public class DependOnVersion
+    {
+        public Guid HouseDesginVersionId { get; set; }
+        public string HouseDesignVersionName { get; set; }
+        public double HouseDesignVersion { get; set; }
+        public string FileDesignVersion { get; set; }
     }
 }
