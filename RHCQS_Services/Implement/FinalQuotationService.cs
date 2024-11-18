@@ -1272,12 +1272,22 @@ namespace RHCQS_Services.Implement
                 );
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                     .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
-                Guid initialQuotationId = initialQuotation?.Id ?? Guid.Empty;
+
+                var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
+                    .SelectMany(hd => hd.HouseDesignVersions)
+                    .Select(hd => new HouseDrawingVersionInf(
+                        hd.Id,
+                        hd.Name ?? string.Empty,
+                        hd.Version
+                    ))
+                    .ToList();
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotation.Id,
+                    initialQuotation.Version,
+                    houseDesignDrawingsList,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
@@ -1315,6 +1325,9 @@ namespace RHCQS_Services.Implement
                     x => x.ProjectId.Equals(projectid) && x.Version == 0 && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
+                                   .Include(x=> x.Project)
+                                       .ThenInclude(x => x.HouseDesignDrawings)
+                                       .ThenInclude(x => x.HouseDesignVersions)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
@@ -1533,12 +1546,23 @@ namespace RHCQS_Services.Implement
                 );
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                     .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
-                Guid initialQuotationId = initialQuotation?.Id ?? Guid.Empty;
+
+                var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
+                    .SelectMany(hd => hd.HouseDesignVersions)
+                    .Select(hd => new HouseDrawingVersionInf(
+                        hd.Id,
+                        hd.Name ?? string.Empty,
+                        hd.Version
+                    ))
+                    .ToList();
+
                 var response = new FinalQuotationResponse(
                     finalQuotation.Id,
                     finalQuotation.Project.Customer.Username ?? string.Empty,
                     finalQuotation.ProjectId,
-                    initialQuotationId,
+                    initialQuotation.Id,
+                    initialQuotation.Version,
+                    houseDesignDrawingsList,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation.TotalPrice,
