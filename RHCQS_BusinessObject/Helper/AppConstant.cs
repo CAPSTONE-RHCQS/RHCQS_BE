@@ -194,6 +194,7 @@ public static class AppConstant
         public const string Fail_Save = "Lưu thất bại!";
         public const string Send_Fail = "Gửi thất bại!";
         public const string InvalidData = "Dữ liệu không hợp lệ!";
+        public const string InvalidFile = "Không có file";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";

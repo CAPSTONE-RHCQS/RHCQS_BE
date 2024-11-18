@@ -33,7 +33,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
         {
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
-                            selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!,p.BatchPayments.FirstOrDefault(b => b.Id == p.Id)!.Status!, p.InsDate,
+                            selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!, p.BatchPayments.FirstOrDefault(b => b.Id == p.Id)!.Status!, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
                                                                p.Unit, p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
@@ -92,7 +92,7 @@ namespace RHCQS_Services.Implement
                 id: payment!.Id,
                 type: payment.PaymentType.Name!,
                 status: payment.BatchPayments.FirstOrDefault(batch => batch.Contract!.ProjectId == projectId)?.Status ?? "",
-                insDate: payment.InsDate,   
+                insDate: payment.InsDate,
                 upsDate: payment.UpsDate,
                 totalprice: payment.TotalPrice,
                 paymentDate: payment.PaymentDate,
@@ -107,22 +107,46 @@ namespace RHCQS_Services.Implement
         }
 
         public async Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId)
-        {  
+        {
+
             var paymentInfo = await _unitOfWork.GetRepository<Payment>()
-                                    .FirstOrDefaultAsync(x => x.Id == paymentId,
-                                    include: x => x.Include(x => x.BatchPayments));
+                                     .FirstOrDefaultAsync(x => x.Id == paymentId,
+                                     include: x => x.Include(x => x.BatchPayments));
             if (paymentInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                                                        AppConstant.ErrMessage.Invalid_Payment);
+                                                         AppConstant.ErrMessage.Invalid_Payment);
             }
 
             paymentInfo.IsConfirm = true;
+
+            //var contractIds = paymentInfo.BatchPayments
+            //                    .Select(b => b.ContractId)
+            //                    .Distinct()
+            //                    .ToList();
+
+            //var listBatch = await _unitOfWork.GetRepository<BatchPayment>()
+            //                                 .GetListAsync(predicate: p => contractIds.Contains(p.ContractId));
+
+            //bool allPaid = listBatch.All(b => b.Status == AppConstant.PaymentStatus.PAID);
+
+            //if (allPaid)
+            //{
+            //    var contracts = await _unitOfWork.GetRepository<Contract>()
+            //                                     .FirstOrDefaultAsync(predicate: c => contractIds.Contains(c.Id));
+
+            //    contracts.Status = AppConstant.ContractStatus.FINISHED;
+            //    _unitOfWork.GetRepository<Contract>().UpdateAsync(contracts);
+            //}
+
             _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
 
-            var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : 
-                                                                   AppConstant.ErrMessage.Fail_Save;
+            var saveResutl = await _unitOfWork.CommitAsync() > 0
+                ? AppConstant.Message.SUCCESSFUL_SAVE
+                : AppConstant.ErrMessage.Fail_Save;
+
             return saveResutl;
         }
+
     }
 }

@@ -6,8 +6,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Contract;
-using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.App;
+using RHCQS_BusinessObject.Payload.Response.Contract;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -36,10 +36,10 @@ namespace RHCQS_Services.Implement
             _cloudinary = cloudinary;
         }
 
-        public async Task<IPaginate<ContractResponse>> GetListContract(int page, int size)
+        public async Task<IPaginate<IpaginateContractResponse>> GetListContract(int page, int size)
         {
             var listContract = await _unitOfWork.GetRepository<Contract>().GetList(
-                selector: c => new ContractResponse(c.ProjectId, c.Name, c.CustomerName, c.ContractCode, c.StartDate, c.EndDate,
+                selector: c => new IpaginateContractResponse(c.ProjectId, c.Name, c.CustomerName, c.ContractCode, c.StartDate, c.EndDate,
                                                     c.ValidityPeriod, c.TaxCode, c.Area, c.UnitPrice, c.ContractValue, c.UrlFile,
                                                     c.Note, c.Deflag, c.RoughPackagePrice, c.FinishedPackagePrice, c.Status, c.Type),
                 include: c => c.Include(c => c.Project)
@@ -59,10 +59,48 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
             }
 
+            DependOnQuotation dependOnQuotation = null; 
+            if (contractItem.Type == AppConstant.ContractType.Design.ToString())
+            {
+                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
+                                include: i => i.Include(i => i.Media));
+
+                if (initialQuotation == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+                }
+
+                dependOnQuotation = new DependOnQuotation
+                {
+                    QuotationlId = initialQuotation.Id,
+                    Version = initialQuotation.Version,
+                    File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
+                };
+            } else
+            {
+                var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+                                predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
+                                include: i => i.Include(i => i.Media));
+
+                if (finalQuotation == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Finalized_Final_Quotation);
+                }
+
+                dependOnQuotation = new DependOnQuotation
+                {
+                    QuotationlId = finalQuotation.Id,
+                    Version = (double)finalQuotation.Version!,
+                    File = finalQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == finalQuotation.Id)?.Url ?? ErrMessage.InvalidFile
+                };
+            }
+             
+
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, dependOnQuotation);
         }
 
         public async Task<ContractResponse> GetDetailContractByType(string type)
@@ -76,11 +114,48 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
             }
+            DependOnQuotation dependOnQuotation = null;
+            if (contractItem.Type == AppConstant.ContractType.Design.ToString())
+            {
+                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
+                                include: i => i.Include(i => i.Media));
+
+                if (initialQuotation == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+                }
+
+                dependOnQuotation = new DependOnQuotation
+                {
+                    QuotationlId = initialQuotation.Id,
+                    Version = initialQuotation.Version,
+                    File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
+                };
+            }
+            else
+            {
+                var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+                                predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
+                                include: i => i.Include(i => i.Media));
+
+                if (finalQuotation == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Finalized_Final_Quotation);
+                }
+
+                dependOnQuotation = new DependOnQuotation
+                {
+                    QuotationlId = finalQuotation.Id,
+                    Version = (double)finalQuotation.Version!,
+                    File = finalQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == finalQuotation.Id)?.Url ?? ErrMessage.InvalidFile
+                };
+            }
 
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, dependOnQuotation);
         }
 
         //Create design -  Create batch payment design drawing
@@ -354,6 +429,17 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
                 }
                 contractInfo.UrlFile = uploadResult.Url.ToString();
+                if (contractInfo.Type == AppConstant.ContractType.Construction.ToString())
+                {
+                    var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == contractInfo.ProjectId);
+                    if (projectInfo == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+                    }
+                    projectInfo.Status = AppConstant.ProjectStatus.SIGNED_CONTRACT;
+                    _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
+                }
+
                 _unitOfWork.GetRepository<Contract>().UpdateAsync(contractInfo);
             }
 
@@ -541,6 +627,7 @@ namespace RHCQS_Services.Implement
                     }
                 }
 
+                //Find batch item has status Paid
                 var contractId = payBatchInfo.First().ContractId;
                 var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
 
@@ -551,6 +638,14 @@ namespace RHCQS_Services.Implement
                     {
                         contract.Status = AppConstant.ContractStatus.FINISHED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+
+                        //Update project status "SIGNED CONTRACT" -> "FINALIZED"
+                        var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == contract.ProjectId);
+                        if (projectInfo != null)
+                        {
+                            projectInfo.Status = AppConstant.ProjectStatus.FINALIZED;
+                            _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
+                        }
                     }
                 }
 

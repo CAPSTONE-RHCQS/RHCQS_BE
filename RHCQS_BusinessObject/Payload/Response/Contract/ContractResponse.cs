@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RHCQS_BusinessObject.Payload.Response
+namespace RHCQS_BusinessObject.Payload.Response.Contract
 {
     public class ContractResponse
     {
@@ -26,7 +26,8 @@ namespace RHCQS_BusinessObject.Payload.Response
             double? roughPackagePrice,
             double? finishedPackagePrice,
             string status,
-            string type)
+            string type,
+            DependOnQuotation quotation)
         {
             ProjectId = projectId;
             Name = name;
@@ -46,6 +47,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             FinishedPackagePrice = finishedPackagePrice;
             Status = status;
             Type = type;
+            Quotation = quotation;
         }
 
         public Guid ProjectId { get; set; }
@@ -66,5 +68,13 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? FinishedPackagePrice { get; set; }
         public string Status { get; set; } = null!;
         public string Type { get; set; } = null!;
+        public DependOnQuotation Quotation { get; set; }
+    }
+
+    public class DependOnQuotation
+    {
+        public Guid QuotationlId { get; set; }
+        public double Version { get; set; }
+        public string File { get; set; }
     }
 }

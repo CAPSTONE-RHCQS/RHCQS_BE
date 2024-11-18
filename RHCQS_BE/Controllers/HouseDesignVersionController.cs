@@ -179,7 +179,7 @@ namespace RHCQS_BE.Controllers
         /// ROLE: CUSTOMER
         /// </summary>
         #endregion
-        //[Authorize(Roles = "Customer")]
+        [Authorize(Roles = "Customer")]
         [HttpPut(ApiEndPointConstant.HouseDesignVersion.HouseDesignVerisonConfirmEndpoint)]
         [ProducesResponseType(typeof(UpdateInitialRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
