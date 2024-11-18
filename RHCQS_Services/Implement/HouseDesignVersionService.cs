@@ -44,7 +44,8 @@ namespace RHCQS_Services.Implement
         {
             var version = await _unitOfWork.GetRepository<HouseDesignVersion>()
                                            .FirstOrDefaultAsync(predicate: v => v.Id == versionId,
-                                                                include: v => v.Include(v => v.Media));
+                                                                include: v => v.Include(v => v.Media)
+                                                                                .Include(v => v.HouseDesignDrawing));
 
             if (version == null)
             {
@@ -271,7 +272,7 @@ namespace RHCQS_Services.Implement
 
             var nextStep = designVersionInfo.HouseDesignDrawing.Step + 1;
 
-            if (nextStep == 2 || nextStep == 4)
+            if (nextStep == 2 || nextStep == 3||nextStep == 4)
             { 
                 var nextStepDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                     .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId && x.Step == nextStep);
