@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request.Mate;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using System;
@@ -14,8 +15,9 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<MaterialResponse>> GetListMaterial(int page, int size);
         Task<MaterialResponse> GetDetailMaterial(Guid id);
         Task<bool> CreateMaterial(MaterialRequest request);
+        Task<string?> UploadMaterialImage(IFormFile image);
         Task<bool> UpdateMaterial(Guid id, MaterialUpdateRequest request);
         Task<List<MaterialResponse>> SearchMaterialByName(string name);
-        Task<List<MaterialResponse>> FilterMaterialByType(Guid materialTypeId);
+        Task<List<MaterialResponse>> FilterMaterialBySection(Guid materialSectionId);
     }
 }

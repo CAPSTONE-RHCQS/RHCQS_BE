@@ -34,7 +34,8 @@ namespace RHCQS_Services.Implement
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    InsDate = x.InsDate
+                    InsDate = x.InsDate,
+                    Code = x.Code
                 },
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -53,7 +54,8 @@ namespace RHCQS_Services.Implement
             {
                 Id = labor.Id,
                 Name = labor.Name,
-                InsDate = labor.InsDate
+                InsDate = labor.InsDate,
+                Code = labor.Code
             };
         }
 
@@ -65,7 +67,8 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
-                    InsDate = LocalDateTime.VNDateTime()
+                    InsDate = LocalDateTime.VNDateTime(),
+                    Code = request.Code
                 };
                 await _unitOfWork.GetRepository<MaterialSection>().InsertAsync(newMaterialSection);
                 return await _unitOfWork.CommitAsync() > 0;
@@ -95,6 +98,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 materialSection.Name = request.Name ?? materialSection.Name;
+                materialSection.Code = request.Code ?? materialSection.Code;
 
                 _unitOfWork.GetRepository<MaterialSection>().UpdateAsync(materialSection);
                 return await _unitOfWork.CommitAsync() > 0;
@@ -115,7 +119,8 @@ namespace RHCQS_Services.Implement
                 {
                     Id = x.Id,
                     Name = x.Name,
-                    InsDate = x.InsDate
+                    InsDate = x.InsDate,
+                    Code = x.Code
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate),

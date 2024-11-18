@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
@@ -17,29 +18,33 @@ namespace RHCQS_Services.Implement
     public class SupplierService : ISupplierService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUploadImgService _uploadImgService;
         private readonly ILogger<SupplierService> _logger;
 
-        public SupplierService(IUnitOfWork unitOfWork, ILogger<SupplierService> logger)
+        public SupplierService(IUnitOfWork unitOfWork, IUploadImgService uploadImgService, ILogger<SupplierService> logger)
         {
             _unitOfWork = unitOfWork;
+            _uploadImgService = uploadImgService;
             _logger = logger;
         }
 
         public async Task<bool> CreateSupplier(SupplierRequest request)
         {
             try
-            {
+            {       
                 var newSupplier = new Supplier
                 {
                     Id = Guid.NewGuid(),
                     Name = request.Name,
                     Email = request.Email,
                     ConstractPhone = request.ConstractPhone,
+                    ImgUrl = request.ImgUrl,
                     InsDate = LocalDateTime.VNDateTime(),
                     UpsDate = LocalDateTime.VNDateTime(),
                     Deflag = request.Deflag,
                     ShortDescription = request.ShortDescription,
-                    Description = request.Description
+                    Description = request.Description,
+                    Code = request.Code
                 };
                 await _unitOfWork.GetRepository<Supplier>().InsertAsync(newSupplier);
                 return await _unitOfWork.CommitAsync() > 0;
@@ -51,6 +56,20 @@ namespace RHCQS_Services.Implement
                     "An error while creating a new supplier."
                 );
             }
+        }
+
+        public async Task<string> UploadSupplierImage(IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    "No image file uploaded."
+                );
+            }
+
+            var imageUrl = await _uploadImgService.UploadImage(image, "Supplier");
+            return imageUrl;
         }
 
         public async Task<SupplierResponse> GetDetailSupplier(Guid id)
@@ -71,7 +90,8 @@ namespace RHCQS_Services.Implement
                 UpsDate = supplier.UpsDate,
                 Deflag = supplier.Deflag,
                 ShortDescription = supplier.ShortDescription,
-                Description = supplier.Description
+                Description = supplier.Description,
+                Code = supplier.Code
             };
         }
 
@@ -89,7 +109,8 @@ namespace RHCQS_Services.Implement
                     UpsDate = x.UpsDate,
                     Deflag = x.Deflag,
                     ShortDescription = x.ShortDescription,
-                    Description = x.Description
+                    Description = x.Description,
+                    Code = x.Code
                 },
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -111,7 +132,8 @@ namespace RHCQS_Services.Implement
                     UpsDate = x.UpsDate,
                     Deflag = x.Deflag,
                     ShortDescription = x.ShortDescription,
-                    Description = x.Description
+                    Description = x.Description,
+                    Code = x.Code
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate)
@@ -133,13 +155,19 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    var imageUrl = await _uploadImgService.UploadImage(request.Image, "Supplier");
+                    supplier.ImgUrl = imageUrl;
+                }
+
                 supplier.Name = request.Name ?? supplier.Name;
                 supplier.Email = request.Email ?? supplier.Email;
                 supplier.ConstractPhone = request.ConstractPhone ?? supplier.ConstractPhone;
-                supplier.ImgUrl = request.ImgUrl ?? supplier.ImgUrl;
                 supplier.Deflag = request.Deflag ?? supplier.Deflag;
                 supplier.ShortDescription = request.ShortDescription ?? supplier.ShortDescription;
                 supplier.Description = request.Description ?? supplier.Description;
+                supplier.Code = request.Code ?? supplier.Code;
 
                 supplier.UpsDate = LocalDateTime.VNDateTime();
 

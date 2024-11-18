@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Mate;
@@ -18,11 +19,13 @@ namespace RHCQS_Services.Implement
     public class MaterialService : IMaterialService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUploadImgService _uploadImgService;
         private readonly ILogger<MaterialService> _logger;
 
-        public MaterialService(IUnitOfWork unitOfWork, ILogger<MaterialService> logger)
+        public MaterialService(IUnitOfWork unitOfWork, IUploadImgService uploadImgService,ILogger<MaterialService> logger)
         {
             _unitOfWork = unitOfWork;
+            _uploadImgService = uploadImgService;
             _logger = logger;
         }
 
@@ -41,11 +44,12 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
-                    MaterialTypeName = x.MaterialType.Name,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
-                include: m => m.Include(m => m.MaterialType).Include(m => m.MaterialSection).Include(m => m.Supplier),
+                include: m => m.Include(m => m.MaterialSection).Include(m => m.Supplier),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
                 size: size
@@ -56,7 +60,7 @@ namespace RHCQS_Services.Implement
         {
             var material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(
                 predicate: m => m.Id == id,
-                include: m => m.Include(m => m.MaterialType).Include(m => m.MaterialSection).Include(m => m.Supplier));
+                include: m => m.Include(m => m.MaterialSection).Include(m => m.Supplier));
             if (material == null)
                 return new MaterialResponse();
 
@@ -72,7 +76,8 @@ namespace RHCQS_Services.Implement
                 Description = material.Description,
                 IsAvailable = material.IsAvailable,
                 UnitPrice = material.UnitPrice,
-                MaterialTypeName = material.MaterialType.Name,
+                MaterialSectionId = material.MaterialSectionId,
+                SupplierId = material.SupplierId,
                 MaterialSectionName = material.MaterialSection.Name,
                 SupplierName = material.Supplier.Name
             };
@@ -82,19 +87,17 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var materialType = await _unitOfWork.GetRepository<MaterialType>()
-                    .FirstOrDefaultAsync(mt => mt.Id == request.MaterialTypeId);
 
                 var materialSection = await _unitOfWork.GetRepository<MaterialSection>()
                     .FirstOrDefaultAsync(ms => ms.Id == request.MaterialSectionId);
 
                 var supplier = await _unitOfWork.GetRepository<Supplier>()
                     .FirstOrDefaultAsync(s => s.Id == request.SupplierId);
-                if (materialType == null || materialSection == null || supplier == null)
+                if ( materialSection == null || supplier == null)
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
-                        "MaterialType or MaterialSection or Supplier does not exist."
+                        "MaterialSection or Supplier does not exist."
                     );
                 }
 
@@ -102,7 +105,6 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     SupplierId = (Guid)request.SupplierId,
-                    MaterialTypeId = (Guid)request.MaterialTypeId,
                     MaterialSectionId = request.MaterialSectionId,
                     Name = request.Name,
                     Price = request.Price,
@@ -128,6 +130,20 @@ namespace RHCQS_Services.Implement
             }
         }
 
+        public async Task<string> UploadMaterialImage(IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    "No image file uploaded."
+                );
+            }
+
+            var imageUrl = await _uploadImgService.UploadImage(image, "Material");
+            return imageUrl;
+        }
+
         public async Task<bool> UpdateMaterial(Guid id, MaterialUpdateRequest request)
         {
             try
@@ -143,6 +159,12 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                if (request.Image != null && request.Image.Length > 0)
+                {
+                    var imageUrl = await _uploadImgService.UploadImage(request.Image, "Material");
+                    material.ImgUrl = imageUrl;
+                }
+
                 material.Name = request.Name ?? material.Name;
                 material.Price = request.Price.HasValue ? (double)request.Price.Value : material.Price;
                 material.Unit = request.Unit ?? material.Unit;
@@ -151,7 +173,6 @@ namespace RHCQS_Services.Implement
                 material.ImgUrl = request.ImgUrl ?? material.ImgUrl;
                 material.Description = request.Description ?? material.Description;
                 material.SupplierId = request.SupplierId ?? material.SupplierId;
-                material.MaterialTypeId = request.MaterialTypeId ?? material.MaterialTypeId;
                 material.MaterialSectionId = request.MaterialSectionId ?? material.MaterialSectionId;
                 material.UnitPrice = request.UnitPrice ?? material.UnitPrice;
                 material.IsAvailable = request.IsAvailable ?? material.IsAvailable;
@@ -185,19 +206,19 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
-                    MaterialTypeName = x.MaterialType.Name,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
                 predicate: m => m.Name.Contains(name),
-                include: m => m.Include(m => m.MaterialType)
-                               .Include(m => m.MaterialSection)
+                include: m => m.Include(m => m.MaterialSection)
                                .Include(m => m.Supplier),
                 orderBy: x => x.OrderBy(x => x.InsDate)
             ); 
         }
 
-        public async Task<List<MaterialResponse>> FilterMaterialByType(Guid materialTypeId)
+        public async Task<List<MaterialResponse>> FilterMaterialBySection(Guid materialSectionId)
         {
             return (List<MaterialResponse>)await _unitOfWork.GetRepository<Material>().GetListAsync(
                 selector: x => new MaterialResponse
@@ -212,12 +233,13 @@ namespace RHCQS_Services.Implement
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
                     UnitPrice = x.UnitPrice,
-                    MaterialTypeName = x.MaterialType.Name,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name
                 },
-                predicate: m => m.MaterialTypeId == materialTypeId,
-                include: m => m.Include(m => m.MaterialType).Include(m => m.MaterialSection).Include(m => m.Supplier),
+                predicate: m => m.MaterialSectionId == materialSectionId,
+                include: m => m.Include(m => m.MaterialSection).Include(m => m.Supplier),
                 orderBy: x => x.OrderBy(x => x.InsDate)
             );
         }

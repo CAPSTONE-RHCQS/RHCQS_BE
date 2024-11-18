@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
@@ -119,8 +120,10 @@ namespace RHCQS_BE.Controllers
             {
                 return Ok(new { Url = pdfUrl });
             }
-
-            return Ok(AppConstant.Message.SUCCESSFUL_UPDATE);
+            if (pdfUrl == AppConstant.Message.REJECTED)
+            {
+                return Ok(AppConstant.Message.REJECTED);
+            }else return BadRequest(AppConstant.Message.ERROR);
         }
         #region GetDetailFinalQuotationById
         /// <summary>

@@ -119,7 +119,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="name">The name or partial name of the material section.</param>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpGet("search")]
+        [HttpGet(ApiEndPointConstant.MaterialSection.SearchMaterialSectionEndpoint)]
         [ProducesResponseType(typeof(IPaginate<MaterialSectionResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchMaterialSectionByName(string name, int page, int size)
         {
