@@ -427,6 +427,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
+            entity.Property(e => e.Type).HasMaxLength(20);
         });
 
         modelBuilder.Entity<Medium>(entity =>
