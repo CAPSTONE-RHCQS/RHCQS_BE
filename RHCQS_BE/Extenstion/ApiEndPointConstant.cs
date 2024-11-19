@@ -41,6 +41,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string PackageEndpoint = ApiEndpoint + "/package";
             public const string PackageListEndpoint = ApiEndpoint + "/allpackage";
+            public const string PackageDetailPDFEndpoint = PackageEndpoint + "/generate-pdf";
             public const string PackageDetailEndpoint = PackageEndpoint + "/id";
             public const string PackageByNameEndpoint = PackageEndpoint + "/name";
             public const string PackageAutoCharacter = PackageEndpoint + "/contain/name";
@@ -149,6 +150,7 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task";
             public const string HouseDesignDrawingAssignTask = HouseDesignDrawingEndpoint + "/assign";
             public const string HouseDesignConfirmProjectHaveDrawing = HouseDesignDrawingEndpoint + "/confirm/drawing-have";
+            public const string HouseDesignDesignRequiment = HouseDesignDrawingEndpoint + "/request/design";
         }
 
         public static class HouseDesignVersion

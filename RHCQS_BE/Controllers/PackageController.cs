@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
@@ -170,6 +171,27 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json",
                 StatusCode = StatusCodes.Status200OK
             };
+        }
+        #region PackageDetail PDF
+        /// <summary>
+        /// create detailpackage pdf by id.
+        /// </summary>
+        /// <param id="id">The id to get for.</param>
+        /// <returns>The detailpackage match with id.</returns>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Package.PackageDetailPDFEndpoint)]
+        public async Task<IActionResult> GeneratePackagePdf(Guid packageId)
+        {
+            var pdfUrl = await _packageService.GeneratePackagePdf(packageId);
+            var response = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+
         }
     }
 }

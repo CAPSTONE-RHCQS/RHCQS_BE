@@ -42,13 +42,16 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public Guid? ContractId { get; set; }
 
         [Required(ErrorMessage = "Giá là bắt buộc.")]
-        [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
 
+        [Required(ErrorMessage = "Phần trăm là bắt buộc.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public string? Percents { get; set; }
 
         public string? Description { get; set; }
 
+        [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         public string? Status { get; set; }
     }
 
@@ -61,10 +64,10 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         public string? Unit { get; set; }
 
         [Required(ErrorMessage = "Số lượng là bắt buộc.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải lớn hơn 0.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Số lượng phải là mốt số dương.")]
         public int? Quantity { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Giá đơn vị phải là một số dương.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Giá đơn vị phải là một số dương.")]
         public double? UnitOfMaterial { get; set; }
 
         //[Range(0, double.MaxValue, ErrorMessage = "Tổng tiền vật liệu phải là một số dương.")]
@@ -92,7 +95,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 /*        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
         public double? Coefficient { get; set; }*/
 
-        [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
 
         /*        public string? Description { get; set; }*/
@@ -106,7 +109,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         //public string? Unit { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
+        [Range(1, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
         public double? Weight { get; set; }
 
 /*        public double? UnitPriceLabor { get; set; }

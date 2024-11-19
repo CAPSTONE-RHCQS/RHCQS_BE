@@ -43,6 +43,8 @@ namespace RHCQS_BusinessObject.Payload.Response.Project
         public Guid Id { get; set; }
 
         public string? Name { get; set; }
+        public string? Phone { get; set; }
+        public string? Avatar { get; set; }
 
         public string AccountName { get; set; }
         public string? Address { get; set; }

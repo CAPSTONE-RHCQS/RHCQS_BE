@@ -250,6 +250,7 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "PromotionId không tồn tại.");
                 }
                 promotation = promotionExists.Value;
+
             }
 
             var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
@@ -281,6 +282,7 @@ namespace RHCQS_Services.Implement
                 UpsDate = LocalDateTime.VNDateTime(),
                 Status = AppConstant.QuotationStatus.REVIEWING,
                 Deflag = true,
+                Discount = promotation,
                 BatchPayments = new List<BatchPayment>()
             };
 
@@ -1290,6 +1292,7 @@ namespace RHCQS_Services.Implement
                     houseDesignDrawingsList,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
+                    finalQuotation?.Discount ?? null,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
                     finalQuotation.Version,
@@ -1565,6 +1568,7 @@ namespace RHCQS_Services.Implement
                     houseDesignDrawingsList,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
+                    finalQuotation?.Discount ?? null,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
                     finalQuotation.Version,
