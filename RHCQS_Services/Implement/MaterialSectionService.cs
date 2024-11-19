@@ -35,7 +35,8 @@ namespace RHCQS_Services.Implement
                     Id = x.Id,
                     Name = x.Name,
                     InsDate = x.InsDate,
-                    Code = x.Code
+                    Code = x.Code,
+                    Type = x.Type
                 },
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -55,7 +56,8 @@ namespace RHCQS_Services.Implement
                 Id = labor.Id,
                 Name = labor.Name,
                 InsDate = labor.InsDate,
-                Code = labor.Code
+                Code = labor.Code,
+                Type = labor.Type
             };
         }
 
@@ -68,7 +70,8 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     Name = request.Name,
                     InsDate = LocalDateTime.VNDateTime(),
-                    Code = request.Code
+                    Code = request.Code,
+                    Type = request.Type
                 };
                 await _unitOfWork.GetRepository<MaterialSection>().InsertAsync(newMaterialSection);
                 return await _unitOfWork.CommitAsync() > 0;
@@ -119,7 +122,8 @@ namespace RHCQS_Services.Implement
                     Id = x.Id,
                     Name = x.Name,
                     InsDate = x.InsDate,
-                    Code = x.Code
+                    Code = x.Code,
+                    Type = x.Type
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate),
