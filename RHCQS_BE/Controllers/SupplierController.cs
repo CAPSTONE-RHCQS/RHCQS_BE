@@ -132,7 +132,7 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Supplier.SupplierEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateSupplier(Guid id, [FromForm] SupplierRequest request)
+        public async Task<IActionResult> UpdateSupplier(Guid id, [FromForm] SupplierUpdateRequest request)
         {
             try
             {

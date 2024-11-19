@@ -106,7 +106,7 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.MaterialSection.MaterialSectionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateMaterialType(Guid id, [FromBody] MaterialSectionRequest request)
+        public async Task<IActionResult> UpdateMaterialType(Guid id, [FromBody] MaterialSectionUpdateRequest request)
         {
             var isUpdated = await _materialSectionService.UpdateMaterialSection(id, request);
             return isUpdated ? Ok(isUpdated) : BadRequest();
