@@ -6,6 +6,7 @@ using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.MateSec;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -120,10 +121,10 @@ namespace RHCQS_BE.Controllers
         #endregion
         [Authorize(Roles = "Manager")]
         [HttpGet(ApiEndPointConstant.MaterialSection.SearchMaterialSectionEndpoint)]
-        [ProducesResponseType(typeof(IPaginate<MaterialSectionResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchMaterialSectionByName(string name, int page, int size)
+        [ProducesResponseType(typeof(List<MaterialSectionResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchMaterialSectionByName(string name)
         {
-            var listSearchMaterialSection = await _materialSectionService.SearchMaterialSectionByName(name, page, size);
+            var listSearchMaterialSection = await _materialSectionService.SearchMaterialSectionByName(name);
             var result = JsonConvert.SerializeObject(listSearchMaterialSection, Formatting.Indented);
             return new ContentResult()
             {
