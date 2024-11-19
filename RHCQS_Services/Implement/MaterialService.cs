@@ -46,7 +46,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionName = x.MaterialSection.Name,
+                    MaterialSectionType = x.MaterialSection.Type,
                     SupplierName = x.Supplier.Name
                 },
                 include: m => m.Include(m => m.MaterialSection).Include(m => m.Supplier),
@@ -78,7 +78,7 @@ namespace RHCQS_Services.Implement
                 UnitPrice = material.UnitPrice,
                 MaterialSectionId = material.MaterialSectionId,
                 SupplierId = material.SupplierId,
-                MaterialSectionName = material.MaterialSection.Name,
+                MaterialSectionType = material.MaterialSection.Type,
                 SupplierName = material.Supplier.Name
             };
         }
@@ -209,7 +209,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionName = x.MaterialSection.Name,
+                    MaterialSectionType = x.MaterialSection.Type,
                     SupplierName = x.Supplier.Name
                 },
                 predicate: m => m.Name.Contains(name),
@@ -236,7 +236,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionName = x.MaterialSection.Name,
+                    MaterialSectionType = x.MaterialSection.Type,
                     SupplierName = x.Supplier.Name
                 },
                 predicate: m => m.MaterialSectionId == materialSectionId,
