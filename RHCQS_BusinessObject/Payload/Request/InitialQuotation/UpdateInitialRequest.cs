@@ -91,6 +91,7 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
     {
         //[Required(ErrorMessage = "Mã khuyến mãi là bắt buộc.")]
         public Guid Id { get; set; }
+        public double Discount { get; set; }
     }
 
     public class BatchPaymentUpdateRequest

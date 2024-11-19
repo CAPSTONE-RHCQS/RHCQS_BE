@@ -257,6 +257,9 @@ public static class AppConstant
         public const string InvalidBatchPayment = "Các đợt thanh toán hợp đồng là bắt buộc!";
         public const string MaxVersionQuotation = "Báo giá đã đạt tới lần chỉnh sửa thứ 10, dự án sẽ bị hủy!";
 
+        //Discount
+        public const string InvalidDiscount = "Tiền giảm giá không hợp lệ!";
+
         //Role
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
 

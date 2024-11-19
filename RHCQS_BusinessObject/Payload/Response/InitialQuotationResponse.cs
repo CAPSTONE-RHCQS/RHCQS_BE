@@ -43,35 +43,6 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class InitialQuotationResponse
     {
         public InitialQuotationResponse() { }
-
-        //public InitialQuotationResponse(Guid id, string accountName, Guid projectId, Guid? promotionId,
-        //    double? area, int? timeProccessing, int? timeOthers, string? othersAgreement, DateTime? insDate, string? status,
-        //    double? version, bool deflag, string? note, double? totalRough, double? totalUtilities, string? unit,
-        //    PackageQuotationList packageQuotationList, List<InitialQuotationItemResponse> itemInitial,
-        //    PromotionInfo promotionInfo, List<BatchPaymentInfo> batchPaymentInfos)
-        //{
-        //    Id = id;
-        //    AccountName = accountName;
-        //    ProjectId = projectId;
-        //    PromotionId = promotionId;
-        //    Area = area;
-        //    TimeProcessing = timeProccessing;
-        //    TimeOthers = timeOthers;
-        //    OthersAgreement = othersAgreement;
-        //    InsDate = insDate;
-        //    Status = status;
-        //    Version = version;
-        //    Deflag = deflag;
-        //    Note = note;
-        //    TotalRough = totalRough;
-        //    TotalUtilities = totalUtilities;
-        //    Unit = unit;
-        //    PackageQuotationList = packageQuotationList;
-        //    ItemInitial = itemInitial;
-        //    PromotionInfo = promotionInfo;
-        //    BatchPaymentInfos = batchPaymentInfos;
-        //}
-
         public Guid Id { get; set; }
         public string AccountName { get; set; }
         public string Address { get; set; }
@@ -88,6 +59,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalRough { get; set; }
 
         public double? TotalUtilities { get; set; }
+
+        public double? Discount { get; set; }
 
         public string? Unit { get; set; }
         public string? ReasonReject { get; set; }

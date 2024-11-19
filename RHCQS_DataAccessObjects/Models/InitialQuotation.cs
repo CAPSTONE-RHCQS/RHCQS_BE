@@ -43,6 +43,8 @@ public partial class InitialQuotation
 
     public bool? IsDraft { get; set; }
 
+    public double? Discount { get; set; }
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();

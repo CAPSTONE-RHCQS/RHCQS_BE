@@ -147,6 +147,7 @@ namespace RHCQS_Services.Implement
                 Note = initialQuotation.Note,
                 TotalRough = initialQuotation.TotalRough,
                 TotalUtilities = initialQuotation.TotalUtilities,
+                Discount = initialQuotation.Discount ?? 0.0,
                 Unit = initialQuotation.Unit,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
@@ -256,6 +257,7 @@ namespace RHCQS_Services.Implement
                 Note = initialQuotation.Note,
                 TotalRough = initialQuotation.TotalRough,
                 TotalUtilities = initialQuotation.TotalUtilities,
+                Discount = initialQuotation.Discount ?? 0.0,
                 Unit = initialQuotation.Unit,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
@@ -360,6 +362,7 @@ namespace RHCQS_Services.Implement
                 Note = initialQuotation.Note,
                 TotalRough = initialQuotation.TotalRough,
                 TotalUtilities = initialQuotation.TotalUtilities,
+                Discount = initialQuotation.Discount ?? 0.0,
                 Unit = initialQuotation.Unit,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
@@ -820,11 +823,16 @@ namespace RHCQS_Services.Implement
                     {
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.PromotionIllegal);
                     }
+
+                    double discountCheck = (double)request.Area * (double)promotionInfo.Value;
+                    if(discountCheck != request.Promotions.Discount)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
+                    }
                 }
                 #endregion
 
-
-                //Update project
+                #region Update project
                 var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                 predicate: x => x.Version == request.VersionPresent && x.ProjectId == request.ProjectId,
                     include: x => x.Include(x => x.Project));
@@ -837,6 +845,7 @@ namespace RHCQS_Services.Implement
                 initialVersionPresent.Status = AppConstant.QuotationStatus.PROCESSING;
 
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
+                #endregion
 
                 #region Create initial quotation
                 var initialItem = new InitialQuotation()
@@ -859,7 +868,8 @@ namespace RHCQS_Services.Implement
                     TotalUtilities = request.TotalUtilities,
                     Unit = AppConstant.Unit.UnitPrice,
                     ReasonReject = null,
-                    IsDraft = true
+                    IsDraft = true,
+                    Discount = request.Promotions.Discount
                 };
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
                 #endregion

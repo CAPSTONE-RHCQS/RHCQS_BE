@@ -25,6 +25,8 @@ public partial class Project
 
     public double? Area { get; set; }
 
+    public bool? IsDrawing { get; set; }
+
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
 
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();

@@ -29,6 +29,8 @@ public partial class FinalQuotation
 
     public bool? IsDraft { get; set; }
 
+    public double? Discount { get; set; }
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual ICollection<EquipmentItem> EquipmentItems { get; set; } = new List<EquipmentItem>();
