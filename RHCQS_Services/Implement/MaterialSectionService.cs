@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
-using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
+using RHCQS_BusinessObject.Payload.Request.MateSec;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -82,7 +82,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<bool> UpdateMaterialSection(Guid id, MaterialSectionRequest request)
+        public async Task<bool> UpdateMaterialSection(Guid id, MaterialSectionUpdateRequest request)
         {
             try
             {
@@ -98,7 +98,6 @@ namespace RHCQS_Services.Implement
                 }
 
                 materialSection.Name = request.Name ?? materialSection.Name;
-                materialSection.Code = request.Code ?? materialSection.Code;
 
                 _unitOfWork.GetRepository<MaterialSection>().UpdateAsync(materialSection);
                 return await _unitOfWork.CommitAsync() > 0;
