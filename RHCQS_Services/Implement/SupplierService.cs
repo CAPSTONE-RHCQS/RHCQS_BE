@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
-using RHCQS_BusinessObject.Payload.Request;
+using RHCQS_BusinessObject.Payload.Request.Sup;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -140,7 +140,7 @@ namespace RHCQS_Services.Implement
             );
         }
 
-        public async Task<bool> UpdateSupplier(Guid id, SupplierRequest request)
+        public async Task<bool> UpdateSupplier(Guid id, SupplierUpdateRequest request)
         {
             try
             {
@@ -167,7 +167,6 @@ namespace RHCQS_Services.Implement
                 supplier.Deflag = request.Deflag ?? supplier.Deflag;
                 supplier.ShortDescription = request.ShortDescription ?? supplier.ShortDescription;
                 supplier.Description = request.Description ?? supplier.Description;
-                supplier.Code = request.Code ?? supplier.Code;
 
                 supplier.UpsDate = LocalDateTime.VNDateTime();
 
