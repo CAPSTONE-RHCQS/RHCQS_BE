@@ -160,7 +160,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="name">The name or partial name of the supplier.</param>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpGet("search")]
+        [HttpGet(ApiEndPointConstant.Supplier.SearchSupplierEndpoint)]
         [ProducesResponseType(typeof(List<SupplierResponse>), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchSupplierByName(string name)
         {
