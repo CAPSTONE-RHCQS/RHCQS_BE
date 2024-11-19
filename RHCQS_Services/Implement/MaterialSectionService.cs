@@ -114,9 +114,9 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<IPaginate<MaterialSectionResponse>> SearchMaterialSectionByName(string name, int page, int size)
+        public async Task<List<MaterialSectionResponse>> SearchMaterialSectionByName(string name)
         {
-            return await _unitOfWork.GetRepository<MaterialSection>().GetList(
+            return (List<MaterialSectionResponse>)await _unitOfWork.GetRepository<MaterialSection>().GetListAsync(
                 selector: x => new MaterialSectionResponse
                 {
                     Id = x.Id,
@@ -126,9 +126,7 @@ namespace RHCQS_Services.Implement
                     Type = x.Type
                 },
                 predicate: m => m.Name.Contains(name),
-                orderBy: x => x.OrderBy(x => x.InsDate),
-                page: page,
-                size: size
+                orderBy: x => x.OrderBy(x => x.InsDate)
             );
         }
     }
