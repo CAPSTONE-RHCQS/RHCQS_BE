@@ -274,5 +274,21 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        [HttpPut(ApiEndPointConstant.HouseDesignDrawing.HouseDesignConfirmProjectHaveDrawing)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ConfirmDrawingAvaliable(Guid versionId, AssignHouseDrawingRequest request)
+        {
+            var design = await _houseService.ConfirmDrawingAvaliable(versionId, request);
+            if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
+            var result = JsonConvert.SerializeObject(design, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

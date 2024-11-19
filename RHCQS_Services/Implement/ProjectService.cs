@@ -281,26 +281,52 @@ namespace RHCQS_Services.Implement
                         break;
                 }
 
-                var projectItem = new Project
+                #region Create project
+                Project projectItem = null;
+                //Case khách hàng có 4 bản vẽ: IsDrawing = true
+                if (projectRequest.IsDrawing == true)
                 {
-                    Id = Guid.NewGuid(),
-                    CustomerId = customerInfo.Id,
-                    Name = projectName,
-                    Type = projectRequest.Type,
-                    Status = AppConstant.ProjectStatus.PROCESSING,
-                    InsDate = LocalDateTime.VNDateTime(),
-                    UpsDate = LocalDateTime.VNDateTime(),
-                    ProjectCode = GenerateRandom.GenerateRandomString(5),
-                    Address = projectRequest.Address,
-                    Area = projectRequest.Area
-                };
+                    projectItem = new Project
+                    {
+                        Id = Guid.NewGuid(),
+                        CustomerId = customerInfo.Id,
+                        Name = projectName,
+                        Type = AppConstant.Type.DRAWINGHAVE,
+                        Status = AppConstant.ProjectStatus.PROCESSING,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
+                        ProjectCode = GenerateRandom.GenerateRandomString(5),
+                        Address = projectRequest.Address,
+                        Area = projectRequest.Area,
+                        IsDrawing = true
+                    };
+                } else
+                {
+                    projectItem = new Project
+                    {
+                        Id = Guid.NewGuid(),
+                        CustomerId = customerInfo.Id,
+                        Name = projectName,
+                        Type = projectRequest.Type,
+                        Status = AppConstant.ProjectStatus.PROCESSING,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
+                        ProjectCode = GenerateRandom.GenerateRandomString(5),
+                        Address = projectRequest.Address,
+                        Area = projectRequest.Area,
+                        IsDrawing = false
+                    };
+                }
+                 
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
+                #endregion
 
+                #region Initial quotation
                 var initialItem = new InitialQuotation
                 {
                     Id = Guid.NewGuid(),
                     ProjectId = projectItem.Id,
-                    PromotionId = projectRequest.Promotion.Id,
+                    PromotionId = projectRequest.Promotion?.Id,
                     Area = projectRequest.Area,
                     TimeProcessing = null,
                     TimeRough = null,
@@ -316,8 +342,9 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+                #endregion
 
-                //PackageQuotation
+                #region PackageQuotation
                 if (projectRequest.PackageQuotations.Count < 1)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
@@ -336,7 +363,9 @@ namespace RHCQS_Services.Implement
 
                     await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageQuotation);
                 }
+                #endregion
 
+                #region Create initial quotation item
                 foreach (var request in projectRequest.InitialQuotation.InitialQuotationItemRequests!)
                 {
                     var initialQuotationItem = new InitialQuotationItem
@@ -354,7 +383,9 @@ namespace RHCQS_Services.Implement
                     };
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
                 }
+                #endregion
 
+                #region Create utility
                 if (projectRequest.PackageQuotations.Count > 0)
                 {
                     foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
@@ -406,6 +437,7 @@ namespace RHCQS_Services.Implement
                         await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                     }
                 }
+                #endregion
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;
@@ -931,7 +963,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<string> CreateProjectHaveDrawing(ProjectHaveDrawingRequest request)
+        public async Task<string> ProjectHaveDrawing(ProjectHaveDrawingRequest request)
         {
             //Check amount of drawing - 4 type drawing
             //1.Perspective - Phối cảnh
@@ -957,29 +989,11 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_ElectricityWater);
             }
+                
+            var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == request.ProjectId,
+                                                                                             include: p => p.Include(p => p.Customer!));
 
-            var customerInfo = await _unitOfWork.GetRepository<Customer>().FirstOrDefaultAsync(
-                                predicate: x => x.AccountId == request.AccountId);
-
-            var project = new Project()
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customerInfo.Id,
-                Name = "Dự án báo giá " + LocalDateTime.VNDateTime(),
-                Type = AppConstant.Type.DRAWINGHAVE,
-                Status = AppConstant.ProjectStatus.PROCESSING,
-                InsDate = LocalDateTime.VNDateTime(),
-                UpsDate = LocalDateTime.VNDateTime(),
-                ProjectCode = GenerateRandom.GenerateRandomString(5),
-                Address = request.Address,
-                Area = request.Area
-            };
-
-            await _unitOfWork.GetRepository<Project>().InsertAsync(project);
-            await _unitOfWork.CommitAsync();
-
-
-            var result = await _drawingService.CreateProjectHaveDrawing(project.Id, request.AccountId, request);
+            var result = await _drawingService.CreateProjectHaveDrawing(request.ProjectId, (Guid)projectInfo.Customer!.AccountId!, request);
 
             return result;
         }

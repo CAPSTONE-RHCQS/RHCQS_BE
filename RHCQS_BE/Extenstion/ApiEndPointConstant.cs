@@ -148,6 +148,7 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
             public const string HouseDesignDrawingTask = HouseDesignDrawingEndpoint + "/task";
             public const string HouseDesignDrawingAssignTask = HouseDesignDrawingEndpoint + "/assign";
+            public const string HouseDesignConfirmProjectHaveDrawing = HouseDesignDrawingEndpoint + "/confirm/drawing-have";
         }
 
         public static class HouseDesignVersion

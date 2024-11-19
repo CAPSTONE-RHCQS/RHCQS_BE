@@ -37,6 +37,9 @@ namespace RHCQS_BusinessObject.Payload.Request
         public List<QuotationUtilitiesRequest>? QuotationUtilitiesRequest { get; set; }
 
         public PromotionCreate? Promotion {  get; set; }
+
+        [Required(ErrorMessage = "Xác nhận khách hàng có bảng vẽ thiết kế là bắt buộc.")]
+        public bool IsDrawing { get; set; }
     }
 
     public class PromotionCreate

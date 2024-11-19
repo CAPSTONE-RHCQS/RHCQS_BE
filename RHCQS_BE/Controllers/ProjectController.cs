@@ -265,7 +265,7 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] 
         public async Task<IActionResult> CreateProject([FromBody] ProjectRequest request)
         {
             var isCreate = await _projectService.CreateProjectQuotation(request);
@@ -431,13 +431,13 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Project created successfully</response>
         /// <response code="400">Failed to create the project due to validation errors</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff")]
+        //[Authorize(Roles = "Customer, SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectHaveDrawingEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateProjectHaveDrawing([FromForm] ProjectHaveDrawingRequest request)
         {
-            var isCreate = await _projectService.CreateProjectHaveDrawing(request);
+            var isCreate = await _projectService.ProjectHaveDrawing(request);
             return Ok(isCreate);
         }
 
