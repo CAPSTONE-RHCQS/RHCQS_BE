@@ -176,6 +176,8 @@ namespace RHCQS_Services.Implement
             {
                 Id = projectItem.Id,
                 Name = projectItem.Name,
+                Phone = projectItem.Customer.PhoneNumber ?? "Không có",
+                Avatar = projectItem.Customer.ImgUrl,
                 AccountName = projectItem.Customer!.Username!,
                 Address = projectItem.Address,
                 Area = projectItem.Area,
@@ -1040,7 +1042,7 @@ namespace RHCQS_Services.Implement
                 selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
                                                    x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Customer!),
-                orderBy: x => x.OrderBy(w => w.InsDate),
+                orderBy: x => x.OrderByDescending(w => w.InsDate),
                 page: page,
                 size: size
             );

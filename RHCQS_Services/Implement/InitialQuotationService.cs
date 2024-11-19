@@ -869,7 +869,7 @@ namespace RHCQS_Services.Implement
                     Unit = AppConstant.Unit.UnitPrice,
                     ReasonReject = null,
                     IsDraft = true,
-                    Discount = request.Promotions.Discount
+                    Discount = request.Promotions?.Discount ?? 0.0
                 };
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
                 #endregion
