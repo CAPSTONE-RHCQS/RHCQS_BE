@@ -290,5 +290,33 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region DesignRequirements
+        /// <summary>
+        /// Customers request design when initial quotation has finalized
+        /// 
+        /// Role: CUSTOMER
+        /// </summary>
+        /// <remarks>
+        /// ProjectId
+        /// </remarks>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpPost(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDesignRequiment)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> DesignRequirements([FromBody] Guid projectId)
+        {
+            var design = await _houseService.DesignRequirements(projectId);
+            if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
+            var result = JsonConvert.SerializeObject(design, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

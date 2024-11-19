@@ -575,5 +575,45 @@ namespace RHCQS_Services.Implement
             var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
             return result;
         }
+
+        public async Task<string> DesignRequirements(Guid projectId)
+        {
+            var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                predicate: p => p.Id == projectId,
+                                include: p => p.Include(p => p.Customer!));
+
+            if (projectInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
+            }
+
+            //Contract design is coming ....
+            var contractDrawing = new Contract
+            {
+                Id = Guid.NewGuid(),
+                ProjectId = projectInfo.Id,
+                Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
+                CustomerName = projectInfo.Customer!.Username!,
+                ContractCode = null,
+                StartDate = null,
+                EndDate = null,
+                ValidityPeriod = null,
+                TaxCode = null,
+                Area = projectInfo.Area,
+                UnitPrice = AppConstant.Unit.UnitPrice,
+                ContractValue = null,
+                UrlFile = null,
+                Note = null,
+                Deflag = true,
+                RoughPackagePrice = 0,
+                FinishedPackagePrice = 0,
+                Status = AppConstant.ContractStatus.PROCESSING,
+                Type = AppConstant.ContractType.Design.ToString(),
+            };
+            await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+
+            var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+            return isSuccessful;
+        }
     }
 }
