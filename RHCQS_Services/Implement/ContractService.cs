@@ -15,6 +15,7 @@ using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
             }
 
-            DependOnQuotation dependOnQuotation = null; 
+            DependOnQuotation dependOnQuotation = null;
             if (contractItem.Type == AppConstant.ContractType.Design.ToString())
             {
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -77,7 +78,8 @@ namespace RHCQS_Services.Implement
                     Version = initialQuotation.Version,
                     File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
-            } else
+            }
+            else
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                                 predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
@@ -95,12 +97,12 @@ namespace RHCQS_Services.Implement
                     File = finalQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == finalQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
-             
+
 
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, dependOnQuotation);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation);
         }
 
         public async Task<ContractResponse> GetDetailContractByType(string type)
@@ -155,7 +157,7 @@ namespace RHCQS_Services.Implement
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, dependOnQuotation);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation);
         }
 
         //Create design -  Create batch payment design drawing
@@ -218,6 +220,7 @@ namespace RHCQS_Services.Implement
                             FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
                             Status = AppConstant.ContractStatus.PROCESSING,
                             Type = request.Type,
+                            InsDate = LocalDateTime.VNDateTime()
                         };
                         await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
                     }
@@ -349,6 +352,7 @@ namespace RHCQS_Services.Implement
                     FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
                     Status = AppConstant.ContractStatus.PROCESSING,
                     Type = AppConstant.ContractType.Construction.ToString(),
+                    InsDate = LocalDateTime.VNDateTime()
                 };
 
                 await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
@@ -663,5 +667,53 @@ namespace RHCQS_Services.Implement
 
         }
 
+        public async Task<InitialToContractResponse> CloneInitialInfoToContract(Guid projectId)
+        {
+            try
+            {
+                var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                    predicate: p => p.ProjectId == projectId && p.Status == AppConstant.QuotationStatus.FINALIZED,
+                                    include: p => p.Include(p => p.BatchPayments)
+                                                                    .ThenInclude(p => p.Payment!));
+
+                if (initialInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+                }
+
+                // Calculate contract value
+                double contractValue = (initialInfo.TotalRough ?? 0.0)
+                                     + (initialInfo.TotalUtilities ?? 0.0)
+                                     - (initialInfo.Discount ?? 0.0);
+
+                // BatchPaymentRequest
+                var batchPaymentRequests = initialInfo.BatchPayments
+                    .Select((batchPayment, index) => new InitialToBatchPayment
+                    {
+                        NumberOfBatches = index + 1,
+                        Price = (double)batchPayment.Payment.TotalPrice!,
+                        PaymentDate = batchPayment.Payment.PaymentDate,
+                        PaymentPhase = batchPayment.Payment.PaymentPhase,
+                        Percents = batchPayment.Payment.Percents,
+                        Description = batchPayment.Payment.Description
+                    }).ToList();
+
+                var result = new InitialToContractResponse()
+                {
+                    ProjectId = projectId,
+                    Type = AppConstant.ContractType.Design.ToString(),
+                    StartDate = null,
+                    EndDate = null,
+                    ValidityPeriod = null,
+                    TaxCode = null,
+                    ContractValue = contractValue,
+                    UrlFile = null,
+                    Note = null,
+                    BatchPaymentRequests = batchPaymentRequests
+                };
+                return result;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+        }
     }
 }

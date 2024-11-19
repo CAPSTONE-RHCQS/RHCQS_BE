@@ -50,6 +50,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? Area { get; set; }
         public int? TimeProcessing { get; set; }
         public int? TimeOthers { get; set; }
+        public int? TimeRough { get; set; }
         public string? OthersAgreement { get; set; }
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }

@@ -27,6 +27,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
             double? finishedPackagePrice,
             string status,
             string type,
+            DateTime? insDate,
             DependOnQuotation quotation)
         {
             ProjectId = projectId;
@@ -47,6 +48,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
             FinishedPackagePrice = finishedPackagePrice;
             Status = status;
             Type = type;
+            InsDate = insDate;
             Quotation = quotation;
         }
 
@@ -68,6 +70,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
         public double? FinishedPackagePrice { get; set; }
         public string Status { get; set; } = null!;
         public string Type { get; set; } = null!;
+        public DateTime? InsDate { get; set; }
         public DependOnQuotation Quotation { get; set; }
     }
 

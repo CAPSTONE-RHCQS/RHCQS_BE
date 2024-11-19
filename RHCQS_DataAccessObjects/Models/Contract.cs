@@ -43,6 +43,8 @@ public partial class Contract
 
     public string Type { get; set; } = null!;
 
+    public DateTime? InsDate { get; set; }
+
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 
     public virtual Project Project { get; set; } = null!;
