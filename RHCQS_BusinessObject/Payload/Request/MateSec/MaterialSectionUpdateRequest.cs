@@ -10,5 +10,6 @@ namespace RHCQS_BusinessObject.Payload.Request.MateSec
     public class MaterialSectionUpdateRequest
     {
         public string? Name { get; set; }
+        public string? Type { get; set; }
     }
 }
