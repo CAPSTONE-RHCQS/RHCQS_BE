@@ -17,6 +17,6 @@ namespace RHCQS_Services.Interface
         Task<MaterialSectionResponse> GetDetailMaterialSection(Guid id);
         Task<bool> CreateMaterialSection(MaterialSectionRequest request);
         Task<bool> UpdateMaterialSection(Guid id, MaterialSectionUpdateRequest request);
-        Task<IPaginate<MaterialSectionResponse>> SearchMaterialSectionByName(string name, int page, int size);
+        Task<List<MaterialSectionResponse>> SearchMaterialSectionByName(string name);
     }
 }
