@@ -1,4 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
+using DinkToPdf.Contracts;
+using DinkToPdf;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
@@ -12,6 +16,7 @@ using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,11 +26,14 @@ namespace RHCQS_Services.Implement
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<PackageService> _logger;
-
-        public PackageService(IUnitOfWork unitOfWork, ILogger<PackageService> logger)
+        private readonly Cloudinary _cloudinary;
+        private readonly IConverter _converter;
+        public PackageService(IUnitOfWork unitOfWork, ILogger<PackageService> logger, Cloudinary cloudinary, IConverter converter)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _cloudinary = cloudinary;
+            _converter = converter;
         }
 
         private static PackageResponse MapPackageToResponse(Package package)
@@ -427,6 +435,240 @@ namespace RHCQS_Services.Implement
             {
                 throw new Exception(ex.Message);
             }
+        }
+        public async Task<string> GeneratePackagePdf(Guid packageId)
+        {
+            // Retrieve package details by ID
+            var package = await GetPackageDetail(packageId);
+            if (package == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                                   AppConstant.ErrMessage.PackageNotFound);
+            }
+
+            try
+            {
+                // Step 1: Generate HTML content based on package details
+                var htmlContent = GeneratePackageHtmlContent(package); // Implement this method to format the package details as HTML
+
+                // Step 2: Configure and convert HTML to PDF
+                var doc = new HtmlToPdfDocument
+                {
+                    GlobalSettings = {
+                ColorMode = ColorMode.Color,
+                Orientation = Orientation.Portrait,
+                PaperSize = PaperKind.A4
+            },
+                    Objects = {
+                new ObjectSettings
+                {
+                    PagesCount = true,
+                    HtmlContent = htmlContent,
+                    WebSettings = { DefaultEncoding = "utf-8", UserStyleSheet = null }
+                }
+            }
+                };
+
+/*                string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                NativeLibrary.Load(dllPath);*/
+
+                var pdf = _converter.Convert(doc);
+
+                // Step 3: Upload PDF to Cloudinary
+                using (var pdfStream = new MemoryStream(pdf))
+                {
+                    var uploadParams = new RawUploadParams
+                    {
+                        File = new FileDescription($"{package.PackageName}_Details.pdf", pdfStream),
+                        Folder = "PDFPackage",
+                        PublicId = $"Package_{package.PackageName}_{package.Id}",
+                        UseFilename = true,
+                        UniqueFilename = true,
+                        Overwrite = true
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
+                                                           AppConstant.ErrMessage.FailUploadPackagePdf);
+                    }
+
+                    // Optionally store the PDF URL in your database
+                    // ...
+
+                    // Step 4: Return the Cloudinary URL of the uploaded PDF
+                    return uploadResult.SecureUrl.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error generating PDF for package: " + ex.Message);
+            }
+        }
+
+        private string GeneratePackageHtmlContent(PackageResponse package)
+        {
+            var sb = new StringBuilder();
+
+            sb.Append($@"
+<html>
+<head>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }}
+        th, td {{
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }}
+        thead {{
+            display: table-header-group;
+        }}
+        tbody {{
+            display: table-row-group;
+        }}
+        tr {{
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }}
+        h1, h2 {{
+            color: #333;
+        }}
+        .section-title {{
+            margin-top: 30px;
+            color: #2c3e50;
+        }}
+        
+        @media print {{
+            h2.section-title {{
+                page-break-before: always;
+                margin-top: 50px;
+            }}
+            table {{
+                page-break-inside: auto;
+            }}
+            tr {{
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }}
+            thead {{
+                display: table-header-group;
+            }}
+            tbody {{
+                display: table-row-group;
+            }}
+        }}
+    </style>
+</head>
+<body>
+
+<!-- Package Metadata -->
+<h1>{package.PackageName}</h1>
+<p><strong>Loại:</strong> {(
+            string.Equals(package.PackageType?.Name, "ROUGH", StringComparison.OrdinalIgnoreCase) ? "Thô" :
+            string.Equals(package.PackageType?.Name, "FINISHED", StringComparison.OrdinalIgnoreCase) ? "Hoàn thiện" :
+            package.PackageType?.Name)}</p>
+
+<p><strong>Đơn vị:</strong> {package.Unit}</p>
+<p><strong>Giá:</strong> {package.Price:N0} VND</p>");
+
+            // Package Details - Materials
+            if (package.PackageDetails != null && package.PackageDetails.Any(detail => detail.PackageMaterials != null && detail.PackageMaterials.Any()))
+            {
+                sb.Append($@"
+    <h2 class='section-title'>Nguyên vật liệu</h2>");
+
+                foreach (var detail in package.PackageDetails)
+                {
+                    if (detail.PackageMaterials != null && detail.PackageMaterials.Any())
+                    {
+                        sb.Append($@"
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mục Vật Liệu</th>
+                        <th>Tên Vật Liệu</th>
+                        <th>Đơn Vị</th>
+                        <th>Giá</th>
+                        <th>Kích Thước</th>
+                        <th>Hình Dạng</th>
+                    </tr>
+                </thead>
+                <tbody>");
+
+                        foreach (var material in detail.PackageMaterials)
+                        {
+                            sb.Append($@"
+                <tr>
+                    <td>{material.MaterialSectionName}</td>
+                    <td>{material.MaterialName}</td>
+                    <td>{material.Unit}</td>
+                    <td>{material.Price:N0} VND</td>
+                    <td>{material.Size}</td>
+                    <td>{material.Shape}</td>
+                </tr>");
+                        }
+
+                        sb.Append($@"
+            </tbody>
+        </table>");
+                    }
+                }
+            }
+
+            // Package Details - Labor
+            if (package.PackageDetails != null && package.PackageDetails.Any(detail => detail.PackageLabors != null && detail.PackageLabors.Any()))
+            {
+                sb.Append($@"
+    <h2 class='section-title'>Nhân công</h2>");
+
+                foreach (var detail in package.PackageDetails)
+                {
+                    if (detail.PackageLabors != null && detail.PackageLabors.Any())
+                    {
+                        sb.Append($@"
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tên Công Việc</th>
+                        <th>Loại</th>
+                        <th>Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>");
+
+                        foreach (var labor in detail.PackageLabors)
+                        {
+                            var laborType = labor.Type == "Rough" ? "Thô" : labor.Type == "Finished" ? "Hoàn thiện" : labor.Type;
+
+                            sb.Append($@"
+                <tr>
+                    <td>{labor.NameOfLabor}</td>
+                    <td>{laborType}</td>
+                    <td>{labor.TotalPrice:N0} VND</td>
+                </tr>");
+                        }
+
+                        sb.Append($@"
+            </tbody>
+        </table>");
+                    }
+                }
+            }
+
+            sb.Append($@"
+</body>
+</html>");
+
+            return sb.ToString();
         }
 
     }

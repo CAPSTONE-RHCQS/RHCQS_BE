@@ -283,6 +283,7 @@ public static class AppConstant
         public const string PackageLaborNotFound = "Package labor không tìm thấy.";
         public const string PackageHouseNotFound = "Package house không tìm thấy.";
         public const string PackagematerialNotFound = "Package material không tìm thấy.";
+        public const string FailUploadPackagePdf = "Update package pdf thất bại.";
 
         //Media
         public const string Not_Found_Media = "Không tìm thấy Media!";
