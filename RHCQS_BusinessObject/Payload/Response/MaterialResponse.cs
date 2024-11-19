@@ -22,5 +22,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid SupplierId { get; set; }
         public string MaterialSectionType { get; set; }
         public string SupplierName { get; set; }
+        public string? Code { get; set; }
     }
 }
