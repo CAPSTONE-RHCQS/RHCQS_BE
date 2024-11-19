@@ -23,5 +23,6 @@ namespace RHCQS_Services.Interface
         Task<string> CreateProjectHaveDrawing(Guid projectId, Guid accountId, ProjectHaveDrawingRequest files);
 
         Task<string> ConfirmDrawingAvaliable(Guid drawingId, AssignHouseDrawingRequest request);
+        Task<string> DesignRequirements(Guid projectId);
     }
 }
