@@ -116,7 +116,8 @@ namespace RHCQS_Services.Implement
                     InsDate = LocalDateTime.VNDateTime(),
                     UpsDate = LocalDateTime.VNDateTime(),
                     UnitPrice = request.UnitPrice,
-                    IsAvailable = request.IsAvailable
+                    IsAvailable = request.IsAvailable,
+                    Code = request.Code
                 };
                 await _unitOfWork.GetRepository<Material>().InsertAsync(newMaterial);
                 return await _unitOfWork.CommitAsync() > 0;
