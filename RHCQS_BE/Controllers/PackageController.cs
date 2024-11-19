@@ -179,6 +179,7 @@ namespace RHCQS_BE.Controllers
         /// <param id="id">The id to get for.</param>
         /// <returns>The detailpackage match with id.</returns>
         #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Package.PackageDetailPDFEndpoint)]
         public async Task<IActionResult> GeneratePackagePdf(Guid packageId)
         {
