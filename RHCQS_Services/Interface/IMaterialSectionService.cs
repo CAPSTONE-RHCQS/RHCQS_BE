@@ -1,5 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
-using RHCQS_BusinessObject.Payload.Request.Mate;
+﻿using RHCQS_BusinessObject.Payload.Request.Mate;
+using RHCQS_BusinessObject.Payload.Request.MateSec;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -16,7 +16,7 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<MaterialSectionResponse>> GetListMaterialSection(int page, int size);
         Task<MaterialSectionResponse> GetDetailMaterialSection(Guid id);
         Task<bool> CreateMaterialSection(MaterialSectionRequest request);
-        Task<bool> UpdateMaterialSection(Guid id, MaterialSectionRequest request);
+        Task<bool> UpdateMaterialSection(Guid id, MaterialSectionUpdateRequest request);
         Task<IPaginate<MaterialSectionResponse>> SearchMaterialSectionByName(string name, int page, int size);
     }
 }
