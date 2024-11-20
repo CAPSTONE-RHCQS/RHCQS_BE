@@ -988,6 +988,7 @@ namespace RHCQS_Services.Implement
                 //Create a batch payments
                 foreach (var item in request.BatchPayments)
                 {
+                    int batch = 0;
                     var payment = new Payment
                     {
                         Id = Guid.NewGuid(),
@@ -1007,11 +1008,12 @@ namespace RHCQS_Services.Implement
                     {
                         Id = Guid.NewGuid(),
                         ContractId = null,
-                        IntitialQuotationId = initialItem.Id,
+                        InitialQuotationId = initialItem.Id,
                         InsDate = LocalDateTime.VNDateTime(),
                         FinalQuotationId = null,
                         PaymentId = payment.Id,
-                        Status = AppConstant.PaymentStatus.PROGRESS
+                        Status = AppConstant.PaymentStatus.PROGRESS,
+                        NumberOfBatch = batch++
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
                 }
