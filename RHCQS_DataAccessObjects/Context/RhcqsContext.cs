@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using RHCQS_DataAccessObjects.Models;
 
-namespace RHCQS_DataAccessObjects.Context;
+namespace RHCQS_DataAccessObjects.Models;
 
 public partial class RhcqsContext : DbContext
 {
@@ -640,6 +639,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Project");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CustomerName).HasMaxLength(50);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.ProjectCode)

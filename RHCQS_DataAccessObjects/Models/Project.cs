@@ -27,6 +27,8 @@ public partial class Project
 
     public bool? IsDrawing { get; set; }
 
+    public string? CustomerName { get; set; }
+
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
 
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();

@@ -9,8 +9,10 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 {
     public class FinalRequest
     {
-        public string? AccountName { get; set; }
-        public string? Address { get; set; }
+        [Required(ErrorMessage = "CustomerName là bắt buộc.")]
+        public string CustomerName { get; set; }
+        [Required(ErrorMessage = "Address là bắt buộc.")]
+        public string Address { get; set; }
 
         [Required(ErrorMessage = "ProjectId là bắt buộc.")]
         public Guid ProjectId { get; set; }
@@ -55,14 +57,16 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         //[Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         //public string? Status { get; set; }
+        [Required(ErrorMessage = "NumberOfBatch là bắt buộc.")]
+        public int NumberOfBatch { get; set; }
 
         [Required(ErrorMessage = "Ngày thanh toán là bắt buộc.")]
         [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
-        public DateTime? PaymentDate { get; set; }
+        public DateTime PaymentDate { get; set; }
 
         [Required(ErrorMessage = "Giai đoạn thanh toán là bắt buộc.")]
         [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
-        public DateTime? PaymentPhase { get; set; }
+        public DateTime PaymentPhase { get; set; }
     }
 
     public class EquipmentItemsRequest
