@@ -15,7 +15,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             string? name, int? step,
             string? status, string? type,
             bool? isCompany, DateTime? insDate,
-            DependOnVersion dependOnVersion,
+            List<DependOnVersion> dependOnVersion,
             List<HouseDesignVersionResponse>? versions)
         {
             Id = id;
@@ -50,7 +50,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
         public bool? IsCompany { get; set; }
 
         public DateTime? InsDate { get; set; }
-        public DependOnVersion? DependOnVersion { get; set; }
+        public List<DependOnVersion>? DependOnVersion { get; set; }
         public List<HouseDesignVersionResponse>? Versions { get; set; }
     }
 

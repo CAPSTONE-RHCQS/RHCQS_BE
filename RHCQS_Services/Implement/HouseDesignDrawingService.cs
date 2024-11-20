@@ -111,18 +111,21 @@ namespace RHCQS_Services.Implement
                 throw new MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
-            DependOnVersion? dependOnVersion = null;
+            List<DependOnVersion> dependOnVersions = new();
+
             if (drawingItem.Step > 1)
             {
-                int previousStep = drawingItem.Step.Value - 1;
-
-                var previousDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
-                    predicate: d => d.ProjectId == drawingItem.ProjectId && d.Step == previousStep && d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
+                // Lấy tất cả các bước trước (1 -> step-1) với trạng thái "Accepted"
+                var previousDrawings = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(
+                    predicate: d => d.ProjectId == drawingItem.ProjectId &&
+                                    d.Step < drawingItem.Step &&
+                                    d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
                     include: d => d.Include(d => d.HouseDesignVersions)
-                                    .ThenInclude(d => d.Media)
+                                   .ThenInclude(d => d.Media)
                 );
 
-                if (previousDrawing != null)
+                // Lấy các phiên bản chấp nhận được của các bản vẽ trước
+                foreach (var previousDrawing in previousDrawings)
                 {
                     var acceptedVersion = previousDrawing.HouseDesignVersions
                                                          .OrderByDescending(v => v.Version)
@@ -131,13 +134,13 @@ namespace RHCQS_Services.Implement
                     if (acceptedVersion != null)
                     {
                         var previousFileUrl = acceptedVersion.Media?.FirstOrDefault(m => m.HouseDesignVersionId == acceptedVersion.Id)?.Url ?? "Chưa hoàn thành";
-                        dependOnVersion = new DependOnVersion
+                        dependOnVersions.Add(new DependOnVersion
                         {
                             HouseDesginVersionId = acceptedVersion.Id,
                             HouseDesignVersionName = acceptedVersion.Name,
                             HouseDesignVersion = acceptedVersion.Version,
                             FileDesignVersion = previousFileUrl
-                        };
+                        });
                     }
                 }
             }
@@ -155,7 +158,7 @@ namespace RHCQS_Services.Implement
                 type: drawingItem.Type,
                 isCompany: drawingItem.HaveDrawing,
                 insDate: drawingItem.InsDate,
-                dependOnVersion: dependOnVersion,
+                dependOnVersion: dependOnVersions,
                 versions: drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
                     id: version.Id,
                     name: version.Name,
@@ -171,6 +174,7 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+
         public async Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type)
         {
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
@@ -185,17 +189,21 @@ namespace RHCQS_Services.Implement
                 throw new InvalidOperationException($"No drawing found for type: {type}");
             }
 
-            DependOnVersion? dependOnVersion = null;
+            List<DependOnVersion> dependOnVersions = new();
+
             if (drawingItem.Step > 1)
             {
-                int previousStep = drawingItem.Step.Value - 1;
-
-                var previousDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
-                    predicate: d => d.ProjectId == drawingItem.ProjectId && d.Step == previousStep && d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
+                // Lấy tất cả các bước trước (1 -> step-1) với trạng thái "Accepted"
+                var previousDrawings = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(
+                    predicate: d => d.ProjectId == drawingItem.ProjectId &&
+                                    d.Step < drawingItem.Step &&
+                                    d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
                     include: d => d.Include(d => d.HouseDesignVersions)
+                                   .ThenInclude(d => d.Media)
                 );
 
-                if (previousDrawing != null)
+                // Lấy các phiên bản chấp nhận được của các bản vẽ trước
+                foreach (var previousDrawing in previousDrawings)
                 {
                     var acceptedVersion = previousDrawing.HouseDesignVersions
                                                          .OrderByDescending(v => v.Version)
@@ -204,40 +212,42 @@ namespace RHCQS_Services.Implement
                     if (acceptedVersion != null)
                     {
                         var previousFileUrl = acceptedVersion.Media?.FirstOrDefault(m => m.HouseDesignVersionId == acceptedVersion.Id)?.Url ?? "Chưa hoàn thành";
-                        dependOnVersion = new DependOnVersion
+                        dependOnVersions.Add(new DependOnVersion
                         {
                             HouseDesginVersionId = acceptedVersion.Id,
                             HouseDesignVersionName = acceptedVersion.Name,
                             HouseDesignVersion = acceptedVersion.Version,
                             FileDesignVersion = previousFileUrl
-                        };
+                        });
                     }
                 }
             }
 
             var result = new HouseDesignDrawingResponse(
-                       drawingItem.Id,
-                       drawingItem.ProjectId,
-                       drawingItem.Account.Username,
-                       drawingItem.HouseDesignVersions.Max(v => v.Version),
-                       drawingItem.Name,
-                       drawingItem.Step,
-                       drawingItem.Status,
-                       drawingItem.Type,
-                       drawingItem.HaveDrawing,
-                       drawingItem.InsDate,
-                       dependOnVersion,
-                       drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
-                            version.Id,
-                            version.Name,
-                            version.Version,
-                            version.Media.Select(m => m.Url).FirstOrDefault(),
-                            version.InsDate,
-                            version.PreviousDrawingId,
-                            version.Note,
-                            version.Reason
-                           )).ToList()
-                    );
+                id: drawingItem.Id,
+                projectId: drawingItem.ProjectId,
+                staffName: drawingItem.Account.Username,
+                versionPresent: drawingItem.HouseDesignVersions.Any()
+                    ? drawingItem.HouseDesignVersions.Max(v => v.Version)
+                    : 0.0,
+                name: drawingItem.Name,
+                step: drawingItem.Step,
+                status: drawingItem.Status,
+                type: drawingItem.Type,
+                isCompany: drawingItem.HaveDrawing,
+                insDate: drawingItem.InsDate,
+                dependOnVersion: dependOnVersions,
+                versions: drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
+                    id: version.Id,
+                    name: version.Name,
+                    version: version.Version,
+                    fileUrl: version.Media.Select(m => m.Url).FirstOrDefault(),
+                    insDate: version.InsDate,
+                    previousDrawingId: version.PreviousDrawingId,
+                    note: version.Note,
+                    reason: version.Reason
+                )).OrderByDescending(v => v.Version).ToList()
+            );
 
             return result;
         }
