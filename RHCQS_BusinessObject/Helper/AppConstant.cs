@@ -314,8 +314,9 @@ public static class AppConstant
 
         //FinalQuotation
         public const string FinalQuotationExists = "FinalQuotation đã tồn tại.";
-
-
+        public const string FinalQuotationUpdateFailed = "FinalQuotation cập nhật thất bại.";
+        //InitalQuotation
+        public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
     }
 }
 

@@ -9,6 +9,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 {
     public class FinalRequest
     {
+        public string? AccountName { get; set; }
+        public string? Address { get; set; }
 
         [Required(ErrorMessage = "ProjectId là bắt buộc.")]
         public Guid ProjectId { get; set; }

@@ -602,7 +602,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    AppConstant.ErrMessage.CreatePackage
+                    AppConstant.ErrMessage.FinalQuotationUpdateFailed
                 );
             }
             return finalQuotation.Id;
@@ -708,8 +708,7 @@ namespace RHCQS_Services.Implement
 
             if (finalItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
                                                AppConstant.ErrMessage.Not_Found_FinalQuotaion);
-
-            if (request.Type == AppConstant.QuotationStatus.APPROVED)
+            if (request.Type?.ToLower() == AppConstant.QuotationStatus.APPROVED.ToLower())
             {
                 finalItem.Status = AppConstant.QuotationStatus.APPROVED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
@@ -778,7 +777,14 @@ namespace RHCQS_Services.Implement
                         };
 
                         await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
-                        _unitOfWork.Commit();
+                        bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                        if (!isSuccessful)
+                        {
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Conflict,
+                                AppConstant.ErrMessage.FinalQuotationUpdateFailed
+                            );
+                        }
 
                         return uploadResult.SecureUrl.ToString();
                     }
@@ -788,7 +794,7 @@ namespace RHCQS_Services.Implement
                     throw new Exception(ex.Message);
                 }
             }
-            else
+            else if(request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
             {
                 if (request.Reason == null)
                 {
@@ -798,10 +804,17 @@ namespace RHCQS_Services.Implement
                 finalItem.Status = AppConstant.QuotationStatus.REJECTED;
                 finalItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                if (!isSuccessful)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.FinalQuotationUpdateFailed
+                    );
+                }
                 return AppConstant.Message.REJECTED;
             }
 
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return null;
         }
 

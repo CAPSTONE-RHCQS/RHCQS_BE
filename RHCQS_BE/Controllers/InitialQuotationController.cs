@@ -384,13 +384,35 @@ namespace RHCQS_BE.Controllers
 
             if (!string.IsNullOrEmpty(pdfUrl))
             {
-                return Ok(new { Url = pdfUrl });
+                var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+                return new ContentResult()
+                {
+                    Content = result,
+                    StatusCode = StatusCodes.Status200OK,
+                    ContentType = "application/json"
+                };
             }
             if (pdfUrl == AppConstant.Message.REJECTED)
             {
-                return Ok(AppConstant.Message.REJECTED);
+                var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+                return new ContentResult()
+                {
+                    Content = result,
+                    StatusCode = StatusCodes.Status200OK,
+                    ContentType = "application/json"
+                };
             }
-            else return BadRequest(AppConstant.Message.ERROR);
+            else
+            {
+                var result = JsonConvert.SerializeObject(AppConstant.Message.ERROR, Formatting.Indented);
+                return new ContentResult()
+                {
+                    Content = result,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    ContentType = "application/json"
+                };
+
+            }
         }
 
         #region UpdateInitialQuotation
