@@ -223,6 +223,19 @@ namespace RHCQS_Services.Implement
             itemDrawing.HouseDesignDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
             itemDrawing.UpsDate = LocalDateTime.VNDateTime();
 
+            //Update project status Processing -> Designed
+            if (itemDrawing.HouseDesignDrawing.Step == 4)
+            {
+                var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                predicate: p => p.Id == itemDrawing.HouseDesignDrawing.ProjectId);
+                if (projectInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
+                }
+                projectInfo.Status = AppConstant.ProjectStatus.DESIGNED;
+                _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
+            }
+
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;
             return isUpdate;

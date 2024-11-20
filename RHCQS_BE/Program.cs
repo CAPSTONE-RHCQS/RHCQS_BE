@@ -75,7 +75,7 @@ namespace RHCQS_BE
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                //endpoints.MapHub<ChatService>("/chatHub");
+                endpoints.MapHub<ChatService>("/chatHub");
             });
 
             app.Run();
