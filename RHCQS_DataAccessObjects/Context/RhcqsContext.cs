@@ -256,10 +256,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("EquipmentItem");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Note)
-                .HasMaxLength(10)
-                .IsFixedLength();
+            entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.Type).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
 
