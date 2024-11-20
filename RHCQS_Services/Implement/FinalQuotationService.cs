@@ -1094,7 +1094,8 @@ namespace RHCQS_Services.Implement
                         bp?.Payment?.TotalPrice,
                         bp?.Payment?.Unit,
                         bp?.Payment?.PaymentDate,
-                        bp?.Payment?.PaymentPhase
+                        bp?.Payment?.PaymentPhase,
+                        bp?.NumberOfBatch
                     )
                 ).ToList();
 
@@ -1368,7 +1369,8 @@ namespace RHCQS_Services.Implement
                         bp?.Payment?.TotalPrice,
                         bp?.Payment?.Unit,
                         bp?.Payment?.PaymentDate,
-                        bp?.Payment?.PaymentPhase
+                        bp?.Payment?.PaymentPhase,
+                        bp?.NumberOfBatch
                     )
                 ).ToList();
 

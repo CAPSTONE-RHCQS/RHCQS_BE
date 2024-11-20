@@ -116,7 +116,8 @@ namespace RHCQS_BusinessObject.Payload.Response
             double? price,
             string? unit,
             DateTime? paymentDate,
-            DateTime? paymentPhase)
+            DateTime? paymentPhase,
+            int? numberOfBatch)
         {
             InsDate = insDate;
             PaymentId = paymentId;
@@ -131,6 +132,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Unit = unit;
             PaymentDate = paymentDate;
             PaymentPhase = paymentPhase;
+            NumberOfBatch = numberOfBatch;
         }
 
         public Guid PaymentId { get; set; }
@@ -149,6 +151,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Unit { get; set; }
         public string? Percents { get; set; }
         public string? Description { get; set; }
+        public int? NumberOfBatch { get; set; }
     }
 
     public class EquipmentItemsResponse
