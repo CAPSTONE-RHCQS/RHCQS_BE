@@ -53,6 +53,9 @@ namespace RHCQS_Services.Implement
             var contractItem = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
                                 predicate: c => c.Id == contractId,
                                 include: c => c.Include(c => c.Project)
+                                                .Include(c => c.BatchPayments)
+                                                .ThenInclude(c => c.Payment!)
+
                 );
 
             if (contractItem == null)
@@ -98,11 +101,23 @@ namespace RHCQS_Services.Implement
                 };
             }
 
+            var batchPayments = contractItem.BatchPayments
+                .Select(b => new BatchPaymentContract
+                {
+                    NumberOfBatch = b.NumberOfBatch,
+                    Price = b.Payment.TotalPrice,
+                    PaymentDate = b.Payment.PaymentDate,
+                    PaymentPhase = b.Payment.PaymentPhase,
+                    Percents = b.Payment.Percents,
+                    Description = b.Payment.Description
+                })
+                .OrderBy(b => b.NumberOfBatch)
+                .ToList();
 
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation, batchPayments);
         }
 
         public async Task<ContractResponse> GetDetailContractByType(string type)
@@ -154,10 +169,23 @@ namespace RHCQS_Services.Implement
                 };
             }
 
+            var batchPayments = contractItem.BatchPayments
+             .Select(b => new BatchPaymentContract
+             {
+                 NumberOfBatch = b.NumberOfBatch,
+                 Price = b.Payment.TotalPrice,
+                 PaymentDate = b.Payment.PaymentDate,
+                 PaymentPhase = b.Payment.PaymentPhase,
+                 Percents = b.Payment.Percents,
+                 Description = b.Payment.Description
+             })
+             .OrderBy(b => b.NumberOfBatch)
+             .ToList();
+
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation, batchPayments);
         }
 
         //Create design -  Create batch payment design drawing
@@ -254,6 +282,7 @@ namespace RHCQS_Services.Implement
                     // Tạo payment thiết kế
                     foreach (var pay in request.BatchPaymentRequests!)
                     {
+                        int batch = 0;
                         // Lấy PaymentType từ bảng PaymentType
                         var paymentType = await _unitOfWork.GetRepository<PaymentType>()
                                     .FirstOrDefaultAsync(pt => pt.Name == EnumExtensions.GetEnumDescription(contractType));
@@ -282,7 +311,8 @@ namespace RHCQS_Services.Implement
                             InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = null,
                             PaymentId = payInfo.Id,
-                            Status = AppConstant.PaymentStatus.PROGRESS
+                            Status = AppConstant.PaymentStatus.PROGRESS,
+                            NumberOfBatch = batch++
                         };
 
                         await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);

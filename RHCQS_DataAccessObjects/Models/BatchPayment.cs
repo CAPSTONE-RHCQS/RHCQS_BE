@@ -17,7 +17,9 @@ public partial class BatchPayment
 
     public Guid? PaymentId { get; set; }
 
-    public string? Status { get; set; }
+    public string Status { get; set; } = null!;
+
+    public int NumberOfBatch { get; set; }
 
     public virtual Contract? Contract { get; set; }
 
