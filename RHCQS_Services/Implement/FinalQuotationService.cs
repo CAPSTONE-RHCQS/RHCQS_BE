@@ -309,7 +309,7 @@ namespace RHCQS_Services.Implement
                                 Id = Guid.NewGuid(),
                                 PaymentTypeId = matchingBatchPayment.Payment.PaymentTypeId,
                                 InsDate = LocalDateTime.VNDateTime(),
-                                TotalPrice = matchingBatchPayment.Payment.TotalPrice,
+                                TotalPrice = bp.Price,
                                 Percents = matchingBatchPayment.Payment.Percents,
                                 Description = matchingBatchPayment.Payment.Description,
                                 Unit = AppConstant.Unit.UnitPrice,
@@ -543,7 +543,7 @@ namespace RHCQS_Services.Implement
 
                             // Update totalUtilities based on available coefficient from item or itemOption
                             var coefficient = item?.Coefficient ?? 0;
-                            totalUtilities += (coefficient != 0) ? utility.Price * coefficient : utility.Price;
+                            totalUtilities += /*(coefficient != 0) ? utility.Price * coefficient :*/ utility.Price;
                         }
                         else
                         {
@@ -561,7 +561,7 @@ namespace RHCQS_Services.Implement
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId
                             };
-                            totalUtilities += utility.Price * utilityItem.Coefficient;
+                            totalUtilities += utility.Price;
                         }
 
                         await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);

@@ -59,6 +59,8 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         //public string? Status { get; set; }
         [Required(ErrorMessage = "NumberOfBatch là bắt buộc.")]
         public int NumberOfBatch { get; set; }
+        [Required(ErrorMessage = "Price là bắt buộc.")]
+        public double Price { get; set; }
 
         [Required(ErrorMessage = "Ngày thanh toán là bắt buộc.")]
         [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
