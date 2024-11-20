@@ -8,7 +8,7 @@ using static RHCQS_BusinessObjects.AppConstant;
 
 namespace RHCQS_BusinessObject.Payload.Request.Contract
 {
-    public class InitialToContractResponse
+    public class FinalToContractResponse
     {
         public Guid ProjectId { get; set; }
 

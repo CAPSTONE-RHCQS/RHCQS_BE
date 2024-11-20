@@ -319,12 +319,12 @@ namespace RHCQS_BE.Controllers
         /// <returns></returns>
         #endregion
         [Authorize(Roles = "Manager, SalesStaff")]
-        [HttpGet(ApiEndPointConstant.Contract.InitialToContract)]
+        [HttpGet(ApiEndPointConstant.Contract.FinalToContract)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CloneInitialInfoToContract(Guid projectId)
         {
-            var contractItem = await _contractService.CloneInitialInfoToContract(projectId);
+            var contractItem = await _contractService.CloneFinalInfoToContract(projectId);
             var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
             return new ContentResult()
             {
