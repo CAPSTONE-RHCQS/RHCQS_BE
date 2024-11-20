@@ -35,26 +35,26 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
     public class BatchPaymentInfoRequest
     {
-        [Required(ErrorMessage = "InitIntitialQuotationId là bắt buộc.")]
-        public Guid InitIntitialQuotationId { get; set; }
+        //[Required(ErrorMessage = "InitInitialQuotationId là bắt buộc.")]
+        //public Guid InitInitialQuotationId { get; set; }
 
-        [Required(ErrorMessage = "PaymentTypeId là bắt buộc.")]
-        public Guid PaymentTypeId { get; set; }
+        //[Required(ErrorMessage = "PaymentTypeId là bắt buộc.")]
+        //public Guid PaymentTypeId { get; set; }
 
-        public Guid? ContractId { get; set; }
+        //public Guid? ContractId { get; set; }
 
-        [Required(ErrorMessage = "Giá là bắt buộc.")]
-        [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
-        public double? Price { get; set; }
+        //[Required(ErrorMessage = "Giá là bắt buộc.")]
+        //[Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+        //public double? Price { get; set; }
 
-        [Required(ErrorMessage = "Phần trăm là bắt buộc.")]
-        [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
-        public string? Percents { get; set; }
+        //[Required(ErrorMessage = "Phần trăm là bắt buộc.")]
+        //[Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+        //public string? Percents { get; set; }
 
-        public string? Description { get; set; }
+        //public string? Description { get; set; }
 
-        [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
-        public string? Status { get; set; }
+        //[Required(ErrorMessage = "Trạng thái là bắt buộc.")]
+        //public string? Status { get; set; }
 
         [Required(ErrorMessage = "Ngày thanh toán là bắt buộc.")]
         [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]

@@ -500,7 +500,7 @@ namespace RHCQS_BE.Controllers
         ///     "note": "gg",
         ///     "batchPaymentInfos": [
         ///         {
-        ///             "initIntitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
+        ///             "initInitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
         ///             "paymentTypeId": "2d4a2343-d102-4dc9-8a4f-6647ea397e6c",
         ///             "contractId": "9d864292-9768-46d4-82f5-6b26cb1b9a3f",
         ///             "price": 292261500,
@@ -509,7 +509,7 @@ namespace RHCQS_BE.Controllers
         ///             "status": "Progress"
         ///         },
         ///         {
-        ///             "initIntitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
+        ///             "initInitialQuotationId": "bd31c4e5-e549-42ea-aec7-0f08446f089d",
         ///             "paymentTypeId": "2d4a2343-d102-4dc9-8a4f-6647ea397e6c",
         ///             "contractId": "9d864292-9768-46d4-82f5-6b26cb1b9a3f",
         ///             "price": 685552500,

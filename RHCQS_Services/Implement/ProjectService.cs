@@ -848,7 +848,7 @@ namespace RHCQS_Services.Implement
 
                     // Delete BatchPayments related to InitialQuotations
                     var batchPayments = await _unitOfWork.GetRepository<BatchPayment>()
-                        .GetListAsync(predicate: bp => initialQuotationIds.Contains(bp.IntitialQuotationId));
+                        .GetListAsync(predicate: bp => initialQuotationIds.Contains(bp.InitialQuotationId));
                     foreach (var batchPayment in batchPayments)
                     {
                         _unitOfWork.GetRepository<BatchPayment>().DeleteAsync(batchPayment);

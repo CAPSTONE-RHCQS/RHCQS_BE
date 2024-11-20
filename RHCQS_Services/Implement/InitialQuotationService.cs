@@ -996,8 +996,8 @@ namespace RHCQS_Services.Implement
                         InsDate = LocalDateTime.VNDateTime(),
                         UpsDate = LocalDateTime.VNDateTime(),
                         TotalPrice = item.Price,
-                        //PaymentDate = LocalDateTime.VNDateTime(),
-                        //PaymentPhase = LocalDateTime.VNDateTime(),
+                        PaymentDate = LocalDateTime.VNDateTime(),
+                        PaymentPhase = LocalDateTime.VNDateTime(),
                         Percents = item.Percents,
                         Description = item.Description,
                         Unit = AppConstant.Unit.UnitPrice
@@ -1008,7 +1008,7 @@ namespace RHCQS_Services.Implement
                     {
                         Id = Guid.NewGuid(),
                         ContractId = null,
-                        IntitialQuotationId = initialItem.Id,
+                        InitialQuotationId = initialItem.Id,
                         InsDate = LocalDateTime.VNDateTime(),
                         FinalQuotationId = null,
                         PaymentId = payment.Id,

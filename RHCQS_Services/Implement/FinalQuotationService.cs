@@ -219,7 +219,6 @@ namespace RHCQS_Services.Implement
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
-            double? totalBatchPayments = 0;
             double? totalUtilities = 0;
             double? totalEquipmentItems = 0;
             double? totalQuotationItems = 0;
@@ -257,6 +256,11 @@ namespace RHCQS_Services.Implement
                 p => p.ProjectId == request.ProjectId,
                 orderBy: p => p.OrderByDescending(p => p.Version),
                 include: p => p.Include(x => x.Project)
+                               .Include(x => x.BatchPayments)
+                                    .ThenInclude(x => x.Payment)
+                                    .ThenInclude(x => x.PaymentType)
+                               .Include(x => x.BatchPayments)
+                                    .ThenInclude(x => x.Contract)
             );
 
             highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
@@ -290,53 +294,17 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var bp in request.BatchPaymentInfos)
                 {
-                    var paymentTypeExists = await _unitOfWork.GetRepository<PaymentType>()
-                        .AnyAsync(pt => pt.Id == bp.PaymentTypeId);
-                    if (!paymentTypeExists)
-                    {
-                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"PaymentTypeId {bp.PaymentTypeId} không tồn tại.");
-                    }
 
-                    var contractExists = await _unitOfWork.GetRepository<Contract>()
-                        .AnyAsync(c => c.Id == bp.ContractId);
-                    if (!contractExists)
+                    foreach (var existingBatchPayment in highestFinalQuotation.BatchPayments)
                     {
                         var payment = new Payment
                         {
                             Id = Guid.NewGuid(),
-                            PaymentTypeId = bp.PaymentTypeId,
+                            PaymentTypeId = existingBatchPayment.Payment.PaymentTypeId,
                             InsDate = LocalDateTime.VNDateTime(),
-                            TotalPrice = bp.Price,
-                            Percents = bp.Percents,
-                            Description = bp.Description,
-                            Unit = AppConstant.Unit.UnitPrice,
-                            PaymentDate = bp.PaymentDate,
-                            PaymentPhase= bp.PaymentPhase
-                        };
-
-                        var batchPayment = new BatchPayment
-                        {
-                            Id = Guid.NewGuid(),
-                            IntitialQuotationId = bp.InitIntitialQuotationId,
-                            ContractId = null,
-                            InsDate = LocalDateTime.VNDateTime(),
-                            FinalQuotationId = finalQuotation.Id,
-                            Payment = payment,
-                            Status = bp.Status
-                        };
-                        finalQuotation.BatchPayments.Add(batchPayment);
-                        totalBatchPayments += payment.TotalPrice;
-                    }
-                    else
-                    {
-                        var payment = new Payment
-                        {
-                            Id = Guid.NewGuid(),
-                            PaymentTypeId = bp.PaymentTypeId,
-                            InsDate = LocalDateTime.VNDateTime(),
-                            TotalPrice = bp.Price,
-                            Percents = bp.Percents,
-                            Description = bp.Description,
+                            TotalPrice = existingBatchPayment.Payment.TotalPrice,
+                            Percents = existingBatchPayment.Payment.Percents,
+                            Description = existingBatchPayment.Payment.Description,
                             Unit = AppConstant.Unit.UnitPrice,
                             PaymentDate = bp.PaymentDate,
                             PaymentPhase = bp.PaymentPhase
@@ -345,17 +313,16 @@ namespace RHCQS_Services.Implement
                         var batchPayment = new BatchPayment
                         {
                             Id = Guid.NewGuid(),
-                            IntitialQuotationId = bp.InitIntitialQuotationId,
-                            ContractId = bp.ContractId,
+                            InitialQuotationId = existingBatchPayment.InitialQuotationId,
+                            ContractId = existingBatchPayment.ContractId,
                             InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = finalQuotation.Id,
                             Payment = payment,
-                            Status = bp.Status
+                            Status = existingBatchPayment.Status
                         };
-                        finalQuotation.BatchPayments.Add(batchPayment);
-                        totalBatchPayments += payment.TotalPrice;
-                    }
 
+                        finalQuotation.BatchPayments.Add(batchPayment);
+                    }
                 }
             }
 

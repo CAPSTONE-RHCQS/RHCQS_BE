@@ -163,8 +163,8 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.FinalQuotationId)
                 .HasConstraintName("FK_BactchPayment_FinalQuotation");
 
-            entity.HasOne(d => d.IntitialQuotation).WithMany(p => p.BatchPayments)
-                .HasForeignKey(d => d.IntitialQuotationId)
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.BatchPayments)
+                .HasForeignKey(d => d.InitialQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_InitialQuotation");
 

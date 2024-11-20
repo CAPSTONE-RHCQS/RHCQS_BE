@@ -278,7 +278,7 @@ namespace RHCQS_Services.Implement
                         {
                             Id = Guid.NewGuid(),
                             ContractId = contractDrawing!.Id,
-                            IntitialQuotationId = initialInfo!.Id,
+                            InitialQuotationId = initialInfo!.Id,
                             InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = null,
                             PaymentId = payInfo.Id,
