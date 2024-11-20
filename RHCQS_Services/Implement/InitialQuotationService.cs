@@ -828,11 +828,11 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.PromotionIllegal);
                     }
 
-                    double discountCheck = (double)request.Area * (double)promotionInfo.Value;
-                    if(discountCheck != request.Promotions.Discount)
-                    {
-                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
-                    }
+                    //double discountCheck = (double)request.Area * (double)promotionInfo.Value;
+                    //if(discountCheck != request.Promotions.Discount)
+                    //{
+                    //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
+                    //}
                 }
                 #endregion
 
