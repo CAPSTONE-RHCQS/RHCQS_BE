@@ -474,14 +474,7 @@ namespace RHCQS_Services.Implement
                         };
 
                         await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
-                        bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-                        if (!isSuccessful)
-                        {
-                            throw new AppConstant.MessageError(
-                                (int)AppConstant.ErrCode.Conflict,
-                                AppConstant.ErrMessage.InitialQuotationUpdateFailed
-                            );
-                        }
+                        _unitOfWork.Commit();
 
                         return uploadResult.SecureUrl.ToString();
                     }
@@ -510,6 +503,7 @@ namespace RHCQS_Services.Implement
                 var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
                 return isSuccessful;
             }
+            return null;
         }
 
         private string GenerateHtmlContent(InitialQuotationResponse request)

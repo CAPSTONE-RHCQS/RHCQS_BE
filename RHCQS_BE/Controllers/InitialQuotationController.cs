@@ -392,7 +392,7 @@ namespace RHCQS_BE.Controllers
                     ContentType = "application/json"
                 };
             }
-            if (pdfUrl == AppConstant.Message.REJECTED)
+            if (pdfUrl == AppConstant.Message.SUCCESSFUL_UPDATE)
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
                 return new ContentResult()
