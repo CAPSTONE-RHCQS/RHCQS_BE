@@ -177,6 +177,11 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
             }
 
+            if (infoProject.Contracts.Count(c => c.Type == AppConstant.ContractType.Design.ToString()) > 1)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ContractOver);
+            }
+
             bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
 
             if (isInitialFinalized)
@@ -312,6 +317,11 @@ namespace RHCQS_Services.Implement
             if (infoProject == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+            }
+
+            if (infoProject.Contracts.Count(c => c.Type == AppConstant.ContractType.Design.ToString()) > 1)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ContractOver);
             }
 
             bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
@@ -667,27 +677,27 @@ namespace RHCQS_Services.Implement
 
         }
 
-        public async Task<InitialToContractResponse> CloneInitialInfoToContract(Guid projectId)
+        //Clone final info to contract construction
+        public async Task<FinalToContractResponse> CloneFinalInfoToContract(Guid projectId)
         {
             try
             {
-                var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                                     predicate: p => p.ProjectId == projectId && p.Status == AppConstant.QuotationStatus.FINALIZED,
                                     include: p => p.Include(p => p.BatchPayments)
                                                                     .ThenInclude(p => p.Payment!));
 
-                if (initialInfo == null)
+                if (finalInfo == null)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.NotFinalizedQuotationInitial);
                 }
 
                 // Calculate contract value
-                double contractValue = (initialInfo.TotalRough ?? 0.0)
-                                     + (initialInfo.TotalUtilities ?? 0.0)
-                                     - (initialInfo.Discount ?? 0.0);
+                double contractValue = (finalInfo.TotalPrice ?? 0.0)
+                                     - (finalInfo.Discount ?? 0.0);
 
                 // BatchPaymentRequest
-                var batchPaymentRequests = initialInfo.BatchPayments
+                var batchPaymentRequests = finalInfo.BatchPayments
                     .Select((batchPayment, index) => new InitialToBatchPayment
                     {
                         NumberOfBatches = index + 1,
@@ -698,7 +708,7 @@ namespace RHCQS_Services.Implement
                         Description = batchPayment.Payment.Description
                     }).ToList();
 
-                var result = new InitialToContractResponse()
+                var result = new FinalToContractResponse()
                 {
                     ProjectId = projectId,
                     Type = AppConstant.ContractType.Design.ToString(),
