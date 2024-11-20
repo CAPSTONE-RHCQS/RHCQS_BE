@@ -309,7 +309,9 @@ namespace RHCQS_Services.Implement
                             TotalPrice = bp.Price,
                             Percents = bp.Percents,
                             Description = bp.Description,
-                            Unit = AppConstant.Unit.UnitPrice
+                            Unit = AppConstant.Unit.UnitPrice,
+                            PaymentDate = bp.PaymentDate,
+                            PaymentPhase= bp.PaymentPhase
                         };
 
                         var batchPayment = new BatchPayment
@@ -335,7 +337,9 @@ namespace RHCQS_Services.Implement
                             TotalPrice = bp.Price,
                             Percents = bp.Percents,
                             Description = bp.Description,
-                            Unit = AppConstant.Unit.UnitPrice
+                            Unit = AppConstant.Unit.UnitPrice,
+                            PaymentDate = bp.PaymentDate,
+                            PaymentPhase = bp.PaymentPhase
                         };
 
                         var batchPayment = new BatchPayment
@@ -588,7 +592,7 @@ namespace RHCQS_Services.Implement
                 }
             }
 
-            finalQuotation.TotalPrice = totalBatchPayments + totalUtilities + totalEquipmentItems + totalQuotationItems - promotation;
+            finalQuotation.TotalPrice = totalUtilities + totalEquipmentItems + totalQuotationItems - promotation;
 
 
             await finalQuotationRepo.InsertAsync(finalQuotation);
@@ -1058,6 +1062,9 @@ namespace RHCQS_Services.Implement
                     x => x.Id.Equals(id) && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
+                                   .Include(x => x.Project)
+                                       .ThenInclude(x => x.HouseDesignDrawings)
+                                       .ThenInclude(x => x.HouseDesignVersions)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)

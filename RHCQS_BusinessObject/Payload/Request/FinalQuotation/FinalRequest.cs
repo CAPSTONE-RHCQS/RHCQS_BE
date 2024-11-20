@@ -53,6 +53,14 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         public string? Status { get; set; }
+
+        [Required(ErrorMessage = "Ngày thanh toán là bắt buộc.")]
+        [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
+        public DateTime? PaymentDate { get; set; }
+
+        [Required(ErrorMessage = "Giai đoạn thanh toán là bắt buộc.")]
+        [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
+        public DateTime? PaymentPhase { get; set; }
     }
 
     public class EquipmentItemsRequest
