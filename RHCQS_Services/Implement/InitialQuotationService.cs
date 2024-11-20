@@ -486,6 +486,8 @@ namespace RHCQS_Services.Implement
                        $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
 );
                 }
+                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
             }
             else
             {
@@ -498,11 +500,9 @@ namespace RHCQS_Services.Implement
                 initialItem.Status = AppConstant.QuotationStatus.REJECTED;
                 initialItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
-                return AppConstant.Message.REJECTED;
+                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
             }
-
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return null!;
         }
 
         private string GenerateHtmlContent(InitialQuotationResponse request)
