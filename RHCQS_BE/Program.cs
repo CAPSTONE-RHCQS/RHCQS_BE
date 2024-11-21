@@ -79,11 +79,14 @@ namespace RHCQS_BE
             app.UseAuthorization();
             app.UseWebSockets();
 
-            app.UseEndpoints(endpoints =>
-            {
-                //endpoints.MapControllers();
-                endpoints.MapHub<ChatHub>("/chatHub");
-            });
+            app.MapControllers();
+            app.MapHub<ChatHub>("/chatHub");
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //    endpoints.MapHub<ChatHub>("/chatHub");
+            //});
 
             app.Run();
         }
