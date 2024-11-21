@@ -56,9 +56,9 @@ namespace RHCQS_BE.Extenstion
             //return services;
             services.AddSignalR(options =>
             {
-                options.KeepAliveInterval = TimeSpan.FromSeconds(10);
-                options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
-                options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+                options.KeepAliveInterval = TimeSpan.FromSeconds(1000);
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(180);
+                options.HandshakeTimeout = TimeSpan.FromSeconds(180);
             });
             return services;
         }

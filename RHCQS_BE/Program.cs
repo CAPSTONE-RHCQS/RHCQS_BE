@@ -79,6 +79,10 @@ namespace RHCQS_BE
             app.UseAuthorization();
             app.UseWebSockets();
 
+            //Publish app
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
             app.MapControllers();
             app.MapHub<ChatHub>("/chatHub");
 
