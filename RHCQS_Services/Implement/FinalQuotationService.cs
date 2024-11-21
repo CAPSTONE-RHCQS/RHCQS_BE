@@ -497,20 +497,37 @@ namespace RHCQS_Services.Implement
                 {
                     foreach (var equipment in request.EquipmentItems)
                     {
-                        var equipmentItem = new EquipmentItem
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = equipment.Name,
-                            Unit = equipment.Unit,
-                            Quantity = equipment.Quantity,
-                            UnitOfMaterial = equipment.UnitOfMaterial,
-                            TotalOfMaterial = equipment.UnitOfMaterial * equipment.Quantity,
-                            Note = equipment.Note,
-                            Type = equipment.Type
-                        };
+                        var existingEquipment = finalQuotation.EquipmentItems
+                            .FirstOrDefault(e => e.Name == equipment.Name);
 
-                        finalQuotation.EquipmentItems.Add(equipmentItem);
-                        totalEquipmentItems += equipment.UnitOfMaterial * equipment.Quantity;
+                        if (existingEquipment != null)
+                        {
+                            existingEquipment.Unit = equipment.Unit;
+                            existingEquipment.Quantity = equipment.Quantity;
+                            existingEquipment.UnitOfMaterial = equipment.UnitOfMaterial;
+                            existingEquipment.TotalOfMaterial = equipment.UnitOfMaterial * equipment.Quantity;
+                            existingEquipment.Note = equipment.Note;
+                            existingEquipment.Type = equipment.Type;
+                            _unitOfWork.GetRepository<EquipmentItem>().UpdateAsync(existingEquipment);
+                            totalEquipmentItems += existingEquipment.TotalOfMaterial;
+                        }
+                        else
+                        {
+                            var newEquipmentItem = new EquipmentItem
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = equipment.Name,
+                                Unit = equipment.Unit,
+                                Quantity = equipment.Quantity,
+                                UnitOfMaterial = equipment.UnitOfMaterial,
+                                TotalOfMaterial = equipment.UnitOfMaterial * equipment.Quantity,
+                                Note = equipment.Note,
+                                Type = equipment.Type
+                            };
+
+                            finalQuotation.EquipmentItems.Add(newEquipmentItem);
+                            totalEquipmentItems += newEquipmentItem.TotalOfMaterial;
+                        }
                     }
                 }
 
