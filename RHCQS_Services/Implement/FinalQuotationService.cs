@@ -24,6 +24,7 @@ using System.Runtime.InteropServices;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.Metrics;
 using RHCQS_BusinessObject.Helper;
+using Newtonsoft.Json;
 
 namespace RHCQS_Services.Implement
 {
@@ -259,16 +260,19 @@ namespace RHCQS_Services.Implement
                     include: p => p.Include(x => x.Project)
                                    .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Payment)
-                                        .ThenInclude(x => x.PaymentType)
                                    .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Contract)
                 );
-                highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
-                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
 
-                highestFinalQuotation.Project.Address = request.Address;
-                highestFinalQuotation.Project.CustomerName = request.CustomerName;
-                _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
+                if (highestFinalQuotation != null)
+                {
+                    highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
+                    _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
+
+                    highestFinalQuotation.Project.Address = request.Address;
+                    highestFinalQuotation.Project.CustomerName = request.CustomerName;
+                    _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
+                }
 
                 if (highestFinalQuotation.Version >= AppConstant.General.MaxVersion)
                 {
