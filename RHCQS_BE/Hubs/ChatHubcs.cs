@@ -1,5 +1,6 @@
 ﻿using DocumentFormat.OpenXml.InkML;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using RHCQS_BusinessObject.Payload.Request.Chat;
@@ -17,13 +18,15 @@ namespace RHCQS_BE.Hubs
         private readonly IAccountService _userService;
         private readonly IUnitOfWork _unitOfWork;
         private static readonly ConcurrentDictionary<string, ConcurrentBag<string>> UserConnections = new();
+        public IAccountService _accountService;
         //private static readonly ConcurrentDictionary<Guid, ConcurrentBag<Message>> PrivateMessages = new();
 
-        public ChatHub(IMessageService messageService, IAccountService userService, IUnitOfWork unitOfWork)
+        public ChatHub(IMessageService messageService, IAccountService userService, IUnitOfWork unitOfWork, IAccountService accountService)
         {
             _messageService = messageService;
             _userService = userService;
             _unitOfWork = unitOfWork;
+            _accountService = accountService;
         }
 
         private static Dictionary<string, List<string>> roomUsers = new();
@@ -131,15 +134,16 @@ namespace RHCQS_BE.Hubs
                 if (room != null)
                 {
                     Guid senderId;
+                    var account = await _accountService.SearchAccountsByNameAsync(user);
 
-                    if (user == "Staff")
-                    {
-                        senderId = Guid.Parse("BFA97975-1915-46A0-B185-ED881C8C953F"); 
-                    }
-                    else
-                    {
-                        senderId = Guid.Parse("C9993BBF-9125-466D-BECA-E69CE3DE4A36");
-                    }
+                    //if (user == "Staff")
+                    //{
+                    //    senderId = Guid.Parse("BFA97975-1915-46A0-B185-ED881C8C953F");
+                    //}
+                    //else
+                    //{
+                    //    senderId = Guid.Parse("C9993BBF-9125-466D-BECA-E69CE3DE4A36");
+                    //}
 
                     // Tạo tin nhắn mới
                     var newMessage = new Message
@@ -147,7 +151,7 @@ namespace RHCQS_BE.Hubs
                         Id = Guid.NewGuid(),
                         RoomId = room.Id,
                         MessageContent = message,
-                        CreatedBy = senderId,
+                        CreatedBy = account.Id,
                         SendAt = DateTime.Now
                     };
 
