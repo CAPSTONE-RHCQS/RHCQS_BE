@@ -93,6 +93,18 @@ namespace RHCQS_Services.Implement
                 );
             }
 
+            var existingPhoneNumber = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
+                x => x.PhoneNumber.Equals(registerRequest.PhoneNumber)
+            );
+
+            if (existingPhoneNumber != null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.PhoneNumberExists
+                );
+            }
+
             if (registerRequest.Password != registerRequest.ConfirmPassword)
             {
                 throw new AppConstant.MessageError(
@@ -114,6 +126,7 @@ namespace RHCQS_Services.Implement
             {
                 Id = Guid.NewGuid(),
                 Email = registerRequest.Email,
+                PhoneNumber = registerRequest.PhoneNumber,
                 PasswordHash = PasswordHash.HashPassword(registerRequest.Password),
                 Username = registerRequest.Email,
                 InsDate = LocalDateTime.VNDateTime(),
@@ -127,6 +140,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     Email = registerRequest.Email,
+                    PhoneNumber = registerRequest.PhoneNumber,
                     Username = registerRequest.Email,
                     InsDate = LocalDateTime.VNDateTime(),
                     UpsDate = LocalDateTime.VNDateTime(),
