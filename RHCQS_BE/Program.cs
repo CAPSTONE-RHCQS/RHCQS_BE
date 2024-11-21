@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using RHCQS.BusinessObject.Constants;
 using RHCQS_BE.Extenstion;
+using RHCQS_BE.Hubs;
 using RHCQS_Services.Implement;
 using System.Text.Json.Serialization;
 
@@ -77,7 +78,7 @@ namespace RHCQS_BE
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                endpoints.MapHub<ChatService>("/chatHub");
+                endpoints.MapHub<ChatHub>("/chatHub");
             });
 
             app.Run();
