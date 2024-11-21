@@ -203,6 +203,7 @@ public static class AppConstant
 
         //Login
         public const string EmailExists = "Email đã tồn tại!";
+        public const string PhoneNumberExists = "PhoneNumber đã tồn tại!";
         public const string AccountInActive = "Tài khoản bị khóa!";
         public const string InvalidPassword = "Mật khẩu không đúng!";
         public const string PasswordMismatch = "Mật khẩu không trùng khớp!";

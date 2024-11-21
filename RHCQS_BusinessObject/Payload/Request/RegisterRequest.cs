@@ -14,6 +14,10 @@ namespace RHCQS_BusinessObject.Payload.Request
         [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ(phải theo dạng @gmail.com)")]
         public string Email { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "PhoneNumber là bắt buộc phải có.")]
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+        public string PhoneNumber { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Mật khẩu là bắt buộc phải có.")]
         public string Password { get; set; } = string.Empty;
 
