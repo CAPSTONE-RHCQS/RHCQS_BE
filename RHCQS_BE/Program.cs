@@ -43,6 +43,7 @@ namespace RHCQS_BE
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddDatabase();
+            builder.Services.AddDatabase();
             builder.Services.AddUnitOfWork();
             builder.Services.AddServices();
             builder.Services.AddCloudinary(builder.Configuration);
