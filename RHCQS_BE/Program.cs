@@ -26,6 +26,7 @@ namespace RHCQS_BE
                              .WithOrigins("http://localhost:5173")
                              .WithOrigins("http://localhost:8081")
                              .WithOrigins("https://rhcqs.vercel.app")
+                             .WithOrigins("https://rhcqs.service.signalr.net")
                              .AllowAnyHeader()
                              .AllowAnyMethod()
                              .AllowCredentials();
