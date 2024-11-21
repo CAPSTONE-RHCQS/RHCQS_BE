@@ -54,7 +54,10 @@ namespace RHCQS_BE.Extenstion
 
             //services.AddSignalR().AddAzureSignalR(configuration["AzureSignalRConnectionString"]);
             //return services;
-            services.AddSignalR();
+            services.AddSignalR(options =>
+            {
+                options.EnableDetailedErrors = true;
+            });
             return services;
         }
 

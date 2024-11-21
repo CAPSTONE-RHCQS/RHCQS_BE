@@ -23,15 +23,18 @@ namespace RHCQS_BE
                 options.AddPolicy(name: CorsConstant.PolicyName,
                    policy =>
                    {
-                       policy.WithOrigins("http://localhost:3000")
-                             .WithOrigins("http://localhost:5173")
-                             .WithOrigins("http://localhost:8081")
-                             .WithOrigins("https://rhcqs.vercel.app")
-                             .WithOrigins("https://rhqs-fzbda8gefsh7bnft.southeastasia-01.azurewebsites.net")
-                             .AllowAnyHeader()
-                             .AllowAnyMethod()
-                             .AllowCredentials();
+                       policy.WithOrigins(
+                               "http://localhost:3000",
+                               "http://localhost:5173",
+                               "http://localhost:8081",
+                               "https://rhcqs.vercel.app",
+                               "https://rhqs-fzbda8gefsh7bnft.southeastasia-01.azurewebsites.net"
+                           )
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
                    });
+
             });
 
             builder.Services.AddControllers().AddJsonOptions(x =>
@@ -78,7 +81,7 @@ namespace RHCQS_BE
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                //endpoints.MapControllers();
                 endpoints.MapHub<ChatHub>("/chatHub");
             });
 
