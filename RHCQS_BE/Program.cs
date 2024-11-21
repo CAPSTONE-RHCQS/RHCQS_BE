@@ -74,6 +74,7 @@ namespace RHCQS_BE
             // Authentication and Authorization
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseWebSockets();
 
             app.UseEndpoints(endpoints =>
             {
