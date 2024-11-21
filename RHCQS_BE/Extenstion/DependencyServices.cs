@@ -49,13 +49,13 @@ namespace RHCQS_BE.Extenstion
 
         public static IServiceCollection AddSignalRServices(this IServiceCollection services)
         {
-            var serviceProvider = services.BuildServiceProvider();
-            var configuration = serviceProvider.GetService<IConfiguration>();
+            //var serviceProvider = services.BuildServiceProvider();
+            //var configuration = serviceProvider.GetService<IConfiguration>();
 
-            services.AddSignalR().AddAzureSignalR(configuration["AzureSignalRConnectionString"]);
-            return services;
-            //services.AddSignalR();
+            //services.AddSignalR().AddAzureSignalR(configuration["AzureSignalRConnectionString"]);
             //return services;
+            services.AddSignalR();
+            return services;
         }
 
 
