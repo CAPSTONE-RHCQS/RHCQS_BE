@@ -26,7 +26,7 @@ namespace RHCQS_BE
                              .WithOrigins("http://localhost:5173")
                              .WithOrigins("http://localhost:8081")
                              .WithOrigins("https://rhcqs.vercel.app")
-                             .WithOrigins("https://rhcqs.service.signalr.net")
+                             .WithOrigins("https://rhqs-fzbda8gefsh7bnft.southeastasia-01.azurewebsites.net")
                              .AllowAnyHeader()
                              .AllowAnyMethod()
                              .AllowCredentials();
@@ -67,7 +67,7 @@ namespace RHCQS_BE
 
             // Enable CORS with the defined policy
             app.UseCors(CorsConstant.PolicyName);
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
             // Authentication and Authorization
