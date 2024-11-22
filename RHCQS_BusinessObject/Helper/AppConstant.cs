@@ -75,6 +75,7 @@ public static class AppConstant
         public const string APPROVED = "Approved";
         public const string FINALIZED = "Finalized";
         public const string CANCELED = "Canceled";
+        public const string ENDED = "Ended";
     }
 
     public class HouseDesignStatus
