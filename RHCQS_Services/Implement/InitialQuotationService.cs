@@ -836,7 +836,7 @@ namespace RHCQS_Services.Implement
                 }
                 #endregion
 
-                #region Update project
+                #region Update project & version present
                 var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                 predicate: x => x.Version == request.VersionPresent && x.ProjectId == request.ProjectId,
                     include: x => x.Include(x => x.Project));
@@ -848,7 +848,7 @@ namespace RHCQS_Services.Implement
                 initialVersionPresent.Project.CustomerName = string.IsNullOrEmpty(request.AccountName) ?
                     request.AccountName : request.AccountName;
                 //Note: Version initial quotation - PROCESSING
-                initialVersionPresent.Status = AppConstant.QuotationStatus.PROCESSING;
+                initialVersionPresent.Status = AppConstant.QuotationStatus.ENDED;
 
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
                 #endregion

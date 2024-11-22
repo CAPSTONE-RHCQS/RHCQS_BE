@@ -14,7 +14,7 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<PromotionResponse>> GetListPromotion(int page, int size);
         Task<List<PromotionResponse>> GetListPromotionVaild();
         Task<PromotionResponse> GetDetailPromotion(Guid promotionId);
-        Task<List<PromotionResponse>> SearchPromotionByName(string promotionName);
+        Task<List<PromotionResponse>> SearchPromotionByName(Guid packageId, string promotionName);
         Task<bool> CreatePromotion(PromotionRequest request);
         Task<bool> UpdatePromotion(Guid promotionId, UpdatePromotionRequest request);
         Task<string> BanPromotion(Guid promotionId);
