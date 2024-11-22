@@ -21,6 +21,8 @@ namespace RHCQS_BE.Extenstion
             public const string LoginEndpoint = ApiEndpoint + "/login";
             public const string LogoutEndpoint = ApiEndpoint + "/logout";
             public const string DesTokenEndpoin = ApiEndpoint + "/des";
+            public const string RefreshTokenEndpoint = ApiEndpoint + "/refresh-token";
+            
         }
 
         public static class Role

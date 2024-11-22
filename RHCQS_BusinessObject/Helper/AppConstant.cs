@@ -195,7 +195,8 @@ public static class AppConstant
         public const string Send_Fail = "Gửi thất bại!";
         public const string InvalidData = "Dữ liệu không hợp lệ!";
         public const string InvalidFile = "Không có file";
-
+        
+        public const string InvalidToken = "Token không hợp lệ!";
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
         public const string ConstructionNoExit = "Hạng mục xây dựng không tồn tại!";
@@ -203,7 +204,7 @@ public static class AppConstant
 
         //Login
         public const string EmailExists = "Email đã tồn tại!";
-        public const string PhoneNumberExists = "PhoneNumber đã tồn tại!";
+        public const string PhoneNumberExists = "Số điện thoại đã được sử dụng!";
         public const string AccountInActive = "Tài khoản bị khóa!";
         public const string InvalidPassword = "Mật khẩu không đúng!";
         public const string PasswordMismatch = "Mật khẩu không trùng khớp!";

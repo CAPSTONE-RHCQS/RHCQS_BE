@@ -10,6 +10,8 @@ using static RHCQS_BusinessObjects.AppConstant;
 using System.ComponentModel.DataAnnotations;
 using RHCQS_BusinessObjects;
 using System.IdentityModel.Tokens.Jwt;
+using Google.Apis.Auth.OAuth2.Requests;
+using RefreshTokenRequest = RHCQS_BusinessObject.Payload.Request.RefreshTokenRequest;
 
 namespace RHCQS_BE.Controllers
 {
@@ -74,7 +76,47 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+        [AllowAnonymous]
+        [HttpPost(ApiEndPointConstant.Auth.RefreshTokenEndpoint)]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            if (string.IsNullOrEmpty(request.expiredTokenToken))
+            {
+                return BadRequest(new { message = "Token is required" });
+            }
 
+            try
+            {
+                var newToken = await _authService.RefreshTokenAsync(request.expiredTokenToken);
+                var refreshToken = new LoginResponse(newToken);
+                var settings = new JsonSerializerSettings
+                {
+                    PreserveReferencesHandling = PreserveReferencesHandling.None,
+                    Formatting = Formatting.Indented,
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                };
+
+                var returntoken = JsonConvert.SerializeObject(refreshToken, settings);
+
+                return new ContentResult
+                {
+                    Content = returntoken,
+                    ContentType = "application/json",
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                var response = JsonConvert.SerializeObject(new { message = ex.Message }, Formatting.Indented);
+
+                return new ContentResult
+                {
+                    Content = response,
+                    ContentType = "application/json",
+                    StatusCode = ex.Code
+                };
+            }
+        }
         #region Logout
         /// <summary>
         /// Logs the user out of the application.

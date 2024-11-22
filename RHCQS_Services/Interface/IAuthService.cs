@@ -15,5 +15,6 @@ namespace RHCQS_Services.Interface
         Task<Account> GetAccountByEmail(string email, string password);
         Task<Account> RegisterAsync(RegisterRequest registerRequest, UserRoleForRegister role);
         TokenResponse DecodeToken(string token);
+        Task<string> RefreshTokenAsync(string expiredToken);
     }
 }
