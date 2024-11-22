@@ -245,7 +245,7 @@ public static class AppConstant
         public const string Invalid_ElectricityWater = "Cần cung cấp đủ bản vẽ điện & nước";
 
         //Quotation
-        public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
+        public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ phù hợp(status finalized)!";
         public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
         public const string FinalQuotaionExists = "FinalQuotaion đã tồn tại.";
         public const string CreateFinalQuotaion = "Tạo FinalQuotaion thất bại.";
