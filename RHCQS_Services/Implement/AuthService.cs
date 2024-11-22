@@ -168,61 +168,61 @@ namespace RHCQS_Services.Implement
             var tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken;
 
-                var keyString = _configuration["Jwt:Key"];
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
+            var keyString = _configuration["Jwt:Key"];
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
 
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = key,
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ValidateLifetime = false
-                };
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false
+            };
 
-                var principal = tokenHandler.ValidateToken(expiredToken, validationParameters, out securityToken);
+            var principal = tokenHandler.ValidateToken(expiredToken, validationParameters, out securityToken);
 
-                if (securityToken is not JwtSecurityToken jwtToken || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Unauthorized,
-                        AppConstant.ErrMessage.InvalidToken
-                    );
-                }
-
-                var accountId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                var role = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-                if (string.IsNullOrEmpty(accountId) || string.IsNullOrEmpty(role))
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Unauthorized,
-                        AppConstant.ErrMessage.InvalidToken
-                    );
-                }
-                var expirationTime = jwtToken.ValidTo;
-                if (expirationTime > DateTime.UtcNow)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Bad_Request,
-                        "Token chưa hết hạn."
-                    );
-                }
-                var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
-                    predicate: x => x.Id.ToString() == accountId,
-                    include: q => q.Include(x => x.Role)
+            if (securityToken is not JwtSecurityToken jwtToken || !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Unauthorized,
+                    AppConstant.ErrMessage.InvalidToken
                 );
+            }
 
-                if (account == null || (bool)!account.Deflag)
-                {
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Unauthorized,
-                        AppConstant.ErrMessage.AccountInActive
-                    );
-                }
+            var accountId = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var role = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
 
-                return GenerateJwtToken(account);
-            
+            if (string.IsNullOrEmpty(accountId) || string.IsNullOrEmpty(role))
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Unauthorized,
+                    AppConstant.ErrMessage.InvalidToken
+                );
+            }
+            var expirationTime = jwtToken.ValidTo;
+            if (expirationTime > DateTime.UtcNow)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.Not_Token_expired
+                );
+            }
+            var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
+                predicate: x => x.Id.ToString() == accountId,
+                include: q => q.Include(x => x.Role)
+            );
+
+            if (account == null || (bool)!account.Deflag)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Unauthorized,
+                    AppConstant.ErrMessage.AccountInActive
+                );
+            }
+
+            return GenerateJwtToken(account);
+
         }
         private string GenerateJwtToken(Account account)
         {
@@ -274,10 +274,10 @@ namespace RHCQS_Services.Implement
                     Exp = long.Parse(jsonToken.Claims.FirstOrDefault(c => c.Type == "exp")?.Value ?? "0")
                 };
 
-                return tokenResponse; 
+                return tokenResponse;
             }
 
-            return null; 
+            return null;
         }
 
     }

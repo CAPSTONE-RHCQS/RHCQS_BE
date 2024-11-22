@@ -197,6 +197,8 @@ public static class AppConstant
         public const string InvalidFile = "Không có file";
         
         public const string InvalidToken = "Token không hợp lệ!";
+        public const string Not_Token_expired = "Token chưa hết hạn.";
+
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
         public const string ConstructionNoExit = "Hạng mục xây dựng không tồn tại!";
