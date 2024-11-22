@@ -27,7 +27,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public FinalQuotationResponse(Guid id, string accountName, Guid projectId, Guid initailQuotationId,
             double? initailQuotationVersion, List<HouseDrawingVersionInf>? houseDrawingVersionInf, string? projectType,
-            string? projectAddress,double? discount, double? totalPrice, string? note, double? version, DateTime? insDate,
+            string? projectAddress,double? discount, double? totalPrice, string? note,string? othersAgreement, double? version, DateTime? insDate,
             DateTime? upsDate, string? status, bool? deflag, string? reasonReject,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
             List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo,
@@ -44,6 +44,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Discount = discount;
             TotalPrice = totalPrice;
             Note = note;
+            OthersAgreement = othersAgreement;
             Version = version;
             InsDate = insDate;
             UpsDate = upsDate;
@@ -75,6 +76,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalPrice { get; set; }
 
         public string? Note { get; set; }
+
+        public string? OthersAgreement { get; set; }
 
         public double? Version { get; set; }
 

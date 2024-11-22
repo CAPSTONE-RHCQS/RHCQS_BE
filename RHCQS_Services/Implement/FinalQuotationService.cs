@@ -1320,6 +1320,7 @@ namespace RHCQS_Services.Implement
                     finalQuotation?.Discount ?? null,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
+                    initialQuotation.OthersAgreement,
                     finalQuotation.Version,
                     finalQuotation.InsDate,
                     finalQuotation.UpsDate,
@@ -1597,6 +1598,7 @@ namespace RHCQS_Services.Implement
                     finalQuotation?.Discount ?? null,
                     finalQuotation.TotalPrice,
                     finalQuotation.Note,
+                    initialQuotation.OthersAgreement,
                     finalQuotation.Version,
                     finalQuotation.InsDate,
                     finalQuotation.UpsDate,
@@ -2096,13 +2098,24 @@ namespace RHCQS_Services.Implement
 
     <h2>CÁC ĐIỀU KHOẢN KHÁC</h2>
     <ul>
-        <li><strong>Ghi chú về VAT:</strong> Đơn giá báo trên chưa bao gồm thuế VAT.</li>
-        <li><strong>Hạng mục không bao gồm:</strong> Bể bơi, tiểu cảnh sân vườn...</li>
-        <li><strong>Chi phí thêm cho chiều cao móng nền:</strong> Phát sinh khi cao hơn 500mm.</li>
-    </ul>
+");
+            if (!string.IsNullOrWhiteSpace(request.OthersAgreement))
+            {
+                sb.Append($@"
+    <li><strong>Các điều khoản:</strong> {request.OthersAgreement}</li>
+");
+            }
+            else
+            {
+                sb.Append($@"
+    <li><strong>Các điều khoản:</strong> Không có điều khoản nào được cung cấp.</li>
+");
+            }
 
+            sb.Append(@"
 </body>
 </html>");
+
 
             return sb.ToString();
         }
