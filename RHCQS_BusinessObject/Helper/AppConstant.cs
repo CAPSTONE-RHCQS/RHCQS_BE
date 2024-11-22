@@ -30,6 +30,7 @@ public static class AppConstant
         public const string Active = "Active";
         public const double MaxVersion = 10.0;
     }
+
     public class Unit
     {
         public const string UnitPrice = "VNĐ";
@@ -325,6 +326,10 @@ public static class AppConstant
         public const string FinalQuotationUpdateFailed = "FinalQuotation cập nhật thất bại.";
         //InitalQuotation
         public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
+        //
+
+        //Room
+        public const string Room_Not_Found = "Phòng không tồn tại!";
     }
 }
 

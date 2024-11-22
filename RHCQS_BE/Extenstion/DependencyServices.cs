@@ -104,6 +104,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IExcelImportService, ExcelImportService>();
+            services.AddScoped<IRoomService, RoomService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();

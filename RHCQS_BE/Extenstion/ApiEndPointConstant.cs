@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Protocols;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.IdentityModel.Protocols;
 using RHCQS_BusinessObject.Payload.Request.Contract;
 using System.CodeDom;
 
@@ -276,6 +277,13 @@ namespace RHCQS_BE.Extenstion
             public const string SupplierListEndpoint = ApiEndpoint + "/allsuppliers";
             public const string SearchSupplierEndpoint = SupplierEndpoint + "/name";
             public const string SupplierDetailEndpoint = SupplierEndpoint + "/id";
+        }
+
+        public static class Room
+        {
+            public const string RoomEndpoint = ApiEndpoint + "/room";
+            public const string RoomListWaitingEndpoint = RoomEndpoint + "/waiting";
+            public const string ListMessageEndpoint = RoomEndpoint + "/message";
         }
     }
 }
