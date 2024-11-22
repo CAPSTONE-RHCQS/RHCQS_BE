@@ -1025,7 +1025,7 @@ namespace RHCQS_Services.Implement
                         FinalQuotationId = null,
                         PaymentId = payment.Id,
                         Status = AppConstant.PaymentStatus.PROGRESS,
-                        NumberOfBatch = batch++
+                        NumberOfBatch = item.NumberOfBatch
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
                 }

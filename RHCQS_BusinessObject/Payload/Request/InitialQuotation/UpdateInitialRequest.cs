@@ -96,15 +96,20 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
 
     public class BatchPaymentUpdateRequest
     {
-
+        [Required(ErrorMessage = "Số đợt là bắt buộc.")]
+        public int NumberOfBatch {  get; set; }
+        [Required(ErrorMessage = "Tiền là bắt buộc.")]
         public double? Price { get; set; }
-
+        [Required(ErrorMessage = "Phần trăm thanh toán là bắt buộc.")]
         public string? Percents { get; set; }
 
         public string? Description { get; set; }
-
+        [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc.")]
+        [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
         public DateTime PaymentDate { get; set; }
 
+        [Required(ErrorMessage = "Ngày đáo hạn là bắt buộc.")]
+        [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
         public DateTime PaymentPhase { get; set; }
     }
 }
