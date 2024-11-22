@@ -118,13 +118,16 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+            var batchPaymentResponse = initialQuotation!.BatchPayments
+                .OrderBy(bp => bp.NumberOfBatch)
+                .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
                                          item.Payment.Percents,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
+                                         item.NumberOfBatch,
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
@@ -229,13 +232,16 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+            var batchPaymentResponse = initialQuotation!.BatchPayments
+                          .OrderBy(bp => bp.NumberOfBatch)
+                            .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
                                          item.Payment.Percents,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
+                                         item.NumberOfBatch,
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
@@ -335,13 +341,16 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+            var batchPaymentResponse = initialQuotation!.BatchPayments
+                .OrderBy(bp => bp.NumberOfBatch)
+                .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
                                          item.Payment.Percents,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
+                                         item.NumberOfBatch,
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();

@@ -1106,8 +1106,9 @@ namespace RHCQS_Services.Implement
                                                        AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
 
-                var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
-                    new BatchPaymentResponse(
+                var BatchPayments = () => finalQuotation.BatchPayments
+                .OrderBy(bp => bp.NumberOfBatch)
+                .Select(bp =>new BatchPaymentResponse(
                         bp?.Payment!.Id ?? Guid.Empty,
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
@@ -1403,8 +1404,9 @@ namespace RHCQS_Services.Implement
                                                        AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
 
-                var BatchPayments = () => finalQuotation.BatchPayments.Select(bp =>
-                    new BatchPaymentResponse(
+                var BatchPayments = () => finalQuotation.BatchPayments
+                .OrderBy(bp => bp.NumberOfBatch)
+                .Select(bp =>new BatchPaymentResponse(
                         bp?.Payment.Id ?? Guid.Empty,
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
