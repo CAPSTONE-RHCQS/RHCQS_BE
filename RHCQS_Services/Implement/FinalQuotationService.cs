@@ -1297,8 +1297,28 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
-                    .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
+                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED,
+                                include: ci => ci.Include(x => x.PackageQuotations)
+                                                 .ThenInclude(x => x.Package)
+                                                   );
+
+                var roughPackage = initialQuotation.PackageQuotations
+                    .FirstOrDefault(item => item.Type == "ROUGH");
+
+                var finishedPackage = initialQuotation.PackageQuotations
+                    .FirstOrDefault(item => item.Type == "FINISHED");
+
+                var packageInfo = new PackageQuotationList(
+                    roughPackage?.PackageId == null ? null : roughPackage.PackageId,
+                    roughPackage?.Package.PackageName ?? string.Empty,
+                    roughPackage?.Package.Price ?? 0,
+
+                    finishedPackage?.PackageId == null ? null : finishedPackage.PackageId,
+                    finishedPackage?.Package.PackageName ?? string.Empty,
+                    finishedPackage?.Package.Price ?? 0,
+                    finishedPackage?.Package.Unit ?? string.Empty
+                );
 
                 var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
                     .SelectMany(hd => hd.HouseDesignVersions)
@@ -1315,6 +1335,7 @@ namespace RHCQS_Services.Implement
                     initialQuotation.Id,
                     initialQuotation.Version,
                     houseDesignDrawingsList,
+                    packageInfo,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation?.Discount ?? null,
@@ -1574,9 +1595,26 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
-                    .FirstOrDefaultAsync(ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED);
+                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED,
+                                include: ci => ci.Include(x => x.PackageQuotations)
+                                                .ThenInclude(x => x.Package)
+                                                   );
+                var roughPackage = initialQuotation.PackageQuotations
+                    .FirstOrDefault(item => item.Type == "ROUGH");
 
+                var finishedPackage = initialQuotation.PackageQuotations
+                    .FirstOrDefault(item => item.Type == "FINISHED");
+
+                var packageInfo = new PackageQuotationList(
+                    roughPackage?.PackageId == null ? null : roughPackage.PackageId,
+                    roughPackage?.Package.PackageName ?? string.Empty,
+                    roughPackage?.Package.Price ?? 0,
+                    finishedPackage?.PackageId == null ? null : finishedPackage.PackageId,
+                    finishedPackage?.Package.PackageName ?? string.Empty,
+                    finishedPackage?.Package.Price ?? 0,
+                    finishedPackage?.Package.Unit ?? string.Empty
+                );
                 var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
                     .SelectMany(hd => hd.HouseDesignVersions)
                     .Select(hd => new HouseDrawingVersionInf(
@@ -1593,6 +1631,7 @@ namespace RHCQS_Services.Implement
                     initialQuotation.Id,
                     initialQuotation.Version,
                     houseDesignDrawingsList,
+                    packageInfo,
                     finalQuotation.Project.Type ?? string.Empty,
                     finalQuotation.Project.Address ?? string.Empty,
                     finalQuotation?.Discount ?? null,
