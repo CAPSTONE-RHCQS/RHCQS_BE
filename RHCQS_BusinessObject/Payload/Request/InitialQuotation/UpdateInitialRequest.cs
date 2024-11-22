@@ -102,5 +102,9 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         public string? Percents { get; set; }
 
         public string? Description { get; set; }
+
+        public DateTime PaymentDate { get; set; }
+
+        public DateTime PaymentPhase { get; set; }
     }
 }
