@@ -295,7 +295,8 @@ namespace RHCQS_Services.Implement
                     Status = AppConstant.QuotationStatus.REVIEWING,
                     Deflag = true,
                     Discount = promotation,
-                    BatchPayments = new List<BatchPayment>()
+                    BatchPayments = new List<BatchPayment>(),
+                    IsDraft = true
                 };
 
                 if (request.BatchPaymentInfos != null)
