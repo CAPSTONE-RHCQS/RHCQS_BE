@@ -301,7 +301,8 @@ namespace RHCQS_Services.Implement
                         ProjectCode = GenerateRandom.GenerateRandomString(5),
                         Address = projectRequest.Address,
                         Area = projectRequest.Area,
-                        IsDrawing = true
+                        IsDrawing = true,
+                        CustomerName = customerInfo.Username
                     };
                 } else
                 {
@@ -641,7 +642,9 @@ namespace RHCQS_Services.Implement
                     UpsDate = LocalDateTime.VNDateTime(),
                     ProjectCode = GenerateRandom.GenerateRandomString(5),
                     Address = request.Address,
-                    Area = templateHouseInfo.BuildingArea
+                    Area = templateHouseInfo.BuildingArea,
+                    IsDrawing = false,
+                    CustomerName = customerInfo.Username
                 };
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
 
