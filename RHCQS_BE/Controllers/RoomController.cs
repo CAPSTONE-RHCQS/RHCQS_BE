@@ -27,7 +27,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="roomId"></param>
         /// <returns></returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff")]
+        //[Authorize(Roles = "Customer, SalesStaff")]
         [HttpGet(ApiEndPointConstant.Room.RoomListWaitingEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,7 +52,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="roomId"></param>
         /// <returns></returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff")]
+        //[Authorize(Roles = "Customer, SalesStaff")]
         [HttpGet(ApiEndPointConstant.Room.ListMessageEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

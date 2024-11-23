@@ -160,8 +160,8 @@ namespace RHCQS_BE.Hubs
                     
                     if (saveResult > 0)
                     {
-                        var userId = account.Id;
-                        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", user, userId, messageContext, roomId, newMessage.SendAt);
+                        var UserId = account.Id;
+                        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", user, UserId, messageContext, roomId, newMessage.SendAt);
                     }
                     else
                     {
