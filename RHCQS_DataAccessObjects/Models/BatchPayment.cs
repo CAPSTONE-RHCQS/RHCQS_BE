@@ -15,7 +15,7 @@ public partial class BatchPayment
 
     public Guid? FinalQuotationId { get; set; }
 
-    public Guid? PaymentId { get; set; }
+    public Guid PaymentId { get; set; }
 
     public string Status { get; set; } = null!;
 
@@ -27,5 +27,5 @@ public partial class BatchPayment
 
     public virtual InitialQuotation InitialQuotation { get; set; } = null!;
 
-    public virtual Payment? Payment { get; set; }
+    public virtual Payment Payment { get; set; } = null!;
 }

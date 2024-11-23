@@ -117,12 +117,15 @@ namespace RHCQS_Services.Implement
                     if (drawingInfo.Step == 4)
                     {
                         var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                                        predicate: p => p.Id == drawingInfo.ProjectId);
+                                        predicate: p => p.Id == drawingInfo.ProjectId, 
+                                        include: p => p.Include(p => p.Contracts));
                         if (projectInfo == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
                         }
                         projectInfo.Status = AppConstant.ProjectStatus.DESIGNED;
+                        projectInfo.Contracts.FirstOrDefault(contract => contract.Type == AppConstant.ContractType.Design.ToString())!.Status 
+                            = AppConstant.ContractStatus.COMPLETED;
                         _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
                     }
 
@@ -162,12 +165,15 @@ namespace RHCQS_Services.Implement
                     if (availableDrawing.HouseDesignDrawing.Step == 4)
                     {
                         var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                                        predicate: p => p.Id == availableDrawing.HouseDesignDrawing.ProjectId);
+                                        predicate: p => p.Id == availableDrawing.HouseDesignDrawing.ProjectId,
+                                        include: p => p.Include(p => p.Contracts));
                         if (projectInfo == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
                         }
                         projectInfo.Status = AppConstant.ProjectStatus.DESIGNED;
+                        projectInfo.Contracts.FirstOrDefault(contract => contract.Type == AppConstant.ContractType.Design.ToString())!.Status
+                            = AppConstant.ContractStatus.COMPLETED;
                         _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
                     }
 

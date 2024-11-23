@@ -105,6 +105,7 @@ namespace RHCQS_Services.Implement
             var batchPayments = contractItem.BatchPayments
                 .Select(b => new BatchPaymentContract
                 {
+                    PaymentId = b.PaymentId,
                     NumberOfBatch = b.NumberOfBatch,
                     Price = b.Payment.TotalPrice,
                     PaymentDate = b.Payment.PaymentDate,
@@ -177,6 +178,7 @@ namespace RHCQS_Services.Implement
             var batchPayments = contractItem.BatchPayments
              .Select(b => new BatchPaymentContract
              {
+                 PaymentId = b.PaymentId,
                  NumberOfBatch = b.NumberOfBatch,
                  Price = b.Payment.TotalPrice,
                  PaymentDate = b.Payment.PaymentDate,
