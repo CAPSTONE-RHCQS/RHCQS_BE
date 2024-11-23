@@ -19,7 +19,7 @@ namespace RHCQS_BE.Controllers
             _firebaseService = firebaseService;
         }
 
-        #region SendNoti
+        #region SendNotification
         /// <summary>
         /// Sends a notification to a mobile device.
         /// 
@@ -70,6 +70,25 @@ namespace RHCQS_BE.Controllers
                     System.Text.Encoding.UTF8);
             }
         }
+        #region GetNotifications
+        /// <summary>
+        /// Retrieves notifications for a specific user.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        /// ```json
+        /// {
+        ///   "userId": "guid of user"
+        /// }
+        /// ``` 
+        /// </remarks>
+        /// <param name="userId">The ID of the user whose notifications are to be retrieved</param>
+        /// <returns>List of notifications</returns>
+        /// <response code="200">Notifications retrieved successfully</response>
+        /// <response code="404">No notifications found for the given user</response>
+        /// <response code="500">Failed to retrieve notifications</response>
+        #endregion
         [HttpGet(ApiEndPointConstant.Notification.GetNotificationsEndpoint)]
         public async Task<IActionResult> GetNotifications(Guid userId)
         {
@@ -92,7 +111,26 @@ namespace RHCQS_BE.Controllers
                 return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
             }
         }
-
+        #region SaveDeviceToken
+        /// <summary>
+        /// Saves the device token for a user.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        /// ```json
+        /// {
+        ///   "deviceToken": "FCM Token for the user",
+        ///   "userId": "guid of the user"
+        /// }
+        /// ``` 
+        /// </remarks>
+        /// <param name="request">The request object containing the device token and user ID</param>
+        /// <returns>Returns the result of saving the device token</returns>
+        /// <response code="200">Device token saved successfully</response>
+        /// <response code="400">Invalid request data or failed to save device token</response>
+        /// <response code="500">Failed to save device token</response>
+        #endregion
         [HttpPost(ApiEndPointConstant.Notification.SaveDeviceTokenEndpoint)]
         public async Task<IActionResult> SaveDeviceToken([FromBody] DeviceTokenRequest request)
         {
@@ -120,7 +158,25 @@ namespace RHCQS_BE.Controllers
                     System.Text.Encoding.UTF8);
             }
         }
-
+        #region GetDeviceToken
+        /// <summary>
+        /// Retrieves the device token for a specific user.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        /// ```json
+        /// {
+        ///   "userId": "guid of the user"
+        /// }
+        /// ``` 
+        /// </remarks>
+        /// <param name="userId">The ID of the user whose device token is to be retrieved</param>
+        /// <returns>The device token for the user</returns>
+        /// <response code="200">Device token retrieved successfully</response>
+        /// <response code="404">Device token not found for the given user</response>
+        /// <response code="500">Failed to retrieve device token</response>
+        #endregion
         [HttpGet(ApiEndPointConstant.Notification.GetDeviceTokenEndpoint)]
         public async Task<IActionResult> GetDeviceToken(Guid userId)
         {
