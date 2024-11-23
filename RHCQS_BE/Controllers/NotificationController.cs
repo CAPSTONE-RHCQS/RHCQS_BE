@@ -54,7 +54,7 @@ namespace RHCQS_BE.Controllers
 
             try
             {
-                var response = await _firebaseService.SendNotificationAsync(request.UserId,request.DeviceToken, request.Title, request.Body);
+                var response = await _firebaseService.SendNotificationAsync(request.Email,request.DeviceToken, request.Title, request.Body);
 
                 var successResponse = JsonConvert.SerializeObject(new { Message = "Notification sent successfully", Response = response });
                 return Content(successResponse,
@@ -89,11 +89,11 @@ namespace RHCQS_BE.Controllers
         /// <response code="500">Failed to retrieve notifications</response>
         #endregion
         [HttpGet(ApiEndPointConstant.Notification.GetNotificationsEndpoint)]
-        public async Task<IActionResult> GetNotifications(Guid userId)
+        public async Task<IActionResult> GetNotifications(string email)
         {
             try
             {
-                var notifications = await _firebaseService.GetNotificationsAsync(userId);
+                var notifications = await _firebaseService.GetNotificationsAsync(email);
 
                 if (notifications == null || notifications.Count == 0)
                 {
@@ -143,7 +143,7 @@ namespace RHCQS_BE.Controllers
 
             try
             {
-                await _firebaseService.SaveDeviceTokenAsync(request.UserId, request.DeviceToken);
+                await _firebaseService.SaveDeviceTokenAsync(request.Email, request.DeviceToken);
                 var successResponse = JsonConvert.SerializeObject(new { Message = "Device token saved successfully" });
                 return Content(successResponse,
                     "application/json",
@@ -177,11 +177,11 @@ namespace RHCQS_BE.Controllers
         /// <response code="500">Failed to retrieve device token</response>
         #endregion
         [HttpGet(ApiEndPointConstant.Notification.GetDeviceTokenEndpoint)]
-        public async Task<IActionResult> GetDeviceToken(Guid userId)
+        public async Task<IActionResult> GetDeviceToken(string email)
         {
             try
             {
-                var deviceToken = await _firebaseService.GetDeviceTokenAsync(userId);
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(email);
                 if (deviceToken == null)
                 {
                     var notFoundResponse = JsonConvert.SerializeObject(new { Message = "Device token not found for the given user" });

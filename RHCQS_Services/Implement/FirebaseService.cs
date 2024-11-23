@@ -27,14 +27,14 @@ namespace RHCQS_Services.Implement
             _firebaseMessaging = FirebaseMessaging.DefaultInstance;
         }
 
-        public async Task SaveDeviceTokenAsync(Guid userId, string deviceToken)
+        public async Task SaveDeviceTokenAsync(string email, string deviceToken)
         {
             try
             {
                 var tokenData = new { Token = deviceToken };
                 await _firebaseClient
                     .Child("deviceTokens")
-                    .Child(userId.ToString())
+                    .Child(email)
                     .PutAsync(tokenData);
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace RHCQS_Services.Implement
                 throw new Exception("Failed to save device token", ex);
             }
         }
-        public async Task SaveNotificationAsync(Guid userId, string deviceToken, string title, string body)
+        public async Task SaveNotificationAsync(string email, string deviceToken, string title, string body)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace RHCQS_Services.Implement
 
                 await _firebaseClient
                     .Child("notifications")
-                    .Child(userId.ToString())
+                    .Child(email)
                     .PostAsync(notificationData);
             }
             catch (Exception ex)
@@ -67,13 +67,13 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<string> GetDeviceTokenAsync(Guid userId)
+        public async Task<string> GetDeviceTokenAsync(string email)
         {
             try
             {
                 var tokenData = await _firebaseClient
                     .Child("deviceTokens")
-                    .Child(userId.ToString())
+                    .Child(email)
                     .OnceSingleAsync<object>();
 
                 if (tokenData != null)
@@ -94,7 +94,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<string> SendNotificationAsync(Guid userId,string deviceToken, string title, string body)
+        public async Task<string> SendNotificationAsync(string email, string deviceToken, string title, string body)
         {
             try
             {
@@ -110,7 +110,7 @@ namespace RHCQS_Services.Implement
 
                 var response = await _firebaseMessaging.SendAsync(message);
 
-                await SaveNotificationAsync(userId, deviceToken, title, body);
+                await SaveNotificationAsync(email, deviceToken, title, body);
 
                 return response;
             }
@@ -120,13 +120,13 @@ namespace RHCQS_Services.Implement
                 throw new Exception("Failed to send notification", ex);
             }
         }
-        public async Task<List<NotificationResponse>> GetNotificationsAsync(Guid userId)
+        public async Task<List<NotificationResponse>> GetNotificationsAsync(string email)
         {
             try
             {
                 var notificationsData = await _firebaseClient
                     .Child("notifications")
-                    .Child(userId.ToString())
+                    .Child(email)
                     .OnceAsync<NotificationResponse>(); // Fetch as NotificationModel directly
 
                 // Convert the data to a list of NotificationModel objects

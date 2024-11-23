@@ -9,8 +9,8 @@ namespace RHCQS_BusinessObject.Payload.Request
 {
     public class DeviceTokenRequest
     {
-        [Required(ErrorMessage = "UserId là bắt buộc")]
-        public Guid UserId { get; set; }
+        [Required(ErrorMessage = "Email là bắt buộc")]
+        public string Email { get; set; }
         [Required(ErrorMessage = "DeviceToken là bắt buộc")]
         public string DeviceToken { get; set; }
     }

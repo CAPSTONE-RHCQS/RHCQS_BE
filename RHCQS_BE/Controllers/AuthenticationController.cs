@@ -12,6 +12,7 @@ using RHCQS_BusinessObjects;
 using System.IdentityModel.Tokens.Jwt;
 using Google.Apis.Auth.OAuth2.Requests;
 using RefreshTokenRequest = RHCQS_BusinessObject.Payload.Request.RefreshTokenRequest;
+using RHCQS_Services.Implement;
 
 namespace RHCQS_BE.Controllers
 {
@@ -20,10 +21,12 @@ namespace RHCQS_BE.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IFirebaseService _firebaseService;
 
-        public AuthenticationController(IAuthService authService)
+        public AuthenticationController(IAuthService authService, IFirebaseService firebaseService)
         {
             _authService = authService;
+            _firebaseService = firebaseService;
         }
         #region Login
         /// <summary>
@@ -38,6 +41,10 @@ namespace RHCQS_BE.Controllers
         {
             var token = await _authService.LoginAsync(loginRequest.Email, loginRequest.Password);
             var logintoken = new LoginResponse(token);
+            if (!string.IsNullOrEmpty(loginRequest.DeviceToken))
+            {
+                await _firebaseService.SaveDeviceTokenAsync(loginRequest.Email, loginRequest.DeviceToken);
+            }
             var settings = new JsonSerializerSettings
             {
                 PreserveReferencesHandling = PreserveReferencesHandling.None,
