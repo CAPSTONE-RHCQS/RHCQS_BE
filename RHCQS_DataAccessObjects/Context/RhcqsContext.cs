@@ -617,7 +617,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentPhase).HasColumnType("datetime");
-            entity.Property(e => e.Percents).HasMaxLength(5);
             entity.Property(e => e.Unit).HasMaxLength(10);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
@@ -724,6 +723,7 @@ public partial class RhcqsContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK_UltilitiesDetails");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.FinalQuotationId).HasDefaultValueSql("(NULL)");
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");

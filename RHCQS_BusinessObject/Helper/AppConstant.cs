@@ -182,7 +182,6 @@ public static class AppConstant
         public const string SUCCESSFUL_DELETE = "Xóa thành công";
         public const string SEND_SUCESSFUL = "Gửi thành công!";
         public const string PASSWORD_SUCESSFUL = "Cập nhật mật khẩu thành công!";
-
         public const string SUCCESSFUL_NOTIFICATION_SEND = "Gửi thông báo thành công!";
         public const string ERROR_NOTIFICATION_SEND = "Gửi thông báo thất bại!";
         public const string NO_NOTIFICATIONS_FOUND = "Không có thông báo cho người dùng này.";
@@ -190,6 +189,7 @@ public static class AppConstant
         public const string ERROR_DEVICE_TOKEN_SAVE = "Lưu token thiết bị thất bại!";
         public const string SUCCESSFUL_DEVICE_TOKEN_RETRIEVE = "Lấy token thiết bị thành công!";
         public const string ERROR_DEVICE_TOKEN_RETRIEVE = "Lấy token thiết bị thất bại!";
+        public const string SUCCESSFUL_APPROVE = "Phê duyệt thành công!";
     }
     public class ErrMessage
     {

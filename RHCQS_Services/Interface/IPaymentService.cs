@@ -14,6 +14,6 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size);
         Task<List<PaymentResponse>> GetDetailPayment(Guid projectId);
         Task<List<PaymentResponse>> GetListBatchResponse(Guid projectId);
-        Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId);
+        Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId, IFormFile TransferInvoice);
     }
 }

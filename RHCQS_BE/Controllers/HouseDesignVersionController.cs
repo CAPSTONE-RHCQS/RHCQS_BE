@@ -169,7 +169,7 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> AssignHouseDrawing([FromQuery] Guid Id, [FromBody] AssignHouseDrawingRequest request)
         {
             var isApprove = await _designVersionService.ApproveHouseDrawing(Id, request);
-            return Ok(isApprove ? AppConstant.Message.SUCCESSFUL_INITIAL : AppConstant.Message.ERROR);
+            return Ok(isApprove ? AppConstant.Message.SUCCESSFUL_APPROVE : AppConstant.Message.ERROR);
         }
 
         #region ConfirmDesignDrawingFromCustomer

@@ -55,6 +55,7 @@ namespace RHCQS_Services.Implement
                                 include: c => c.Include(c => c.Project)
                                                 .Include(c => c.BatchPayments)
                                                 .ThenInclude(c => c.Payment!)
+                                                .ThenInclude(c => c.Media)
 
                 );
 
@@ -108,8 +109,11 @@ namespace RHCQS_Services.Implement
                     Price = b.Payment.TotalPrice,
                     PaymentDate = b.Payment.PaymentDate,
                     PaymentPhase = b.Payment.PaymentPhase,
-                    Percents = b.Payment.Percents,
-                    Description = b.Payment.Description
+                    Percents = b.Payment.Percents ?? 0,
+                    Description = b.Payment.Description,
+                    InvoiceImage = b.Payment.Media
+                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                    ?? "Hình ảnh chuyển khoản chưa có"
                 })
                 .OrderBy(b => b.NumberOfBatch)
                 .ToList();
@@ -117,7 +121,8 @@ namespace RHCQS_Services.Implement
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation, batchPayments);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, 
+                                        dependOnQuotation, batchPayments);
         }
 
         public async Task<ContractResponse> GetDetailContractByType(string type)
@@ -176,8 +181,11 @@ namespace RHCQS_Services.Implement
                  Price = b.Payment.TotalPrice,
                  PaymentDate = b.Payment.PaymentDate,
                  PaymentPhase = b.Payment.PaymentPhase,
-                 Percents = b.Payment.Percents,
-                 Description = b.Payment.Description
+                 Percents = b.Payment.Percents ?? 0,
+                 Description = b.Payment.Description,
+                 InvoiceImage = b.Payment.Media
+                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                    ?? "Hình ảnh chuyển khoản chưa có"
              })
              .OrderBy(b => b.NumberOfBatch)
              .ToList();
@@ -734,7 +742,7 @@ namespace RHCQS_Services.Implement
                         Price = (double)batchPayment.Payment.TotalPrice!,
                         PaymentDate = batchPayment.Payment.PaymentDate,
                         PaymentPhase = batchPayment.Payment.PaymentPhase,
-                        Percents = batchPayment.Payment.Percents,
+                        Percents = batchPayment.Payment.Percents ?? 0,
                         Description = batchPayment.Payment.Description
                     }).ToList();
 

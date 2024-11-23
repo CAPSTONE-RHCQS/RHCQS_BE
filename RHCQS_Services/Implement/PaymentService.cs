@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static RHCQS_BusinessObject.Payload.Response.PaymentResponse;
+using RHCQS_BusinessObject.Helper;
 
 namespace RHCQS_Services.Implement
 {
@@ -22,12 +23,17 @@ namespace RHCQS_Services.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<IPaymentService> _logger;
         private readonly Cloudinary _cloudinary;
+        private readonly IMediaService _mediaService;
 
-        public PaymentService(IUnitOfWork unitOfWork, ILogger<IPaymentService> logger, Cloudinary cloudinary)
+        public PaymentService(IUnitOfWork unitOfWork, 
+            ILogger<IPaymentService> logger, 
+            Cloudinary cloudinary,
+            IMediaService mediaService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cloudinary = cloudinary;
+            _mediaService = mediaService;
         }
 
         public async Task<IPaginate<PaymentResponse>> GetListPayment(int page, int size)
@@ -35,7 +41,7 @@ namespace RHCQS_Services.Implement
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
                             selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!, p.BatchPayments.FirstOrDefault(b => b.Id == p.Id)!.Status!, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
-                                                               p.Unit, p.Percents, p.Description),
+                                                               p.Unit, (int)p.Percents, p.Description),
                             include: p => p.Include(p => p.PaymentType),
                             page: page,
                             size: size
@@ -64,7 +70,7 @@ namespace RHCQS_Services.Implement
                 bp.Payment.PaymentDate,
                 bp.Payment.PaymentPhase,
                 bp.Payment.Unit,
-                bp.Payment.Percents,
+                bp.Payment.Percents ?? 0,
                 bp.Payment.Description
             )).ToList();
 
@@ -98,7 +104,7 @@ namespace RHCQS_Services.Implement
                 paymentDate: payment.PaymentDate,
                 paymentPhase: payment.PaymentPhase,
                 unit: payment.Unit,
-                percents: payment.Percents,
+                percents: payment.Percents ?? 0,
                 description: payment.Description
             )).ToList();
 
@@ -106,7 +112,7 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
-        public async Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId)
+        public async Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId, IFormFile TransferInvoice)
         {
 
             var paymentInfo = await _unitOfWork.GetRepository<Payment>()
@@ -117,6 +123,18 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
                                                          AppConstant.ErrMessage.Invalid_Payment);
             }
+            var result = await _mediaService.UploadImageAsync(TransferInvoice, "Invoice", null);
+
+            var invoiceMedia = new Medium
+            {
+                Id = Guid.NewGuid(),
+                Name = "Hoa_don_thanh_toan_" + paymentId,
+                Url = result.ToString(),
+                InsDate = LocalDateTime.VNDateTime(),
+                UpsDate = LocalDateTime.VNDateTime(),
+                PaymentId = paymentId
+            };
+            await _unitOfWork.GetRepository<Medium>().InsertAsync(invoiceMedia);
 
             paymentInfo.IsConfirm = true;
 

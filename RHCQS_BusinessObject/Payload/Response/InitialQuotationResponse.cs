@@ -166,7 +166,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class BatchPaymentInfo
     {
-        public BatchPaymentInfo(Guid id, string? description, string? percents, double? price,
+        public BatchPaymentInfo(Guid id, string? description, int percents, double? price,
             string? unit, string? status,int? numberOfBatch, DateTime? paymentDate, DateTime? paymentPhase)
         {
             PaymentId = id;
@@ -182,7 +182,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid PaymentId { get; set; }
         public string? Status { get; set; }
         public string? Description { get; set; }
-        public string? Percents { get; set; }
+        public int Percents { get; set; }
         public double? Price { get; set; }
         public string? Unit { get; set; }
         public int? NumberOfBatch { get; set; }

@@ -93,7 +93,8 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
         public DateTime? PaymentDate { get; set; }
 
         public DateTime? PaymentPhase { get; set; }
-        public string? Percents { get; set; }
+        public int Percents { get; set; }
         public string? Description { get; set; }
+        public string? InvoiceImage { get; set; }
     }
 }
