@@ -13,6 +13,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IAccountService
     {
+        Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id);
         Task<Account> GetAccountByIdAsync(Guid id);
         Task<int> GetTotalAccountCountAsync();
         Task<int> GetActiveAccountCountAsync();

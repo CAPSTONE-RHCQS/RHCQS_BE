@@ -43,7 +43,8 @@ namespace RHCQS_BE.Controllers
             var logintoken = new LoginResponse(token);
             if (!string.IsNullOrEmpty(loginRequest.DeviceToken))
             {
-                await _firebaseService.SaveDeviceTokenAsync(loginRequest.Email, loginRequest.DeviceToken);
+                var sanitizedEmail = loginRequest.Email.Replace("@", "_at_").Replace(".", "_dot_");
+                await _firebaseService.SaveDeviceTokenAsync(sanitizedEmail, loginRequest.DeviceToken);
             }
             var settings = new JsonSerializerSettings
             {

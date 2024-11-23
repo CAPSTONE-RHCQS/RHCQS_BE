@@ -242,7 +242,7 @@ namespace RHCQS_Services.Implement
                     p => p.ProjectId == request.ProjectId && p.Status == AppConstant.QuotationStatus.FINALIZED);
                 if (checkFinalized != null)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, "Final đang trạng thái FINALIZED không thể cập nhật nữa .");
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, "Final đang trạng thái Finalized không thể cập nhật nữa .");
                 }
                 if (projectExists == null)
                 {

@@ -51,18 +51,18 @@ namespace RHCQS_BE.Controllers
                 return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
             }
 
-            try
-            {
+            //try
+            //{
                 var response = await _firebaseService.SendNotificationAsync(request.Email, request.DeviceToken, request.Title, request.Body);
 
                 var successResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.SUCCESSFUL_NOTIFICATION_SEND, Response = response });
                 return Content(successResponse, "application/json", System.Text.Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_NOTIFICATION_SEND, Error = ex.Message });
-                return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_NOTIFICATION_SEND, Error = ex.Message });
+            //    return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
+            //}
         }
 
         #region GetNotifications
@@ -87,8 +87,8 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.Notification.GetNotificationsEndpoint)]
         public async Task<IActionResult> GetNotifications(string email)
         {
-            try
-            {
+            //try
+            //{
                 var notifications = await _firebaseService.GetNotificationsAsync(email);
 
                 if (notifications == null || notifications.Count == 0)
@@ -99,12 +99,12 @@ namespace RHCQS_BE.Controllers
 
                 var successResponse = JsonConvert.SerializeObject(new { Notifications = notifications });
                 return Content(successResponse, "application/json", System.Text.Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_NOTIFICATION_SEND, Error = ex.Message });
-                return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_NOTIFICATION_SEND, Error = ex.Message });
+            //    return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
+            //}
         }
 
         #region SaveDeviceToken
@@ -136,17 +136,17 @@ namespace RHCQS_BE.Controllers
                 return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
             }
 
-            try
-            {
+            //try
+            //{
                 await _firebaseService.SaveDeviceTokenAsync(request.Email, request.DeviceToken);
                 var successResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.SUCCESSFUL_DEVICE_TOKEN_SAVE });
                 return Content(successResponse, "application/json", System.Text.Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_DEVICE_TOKEN_SAVE, Error = ex.Message });
-                return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_DEVICE_TOKEN_SAVE, Error = ex.Message });
+            //    return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
+            //}
         }
 
         #region GetDeviceToken
@@ -171,8 +171,8 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.Notification.GetDeviceTokenEndpoint)]
         public async Task<IActionResult> GetDeviceToken(string email)
         {
-            try
-            {
+            //try
+            //{
                 var deviceToken = await _firebaseService.GetDeviceTokenAsync(email);
                 if (deviceToken == null)
                 {
@@ -182,12 +182,12 @@ namespace RHCQS_BE.Controllers
 
                 var successResponse = JsonConvert.SerializeObject(new { DeviceToken = deviceToken });
                 return Content(successResponse, "application/json", System.Text.Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
-                var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_DEVICE_TOKEN_RETRIEVE, Error = ex.Message });
-                return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    var errorResponse = JsonConvert.SerializeObject(new { Message = AppConstant.Message.ERROR_DEVICE_TOKEN_RETRIEVE, Error = ex.Message });
+            //    return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
+            //}
         }
     }
 }

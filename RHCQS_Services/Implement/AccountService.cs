@@ -62,7 +62,62 @@ namespace RHCQS_Services.Implement
             }
             return account;
         }
+        public async Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.AccountIdError
+                );
+            }
 
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var account = await accountRepository.FirstOrDefaultAsync(
+                a => a.Id == id && a.Deflag == true,
+                include: q => q.Include(x => x.Role)
+            );
+
+            if (account != null)
+            {
+                return new AccountCustomerResponse
+                {
+                    Id = account.Id,
+                    Email = account.Email,
+                    Username = account.Username,
+                    PhoneNumber = account.PhoneNumber,
+                    ImageUrl = account.ImageUrl,
+                    DateOfBirth = account.DateOfBirth?.ToDateTime(TimeOnly.MinValue),
+                    Deflag = account.Deflag,
+                    RoleName = account.Role?.RoleName
+                };
+            }
+
+            var customerRepository = _unitOfWork.GetRepository<Customer>();
+            var customer = await customerRepository.FirstOrDefaultAsync(
+                c => c.Id == id && c.Deflag == true
+            );
+
+            if (customer != null)
+            {
+                return new AccountCustomerResponse
+                {
+                    Id = customer.Id,
+                    Email = customer.Email,
+                    Username = customer.Username,
+                    PhoneNumber = customer.PhoneNumber,
+                    ImageUrl = customer.ImgUrl,
+                    DateOfBirth = customer.DateOfBirth,
+                    Deflag = customer.Deflag,
+                    RoleName = "Customer"
+                };
+            }
+
+            throw new AppConstant.MessageError(
+                (int)AppConstant.ErrCode.Not_Found,
+                AppConstant.ErrMessage.Not_Found_Account
+            );
+        }
         public async Task<int> GetActiveAccountCountAsync()
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();

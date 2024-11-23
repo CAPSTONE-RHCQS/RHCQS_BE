@@ -1,14 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.FinalQuotation;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -18,10 +21,16 @@ namespace RHCQS_BE.Controllers
     public class FinalQuotationController : ControllerBase
     {
         private readonly IFinalQuotationService _finalQuotationService;
-
-        public FinalQuotationController(IFinalQuotationService finalQuotationService)
+        private readonly IFirebaseService _firebaseService;
+        private readonly IProjectService _projectService;
+        private readonly IAccountService _accountService;
+        public FinalQuotationController(IFinalQuotationService finalQuotationService, IFirebaseService firebaseService,
+            IProjectService projectService, IAccountService accountService)
         {
             _finalQuotationService = finalQuotationService;
+            _firebaseService = firebaseService;
+            _projectService = projectService;
+            _accountService = accountService;
         }
 
         #region GetListFinalQuotation
@@ -578,6 +587,25 @@ namespace RHCQS_BE.Controllers
                 message = AppConstant.Message.SUCCESSFUL_UPDATE
             };
             var result = JsonConvert.SerializeObject(response, Formatting.Indented);
+
+            //var projectdetail = await _projectService.GetDetailProjectById(request.ProjectId);
+            //var accountdetail = await _accountService.SearchAccountsByNameAsync(projectdetail.AccountName);
+            //var sanitizedEmail = accountdetail.Email.Replace("@", "_at_").Replace(".", "_dot_");
+            //var deviceToken = await _firebaseService.GetDeviceTokenAsync(sanitizedEmail);
+            //var notificationRequest = new NotificationRequest
+            //{
+            //    Email = sanitizedEmail,
+            //    DeviceToken = deviceToken,
+            //    Title = "Quotation Updated",
+            //    Body = $"Quotation has been successfully updated."
+            //};
+            //await _firebaseService.SendNotificationAsync(
+            //    notificationRequest.Email,
+            //    notificationRequest.DeviceToken,
+            //    notificationRequest.Title,
+            //    notificationRequest.Body
+            //);
+
             return new ContentResult()
             {
                 Content = result,
@@ -598,7 +626,6 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> CancelFinalQuotationFromManager([FromQuery] Guid finalQuotationId,[FromBody] CancelQuotation reason)
         {
             bool quotation = await _finalQuotationService.CancelFinalQuotation(finalQuotationId, reason);
-
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CANCELFINAL : AppConstant.Message.ERROR);
         }
         #region ConfirmArgeeFinalFromCustomer

@@ -11,6 +11,7 @@ using System.Reactive;
 using System.Threading.Tasks;
 using Notification = FirebaseAdmin.Messaging.Notification;
 using Microsoft.Extensions.Configuration;
+using RHCQS_BusinessObject.Payload.Request;
 
 namespace RHCQS_Services.Implement
 {
@@ -45,8 +46,8 @@ namespace RHCQS_Services.Implement
         }
         public async Task SaveNotificationAsync(string email, string deviceToken, string title, string body)
         {
-            try
-            {
+            //try
+            //{
                 var notificationData = new
                 {
                     DeviceToken = deviceToken,
@@ -59,21 +60,22 @@ namespace RHCQS_Services.Implement
                     .Child("notifications")
                     .Child(email)
                     .PostAsync(notificationData);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error saving notification: {ex.Message}");
-                throw new Exception("Failed to save notification", ex);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Error saving notification: {ex.Message}");
+            //    throw new Exception("Failed to save notification", ex);
+            //}
         }
 
         public async Task<string> GetDeviceTokenAsync(string email)
         {
-            try
-            {
-                var tokenData = await _firebaseClient
+            //try
+            //{
+            var sanitizedEmail = email.Replace("@", "_at_").Replace(".", "_dot_");
+            var tokenData = await _firebaseClient
                     .Child("deviceTokens")
-                    .Child(email)
+                    .Child(sanitizedEmail)
                     .OnceSingleAsync<object>();
 
                 if (tokenData != null)
@@ -86,18 +88,18 @@ namespace RHCQS_Services.Implement
                 }
 
                 return null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching device token: {ex.Message}");
-                throw new Exception("Failed to get device token", ex);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Error fetching device token: {ex.Message}");
+            //    throw new Exception("Failed to get device token", ex);
+            //}
         }
 
         public async Task<string> SendNotificationAsync(string email, string deviceToken, string title, string body)
         {
-            try
-            {
+            //try
+            //{
                 var message = new Message()
                 {
                     Token = deviceToken,
@@ -113,32 +115,32 @@ namespace RHCQS_Services.Implement
                 await SaveNotificationAsync(email, deviceToken, title, body);
 
                 return response;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error sending notification: {ex.Message}");
-                throw new Exception("Failed to send notification", ex);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Error sending notification: {ex.Message}");
+            //    throw new Exception("Failed to send notification", ex);
+            //}
         }
         public async Task<List<NotificationResponse>> GetNotificationsAsync(string email)
         {
-            try
-            {
-                var notificationsData = await _firebaseClient
+            //try
+            //{
+            var sanitizedEmail = email.Replace("@", "_at_").Replace(".", "_dot_");
+            var notificationsData = await _firebaseClient
                     .Child("notifications")
-                    .Child(email)
-                    .OnceAsync<NotificationResponse>(); // Fetch as NotificationModel directly
+                    .Child(sanitizedEmail)
+                    .OnceAsync<NotificationResponse>();
 
-                // Convert the data to a list of NotificationModel objects
                 return notificationsData
-                    .Select(item => item.Object) // Access the NotificationModel object
+                    .Select(item => item.Object)
                     .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching notifications: {ex.Message}");
-                throw new Exception("Failed to retrieve notifications", ex);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Error fetching notifications: {ex.Message}");
+            //    throw new Exception("Failed to retrieve notifications", ex);
+            //}
         }
 
     }
