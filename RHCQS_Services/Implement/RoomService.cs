@@ -43,24 +43,22 @@ namespace RHCQS_Services.Implement
             foreach (var room in rooms)
             {
                 var latestMessage = await _unitOfWork.GetRepository<Message>().FirstOrDefaultAsync(
-                                    predicate: m => m.RoomId == room.Id,
-                                    orderBy: m => m.OrderByDescending(x => x.SendAt));
+                    predicate: m => m.RoomId == room.Id,
+                    orderBy: m => m.OrderByDescending(x => x.SendAt));
 
-                if (latestMessage != null)
+                var staffId = room.SenderId == accountId ? room.ReceiverId : room.SenderId;
+                var staffAccount = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(a => a.Id == staffId);
+
+                roomWaitingList.Add(new RoomWaitingResponse
                 {
-                    var staffId = room.SenderId == accountId ? room.ReceiverId : room.SenderId;
-                    var staffAccount = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(a => a.Id == staffId);
-
-                    roomWaitingList.Add(new RoomWaitingResponse
-                    {
-                        Id = room.Id,
-                        AvatarStaff = staffAccount?.ImageUrl,
-                        StaffName = staffAccount?.Username,
-                        MessageContext = latestMessage.MessageContent, 
-                        IsRead = false
-                    });
-                }
+                    Id = room.Id,
+                    AvatarStaff = staffAccount?.ImageUrl,
+                    StaffName = staffAccount?.Username,
+                    MessageContext = latestMessage?.MessageContent,
+                    IsRead = false
+                });
             }
+
 
             return roomWaitingList;
         }
@@ -89,6 +87,7 @@ namespace RHCQS_Services.Implement
                 StaffName = staffAccount.Username,   
                 MessageRooms = roomInfo.Messages.Select(m => new MessageRoom
                 {
+                    UserId = (Guid)m.CreatedBy,
                     MessageContext = m.MessageContent,
                     SendAt = m.SendAt,
                     IsRead = false

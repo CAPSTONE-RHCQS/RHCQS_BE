@@ -126,7 +126,7 @@ namespace RHCQS_BE.Hubs
             await Clients.Group(roomId.ToString()).SendAsync("UserJoined", username);
         }
 
-        public async Task SendMessageToRoom(Guid roomId, string user, string message)
+        public async Task SendMessageToRoom(Guid roomId, string user, string messageContext)
         {
             try
             {
@@ -150,7 +150,7 @@ namespace RHCQS_BE.Hubs
                     {
                         Id = Guid.NewGuid(),
                         RoomId = room.Id,
-                        MessageContent = message,
+                        MessageContent = messageContext,
                         CreatedBy = account.Id,
                         SendAt = DateTime.Now
                     };
@@ -160,7 +160,7 @@ namespace RHCQS_BE.Hubs
 
                     if (saveResult > 0)
                     {
-                        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", user, message, roomId);
+                        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", user, messageContext, roomId);
                     }
                     else
                     {
