@@ -98,9 +98,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer")]
         [HttpPut(ApiEndPointConstant.Payment.PaymentConfirmEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ConfirmBatchPaymentFromCustomer(Guid paymentId)
+        public async Task<IActionResult> ConfirmBatchPaymentFromCustomer(Guid paymentId, IFormFile TransferInvoice)
         {
-            var listPayment = await _paymentService.ConfirmBatchPaymentFromCustomer(paymentId);
+            var listPayment = await _paymentService.ConfirmBatchPaymentFromCustomer(paymentId, TransferInvoice);
             var result = JsonConvert.SerializeObject(listPayment, Formatting.Indented);
             return new ContentResult()
             {

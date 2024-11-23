@@ -182,6 +182,7 @@ public static class AppConstant
         public const string SUCCESSFUL_DELETE = "Xóa thành công";
         public const string SEND_SUCESSFUL = "Gửi thành công!";
         public const string PASSWORD_SUCESSFUL = "Cập nhật mật khẩu thành công!";
+        public const string SUCCESSFUL_APPROVE = "Phê duyệt thành công!";
     }
     public class ErrMessage
     {

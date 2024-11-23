@@ -21,7 +21,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public PaymentResponse(int? priorty, Guid id, string type, string status, DateTime? insDate, DateTime? upsDate, 
             double? totalprice, DateTime? paymentDate, DateTime? paymentPhase, string? unit,
-            string? percents, string? description)
+            int percents, string? description)
         {
             Priority = priorty;
             Id = id;
@@ -53,7 +53,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Unit { get; set; }
 
-        public string? Percents { get; set; }
+        public int Percents { get; set; }
 
         public string? Description { get; set; }
 

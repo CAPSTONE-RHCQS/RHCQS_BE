@@ -101,7 +101,7 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         [Required(ErrorMessage = "Tiền là bắt buộc.")]
         public double? Price { get; set; }
         [Required(ErrorMessage = "Phần trăm thanh toán là bắt buộc.")]
-        public string? Percents { get; set; }
+        public int Percents { get; set; }
 
         public string? Description { get; set; }
         [Required(ErrorMessage = "Ngày bắt đầu là bắt buộc.")]

@@ -123,7 +123,7 @@ namespace RHCQS_Services.Implement
                 .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
-                                         item.Payment.Percents,
+                                         item.Payment.Percents ?? 0,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
@@ -237,7 +237,7 @@ namespace RHCQS_Services.Implement
                             .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
-                                         item.Payment.Percents,
+                                         item.Payment.Percents ?? 0,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
@@ -346,7 +346,7 @@ namespace RHCQS_Services.Implement
                 .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
-                                         item.Payment.Percents,
+                                         item.Payment.Percents ?? 0,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
@@ -837,11 +837,11 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.PromotionIllegal);
                     }
 
-                    //double discountCheck = (double)request.Area * (double)promotionInfo.Value;
-                    //if(discountCheck != request.Promotions.Discount)
-                    //{
-                    //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
-                    //}
+                    double discountCheck = (double)request.Area * (double)promotionInfo.Value;
+                    if (discountCheck != request.Promotions.Discount)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
+                    }
                 }
                 #endregion
 
