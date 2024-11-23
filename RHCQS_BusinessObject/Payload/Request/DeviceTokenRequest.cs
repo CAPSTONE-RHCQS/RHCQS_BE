@@ -7,17 +7,11 @@ using System.Threading.Tasks;
 
 namespace RHCQS_BusinessObject.Payload.Request
 {
-    public class NotificationRequest
+    public class DeviceTokenRequest
     {
         [Required(ErrorMessage = "UserId là bắt buộc")]
         public Guid UserId { get; set; }
         [Required(ErrorMessage = "DeviceToken là bắt buộc")]
         public string DeviceToken { get; set; }
-
-        [Required(ErrorMessage = "Tiêu đề là bắt buộc")]
-        public string Title { get; set; }
-        [Required(ErrorMessage = "Nội dung thông báo là bắt buộc")]
-        public string Body { get; set; }
-
     }
 }

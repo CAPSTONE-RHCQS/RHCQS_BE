@@ -1,10 +1,10 @@
-﻿using FirebaseAdmin.Messaging;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request;
-using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_Services.Interface;
+using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 
 namespace RHCQS_BE.Controllers
 {
@@ -12,11 +12,11 @@ namespace RHCQS_BE.Controllers
     [ApiController]
     public class NotificationController : ControllerBase
     {
-        private readonly FirebaseMessaging _firebaseMessaging;
+        private readonly IFirebaseService _firebaseService;
 
-        public NotificationController()
+        public NotificationController(IFirebaseService firebaseService)
         {
-            _firebaseMessaging = FirebaseMessaging.DefaultInstance;
+            _firebaseService = firebaseService;
         }
 
         #region SendNoti
@@ -34,7 +34,7 @@ namespace RHCQS_BE.Controllers
         ///   "title": "hello",
         ///   "body": "hello from there"
         /// }
-        /// ```
+        /// ``` 
         /// </remarks>
         /// <param name="request">The request object containing the mobile device details and notification content</param>
         /// <returns>Returns the result of the notification sending process</returns>
@@ -45,24 +45,106 @@ namespace RHCQS_BE.Controllers
         [HttpPost(ApiEndPointConstant.Notification.SendNotificationRoleEndpoint)]
         public async Task<IActionResult> SendNotification([FromBody] NotificationRequest request)
         {
-            var message = new Message()
+            if (string.IsNullOrEmpty(request.DeviceToken) || string.IsNullOrEmpty(request.Title) || string.IsNullOrEmpty(request.Body))
             {
-                Token = request.DeviceToken,
-                Notification = new Notification
-                {
-                    Title = request.Title,
-                    Body = request.Body
-                }
-            };
+                var errorResponse = JsonConvert.SerializeObject(new { Message = "DeviceToken, Title, Body, and UserId are required" });
+                return Content(errorResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
+            }
 
             try
             {
-                string response = await _firebaseMessaging.SendAsync(message);
-                return Ok(new { Message = "Notification sent successfully", Response = response });
+                var response = await _firebaseService.SendNotificationAsync(request.UserId,request.DeviceToken, request.Title, request.Body);
+
+                var successResponse = JsonConvert.SerializeObject(new { Message = "Notification sent successfully", Response = response });
+                return Content(successResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Message = "Failed to send notification", Error = ex.Message });
+                var errorResponse = JsonConvert.SerializeObject(new { Message = "Failed to send notification", Error = ex.Message });
+                return Content(errorResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
+            }
+        }
+        [HttpGet(ApiEndPointConstant.Notification.GetNotificationsEndpoint)]
+        public async Task<IActionResult> GetNotifications(Guid userId)
+        {
+            try
+            {
+                var notifications = await _firebaseService.GetNotificationsAsync(userId);
+
+                if (notifications == null || notifications.Count == 0)
+                {
+                    var notFoundResponse = JsonConvert.SerializeObject(new { Message = "No notifications found for the given user" });
+                    return Content(notFoundResponse, "application/json", System.Text.Encoding.UTF8);
+                }
+
+                var successResponse = JsonConvert.SerializeObject(new { Notifications = notifications });
+                return Content(successResponse, "application/json", System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = JsonConvert.SerializeObject(new { Message = "Failed to retrieve notifications", Error = ex.Message });
+                return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
+            }
+        }
+
+        [HttpPost(ApiEndPointConstant.Notification.SaveDeviceTokenEndpoint)]
+        public async Task<IActionResult> SaveDeviceToken([FromBody] DeviceTokenRequest request)
+        {
+            if (string.IsNullOrEmpty(request.DeviceToken))
+            {
+                var errorResponse = JsonConvert.SerializeObject(new { Message = "DeviceToken and UserId are required" });
+                return Content(errorResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
+            }
+
+            try
+            {
+                await _firebaseService.SaveDeviceTokenAsync(request.UserId, request.DeviceToken);
+                var successResponse = JsonConvert.SerializeObject(new { Message = "Device token saved successfully" });
+                return Content(successResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = JsonConvert.SerializeObject(new { Message = "Failed to save device token", Error = ex.Message });
+                return Content(errorResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
+            }
+        }
+
+        [HttpGet(ApiEndPointConstant.Notification.GetDeviceTokenEndpoint)]
+        public async Task<IActionResult> GetDeviceToken(Guid userId)
+        {
+            try
+            {
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(userId);
+                if (deviceToken == null)
+                {
+                    var notFoundResponse = JsonConvert.SerializeObject(new { Message = "Device token not found for the given user" });
+                    return Content(
+                        notFoundResponse, 
+                        "application/json",
+                        System.Text.Encoding.UTF8);
+                }
+                var successResponse = JsonConvert.SerializeObject(new { DeviceToken = deviceToken });
+                return Content(
+                    successResponse,
+                    "application/json",
+                    System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                var errorResponse = JsonConvert.SerializeObject(new { Message = "Failed to retrieve device token", Error = ex.Message });
+                return Content(errorResponse, "application/json", System.Text.Encoding.UTF8);
             }
         }
     }

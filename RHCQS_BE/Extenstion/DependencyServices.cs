@@ -105,6 +105,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IExcelImportService, ExcelImportService>();
             services.AddScoped<IRoomService, RoomService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
