@@ -238,6 +238,12 @@ namespace RHCQS_Services.Implement
 
                 var projectExists = await _unitOfWork.GetRepository<Project>()
                     .FirstOrDefaultAsync(p => p.Id == request.ProjectId);
+                var checkFinalized = await finalQuotationRepo.FirstOrDefaultAsync(
+                    p => p.ProjectId == request.ProjectId && p.Status == AppConstant.QuotationStatus.FINALIZED);
+                if (checkFinalized != null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, "Final đang trạng thái FINALIZED không thể cập nhật nữa .");
+                }
                 if (projectExists == null)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "ProjectId không tồn tại.");
@@ -738,8 +744,8 @@ namespace RHCQS_Services.Implement
                             }
                     };
 
-                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-                    NativeLibrary.Load(dllPath);
+                    //string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    //NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
                     //Upload cloudinary
