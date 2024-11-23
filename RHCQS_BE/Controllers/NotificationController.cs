@@ -23,7 +23,6 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Sends a notification to a mobile device.
         /// 
-        /// Role: USER, ADMIN
         /// </summary>
         /// <remarks>
         /// Sample request:
