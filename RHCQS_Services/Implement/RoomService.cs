@@ -67,7 +67,8 @@ namespace RHCQS_Services.Implement
         {
             var roomInfo = await _unitOfWork.GetRepository<Room>().FirstOrDefaultAsync(
                                 predicate: r => r.Id == roomId,
-                                include: r => r.Include(r => r.Messages));
+                                include: r => r.Include(r => r.Messages)
+                                                .ThenInclude(r => r.CreatedByNavigation!));
             if (roomInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Room_Not_Found);
@@ -88,6 +89,7 @@ namespace RHCQS_Services.Implement
                 MessageRooms = roomInfo.Messages.Select(m => new MessageRoom
                 {
                     UserId = (Guid)m.CreatedBy,
+                    UserName = m.CreatedByNavigation.Username,
                     MessageContext = m.MessageContent,
                     SendAt = m.SendAt,
                     IsRead = false
