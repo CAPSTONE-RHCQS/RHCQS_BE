@@ -157,10 +157,11 @@ namespace RHCQS_BE.Hubs
 
                     await _unitOfWork.GetRepository<Message>().InsertAsync(newMessage);
                     var saveResult = await _unitOfWork.CommitAsync();
-
+                    
                     if (saveResult > 0)
                     {
-                        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", user, messageContext, roomId);
+                        var userId = account.Id;
+                        await Clients.Group(roomId.ToString()).SendAsync("ReceiveMessage", user, userId, messageContext, roomId);
                     }
                     else
                     {
