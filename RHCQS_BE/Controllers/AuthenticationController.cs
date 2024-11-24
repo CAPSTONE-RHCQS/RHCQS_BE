@@ -41,11 +41,11 @@ namespace RHCQS_BE.Controllers
         {
             var token = await _authService.LoginAsync(loginRequest.Email, loginRequest.Password);
             var logintoken = new LoginResponse(token);
-            if (!string.IsNullOrEmpty(loginRequest.DeviceToken))
-            {
-                var sanitizedEmail = loginRequest.Email.Replace("@", "_at_").Replace(".", "_dot_");
-                await _firebaseService.SaveDeviceTokenAsync(sanitizedEmail, loginRequest.DeviceToken);
-            }
+            //if (!string.IsNullOrEmpty(loginRequest.DeviceToken))
+            //{
+            //    var sanitizedEmail = loginRequest.Email.Replace("@", "_at_").Replace(".", "_dot_");
+            //    await _firebaseService.SaveDeviceTokenAsync(sanitizedEmail, loginRequest.DeviceToken);
+            //}
             var settings = new JsonSerializerSettings
             {
                 PreserveReferencesHandling = PreserveReferencesHandling.None,

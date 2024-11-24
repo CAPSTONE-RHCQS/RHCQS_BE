@@ -872,11 +872,12 @@ namespace RHCQS_Services.Implement
                                     request.Area.Value : initialVersionPresent.Project.Area;
                 initialVersionPresent.Project.Address = string.IsNullOrEmpty(request.Address) ?
                                       initialVersionPresent.Project.Address : request.Address;
+                initialVersionPresent.Project.UpsDate = LocalDateTime.VNDateTime();
+
                 initialVersionPresent.Project.CustomerName = string.IsNullOrEmpty(request.AccountName) ?
                                       initialVersionPresent.Project.CustomerName : request.AccountName;
                 //Note: Version initial quotation - PROCESSING
                 initialVersionPresent.Status = AppConstant.QuotationStatus.ENDED;
-
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
                 #endregion
 

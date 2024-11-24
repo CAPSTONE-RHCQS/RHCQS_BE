@@ -297,10 +297,14 @@ namespace RHCQS_Services.Implement
                 if (highestFinalQuotation != null)
                 {
                     highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
+                    highestFinalQuotation.UpsDate = LocalDateTime.VNDateTime();
                     _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
 
-                    highestFinalQuotation.Project.Address = request.Address;
-                    highestFinalQuotation.Project.CustomerName = request.CustomerName;
+                    highestFinalQuotation.Project.Address = string.IsNullOrEmpty(request.Address) ?
+                                      highestFinalQuotation.Project.Address : request.Address;
+                    highestFinalQuotation.Project.CustomerName = string.IsNullOrEmpty(request.AccountName) ?
+                                      initialVersionPresent.Project.CustomerName : request.AccountName;
+                    highestFinalQuotation.Project.UpsDate = LocalDateTime.VNDateTime();
                     _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
                 }
 

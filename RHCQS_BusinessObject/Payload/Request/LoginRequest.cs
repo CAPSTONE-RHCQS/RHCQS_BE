@@ -14,6 +14,6 @@ namespace RHCQS_BusinessObject.Payload.Request
         public string Email { get; set; }
         [Required(ErrorMessage = "Password là bắt buộc phải có.")]
         public string Password { get; set; } = null!;
-        public string? DeviceToken { get; set; }
+        //public string? DeviceToken { get; set; }
     }
 }

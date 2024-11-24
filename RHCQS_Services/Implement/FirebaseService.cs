@@ -32,10 +32,11 @@ namespace RHCQS_Services.Implement
         {
             //try
             //{
-                var tokenData = new { Token = deviceToken };
+            var sanitizedEmail = email.Replace("@", "_at_").Replace(".", "_dot_");
+            var tokenData = new { Token = deviceToken };
                 await _firebaseClient
                     .Child("deviceTokens")
-                    .Child(email)
+                    .Child(sanitizedEmail)
                     .PutAsync(tokenData);
             //}
             //catch (Exception ex)
@@ -48,7 +49,8 @@ namespace RHCQS_Services.Implement
         {
             //try
             //{
-                var notificationData = new
+            var sanitizedEmail = email.Replace("@", "_at_").Replace(".", "_dot_");
+            var notificationData = new
                 {
                     DeviceToken = deviceToken,
                     Title = title,
@@ -58,7 +60,7 @@ namespace RHCQS_Services.Implement
 
                 await _firebaseClient
                     .Child("notifications")
-                    .Child(email)
+                    .Child(sanitizedEmail)
                     .PostAsync(notificationData);
             //}
             //catch (Exception ex)
