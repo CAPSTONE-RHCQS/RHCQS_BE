@@ -136,7 +136,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.Customer!.Username!,
+                AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -250,7 +250,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.Customer!.Username!,
+                AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -359,7 +359,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.Customer!.Username!,
+                AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
