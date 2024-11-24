@@ -270,6 +270,8 @@ public static class AppConstant
         public const string InvalidPackageQuotation = "Bắt buộc phải có gói thi công! Hãy chọn gói thi công trước khi hoàn tất";
         public const string InvalidBatchPayment = "Các đợt thanh toán hợp đồng là bắt buộc!";
         public const string MaxVersionQuotation = "Báo giá đã đạt tới lần chỉnh sửa thứ 10, dự án sẽ bị hủy!";
+        public const string DuplicatedConstruction = "Hạng mục xây dựng bị trùng lặp!";
+        public const string DuplicatedUtility = "Tiện ích xây dựng bị trùng lặp!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
@@ -291,6 +293,7 @@ public static class AppConstant
         public const string NotFinishedContractDesign = "Hợp đồng thiết kế chưa được hoàn thành! " +
             "Hãy hoàn thành hợp đồng thiết kế trước khi phân công";
         public const string NotStartContractDesign = "Hợp đồng thiết chưa thống nhất! Hãy kí hợp đồng trước khi phân công!";
+        public const string RequestOverloadStaff = "Chỉ yêu cầu 1 nhân viên - 2 công việc, hiện tại đang việc quá 2 công việc!";
 
         //Package
         public const string CreatePackage = "Tạo packaget thất bại.";

@@ -845,6 +845,24 @@ namespace RHCQS_Services.Implement
                 }
                 #endregion
 
+                #region Check request duplicate
+                //Construction 
+                var isValidContruction = ValidateDuplicateConstructionItems(request.Items, out var duplicateNames);
+                if (!isValidContruction)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedConstruction);
+                }
+
+                //Utility
+                var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
+                if (!isValidUtility)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedUtility);
+                }
+
+
+                #endregion
+
                 #region Update project & version present
                 var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                 predicate: x => x.Version == request.VersionPresent && x.ProjectId == request.ProjectId,
@@ -855,7 +873,7 @@ namespace RHCQS_Services.Implement
                 initialVersionPresent.Project.Address = string.IsNullOrEmpty(request.Address) ?
                                       initialVersionPresent.Project.Address : request.Address;
                 initialVersionPresent.Project.CustomerName = string.IsNullOrEmpty(request.AccountName) ?
-                    request.AccountName : request.AccountName;
+                                      initialVersionPresent.Project.CustomerName : request.AccountName;
                 //Note: Version initial quotation - PROCESSING
                 initialVersionPresent.Status = AppConstant.QuotationStatus.ENDED;
 
@@ -1091,5 +1109,42 @@ namespace RHCQS_Services.Implement
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return isSuccessful;
         }
+
+        public bool ValidateDuplicateConstructionItems(List<InitialQuotaionItemUpdateRequest> items, out string? duplicateNames)
+        {
+            var duplicateItems = items
+                .GroupBy(item => item.Name?.Trim().ToLower()) 
+                .Where(g => g.Count() > 1)                   
+                .Select(g => g.Key)                          
+                .ToList();
+
+            if (duplicateItems.Any())
+            {
+                duplicateNames = string.Join(", ", duplicateItems);
+                return false;
+            }
+
+            duplicateNames = null;
+            return true; 
+        }
+
+        public bool ValidateDuplicateUtilities(List<UtilitiesUpdateRequest> items, out List<Guid>? duplicateIds)
+        {
+            var duplicateGroups = items
+                .GroupBy(item => item.UtilitiesItemId)
+                .Where(g => g.Count() > 1) 
+                .ToList();
+
+            if (duplicateGroups.Any())
+            {
+                duplicateIds = duplicateGroups.Select(g => g.Key).ToList();
+                return false; 
+            }
+
+            duplicateIds = null;
+            return true; 
+        }
+
+
     }
 }

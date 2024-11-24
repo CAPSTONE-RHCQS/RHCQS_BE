@@ -541,6 +541,9 @@ namespace RHCQS_Services.Implement
                 }
                 int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
 
+                var contractInfo = payBatchInfo.FirstOrDefault()?.Contract;
+                string contractType = contractInfo.Type;
+
                 for (int i = 0; i < imageCount; i++)
                 {
                     var file = bills[i];
@@ -550,7 +553,9 @@ namespace RHCQS_Services.Implement
                         continue;
                     }
 
-                    var publicId = $"Hoa_don_thiet_ke_{paymentId}_{i}";
+                    var publicId = contractType == "Design"
+                            ? $"Hoa_don_thiet_ke_{paymentId}_{i}"
+                            : $"Hoa_don_thi_cong_{paymentId}_{i}";
 
                     var uploadParams = new ImageUploadParams()
                     {

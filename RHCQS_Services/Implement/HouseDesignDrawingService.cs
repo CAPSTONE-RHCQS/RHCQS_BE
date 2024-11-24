@@ -284,6 +284,17 @@ namespace RHCQS_Services.Implement
             int existingDrawingsCount = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                      .CountAsync(d => d.ProjectId == item.ProjectId);
 
+            //Check request - design staff not 4 design task
+            var isValid = await ValidateHouseDesignDrawingRequest(item);
+
+            if (!isValid)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.RequestOverloadStaff
+                );
+            }
+
             if (existingDrawingsCount >= 4)
             {
                 return (false, AppConstant.ErrMessage.OverloadProjectDrawing);
@@ -324,6 +335,7 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.OverloadStaff);
                 }
 
+
                 var houseDrawing = new HouseDesignDrawing
                 {
                     Id = Guid.NewGuid(),
@@ -344,6 +356,43 @@ namespace RHCQS_Services.Implement
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? (true, AppConstant.Message.APPROVED) : (false, "Error occurred during saving.");
         }
+
+        public async Task<bool> ValidateHouseDesignDrawingRequest(HouseDesignDrawingRequest request)
+        {
+            var designers = new List<Guid>
+            {
+                request.DesignerPerspective,
+                request.DesignerArchitecture,
+                request.DesignerStructure,
+                request.DesignerElectricityWater
+            };
+
+            var designerTaskCounts = designers
+                .GroupBy(d => d)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var designer in designerTaskCounts)
+            {
+                var designerId = designer.Key;
+                var taskCountInRequest = designer.Value;
+
+                var existingTaskCount = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                    .CountAsync(d => d.AccountId == designerId
+                        && d.Status != AppConstant.HouseDesignStatus.ACCEPTED
+                        && d.Status != AppConstant.HouseDesignStatus.FINALIZED
+                        && d.Status != AppConstant.HouseDesignStatus.REJECTED);
+
+                var totalTaskCount = existingTaskCount + taskCountInRequest;
+
+                if (totalTaskCount > 2)
+                {
+                    return false; 
+                }
+            }
+
+            return true; 
+        }
+
 
         public async Task<List<ListHouseDesginResponse>> GetListTaskByAccount(Guid accountId)
         {
