@@ -267,7 +267,6 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Payment)
                                    .Include(x => x.BatchPayments)
-                                        .ThenInclude(x => x.Contract)
                 );
 
                 if (highestFinalQuotation != null)
