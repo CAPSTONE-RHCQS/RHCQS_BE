@@ -272,6 +272,7 @@ public static class AppConstant
         public const string MaxVersionQuotation = "Báo giá đã đạt tới lần chỉnh sửa thứ 10, dự án sẽ bị hủy!";
         public const string DuplicatedConstruction = "Hạng mục xây dựng bị trùng lặp!";
         public const string DuplicatedUtility = "Tiện ích xây dựng bị trùng lặp!";
+        public const string DuplicatedEquiment = "Thiết bị xây dựng bị trùng lặp!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";

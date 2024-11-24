@@ -226,6 +226,7 @@ namespace RHCQS_Services.Implement
                 double? totalEquipmentItems = 0;
                 double? totalQuotationItems = 0;
                 double? promotation = 0;
+
                 if (request == null)
                 {
                     throw new AppConstant.MessageError(
@@ -234,6 +235,30 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                #region Check request duplicate
+                //Construction 
+                var isValidContruction = ValidateDuplicateFinalQuotationItems(request.FinalQuotationItems, out var duplicateDetails);
+                if (!isValidContruction)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedConstruction);
+                }
+
+                //Utility
+                var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
+                if (!isValidUtility)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedUtility);
+                }
+
+                //Equiment
+                var isValidEquiqment = ValidateDuplicateEquiment(request.EquipmentItems, out var duplicateNames);
+                if (!isValidUtility)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedEquiment);
+                }
+                #endregion
+
+                #region check and update something
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
 
                 var projectExists = await _unitOfWork.GetRepository<Project>()
@@ -286,6 +311,8 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.CommitAsync();
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.MaxVersionQuotation);
                 }
+                #endregion
+                #region createfinal
                 double newVersion = highestFinalQuotation?.Version + 1 ?? 1;
                 var finalQuotation = new FinalQuotation
                 {
@@ -303,7 +330,9 @@ namespace RHCQS_Services.Implement
                     BatchPayments = new List<BatchPayment>(),
                     IsDraft = true
                 };
+                #endregion
 
+                #region create batchpayment
                 if (request.BatchPaymentInfos != null)
                 {
                     foreach (var bp in request.BatchPaymentInfos)
@@ -344,8 +373,9 @@ namespace RHCQS_Services.Implement
                         }
                     }
                 }
+                #endregion
 
-
+                #region create finalquotationitem
                 if (request.FinalQuotationItems != null)
                 {
                     foreach (var fqi in request.FinalQuotationItems)
@@ -501,8 +531,9 @@ namespace RHCQS_Services.Implement
                         finalQuotation.FinalQuotationItems.Add(finalQuotationItem);
                     }
                 }
+                #endregion
 
-
+                #region create equiment
                 if (request.EquipmentItems != null)
                 {
                     foreach (var equipment in request.EquipmentItems)
@@ -540,7 +571,9 @@ namespace RHCQS_Services.Implement
                         }
                     }
                 }
+                #endregion
 
+                #region create utilities
                 if (request.Utilities != null && request.Utilities.Count > 0)
                 {
                     foreach (var utility in request.Utilities)
@@ -595,7 +628,7 @@ namespace RHCQS_Services.Implement
 
                     }
                 }
-
+                #endregion
                 finalQuotation.TotalPrice = totalUtilities + totalEquipmentItems + totalQuotationItems - promotation;
 
 
@@ -2187,6 +2220,61 @@ namespace RHCQS_Services.Implement
 
 
             return paginatedList.Items.ToList();
+        }
+
+
+        public bool ValidateDuplicateFinalQuotationItems(List<FinalQuotationItemRequest> items, out string? duplicateDetails)
+        {
+            var duplicateItems = items
+                .GroupBy(item => new { item.ConstructionId, item.SubconstructionId })
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)     
+                .ToList();
+
+            if (duplicateItems.Any())
+            {
+                duplicateDetails = string.Join(", ", duplicateItems.Select(d =>
+                    $"ConstructionId: {d.ConstructionId}, SubconstructionId: {d.SubconstructionId}"));
+
+                return false;
+            }
+
+            duplicateDetails = null;
+            return true;
+        }
+
+        public bool ValidateDuplicateUtilities(List<UtilitiesUpdateRequestForFinal> items, out List<Guid>? duplicateIds)
+        {
+            var duplicateGroups = items
+                .GroupBy(item => item.UtilitiesItemId)
+                .Where(g => g.Count() > 1)
+                .ToList();
+
+            if (duplicateGroups.Any())
+            {
+                duplicateIds = duplicateGroups.Select(g => g.Key).ToList();
+                return false;
+            }
+
+            duplicateIds = null;
+            return true;
+        }
+        public bool ValidateDuplicateEquiment(List<EquipmentItemsRequest> items, out string? duplicateNames)
+        {
+            var duplicateItems = items
+                .GroupBy(item => item.Name?.Trim().ToLower())
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicateItems.Any())
+            {
+                duplicateNames = string.Join(", ", duplicateItems);
+                return false;
+            }
+
+            duplicateNames = null;
+            return true;
         }
     }
 }
