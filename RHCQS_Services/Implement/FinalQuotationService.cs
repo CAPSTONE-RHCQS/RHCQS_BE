@@ -181,7 +181,7 @@ namespace RHCQS_Services.Implement
             };
 
             var BatchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
-            foreach (var batchPayment in initialQuotation.BatchPayments)
+            foreach (var batchPayment in initialQuotation.BatchPayments.Where(bp => bp.ContractId == null))
             {
                 batchPayment.FinalQuotationId = finalQuotation.Id;
                 batchPayment.InsDate = LocalDateTime.VNDateTime();
@@ -337,7 +337,9 @@ namespace RHCQS_Services.Implement
                 {
                     foreach (var bp in request.BatchPaymentInfos)
                     {
-
+                        highestFinalQuotation.BatchPayments = highestFinalQuotation.BatchPayments
+                            .Where(bp => bp.ContractId == null)
+                            .ToList();
                         var matchingBatchPayment = highestFinalQuotation.BatchPayments
                             .FirstOrDefault(existingBatchPayment => existingBatchPayment.NumberOfBatch == bp.NumberOfBatch);
 
@@ -1145,6 +1147,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 var BatchPayments = () => finalQuotation.BatchPayments
+                .Where(bp => bp.ContractId == null)
                 .OrderBy(bp => bp.NumberOfBatch)
                 .Select(bp =>new BatchPaymentResponse(
                         bp?.Payment!.Id ?? Guid.Empty,
@@ -1443,6 +1446,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 var BatchPayments = () => finalQuotation.BatchPayments
+                .Where(bp => bp.ContractId == null)
                 .OrderBy(bp => bp.NumberOfBatch)
                 .Select(bp =>new BatchPaymentResponse(
                         bp?.Payment.Id ?? Guid.Empty,
