@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
@@ -18,10 +19,13 @@ namespace RHCQS_BE.Controllers
     public class InitialQuotationController : ControllerBase
     {
         private readonly IInitialQuotationService _initialService;
-
-        public InitialQuotationController(IInitialQuotationService initialService)
+        private readonly IAccountService _accountService;
+        private readonly IFirebaseService _firebaseService;
+        public InitialQuotationController(IInitialQuotationService initialService, IAccountService accountService, IFirebaseService firebaseService)
         {
             _initialService = initialService;
+            _accountService = accountService;
+            _firebaseService = firebaseService;
         }
 
         #region GetListInitialQuotation
@@ -385,6 +389,22 @@ namespace RHCQS_BE.Controllers
             if (!string.IsNullOrEmpty(pdfUrl))
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+
+                var customerEmail = await _accountService.GetEmailByQuotationIdAsync(initialId);
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
+                var notificationRequest = new NotificationRequest
+                {
+                    Email = customerEmail,
+                    DeviceToken = deviceToken,
+                    Title = "Báo giá sơ bộ",
+                    Body = $"Báo giá sơ bộ có cập nhật mới bạn cần xem."
+                };
+                await _firebaseService.SendNotificationAsync(
+                    notificationRequest.Email,
+                    notificationRequest.DeviceToken,
+                    notificationRequest.Title,
+                    notificationRequest.Body
+                );
                 return new ContentResult()
                 {
                     Content = result,

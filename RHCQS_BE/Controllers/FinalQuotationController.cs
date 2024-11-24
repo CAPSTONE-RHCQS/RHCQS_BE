@@ -22,14 +22,11 @@ namespace RHCQS_BE.Controllers
     {
         private readonly IFinalQuotationService _finalQuotationService;
         private readonly IFirebaseService _firebaseService;
-        private readonly IProjectService _projectService;
         private readonly IAccountService _accountService;
-        public FinalQuotationController(IFinalQuotationService finalQuotationService, IFirebaseService firebaseService,
-            IProjectService projectService, IAccountService accountService)
+        public FinalQuotationController(IFinalQuotationService finalQuotationService, IFirebaseService firebaseService, IAccountService accountService)
         {
             _finalQuotationService = finalQuotationService;
             _firebaseService = firebaseService;
-            _projectService = projectService;
             _accountService = accountService;
         }
 
@@ -128,6 +125,22 @@ namespace RHCQS_BE.Controllers
             if (!string.IsNullOrEmpty(pdfUrl))
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+
+                var customerEmail = await _accountService.GetEmailByQuotationIdAsync(finalId);
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
+                var notificationRequest = new NotificationRequest
+                {
+                    Email = customerEmail,
+                    DeviceToken = deviceToken,
+                    Title = "Báo giá chi tiết",
+                    Body = $"Báo giá chi tiết có cập nhật mới bạn cần xem."
+                };
+                await _firebaseService.SendNotificationAsync(
+                    notificationRequest.Email,
+                    notificationRequest.DeviceToken,
+                    notificationRequest.Title,
+                    notificationRequest.Body
+                );
                 return new ContentResult()
                 {
                     Content = result,

@@ -37,11 +37,11 @@ namespace RHCQS_BE.Extenstion
 
             public const string SendNotificationRoleEndpoint = NotificationEndpoint + "/send";
 
-            public const string GetNotificationsEndpoint = NotificationEndpoint + "/get-notifications/userId";
+            public const string GetNotificationsEndpoint = NotificationEndpoint + "/get-notifications/email";
 
             public const string SaveDeviceTokenEndpoint = NotificationEndpoint + "/save-token";
 
-            public const string GetDeviceTokenEndpoint = NotificationEndpoint + "/get-token/userId";
+            public const string GetDeviceTokenEndpoint = NotificationEndpoint + "/get-token/email";
         }
         public static class PackageType
         {
