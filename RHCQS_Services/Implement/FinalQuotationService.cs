@@ -302,8 +302,8 @@ namespace RHCQS_Services.Implement
 
                     highestFinalQuotation.Project.Address = string.IsNullOrEmpty(request.Address) ?
                                       highestFinalQuotation.Project.Address : request.Address;
-                    highestFinalQuotation.Project.CustomerName = string.IsNullOrEmpty(request.AccountName) ?
-                                      initialVersionPresent.Project.CustomerName : request.AccountName;
+                    highestFinalQuotation.Project.CustomerName = string.IsNullOrEmpty(request.CustomerName) ?
+                                      highestFinalQuotation.Project.CustomerName : request.CustomerName;
                     highestFinalQuotation.Project.UpsDate = LocalDateTime.VNDateTime();
                     _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
                 }
