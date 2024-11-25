@@ -42,6 +42,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class InitialQuotationResponse
     {
+        public string ProjectType { get; set; }
         public InitialQuotationResponse() { }
         public Guid Id { get; set; }
         public string AccountName { get; set; }
