@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet.Actions;
+using Google.Api.Gax.Rest;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Payload.Request;
@@ -27,36 +29,26 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        public async Task<List<AccountResponse>> ListStaffSalesAvailable()
+        public async Task<IPaginate<AccountResponse>> ListStaffSalesAvailable(int page, int size)
         {
             try
             {
-                var listSales = await _unitOfWork.GetRepository<Account>().GetListAsync(
-                predicate: x => x.RoleId == Guid.Parse("9959CE96-DE26-40A7-B8A7-28A704062E89"),
+                IPaginate<AccountResponse> listSales = await _unitOfWork.GetRepository<Account>().GetList(
+              predicate: x => x.RoleId == Guid.Parse("9959CE96-DE26-40A7-B8A7-28A704062E89") &&
+                x.AssignTasks.Count(at => at.Project.Status == AppConstant.ProjectStatus.PROCESSING) <= 1 &&
+                x.AssignTasks.Count(at => at.Project.Status == AppConstant.ProjectStatus.PROCESSING ||
+                                          at.Project.Status == AppConstant.ProjectStatus.FINALIZED ||
+                                          at.Project.Status == AppConstant.ProjectStatus.ENDED) < 2,
+                selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth,
+                                                   x.PasswordHash, x.Email, x.ImageUrl, x.Deflag, x.Role.RoleName,
+                                                   x.RoleId, x.InsDate, x.UpsDate),
                 include: x => x.Include(x => x.AssignTasks!)
                                .ThenInclude(assignTask => assignTask.Project!)
-                               .Include(x => x.Role));
+                               .Include(x => x.Role),
+                page: page,
+                size: size);
 
-                var accounts = listSales.Where(account => account.AssignTasks
-                                                .Select(assignTask => assignTask.ProjectId)
-                                   .Distinct().Count() < 2);
-
-                var accountResponses = accounts.Select(account => new AccountResponse(
-                    id: account.Id,
-                    username: account.Username,
-                    phoneNumber: account.PhoneNumber,
-                    dateOfBirth: account.DateOfBirth,
-                    passwordHash: account.PasswordHash,
-                    email: account.Email,
-                    imageUrl: account.ImageUrl,
-                    deflag: account.Deflag,
-                    rolename: account.Role?.RoleName, 
-                    roleId: account.RoleId,
-                    insDate: account.InsDate,
-                    upsDate: account.UpsDate
-                )).ToList();
-
-                return accountResponses; 
+                return listSales;
             }
             catch (Exception ex)
             {
@@ -65,31 +57,25 @@ namespace RHCQS_Services.Implement
         }
 
 
-        public async Task<List<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable()
+
+        public async Task<IPaginate<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable(int page, int size)
         {
-            var listDesign = await _unitOfWork.GetRepository<Account>().GetListAsync(
-                predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD"),
-                include: x => x.Include(x => x.AssignTasks!)
-                               .ThenInclude(assignTask => assignTask.Project!)
-                               .Include(x => x.Role)
+            IPaginate<DesignStaffWorkResponse> listDesign = await _unitOfWork.GetRepository<Account>().GetList(
+                 predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD") &&
+                        !x.HouseDesignDrawings.Any(hdd => hdd.Status == AppConstant.HouseDesignStatus.PROCESSING ||
+                                                          hdd.Status == AppConstant.HouseDesignStatus.UPDATING),
+                selector: x => new DesignStaffWorkResponse(x.Id, x.ImageUrl, x.Username, x.Role.RoleName, x.PhoneNumber),
+                include: x => x.Include(x => x.HouseDesignDrawings!)
+                               .ThenInclude(r => r.Account!)
+                               .ThenInclude(r => r.Role),
+                page: page,
+                size: size
             );
 
-            var listResult = listDesign
-                .Where(account => account.AssignTasks
-                    .Select(assignTask => assignTask.ProjectId)
-                    .Distinct().Count() < 2)
-                .Select(account => new DesignStaffWorkResponse
-                {
-                    Id = account.Id,
-                    ImgUrl = account.ImageUrl,
-                    Name = account.Username!,
-                    RoleName = account.Role.RoleName!,
-                    Phone = account.PhoneNumber
-                })
-                .ToList();
-
-            return listResult;
+            return listDesign;
         }
+
+
 
     }
 }

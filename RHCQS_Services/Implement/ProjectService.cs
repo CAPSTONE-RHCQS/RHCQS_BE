@@ -167,7 +167,8 @@ namespace RHCQS_Services.Implement
                 Id = c.Id,
                 Name = c.Name,
                 Status = c.Status,
-                Note = c.Note
+                Note = c.Note,
+                FileContract = c.UrlFile ?? null
             })
             .ToList() ?? new List<ContractInfo>();
 

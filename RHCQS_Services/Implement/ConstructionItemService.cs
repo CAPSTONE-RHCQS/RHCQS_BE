@@ -181,14 +181,15 @@ namespace RHCQS_Services.Implement
             return new ConstructionItemResponse();
         }
 
-        public async Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string name)
+        public async Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string type, string name)
         {
             try
             {
                 var normalizedName = name.RemoveDiacritics().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
-                    .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
+                    .GetListAsync(predicate: con => con.Type.ToLower() == type.ToLower(),
+                    include: con => con.Include(c => c.SubConstructionItems));
 
                 var filteredItems = constructionItems
                   .Where(con =>

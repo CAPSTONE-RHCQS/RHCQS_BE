@@ -32,9 +32,9 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.AssignTask.AssignTaskDesignStaffAvailableEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ListDesignStaffWorkAvailable()
+        public async Task<IActionResult> ListDesignStaffWorkAvailable(int page, int size)
         {
-            var list = await _assignService.ListDesignStaffWorkAvailable();
+            var list = await _assignService.ListDesignStaffWorkAvailable(page, size);
             var result = JsonConvert.SerializeObject(list, Formatting.Indented);
             return new ContentResult()
             {
@@ -55,9 +55,9 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.AssignTask.AssignTaskSaleStaffAvailableEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ListStaffSalesAvailable()
+        public async Task<IActionResult> ListStaffSalesAvailable(int page, int size)
         {
-            var list = await _assignService.ListStaffSalesAvailable();
+            var list = await _assignService.ListStaffSalesAvailable(page, size);
             var result = JsonConvert.SerializeObject(list, Formatting.Indented);
             return new ContentResult()
             {
