@@ -19,6 +19,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using ClosedXML;
 
 namespace RHCQS_Services.Implement
 {
@@ -61,15 +62,15 @@ namespace RHCQS_Services.Implement
                     )).ToList() ?? new List<PackageLaborResponse>(),
                     pd.PackageMaterials?.Select(pm => new PackageMaterialResponse(
                         pm.Id,
-                        pm.MaterialSectionId,
-                        pm.MaterialSection?.Name,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.Name,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.Price ?? 0.0,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.Unit,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.Size,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.Shape,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.ImgUrl,
-                        pm.MaterialSection?.Materials.FirstOrDefault()?.Description,
+                        pm.Material.MaterialSectionId,
+                        pm.Material.MaterialSection?.Name,
+                        pm.Material?.Name,
+                        pm.Material.Price ?? 0.0,
+                        pm.Material.Unit,
+                        pm.Material.Size,
+                        pm.Material.Shape,
+                        pm.Material.ImgUrl,
+                        pm.Material.Description,
                         pm.InsDate
                     )).ToList() ?? new List<PackageMaterialResponse>()
                 )).ToList() ?? new List<PackageDetailsResponse>(),
@@ -99,8 +100,8 @@ namespace RHCQS_Services.Implement
                            .ThenInclude(lb => lb.Labor)
                            .Include(x => x.PackageDetails)
                            .ThenInclude(pd => pd.PackageMaterials)
-                           .ThenInclude(pm => pm.MaterialSection)
-                           .ThenInclude(ms => ms.Materials)
+                           .ThenInclude(ms => ms.Material)
+                           .ThenInclude(ms => ms.MaterialSection)
                            .Include(x => x.PackageType),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active",
@@ -135,15 +136,15 @@ namespace RHCQS_Services.Implement
                         )).ToList(),
                         pd.PackageMaterials.Select(pm => new PackageMaterialResponse(
                             pm.Id,
-                            pm.MaterialSectionId,
-                            pm.MaterialSection.Name,
-                            pm.MaterialSection.Materials.FirstOrDefault().Name,
-                            pm.MaterialSection.Materials.FirstOrDefault().Price ?? 0.0,
-                            pm.MaterialSection.Materials.FirstOrDefault().Unit,
-                            pm.MaterialSection.Materials.FirstOrDefault().Size,
-                            pm.MaterialSection.Materials.FirstOrDefault().Shape,
-                            pm.MaterialSection.Materials.FirstOrDefault().ImgUrl,
-                            pm.MaterialSection.Materials.FirstOrDefault().Description,
+                            pm.Material.MaterialSectionId,
+                            pm.Material.MaterialSection.Name,
+                            pm.Material.Name,
+                            pm.Material.Price ?? 0.0,
+                            pm.Material.Unit,
+                            pm.Material.Size,
+                            pm.Material.Shape,
+                            pm.Material.ImgUrl,
+                            pm.Material.Description,
                             pm.InsDate
                         )).ToList() ?? new List<PackageMaterialResponse>()
                     )).ToList(),
@@ -160,8 +161,8 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(lb => lb.Labor)
                                .Include(x => x.PackageDetails)
                                    .ThenInclude(pd => pd.PackageMaterials)
-                                       .ThenInclude(pm => pm.MaterialSection)
-                                           .ThenInclude(ms => ms.Materials)
+                                       .ThenInclude(ms => ms.Material)
+                                       .ThenInclude(ms => ms.MaterialSection)
                                .Include(x => x.PackageHouses),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active"
@@ -186,8 +187,8 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(lb => lb.Labor)
                                .Include(x => x.PackageDetails)
                                .ThenInclude(pd => pd.PackageMaterials)
-                               .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Materials)
+                               .ThenInclude(ms => ms.Material)
+                               .ThenInclude(ms => ms.MaterialSection)
                                .Include(x => x.PackageType)
             );
 
@@ -208,8 +209,8 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(lb => lb.Labor)
                                .Include(x => x.PackageDetails)
                                .ThenInclude(pd => pd.PackageMaterials)
-                               .ThenInclude(pm => pm.MaterialSection)
-                               .ThenInclude(ms => ms.Materials)
+                               .ThenInclude(ms => ms.Material)
+                               .ThenInclude(ms => ms.MaterialSection)
                                .Include(x => x.PackageType)
             );
 
@@ -263,7 +264,7 @@ namespace RHCQS_Services.Implement
                     PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
                     {
                         Id = Guid.NewGuid(),
-                        MaterialSectionId = pm.MaterialSectionId,
+                        MaterialId = pm.MaterialId,
                         InsDate = LocalDateTime.VNDateTime()
                     }).ToList()
                 }).ToList(),
@@ -357,7 +358,7 @@ namespace RHCQS_Services.Implement
                         var existingMaterial = existingPackageDetail.PackageMaterials.FirstOrDefault(m => m.PackageDetailId == existingPackageDetail.Id);
                         if (existingMaterial != null)
                         {
-                            existingMaterial.MaterialSectionId = material.MaterialSectionId;
+                            existingMaterial.MaterialId = material.MaterialId;
                         }
                         else
                         {

@@ -570,10 +570,9 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.MaterialSection).WithMany(p => p.PackageMaterials)
-                .HasForeignKey(d => d.MaterialSectionId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PackageMaterial_MaterialSection");
+            entity.HasOne(d => d.Material).WithMany(p => p.PackageMaterials)
+                .HasForeignKey(d => d.MaterialId)
+                .HasConstraintName("PackageMaterial_Material_FK");
 
             entity.HasOne(d => d.PackageDetail).WithMany(p => p.PackageMaterials)
                 .HasForeignKey(d => d.PackageDetailId)

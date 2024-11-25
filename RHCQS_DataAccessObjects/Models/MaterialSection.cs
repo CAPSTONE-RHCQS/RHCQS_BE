@@ -16,6 +16,4 @@ public partial class MaterialSection
     public string? Type { get; set; }
 
     public virtual ICollection<Material> Materials { get; set; } = new List<Material>();
-
-    public virtual ICollection<PackageMaterial> PackageMaterials { get; set; } = new List<PackageMaterial>();
 }

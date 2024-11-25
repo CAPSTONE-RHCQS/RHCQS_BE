@@ -46,7 +46,7 @@ namespace RHCQS_BusinessObject.Payload.Request
     public class PackageMaterialRequest
     {
         [Required(ErrorMessage = "Id là bắt buộc phải có.")]
-        public Guid MaterialSectionId { get; set; }
+        public Guid MaterialId { get; set; }
 
     }
     public class PackageHousesRequest
