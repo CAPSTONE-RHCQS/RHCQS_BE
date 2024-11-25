@@ -27,6 +27,8 @@ public partial class QuotationUtility
 
     public Guid UtilitiesSectionId { get; set; }
 
+    public int? Quanity { get; set; }
+
     public virtual FinalQuotation? FinalQuotation { get; set; }
 
     public virtual InitialQuotation? InitialQuotation { get; set; }

@@ -267,11 +267,13 @@ namespace RHCQS_Services.Implement
                     p => p.ProjectId == request.ProjectId && p.Status == AppConstant.QuotationStatus.FINALIZED);
                 if (checkFinalized != null)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, "Final đang trạng thái Finalized không thể cập nhật nữa .");
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.FinalizedFinalUpdateFailed);
                 }
                 if (projectExists == null)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "ProjectId không tồn tại.");
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                        AppConstant.ErrMessage.ProjectFinalIdNotfound);
                 }
                 if (request.PromotionId.HasValue)
                 {
@@ -279,7 +281,8 @@ namespace RHCQS_Services.Implement
                         .FirstOrDefaultAsync(p => p.Id == request.PromotionId);
                     if (promotionExists == null)
                     {
-                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, "PromotionId không tồn tại.");
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                            AppConstant.ErrMessage.PromotionIdNotfound);
                     }
                     promotation = promotionExists.Value;
 
@@ -420,7 +423,8 @@ namespace RHCQS_Services.Implement
 
                             if (constructionItemExists == null)
                             {
-                                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"Construction item with ID {fqi.ConstructionId} không tồn tại.");
+                                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, 
+                                    AppConstant.ErrMessage.ConstructionIdNotfound);
                             }
                             constructionId = constructionItemExists.Id;
                             //coefficient = constructionItemExists.Coefficient;
@@ -446,7 +450,8 @@ namespace RHCQS_Services.Implement
                                         .FirstOrDefaultAsync(l => l.Id == qi.LaborId);
                                     if (laborExists == null)
                                     {
-                                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"LaborId {qi.LaborId} không tồn tại.");
+                                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                                            AppConstant.ErrMessage.LaborIdNotfound);
                                     }
                                     double? quotationLaborPrice = 0;
                                     var quotationItemLabor = new QuotationItem
@@ -483,7 +488,8 @@ namespace RHCQS_Services.Implement
                                         .FirstOrDefaultAsync(m => m.Id == qi.MaterialId);
                                     if (materialExists == null)
                                     {
-                                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, $"MaterialId {qi.MaterialId} không tồn tại.");
+                                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                                            AppConstant.ErrMessage.MaterialIdNotfound);
                                     }
 
                                     QuotationItem quotationItemMaterial = new QuotationItem
@@ -514,7 +520,7 @@ namespace RHCQS_Services.Implement
                                             break;
 
                                         default:
-                                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"ConstructionType {contructionType} không hợp lệ.");
+                                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,AppConstant.ErrMessage.ConstructionTypeInvalidate);
                                     }
 
                                     quotationItemMaterial.QuotationMaterials = new List<QuotationMaterial>
@@ -599,16 +605,17 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = item?.Id ?? null,
                                 FinalQuotationId = finalQuotation.Id,
                                 Name = item?.Name ?? itemOption?.Name ?? utilitiesSection.Name ?? string.Empty,
-                                Coefficient = item?.Coefficient ?? 0,
+                                Coefficient = utility.Coefficient ?? 0,
                                 Price = utility.Price,
-                                Description = utilitiesSection.Description,
+                                Description = utility.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilitiesSection.Id
+                                UtilitiesSectionId = utilitiesSection.Id,
+                                Quanity = utility.Quantity
                             };
 
                             // Update totalUtilities based on available coefficient from item or itemOption
-                            var coefficient = item?.Coefficient ?? 0;
+                            //var coefficient = item?.Coefficient ?? 0;
                             totalUtilities += /*(coefficient != 0) ? utility.Price * coefficient :*/ utility.Price;
                         }
                         else
@@ -620,12 +627,13 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = utilityItem.Id,
                                 FinalQuotationId = finalQuotation.Id,
                                 Name = utilityItem.Name ?? string.Empty,
-                                Coefficient = utilityItem.Coefficient,
+                                Coefficient = utility.Coefficient,
                                 Price = utility.Price,
-                                Description = section.Description,
+                                Description = utility.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilityItem.SectionId
+                                UtilitiesSectionId = utilityItem.SectionId,
+                                Quanity = utility.Quantity
                             };
                             totalUtilities += utility.Price;
                         }
@@ -659,7 +667,6 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                // Retrieve the FinalQuotation and include all related entities
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
                 var finalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(fq => fq.Id == finalQuotationId,
                     include: fq => fq
@@ -679,40 +686,35 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        $"FinalQuotation with ID {finalQuotationId} không tồn tại."
+                        AppConstant.ErrMessage.FinalNotfound
                     );
                 }
 
-                // Delete nested QuotationLabors and QuotationMaterials for each QuotationItem
+
                 foreach (var finalQuotationItem in finalQuotation.FinalQuotationItems)
                 {
                     foreach (var quotationItem in finalQuotationItem.QuotationItems)
                     {
-                        // Delete each QuotationLabor associated with this QuotationItem
                         var quotationLaborRepo = _unitOfWork.GetRepository<QuotationLabor>();
                         foreach (var quotationLabor in quotationItem.QuotationLabors)
                         {
                             quotationLaborRepo.DeleteAsync(quotationLabor);
                         }
 
-                        // Delete each QuotationMaterial associated with this QuotationItem
                         var quotationMaterialRepo = _unitOfWork.GetRepository<QuotationMaterial>();
                         foreach (var quotationMaterial in quotationItem.QuotationMaterials)
                         {
                             quotationMaterialRepo.DeleteAsync(quotationMaterial);
                         }
-
-                        // Delete the QuotationItem itself after its children are deleted
                         var quotationItemRepo = _unitOfWork.GetRepository<QuotationItem>();
                         quotationItemRepo.DeleteAsync(quotationItem);
                     }
 
-                    // Delete the FinalQuotationItem after all nested QuotationItems are deleted
                     var finalQuotationItemRepo = _unitOfWork.GetRepository<FinalQuotationItem>();
                     finalQuotationItemRepo.DeleteAsync(finalQuotationItem);
                 }
 
-                // Delete other direct associations with FinalQuotation
+
                 foreach (var batchPayment in finalQuotation.BatchPayments)
                 {
                     var batchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
@@ -735,16 +737,14 @@ namespace RHCQS_Services.Implement
                     var mediaRepo = _unitOfWork.GetRepository<Medium>();
                     mediaRepo.DeleteAsync(media);
                 }
-                // Finally, delete the main FinalQuotation
                 finalQuotationRepo.DeleteAsync(finalQuotation);
 
-                // Commit the transaction
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 if (!isSuccessful)
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
-                        "Error occurred while deleting the FinalQuotation and its related records."
+                        AppConstant.ErrMessage.FinalQuotationUpdateFailed
                     );
                 }
             }
@@ -763,7 +763,6 @@ namespace RHCQS_Services.Implement
                 var data = await GetDetailFinalQuotationById(finalItem.Id);
                 try
                 {
-                    // Tạo HTML dựa trên dữ liệu nhận được
                     var htmlContent = GenerateHtmlContent(data);
 
                     var doc = new HtmlToPdfDocument()
@@ -782,8 +781,8 @@ namespace RHCQS_Services.Implement
                             }
                     };
 
-                    //string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-                    //NativeLibrary.Load(dllPath);
+                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
                     //Upload cloudinary
@@ -1273,7 +1272,7 @@ namespace RHCQS_Services.Implement
                         if (constructionItem == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                                $"Construction item with ID {fqi.ConstructionItemId} không tồn tại.");
+                                AppConstant.ErrMessage.ConstructionIdNotfound);
                         }
 
                         constructionId = constructionItem.Id;
@@ -1313,7 +1312,8 @@ namespace RHCQS_Services.Implement
                     qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
+                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
+                    qUtility.Quanity ?? null
                 )).ToList() ?? new List<UtilityInf>();
 
                 var constructionRough = finalQuotationItemsList
@@ -1573,7 +1573,7 @@ namespace RHCQS_Services.Implement
                         if (constructionItem == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                                $"Construction item with ID {fqi.ConstructionItemId} không tồn tại.");
+                                AppConstant.ErrMessage.ConstructionIdNotfound);
                         }
 
                         constructionId = constructionItem.Id;
@@ -1613,7 +1613,8 @@ namespace RHCQS_Services.Implement
                     qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
+                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
+                    qUtility.Quanity ?? null
                 )).ToList() ?? new List<UtilityInf>();
 
                 var constructionRough = finalQuotationItemsList

@@ -15,7 +15,7 @@ namespace RHCQS_Services.Implement
         {
             var result = new List<EquiqmentExcelResponse>();
             var seenNames = new HashSet<string>();
-            var errorMessages = new List<string>(); // Danh sách lưu trữ các lỗi
+            var errorMessages = new List<string>();
 
             using var workbook = new XLWorkbook(excelStream);
             var worksheet = workbook.Worksheet(1);

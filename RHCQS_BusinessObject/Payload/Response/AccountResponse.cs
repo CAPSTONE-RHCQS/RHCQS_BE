@@ -47,5 +47,21 @@ namespace RHCQS_BusinessObject.Payload.Response
             InsDate = insDate;
             UpsDate = upsDate;
         }
+
+        public AccountResponse(Guid id, string? username, string? phoneNumber, DateOnly? dateOfBirth, string? passwordHash, 
+            string? email, bool? deflag, string? roleName, Guid roleId, DateTime? insDate, DateTime? upsDate)
+        {
+            Id = id;
+            Username = username;
+            PhoneNumber = phoneNumber;
+            DateOfBirth = dateOfBirth;
+            PasswordHash = passwordHash;
+            Email = email;
+            Deflag = deflag;
+            RoleName = roleName;
+            RoleId = roleId;
+            InsDate = insDate;
+            UpsDate = upsDate;
+        }
     }
 }

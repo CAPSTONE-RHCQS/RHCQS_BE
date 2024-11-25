@@ -89,6 +89,7 @@ namespace RHCQS_BE.Extenstion
             public const string AssignTaskEndpoint = ApiEndpoint + "/task";
             public const string AssignTaskDetailEndpoint = AssignTaskEndpoint + "/id";
             public const string AssignTaskDesignStaffAvailableEndpoint = AssignTaskEndpoint + "/design-staff/available";
+            public const string AssignTaskSaleStaffAvailableEndpoint = AssignTaskEndpoint + "/sale-staff/available";
         }
 
         public static class HouseTemplate

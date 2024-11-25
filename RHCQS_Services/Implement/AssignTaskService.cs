@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet.Actions;
+using Google.Api.Gax.Rest;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Payload.Request;
@@ -27,76 +29,53 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        //public async Task<IPaginate<AssignTaskResponse>> GetListAssignTaskAll(int page, int size)
-        //{
-        //    var listTask = await _unitOfWork.GetRepository<AssignTask>().GetList(
-        //        selector: a => new AssignTaskResponse (a.Id, a.AccountId, a.Account.Username, a.Name, a.Status, a.InsDate),
-        //        include: a => a.Include( a => a.Account),
-        //        page: page,
-        //        size: size
-        //        );
-        //    return listTask;
-        //}
-
-        //public async Task<bool> AssignWork(List<AssignTaskRequest> request)
-        //{
-        //    foreach(var itemTask in request)
-        //    {
-        //        var task = new AssignTask
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            AccountId = itemTask.AccountId,
-        //            Name = "",
-        //            Status = "Pending",
-        //            InsDate = LocalDateTime.VNDateTime()
-        //        };
-        //        await _unitOfWork.GetRepository<AssignTask>().InsertAsync(task);
-
-        //        var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-        //            .FirstOrDefaultAsync(x => x.Id.Equals(itemTask.HouseDesignDrawingId));
-
-        //        //Update AssignTaskId in table HouseDesignDrawing
-        //        if (drawingItem != null)
-        //        {
-        //            drawingItem.AssignTaskId = task.Id;
-        //            _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(drawingItem);
-        //        }
-        //    }
-
-
-        //    bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-        //    if (isSuccessful)
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        public async Task<List<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable()
+        public async Task<IPaginate<AccountResponse>> ListStaffSalesAvailable(int page, int size)
         {
-            var listDesign = await _unitOfWork.GetRepository<Account>().GetListAsync(
-                predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD"),
+            try
+            {
+                IPaginate<AccountResponse> listSales = await _unitOfWork.GetRepository<Account>().GetList(
+              predicate: x => x.RoleId == Guid.Parse("9959CE96-DE26-40A7-B8A7-28A704062E89") &&
+                x.AssignTasks.Count(at => at.Project.Status == AppConstant.ProjectStatus.PROCESSING) <= 1 &&
+                x.AssignTasks.Count(at => at.Project.Status == AppConstant.ProjectStatus.PROCESSING ||
+                                          at.Project.Status == AppConstant.ProjectStatus.FINALIZED ||
+                                          at.Project.Status == AppConstant.ProjectStatus.ENDED) < 2,
+                selector: x => new AccountResponse(x.Id, x.Username, x.PhoneNumber, x.DateOfBirth,
+                                                   x.PasswordHash, x.Email, x.ImageUrl, x.Deflag, x.Role.RoleName,
+                                                   x.RoleId, x.InsDate, x.UpsDate),
                 include: x => x.Include(x => x.AssignTasks!)
                                .ThenInclude(assignTask => assignTask.Project!)
-                               .Include(x => x.Role)
+                               .Include(x => x.Role),
+                page: page,
+                size: size);
+
+                return listSales;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching staff sales: {ex.Message}");
+            }
+        }
+
+
+
+        public async Task<IPaginate<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable(int page, int size)
+        {
+            IPaginate<DesignStaffWorkResponse> listDesign = await _unitOfWork.GetRepository<Account>().GetList(
+                 predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD") &&
+                        !x.HouseDesignDrawings.Any(hdd => hdd.Status == AppConstant.HouseDesignStatus.PROCESSING ||
+                                                          hdd.Status == AppConstant.HouseDesignStatus.UPDATING),
+                selector: x => new DesignStaffWorkResponse(x.Id, x.ImageUrl, x.Username, x.Role.RoleName, x.PhoneNumber),
+                include: x => x.Include(x => x.HouseDesignDrawings!)
+                               .ThenInclude(r => r.Account!)
+                               .ThenInclude(r => r.Role),
+                page: page,
+                size: size
             );
 
-            var listResult = listDesign
-                .Where(account => account.AssignTasks
-                    .Select(assignTask => assignTask.ProjectId)
-                    .Distinct().Count() < 2)
-                .Select(account => new DesignStaffWorkResponse
-                {
-                    Id = account.Id,
-                    ImgUrl = account.ImageUrl,
-                    Name = account.Username!,
-                    RoleName = account.Role.RoleName!,
-                    Phone = account.PhoneNumber
-                })
-                .ToList();
-
-            return listResult;
+            return listDesign;
         }
+
+
 
     }
 }

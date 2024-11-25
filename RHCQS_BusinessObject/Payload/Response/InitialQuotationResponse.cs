@@ -151,17 +151,19 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class UtilityInfo
     {
-        public UtilityInfo(Guid id, string description, double coefficient, double price)
+        public UtilityInfo(Guid id, string description, double coefficient, double price, int? quantity)
         {
             Id = id;
             Description = description;
             Coefficient = coefficient;
             Price = price;
+            Quantity = quantity;
         }
         public Guid Id { get; set; }
         public string Description { get; set; }
         public double Coefficient { get; set; }
         public double Price { get; set; }
+        public int? Quantity { get; set; }
     }
 
     public class BatchPaymentInfo

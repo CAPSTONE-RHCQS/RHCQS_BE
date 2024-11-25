@@ -149,9 +149,9 @@ namespace RHCQS_BE.Controllers
         //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionContainNameEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetDetailConstructionItemByContainName(string name)
+        public async Task<IActionResult> GetDetailConstructionItemByContainName(string type, string name)
         {
-            var construction = await _constructionService.GetDetailConstructionItemByContainName(name);
+            var construction = await _constructionService.GetDetailConstructionItemByContainName(type, name);
             var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
             return new ContentResult()
             {

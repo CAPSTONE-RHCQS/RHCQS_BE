@@ -7,13 +7,13 @@ public partial class PackageMaterial
 {
     public Guid Id { get; set; }
 
-    public Guid MaterialSectionId { get; set; }
-
     public Guid PackageDetailId { get; set; }
 
     public DateTime? InsDate { get; set; }
 
-    public virtual MaterialSection MaterialSection { get; set; } = null!;
+    public Guid? MaterialId { get; set; }
+
+    public virtual Material? Material { get; set; }
 
     public virtual PackageDetail PackageDetail { get; set; } = null!;
 }
