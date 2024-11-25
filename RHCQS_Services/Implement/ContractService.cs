@@ -29,12 +29,15 @@ namespace RHCQS_Services.Implement
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<IContractService> _logger;
         private readonly Cloudinary _cloudinary;
+        private readonly IMediaService _mediaService;
 
-        public ContractService(IUnitOfWork unitOfWork, ILogger<IContractService> logger, Cloudinary cloudinary)
+        public ContractService(IUnitOfWork unitOfWork, ILogger<IContractService> logger, 
+            Cloudinary cloudinary, IMediaService mediaService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cloudinary = cloudinary;
+            _mediaService = mediaService;
         }
 
         public async Task<IPaginate<IpaginateContractResponse>> GetListContract(int page, int size)
@@ -114,13 +117,14 @@ namespace RHCQS_Services.Implement
                     Description = b.Payment.Description,
                     InvoiceImage = b.Payment.Media
                     .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
-                    ?? "Hình ảnh chuyển khoản chưa có"
+                    ?? "Chưa có hóa đơn"
                 })
                 .OrderBy(b => b.NumberOfBatch)
                 .ToList();
 
-            return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
-                                        contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
+            return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.Project.CustomerName, contractItem.ContractCode, 
+                                        contractItem.StartDate, contractItem.EndDate, contractItem.ValidityPeriod, contractItem.TaxCode, 
+                                        contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
                                         contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, 
                                         dependOnQuotation, batchPayments);
@@ -395,14 +399,14 @@ namespace RHCQS_Services.Implement
                     Area = infoProject.Area,
                     UnitPrice = AppConstant.Unit.UnitPrice,
                     ContractValue = request.ContractValue,
-                    UrlFile = null,
-                    Note = null,
+                    UrlFile = request.UrlFile,
+                    Note = request.Note,
                     Deflag = true,
                     RoughPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.ROUGH)?.Price,
                     FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
                     Status = AppConstant.ContractStatus.PROCESSING,
                     Type = AppConstant.ContractType.Construction.ToString(),
-                    InsDate = LocalDateTime.VNDateTime()
+                    InsDate = LocalDateTime.VNDateTime(),
                 };
 
                 await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
@@ -437,7 +441,6 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Unprocessable_Entity, "Initial quotation is not finalized.");
             }
         }
-
 
         //Sales Staff Upload Contract has sign
         public async Task<string> UploadContractSign(Guid contractId, List<IFormFile> contractFile)
@@ -598,16 +601,17 @@ namespace RHCQS_Services.Implement
 
                 _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
 
-                var contractId = payBatchInfo.First().ContractId;
-                var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+                var contractUpdate = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                predicate: c => c.Id == payBatchInfo.First().ContractId,
+                                include: c => c.Include(c => c.BatchPayments));
+                var allPaid = contractUpdate.BatchPayments.All(x => x.Status == AppConstant.PaymentStatus.PAID);
 
                 if (allPaid)
                 {
-                    var contract = payBatchInfo.First().Contract;
-                    if (contract != null)
+                    if (contractUpdate != null)
                     {
-                        contract.Status = AppConstant.ContractStatus.FINISHED;
-                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                        contractUpdate.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contractUpdate);
                     }
                 }
 
@@ -769,6 +773,12 @@ namespace RHCQS_Services.Implement
                 return result;
             }
             catch (Exception ex) { throw new Exception(ex.Message); }
+        }
+
+        public async Task<string> UploadFileContract(IFormFile file)
+        {
+            var result = await _mediaService.UploadImageSubTemplate(file, "Contract");
+            return result;
         }
     }
 }

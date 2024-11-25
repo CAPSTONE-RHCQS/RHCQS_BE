@@ -219,6 +219,7 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentBatchDesignConfirmEndpoint = ContractEndpoint + "/design/confirm";
             public const string PaymentBatchConstructionConfirmEndpoint = ContractEndpoint + "/construction/confirm";
             public const string FinalToContract = ContractEndpoint + "/final-to-contract/construction";
+            public const string UploadFileContractEndpoint = ContractEndpoint + "/upload/file";
         }
 
         public static class Promotion

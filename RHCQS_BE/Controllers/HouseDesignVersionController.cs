@@ -159,7 +159,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">If the house design version or drawing was not found.</response>
         /// <response code="500">If an internal server error occurs.</response>
         #endregion
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.HouseDesignVersion.ApproveHouseDesignVersionEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
