@@ -32,7 +32,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
         [Range(0, double.MaxValue, ErrorMessage = "Giá trị hợp đồng phải là số dương.")]
         public double? ContractValue { get; set; }
 
-        [Required(ErrorMessage = "File hợp đồng là bắt buộc.")]
+        //[Required(ErrorMessage = "File hợp đồng là bắt buộc.")]
 
         public string? UrlFile { get; set; }
 
