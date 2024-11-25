@@ -136,6 +136,7 @@ namespace RHCQS_Services.Implement
 
             var result = new InitialQuotationResponse
             {
+                ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
                 AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,

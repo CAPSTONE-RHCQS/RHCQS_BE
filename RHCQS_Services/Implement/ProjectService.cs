@@ -238,7 +238,6 @@ namespace RHCQS_Services.Implement
             return projectPaginate.Items.ToList();
         }
 
-
         public async Task<bool> CreateProjectQuotation(ProjectRequest projectRequest)
         {
             try
