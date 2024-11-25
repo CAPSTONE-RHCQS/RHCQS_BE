@@ -29,7 +29,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
 
         //[Required(ErrorMessage = "File hợp đồng là bắt buộc.")]
 
-        //public string? UrlFile { get; set; }
+        public string? UrlFile { get; set; }
 
         public string? Note { get; set; }
     }
