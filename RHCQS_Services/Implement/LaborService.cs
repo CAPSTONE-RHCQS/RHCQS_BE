@@ -127,22 +127,27 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<List<LaborResponse>> SearchLaborByName(string name)
+        public async Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string name)
         {
-            return (List<LaborResponse>)await _unitOfWork.GetRepository<Labor>().GetListAsync(
-                selector: x => new LaborResponse
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Price = x.Price,
-                    InsDate = x.InsDate,
-                    UpsDate = x.UpsDate,
-                    Deflag = x.Deflag,
-                    Type = x.Type
-                },
-                predicate: m => m.Name.Contains(name),
-                orderBy: x => x.OrderBy(x => x.InsDate)
-            );
+            var result = (await _unitOfWork.GetRepository<PackageLabor>()
+                .GetListAsync(
+                    selector: x => new LaborResponse
+                    {
+                        Id = x.Labor.Id,
+                        Name = x.Labor.Name,
+                        Price = x.Labor.Price,
+                        InsDate = x.Labor.InsDate,
+                        UpsDate = x.Labor.UpsDate,
+                        Deflag = x.Labor.Deflag,
+                        Type = x.Labor.Type
+                    },
+                    predicate: pl => pl.PackageDetail.PackageId == packageId &&
+                                     pl.Labor.Name.Contains(name),
+                    include: x => x.Include(pl => pl.Labor)
+                                   .Include(pl => pl.PackageDetail),
+                    orderBy: x => x.OrderBy(pl => pl.Labor.InsDate)
+                )).ToList();
+            return result;
         }
 
         public async Task<bool> ImportLaborFromExcel(IFormFile excelFile)

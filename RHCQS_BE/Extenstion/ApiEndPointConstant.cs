@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Protocols;
+﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using Microsoft.IdentityModel.Protocols;
 using RHCQS_BusinessObject.Payload.Request.Contract;
 using System.CodeDom;
 
@@ -21,6 +22,8 @@ namespace RHCQS_BE.Extenstion
             public const string LoginEndpoint = ApiEndpoint + "/login";
             public const string LogoutEndpoint = ApiEndpoint + "/logout";
             public const string DesTokenEndpoin = ApiEndpoint + "/des";
+            public const string RefreshTokenEndpoint = ApiEndpoint + "/refresh-token";
+            
         }
 
         public static class Role
@@ -31,7 +34,14 @@ namespace RHCQS_BE.Extenstion
         public static class Notification
         {
             public const string NotificationEndpoint = ApiEndpoint + "/notification";
+
             public const string SendNotificationRoleEndpoint = NotificationEndpoint + "/send";
+
+            public const string GetNotificationsEndpoint = NotificationEndpoint + "/get-notifications/email";
+
+            public const string SaveDeviceTokenEndpoint = NotificationEndpoint + "/save-token";
+
+            public const string GetDeviceTokenEndpoint = NotificationEndpoint + "/get-token/email";
         }
         public static class PackageType
         {
@@ -207,6 +217,7 @@ namespace RHCQS_BE.Extenstion
             public const string ContractFileEndpoint = ContractEndpoint + "/file";
             public const string PaymentBatchDesignConfirmEndpoint = ContractEndpoint + "/design/confirm";
             public const string PaymentBatchConstructionConfirmEndpoint = ContractEndpoint + "/construction/confirm";
+            public const string FinalToContract = ContractEndpoint + "/final-to-contract/construction";
         }
 
         public static class Promotion
@@ -274,6 +285,13 @@ namespace RHCQS_BE.Extenstion
             public const string SupplierListEndpoint = ApiEndpoint + "/allsuppliers";
             public const string SearchSupplierEndpoint = SupplierEndpoint + "/name";
             public const string SupplierDetailEndpoint = SupplierEndpoint + "/id";
+        }
+
+        public static class Room
+        {
+            public const string RoomEndpoint = ApiEndpoint + "/room";
+            public const string RoomListWaitingEndpoint = RoomEndpoint + "/waiting";
+            public const string ListMessageEndpoint = RoomEndpoint + "/message";
         }
     }
 }

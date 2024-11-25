@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Promotion;
 using RHCQS_BusinessObject.Payload.Response;
@@ -52,29 +53,45 @@ namespace RHCQS_Services.Implement
                                          promotionItem.InsDate, promotionItem.StartTime, promotionItem.ExpTime, promotionItem.IsRunning);
         }
 
-        public async Task<List<PromotionResponse>> SearchPromotionByName(string promotionName)
+        public async Task<List<PromotionResponse>> SearchPromotionByName(Guid packageId, string promotionName)
         {
             var currentTime = LocalDateTime.VNDateTime();
-            var promotionList = await _unitOfWork.GetRepository<Promotion>().GetListAsync(
-                predicate: p => p.Name!.ToLower().Contains(promotionName.ToLower())
-                                && p.ExpTime >= currentTime
-                                && p.IsRunning == true);
 
+            // Lấy danh sách dựa vào packageId
+            var promotionQuery = await _unitOfWork.GetRepository<PackageMapPromotion>().GetListAsync(
+                predicate: p => p.PackageId == packageId &&
+                                p.Promotion.ExpTime >= currentTime &&
+                                p.Promotion.IsRunning == true,
+                include: x => x.Include(p => p.Promotion) 
+            );
 
-            if (promotionList == null || !promotionList.Any())
+            // Nếu có promotionName, lọc thêm theo promotionName
+            if (!string.IsNullOrWhiteSpace(promotionName))
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_Promotion);
+                promotionQuery = promotionQuery
+                    .Where(p => p.Promotion.Name!.ToLower().Contains(promotionName.ToLower()))
+                    .ToList();
             }
 
-            return promotionList.Select(promotionItem => new PromotionResponse(
-                promotionItem.Id,
-                promotionItem.Name,
-                promotionItem.Code,
-                promotionItem.Value,
-                promotionItem.InsDate,
-                promotionItem.StartTime,
-                promotionItem.ExpTime,
-                promotionItem.IsRunning
+            // Kiểm tra danh sách kết quả
+            if (promotionQuery == null || !promotionQuery.Any())
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Promotion
+                );
+            }
+
+            // Chuyển đổi sang danh sách PromotionResponse
+            return promotionQuery.Select(promotionItem => new PromotionResponse(
+                promotionItem.Promotion.Id,
+                promotionItem.Promotion.Name,
+                promotionItem.Promotion.Code,
+                promotionItem.Promotion.Value,
+                promotionItem.Promotion.InsDate,
+                promotionItem.Promotion.StartTime,
+                promotionItem.Promotion.ExpTime,
+                promotionItem.Promotion.IsRunning
             )).ToList();
         }
 

@@ -158,9 +158,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Labor.SearchLaborEndpoint)]
         [ProducesResponseType(typeof(List<LaborResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchLaborByName(string name)
+        public async Task<IActionResult> SearchLaborByName(Guid packageId, string name)
         {
-            var listSearchLabor = await _laborService.SearchLaborByName(name);
+            var listSearchLabor = await _laborService.SearchLaborByName(packageId, name);
             var result = JsonConvert.SerializeObject(listSearchLabor, Formatting.Indented);
             return new ContentResult()
             {

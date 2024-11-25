@@ -163,13 +163,14 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.FinalQuotationId)
                 .HasConstraintName("FK_BactchPayment_FinalQuotation");
 
-            entity.HasOne(d => d.IntitialQuotation).WithMany(p => p.BatchPayments)
-                .HasForeignKey(d => d.IntitialQuotationId)
+            entity.HasOne(d => d.InitialQuotation).WithMany(p => p.BatchPayments)
+                .HasForeignKey(d => d.InitialQuotationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_InitialQuotation");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.PaymentId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("BatchPayment_Payment_FK");
         });
 
@@ -207,6 +208,7 @@ public partial class RhcqsContext : DbContext
                 .IsFixedLength();
             entity.Property(e => e.CustomerName).HasMaxLength(50);
             entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Status).HasMaxLength(50);
@@ -255,10 +257,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("EquipmentItem");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.Note)
-                .HasMaxLength(10)
-                .IsFixedLength();
+            entity.Property(e => e.Name).HasMaxLength(200);
             entity.Property(e => e.Type).HasMaxLength(100);
             entity.Property(e => e.Unit).HasMaxLength(50);
 
@@ -619,7 +618,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentDate).HasColumnType("datetime");
             entity.Property(e => e.PaymentPhase).HasColumnType("datetime");
-            entity.Property(e => e.Percents).HasMaxLength(5);
             entity.Property(e => e.Unit).HasMaxLength(10);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
 
@@ -642,6 +640,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("Project");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.CustomerName).HasMaxLength(50);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.ProjectCode)
@@ -725,6 +724,7 @@ public partial class RhcqsContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK_UltilitiesDetails");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.FinalQuotationId).HasDefaultValueSql("(NULL)");
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");

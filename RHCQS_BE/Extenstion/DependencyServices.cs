@@ -49,7 +49,17 @@ namespace RHCQS_BE.Extenstion
 
         public static IServiceCollection AddSignalRServices(this IServiceCollection services)
         {
-            services.AddSignalR();
+            //var serviceProvider = services.BuildServiceProvider();
+            //var configuration = serviceProvider.GetService<IConfiguration>();
+
+            //services.AddSignalR().AddAzureSignalR(configuration["AzureSignalRConnectionString"]);
+            //return services;
+            services.AddSignalR(options =>
+            {
+                options.KeepAliveInterval = TimeSpan.FromSeconds(10);
+                options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+                options.HandshakeTimeout = TimeSpan.FromSeconds(15);
+            });
             return services;
         }
 
@@ -94,6 +104,8 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IExcelImportService, ExcelImportService>();
+            services.AddScoped<IRoomService, RoomService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();

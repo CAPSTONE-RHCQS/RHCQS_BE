@@ -62,7 +62,62 @@ namespace RHCQS_Services.Implement
             }
             return account;
         }
+        public async Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.AccountIdError
+                );
+            }
 
+            var accountRepository = _unitOfWork.GetRepository<Account>();
+            var account = await accountRepository.FirstOrDefaultAsync(
+                a => a.Id == id && a.Deflag == true,
+                include: q => q.Include(x => x.Role)
+            );
+
+            if (account != null)
+            {
+                return new AccountCustomerResponse
+                {
+                    Id = account.Id,
+                    Email = account.Email,
+                    Username = account.Username,
+                    PhoneNumber = account.PhoneNumber,
+                    ImageUrl = account.ImageUrl,
+                    DateOfBirth = account.DateOfBirth?.ToDateTime(TimeOnly.MinValue),
+                    Deflag = account.Deflag,
+                    RoleName = account.Role?.RoleName
+                };
+            }
+
+            var customerRepository = _unitOfWork.GetRepository<Customer>();
+            var customer = await customerRepository.FirstOrDefaultAsync(
+                c => c.Id == id && c.Deflag == true
+            );
+
+            if (customer != null)
+            {
+                return new AccountCustomerResponse
+                {
+                    Id = customer.Id,
+                    Email = customer.Email,
+                    Username = customer.Username,
+                    PhoneNumber = customer.PhoneNumber,
+                    ImageUrl = customer.ImgUrl,
+                    DateOfBirth = customer.DateOfBirth,
+                    Deflag = customer.Deflag,
+                    RoleName = "Customer"
+                };
+            }
+
+            throw new AppConstant.MessageError(
+                (int)AppConstant.ErrCode.Not_Found,
+                AppConstant.ErrMessage.Not_Found_Account
+            );
+        }
         public async Task<int> GetActiveAccountCountAsync()
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();
@@ -391,5 +446,99 @@ namespace RHCQS_Services.Implement
 
             return currentUserModel;
         }
+        public async Task<string> GetEmailByProjectIdAsync(Guid projectId)
+        {
+            if (projectId == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var projectRepository = _unitOfWork.GetRepository<Project>();
+            var project = await projectRepository.FirstOrDefaultAsync(
+                p => p.Id == projectId,
+                include: q => q.Include(p => p.Customer)
+                              .ThenInclude(c => c.Account)
+            );
+
+            if (project?.Customer == null || project.Customer.Deflag != true)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.ProjectNotExit
+                );
+            }
+
+            var account = project.Customer.Account;
+            if (account == null || account.Deflag != true)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
+            }
+
+            return SanitizeEmail(account.Email);
+        }
+        public async Task<string> GetEmailByQuotationIdAsync(Guid quotationId)
+        {
+            if (quotationId == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
+            var finalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
+                fq => fq.Id == quotationId,
+                include: q => q.Include(fq => fq.Project)
+                               .ThenInclude(p => p.Customer)
+                               .ThenInclude(c => c.Account)
+            );
+
+            if (finalQuotation?.Project?.Customer != null && finalQuotation.Project.Customer.Deflag == true)
+            {
+                var account = finalQuotation.Project.Customer.Account;
+                if (account != null && account.Deflag == true)
+                {
+                    return SanitizeEmail(account.Email);
+                }
+            }
+
+            var initialQuotationRepo = _unitOfWork.GetRepository<InitialQuotation>();
+            var initialQuotation = await initialQuotationRepo.FirstOrDefaultAsync(
+                iq => iq.Id == quotationId,
+                include: q => q.Include(iq => iq.Project)
+                               .ThenInclude(p => p.Customer)
+                               .ThenInclude(c => c.Account)
+            );
+
+            if (initialQuotation?.Project?.Customer != null && initialQuotation.Project.Customer.Deflag == true)
+            {
+                var account = initialQuotation.Project.Customer.Account;
+                if (account != null && account.Deflag == true)
+                {
+                    return SanitizeEmail(account.Email);
+                }
+            }
+
+            throw new AppConstant.MessageError(
+                (int)AppConstant.ErrCode.Not_Found,
+                AppConstant.ErrMessage.Not_Found_Account
+            );
+        }
+
+        private string SanitizeEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email)) return string.Empty;
+
+            return email.Replace("@", "_at_").Replace(".", "_dot_");
+        }
+
+
     }
 }

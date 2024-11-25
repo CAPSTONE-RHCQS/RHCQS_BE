@@ -15,6 +15,7 @@ using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +53,10 @@ namespace RHCQS_Services.Implement
             var contractItem = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
                                 predicate: c => c.Id == contractId,
                                 include: c => c.Include(c => c.Project)
+                                                .Include(c => c.BatchPayments)
+                                                .ThenInclude(c => c.Payment!)
+                                                .ThenInclude(c => c.Media)
+
                 );
 
             if (contractItem == null)
@@ -59,7 +64,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
             }
 
-            DependOnQuotation dependOnQuotation = null; 
+            DependOnQuotation dependOnQuotation = null;
             if (contractItem.Type == AppConstant.ContractType.Design.ToString())
             {
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -77,7 +82,8 @@ namespace RHCQS_Services.Implement
                     Version = initialQuotation.Version,
                     File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
-            } else
+            }
+            else
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                                 predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
@@ -95,12 +101,29 @@ namespace RHCQS_Services.Implement
                     File = finalQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == finalQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
-             
+
+            var batchPayments = contractItem.BatchPayments
+                .Select(b => new BatchPaymentContract
+                {
+                    PaymentId = b.PaymentId,
+                    NumberOfBatch = b.NumberOfBatch,
+                    Price = b.Payment.TotalPrice,
+                    PaymentDate = b.Payment.PaymentDate,
+                    PaymentPhase = b.Payment.PaymentPhase,
+                    Percents = b.Payment.Percents ?? 0,
+                    Description = b.Payment.Description,
+                    InvoiceImage = b.Payment.Media
+                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                    ?? "Hình ảnh chuyển khoản chưa có"
+                })
+                .OrderBy(b => b.NumberOfBatch)
+                .ToList();
 
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, dependOnQuotation);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, 
+                                        dependOnQuotation, batchPayments);
         }
 
         public async Task<ContractResponse> GetDetailContractByType(string type)
@@ -152,10 +175,27 @@ namespace RHCQS_Services.Implement
                 };
             }
 
+            var batchPayments = contractItem.BatchPayments
+             .Select(b => new BatchPaymentContract
+             {
+                 PaymentId = b.PaymentId,
+                 NumberOfBatch = b.NumberOfBatch,
+                 Price = b.Payment.TotalPrice,
+                 PaymentDate = b.Payment.PaymentDate,
+                 PaymentPhase = b.Payment.PaymentPhase,
+                 Percents = b.Payment.Percents ?? 0,
+                 Description = b.Payment.Description,
+                 InvoiceImage = b.Payment.Media
+                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                    ?? "Hình ảnh chuyển khoản chưa có"
+             })
+             .OrderBy(b => b.NumberOfBatch)
+             .ToList();
+
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, dependOnQuotation);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation, batchPayments);
         }
 
         //Create design -  Create batch payment design drawing
@@ -173,6 +213,11 @@ namespace RHCQS_Services.Implement
             if (infoProject == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+            }
+
+            if (infoProject.Contracts.Count(c => c.Type == AppConstant.ContractType.Design.ToString()) > 1)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ContractOver);
             }
 
             bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
@@ -218,6 +263,7 @@ namespace RHCQS_Services.Implement
                             FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
                             Status = AppConstant.ContractStatus.PROCESSING,
                             Type = request.Type,
+                            InsDate = LocalDateTime.VNDateTime()
                         };
                         await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
                     }
@@ -246,6 +292,7 @@ namespace RHCQS_Services.Implement
                     // Tạo payment thiết kế
                     foreach (var pay in request.BatchPaymentRequests!)
                     {
+                        int batch = 0;
                         // Lấy PaymentType từ bảng PaymentType
                         var paymentType = await _unitOfWork.GetRepository<PaymentType>()
                                     .FirstOrDefaultAsync(pt => pt.Name == EnumExtensions.GetEnumDescription(contractType));
@@ -270,11 +317,12 @@ namespace RHCQS_Services.Implement
                         {
                             Id = Guid.NewGuid(),
                             ContractId = contractDrawing!.Id,
-                            IntitialQuotationId = initialInfo!.Id,
+                            InitialQuotationId = initialInfo!.Id,
                             InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = null,
                             PaymentId = payInfo.Id,
-                            Status = AppConstant.PaymentStatus.PROGRESS
+                            Status = AppConstant.PaymentStatus.PROGRESS,
+                            NumberOfBatch = batch++
                         };
 
                         await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
@@ -309,6 +357,11 @@ namespace RHCQS_Services.Implement
             if (infoProject == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+            }
+
+            if (infoProject.Contracts.Count(c => c.Type == AppConstant.ContractType.Design.ToString()) > 1)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ContractOver);
             }
 
             bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
@@ -349,6 +402,7 @@ namespace RHCQS_Services.Implement
                     FinishedPackagePrice = packageInfo.FirstOrDefault(x => x.TypeName == AppConstant.Type.FINISHED)?.Price,
                     Status = AppConstant.ContractStatus.PROCESSING,
                     Type = AppConstant.ContractType.Construction.ToString(),
+                    InsDate = LocalDateTime.VNDateTime()
                 };
 
                 await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
@@ -487,6 +541,9 @@ namespace RHCQS_Services.Implement
                 }
                 int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
 
+                var contractInfo = payBatchInfo.FirstOrDefault()?.Contract;
+                string contractType = contractInfo.Type;
+
                 for (int i = 0; i < imageCount; i++)
                 {
                     var file = bills[i];
@@ -496,7 +553,9 @@ namespace RHCQS_Services.Implement
                         continue;
                     }
 
-                    var publicId = $"Hoa_don_thiet_ke_{paymentId}_{i}";
+                    var publicId = contractType == "Design"
+                            ? $"Hoa_don_thiet_ke_{paymentId}_{i}"
+                            : $"Hoa_don_thi_cong_{paymentId}_{i}";
 
                     var uploadParams = new ImageUploadParams()
                     {
@@ -663,5 +722,53 @@ namespace RHCQS_Services.Implement
 
         }
 
+        //Clone final info to contract construction
+        public async Task<FinalToContractResponse> CloneFinalInfoToContract(Guid projectId)
+        {
+            try
+            {
+                var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+                                    predicate: p => p.ProjectId == projectId && p.Status == AppConstant.QuotationStatus.FINALIZED,
+                                    include: p => p.Include(p => p.BatchPayments)
+                                                                    .ThenInclude(p => p.Payment!));
+
+                if (finalInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.NotFinalizedQuotationInitial);
+                }
+
+                // Calculate contract value
+                double contractValue = (finalInfo.TotalPrice ?? 0.0)
+                                     - (finalInfo.Discount ?? 0.0);
+
+                // BatchPaymentRequest
+                var batchPaymentRequests = finalInfo.BatchPayments
+                    .Select((batchPayment, index) => new InitialToBatchPayment
+                    {
+                        NumberOfBatches = index + 1,
+                        Price = (double)batchPayment.Payment.TotalPrice!,
+                        PaymentDate = batchPayment.Payment.PaymentDate,
+                        PaymentPhase = batchPayment.Payment.PaymentPhase,
+                        Percents = batchPayment.Payment.Percents ?? 0,
+                        Description = batchPayment.Payment.Description
+                    }).ToList();
+
+                var result = new FinalToContractResponse()
+                {
+                    ProjectId = projectId,
+                    Type = AppConstant.ContractType.Design.ToString(),
+                    StartDate = null,
+                    EndDate = null,
+                    ValidityPeriod = null,
+                    TaxCode = null,
+                    ContractValue = contractValue,
+                    UrlFile = null,
+                    Note = null,
+                    BatchPaymentRequests = batchPaymentRequests
+                };
+                return result;
+            }
+            catch (Exception ex) { throw new Exception(ex.Message); }
+        }
     }
 }

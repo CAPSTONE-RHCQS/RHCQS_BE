@@ -118,13 +118,16 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+            var batchPaymentResponse = initialQuotation!.BatchPayments
+                .OrderBy(bp => bp.NumberOfBatch)
+                .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
-                                         item.Payment.Percents,
+                                         item.Payment.Percents ?? 0,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
+                                         item.NumberOfBatch,
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
@@ -133,12 +136,13 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.Customer!.Username!,
+                AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
                 TimeOthers = initialQuotation.TimeOthers,
+                TimeRough = initialQuotation.TimeRough,
                 OthersAgreement = initialQuotation.OthersAgreement,
                 InsDate = initialQuotation.InsDate,
                 Status = initialQuotation.Status,
@@ -228,13 +232,16 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+            var batchPaymentResponse = initialQuotation!.BatchPayments
+                          .OrderBy(bp => bp.NumberOfBatch)
+                            .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
-                                         item.Payment.Percents,
+                                         item.Payment.Percents ?? 0,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
+                                         item.NumberOfBatch,
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
@@ -243,12 +250,13 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.Customer!.Username!,
+                AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
                 TimeOthers = initialQuotation.TimeOthers,
+                TimeRough = initialQuotation.TimeRough,
                 OthersAgreement = initialQuotation.OthersAgreement,
                 InsDate = initialQuotation.InsDate,
                 Status = initialQuotation.Status,
@@ -333,13 +341,16 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments.Select(item => new BatchPaymentInfo(
+            var batchPaymentResponse = initialQuotation!.BatchPayments
+                .OrderBy(bp => bp.NumberOfBatch)
+                .Select(item => new BatchPaymentInfo(
                                          item.Id,
                                          item.Payment.Description,
-                                         item.Payment.Percents,
+                                         item.Payment.Percents ?? 0,
                                          item.Payment.TotalPrice,
                                          item.Payment.Unit,
                                          item.Status,
+                                         item.NumberOfBatch,
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
@@ -348,12 +359,13 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.Customer!.Username!,
+                AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
                 TimeProcessing = initialQuotation.TimeProcessing,
                 TimeOthers = initialQuotation.TimeOthers,
+                TimeRough = initialQuotation.TimeRough,
                 OthersAgreement = initialQuotation.OthersAgreement,
                 InsDate = initialQuotation.InsDate,
                 Status = initialQuotation.Status,
@@ -483,8 +495,10 @@ namespace RHCQS_Services.Implement
                        $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
 );
                 }
+                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
             }
-            else
+            else if(request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
             {
                 if (request.Reason == null)
                 {
@@ -495,11 +509,10 @@ namespace RHCQS_Services.Implement
                 initialItem.Status = AppConstant.QuotationStatus.REJECTED;
                 initialItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
-                return AppConstant.Message.REJECTED;
+                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
             }
-
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return null!;
+            return null;
         }
 
         private string GenerateHtmlContent(InitialQuotationResponse request)
@@ -824,15 +837,33 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.PromotionIllegal);
                     }
 
-                    double discountCheck = (double)request.Area * (double)promotionInfo.Value;
-                    if(discountCheck != request.Promotions.Discount)
-                    {
-                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
-                    }
+                    //double discountCheck = (double)request.Area * (double)promotionInfo.Value;
+                    //if (discountCheck != request.Promotions.Discount)
+                    //{
+                    //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.InvalidDiscount);
+                    //}
                 }
                 #endregion
 
-                #region Update project
+                #region Check request duplicate
+                //Construction 
+                var isValidContruction = ValidateDuplicateConstructionItems(request.Items, out var duplicateNames);
+                if (!isValidContruction)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedConstruction);
+                }
+
+                //Utility
+                var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
+                if (!isValidUtility)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedUtility);
+                }
+
+
+                #endregion
+
+                #region Update project & version present
                 var initialVersionPresent = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                 predicate: x => x.Version == request.VersionPresent && x.ProjectId == request.ProjectId,
                     include: x => x.Include(x => x.Project));
@@ -841,9 +872,12 @@ namespace RHCQS_Services.Implement
                                     request.Area.Value : initialVersionPresent.Project.Area;
                 initialVersionPresent.Project.Address = string.IsNullOrEmpty(request.Address) ?
                                       initialVersionPresent.Project.Address : request.Address;
-                //Note: Version initial quotation - PROCESSING
-                initialVersionPresent.Status = AppConstant.QuotationStatus.PROCESSING;
+                initialVersionPresent.Project.UpsDate = LocalDateTime.VNDateTime();
 
+                initialVersionPresent.Project.CustomerName = string.IsNullOrEmpty(request.AccountName) ?
+                                      initialVersionPresent.Project.CustomerName : request.AccountName;
+                //Note: Version initial quotation - PROCESSING
+                initialVersionPresent.Status = AppConstant.QuotationStatus.ENDED;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialVersionPresent);
                 #endregion
 
@@ -985,6 +1019,7 @@ namespace RHCQS_Services.Implement
                 //Create a batch payments
                 foreach (var item in request.BatchPayments)
                 {
+                    int batch = 0;
                     var payment = new Payment
                     {
                         Id = Guid.NewGuid(),
@@ -992,8 +1027,8 @@ namespace RHCQS_Services.Implement
                         InsDate = LocalDateTime.VNDateTime(),
                         UpsDate = LocalDateTime.VNDateTime(),
                         TotalPrice = item.Price,
-                        //PaymentDate = LocalDateTime.VNDateTime(),
-                        //PaymentPhase = LocalDateTime.VNDateTime(),
+                        PaymentDate = item.PaymentDate,
+                        PaymentPhase = item.PaymentPhase,
                         Percents = item.Percents,
                         Description = item.Description,
                         Unit = AppConstant.Unit.UnitPrice
@@ -1004,11 +1039,12 @@ namespace RHCQS_Services.Implement
                     {
                         Id = Guid.NewGuid(),
                         ContractId = null,
-                        IntitialQuotationId = initialItem.Id,
+                        InitialQuotationId = initialItem.Id,
                         InsDate = LocalDateTime.VNDateTime(),
                         FinalQuotationId = null,
                         PaymentId = payment.Id,
-                        Status = AppConstant.PaymentStatus.PROGRESS
+                        Status = AppConstant.PaymentStatus.PROGRESS,
+                        NumberOfBatch = item.NumberOfBatch
                     };
                     await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(payItem);
                 }
@@ -1058,7 +1094,6 @@ namespace RHCQS_Services.Implement
             }
         }
 
-
         public async Task<string> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest comment)
         {
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == initialId);
@@ -1075,5 +1110,42 @@ namespace RHCQS_Services.Implement
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return isSuccessful;
         }
+
+        public bool ValidateDuplicateConstructionItems(List<InitialQuotaionItemUpdateRequest> items, out string? duplicateNames)
+        {
+            var duplicateItems = items
+                .GroupBy(item => item.Name?.Trim().ToLower()) 
+                .Where(g => g.Count() > 1)                   
+                .Select(g => g.Key)                          
+                .ToList();
+
+            if (duplicateItems.Any())
+            {
+                duplicateNames = string.Join(", ", duplicateItems);
+                return false;
+            }
+
+            duplicateNames = null;
+            return true; 
+        }
+
+        public bool ValidateDuplicateUtilities(List<UtilitiesUpdateRequest> items, out List<Guid>? duplicateIds)
+        {
+            var duplicateGroups = items
+                .GroupBy(item => item.UtilitiesItemId)
+                .Where(g => g.Count() > 1) 
+                .ToList();
+
+            if (duplicateGroups.Any())
+            {
+                duplicateIds = duplicateGroups.Select(g => g.Key).ToList();
+                return false; 
+            }
+
+            duplicateIds = null;
+            return true; 
+        }
+
+
     }
 }

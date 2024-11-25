@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using RHCQS.BusinessObject.Constants;
 using RHCQS_BE.Extenstion;
+using RHCQS_BE.Hubs;
 using RHCQS_Services.Implement;
 using System.Text.Json.Serialization;
 
@@ -22,14 +23,18 @@ namespace RHCQS_BE
                 options.AddPolicy(name: CorsConstant.PolicyName,
                    policy =>
                    {
-                       policy.WithOrigins("http://localhost:3000")
-                             .WithOrigins("http://localhost:5173")
-                             .WithOrigins("http://localhost:8081")
-                             .WithOrigins("https://rhcqs.vercel.app")
-                             .AllowAnyHeader()
-                             .AllowAnyMethod()
-                             .AllowCredentials();
+                       policy.WithOrigins(
+                               "http://localhost:3000",
+                               "http://localhost:5173",
+                               "http://localhost:8081",
+                               "https://rhcqs.vercel.app",
+                               "https://rhqs-fzbda8gefsh7bnft.southeastasia-01.azurewebsites.net"
+                           )
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
                    });
+
             });
 
             builder.Services.AddControllers().AddJsonOptions(x =>
@@ -42,6 +47,7 @@ namespace RHCQS_BE
             var configuration = builder.Configuration;
 
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddDatabase();
             builder.Services.AddDatabase();
             builder.Services.AddUnitOfWork();
             builder.Services.AddServices();
@@ -65,18 +71,26 @@ namespace RHCQS_BE
 
             // Enable CORS with the defined policy
             app.UseCors(CorsConstant.PolicyName);
-            //app.UseHttpsRedirection();
+            app.UseHttpsRedirection();
 
             app.UseRouting();
             // Authentication and Authorization
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseWebSockets();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-                //endpoints.MapHub<ChatService>("/chatHub");
-            });
+            //Publish app
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
+            app.MapControllers();
+            app.MapHub<ChatHub>("/chatHub");
+
+            //app.UseEndpoints(endpoints =>
+            //{
+            //    endpoints.MapControllers();
+            //    endpoints.MapHub<ChatHub>("/chatHub");
+            //});
 
             app.Run();
         }

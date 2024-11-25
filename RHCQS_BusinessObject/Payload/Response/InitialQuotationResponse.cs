@@ -50,6 +50,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? Area { get; set; }
         public int? TimeProcessing { get; set; }
         public int? TimeOthers { get; set; }
+        public int? TimeRough { get; set; }
         public string? OthersAgreement { get; set; }
         public DateTime? InsDate { get; set; }
         public string? Status { get; set; }
@@ -165,8 +166,8 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class BatchPaymentInfo
     {
-        public BatchPaymentInfo(Guid id, string? description, string? percents, double? price,
-            string? unit, string? status, DateTime? paymentDate, DateTime? paymentPhase)
+        public BatchPaymentInfo(Guid id, string? description, int percents, double? price,
+            string? unit, string? status,int? numberOfBatch, DateTime? paymentDate, DateTime? paymentPhase)
         {
             PaymentId = id;
             Description = description;
@@ -174,15 +175,17 @@ namespace RHCQS_BusinessObject.Payload.Response
             Price = price;
             Unit = unit;
             Status = status;
+            NumberOfBatch = numberOfBatch;
             PaymentDate = paymentDate;
             PaymentPhase = paymentPhase;
         }
         public Guid PaymentId { get; set; }
         public string? Status { get; set; }
         public string? Description { get; set; }
-        public string? Percents { get; set; }
+        public int Percents { get; set; }
         public double? Price { get; set; }
         public string? Unit { get; set; }
+        public int? NumberOfBatch { get; set; }
         public DateTime? InsDate { get; set; }
         public DateTime? PaymentDate { get; set; }
         public DateTime? PaymentPhase { get; set; }

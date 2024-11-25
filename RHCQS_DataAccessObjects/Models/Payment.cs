@@ -21,7 +21,7 @@ public partial class Payment
 
     public string? Unit { get; set; }
 
-    public string? Percents { get; set; }
+    public int? Percents { get; set; }
 
     public string? Description { get; set; }
 

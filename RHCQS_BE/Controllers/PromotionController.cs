@@ -117,9 +117,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Promotion.PromotionNameEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchPromotion(string name)
+        public async Task<IActionResult> SearchPromotion(Guid packageId, string name)
         {
-            var promotionItem = await _promotionService.SearchPromotionByName(name);
+            var promotionItem = await _promotionService.SearchPromotionByName(packageId, name);
             var result = JsonConvert.SerializeObject(promotionItem, Formatting.Indented);
             return new ContentResult()
             {

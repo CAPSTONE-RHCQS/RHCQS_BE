@@ -58,7 +58,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
         [DataType(DataType.Date, ErrorMessage = "Định dạng ngày không hợp lệ.")]
         public DateTime? PaymentPhase { get; set; }
         [Required(ErrorMessage = "Phần trăm số tiền thanh toán là bắt buộc.")]
-        public string? Percents { get; set; }
+        public int Percents { get; set; }
 
         [Required(ErrorMessage = "Mô tả là bắt buộc.")]
         [StringLength(1000, ErrorMessage = "Mô tả không được vượt quá 1000 ký tự.")]

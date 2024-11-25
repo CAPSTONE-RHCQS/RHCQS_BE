@@ -111,18 +111,21 @@ namespace RHCQS_Services.Implement
                 throw new MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
-            DependOnVersion? dependOnVersion = null;
+            List<DependOnVersion> dependOnVersions = new();
+
             if (drawingItem.Step > 1)
             {
-                int previousStep = drawingItem.Step.Value - 1;
-
-                var previousDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
-                    predicate: d => d.ProjectId == drawingItem.ProjectId && d.Step == previousStep && d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
+                // Lấy tất cả các bước trước (1 -> step-1) với trạng thái "Accepted"
+                var previousDrawings = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(
+                    predicate: d => d.ProjectId == drawingItem.ProjectId &&
+                                    d.Step < drawingItem.Step &&
+                                    d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
                     include: d => d.Include(d => d.HouseDesignVersions)
-                                    .ThenInclude(d => d.Media)
+                                   .ThenInclude(d => d.Media)
                 );
 
-                if (previousDrawing != null)
+                // Lấy các phiên bản chấp nhận được của các bản vẽ trước
+                foreach (var previousDrawing in previousDrawings)
                 {
                     var acceptedVersion = previousDrawing.HouseDesignVersions
                                                          .OrderByDescending(v => v.Version)
@@ -131,13 +134,13 @@ namespace RHCQS_Services.Implement
                     if (acceptedVersion != null)
                     {
                         var previousFileUrl = acceptedVersion.Media?.FirstOrDefault(m => m.HouseDesignVersionId == acceptedVersion.Id)?.Url ?? "Chưa hoàn thành";
-                        dependOnVersion = new DependOnVersion
+                        dependOnVersions.Add(new DependOnVersion
                         {
                             HouseDesginVersionId = acceptedVersion.Id,
                             HouseDesignVersionName = acceptedVersion.Name,
                             HouseDesignVersion = acceptedVersion.Version,
                             FileDesignVersion = previousFileUrl
-                        };
+                        });
                     }
                 }
             }
@@ -155,7 +158,7 @@ namespace RHCQS_Services.Implement
                 type: drawingItem.Type,
                 isCompany: drawingItem.HaveDrawing,
                 insDate: drawingItem.InsDate,
-                dependOnVersion: dependOnVersion,
+                dependOnVersion: dependOnVersions,
                 versions: drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
                     id: version.Id,
                     name: version.Name,
@@ -171,6 +174,7 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+
         public async Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type)
         {
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
@@ -185,17 +189,21 @@ namespace RHCQS_Services.Implement
                 throw new InvalidOperationException($"No drawing found for type: {type}");
             }
 
-            DependOnVersion? dependOnVersion = null;
+            List<DependOnVersion> dependOnVersions = new();
+
             if (drawingItem.Step > 1)
             {
-                int previousStep = drawingItem.Step.Value - 1;
-
-                var previousDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
-                    predicate: d => d.ProjectId == drawingItem.ProjectId && d.Step == previousStep && d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
+                // Lấy tất cả các bước trước (1 -> step-1) với trạng thái "Accepted"
+                var previousDrawings = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(
+                    predicate: d => d.ProjectId == drawingItem.ProjectId &&
+                                    d.Step < drawingItem.Step &&
+                                    d.Status == AppConstant.HouseDesignStatus.ACCEPTED,
                     include: d => d.Include(d => d.HouseDesignVersions)
+                                   .ThenInclude(d => d.Media)
                 );
 
-                if (previousDrawing != null)
+                // Lấy các phiên bản chấp nhận được của các bản vẽ trước
+                foreach (var previousDrawing in previousDrawings)
                 {
                     var acceptedVersion = previousDrawing.HouseDesignVersions
                                                          .OrderByDescending(v => v.Version)
@@ -204,40 +212,42 @@ namespace RHCQS_Services.Implement
                     if (acceptedVersion != null)
                     {
                         var previousFileUrl = acceptedVersion.Media?.FirstOrDefault(m => m.HouseDesignVersionId == acceptedVersion.Id)?.Url ?? "Chưa hoàn thành";
-                        dependOnVersion = new DependOnVersion
+                        dependOnVersions.Add(new DependOnVersion
                         {
                             HouseDesginVersionId = acceptedVersion.Id,
                             HouseDesignVersionName = acceptedVersion.Name,
                             HouseDesignVersion = acceptedVersion.Version,
                             FileDesignVersion = previousFileUrl
-                        };
+                        });
                     }
                 }
             }
 
             var result = new HouseDesignDrawingResponse(
-                       drawingItem.Id,
-                       drawingItem.ProjectId,
-                       drawingItem.Account.Username,
-                       drawingItem.HouseDesignVersions.Max(v => v.Version),
-                       drawingItem.Name,
-                       drawingItem.Step,
-                       drawingItem.Status,
-                       drawingItem.Type,
-                       drawingItem.HaveDrawing,
-                       drawingItem.InsDate,
-                       dependOnVersion,
-                       drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
-                            version.Id,
-                            version.Name,
-                            version.Version,
-                            version.Media.Select(m => m.Url).FirstOrDefault(),
-                            version.InsDate,
-                            version.PreviousDrawingId,
-                            version.Note,
-                            version.Reason
-                           )).ToList()
-                    );
+                id: drawingItem.Id,
+                projectId: drawingItem.ProjectId,
+                staffName: drawingItem.Account.Username,
+                versionPresent: drawingItem.HouseDesignVersions.Any()
+                    ? drawingItem.HouseDesignVersions.Max(v => v.Version)
+                    : 0.0,
+                name: drawingItem.Name,
+                step: drawingItem.Step,
+                status: drawingItem.Status,
+                type: drawingItem.Type,
+                isCompany: drawingItem.HaveDrawing,
+                insDate: drawingItem.InsDate,
+                dependOnVersion: dependOnVersions,
+                versions: drawingItem.HouseDesignVersions.Select(version => new HouseDesignVersionResponse(
+                    id: version.Id,
+                    name: version.Name,
+                    version: version.Version,
+                    fileUrl: version.Media.Select(m => m.Url).FirstOrDefault(),
+                    insDate: version.InsDate,
+                    previousDrawingId: version.PreviousDrawingId,
+                    note: version.Note,
+                    reason: version.Reason
+                )).OrderByDescending(v => v.Version).ToList()
+            );
 
             return result;
         }
@@ -273,6 +283,17 @@ namespace RHCQS_Services.Implement
             //Check number of drawing
             int existingDrawingsCount = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                      .CountAsync(d => d.ProjectId == item.ProjectId);
+
+            //Check request - design staff not 4 design task
+            var isValid = await ValidateHouseDesignDrawingRequest(item);
+
+            if (!isValid)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.RequestOverloadStaff
+                );
+            }
 
             if (existingDrawingsCount >= 4)
             {
@@ -314,6 +335,7 @@ namespace RHCQS_Services.Implement
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.OverloadStaff);
                 }
 
+
                 var houseDrawing = new HouseDesignDrawing
                 {
                     Id = Guid.NewGuid(),
@@ -334,6 +356,43 @@ namespace RHCQS_Services.Implement
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             return isSuccessful ? (true, AppConstant.Message.APPROVED) : (false, "Error occurred during saving.");
         }
+
+        public async Task<bool> ValidateHouseDesignDrawingRequest(HouseDesignDrawingRequest request)
+        {
+            var designers = new List<Guid>
+            {
+                request.DesignerPerspective,
+                request.DesignerArchitecture,
+                request.DesignerStructure,
+                request.DesignerElectricityWater
+            };
+
+            var designerTaskCounts = designers
+                .GroupBy(d => d)
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var designer in designerTaskCounts)
+            {
+                var designerId = designer.Key;
+                var taskCountInRequest = designer.Value;
+
+                var existingTaskCount = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                    .CountAsync(d => d.AccountId == designerId
+                        && d.Status != AppConstant.HouseDesignStatus.ACCEPTED
+                        && d.Status != AppConstant.HouseDesignStatus.FINALIZED
+                        && d.Status != AppConstant.HouseDesignStatus.REJECTED);
+
+                var totalTaskCount = existingTaskCount + taskCountInRequest;
+
+                if (totalTaskCount > 2)
+                {
+                    return false; 
+                }
+            }
+
+            return true; 
+        }
+
 
         public async Task<List<ListHouseDesginResponse>> GetListTaskByAccount(Guid accountId)
         {
@@ -587,30 +646,9 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
             }
 
-            //Contract design is coming ....
-            var contractDrawing = new Contract
-            {
-                Id = Guid.NewGuid(),
-                ProjectId = projectInfo.Id,
-                Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Design),
-                CustomerName = projectInfo.Customer!.Username!,
-                ContractCode = null,
-                StartDate = null,
-                EndDate = null,
-                ValidityPeriod = null,
-                TaxCode = null,
-                Area = projectInfo.Area,
-                UnitPrice = AppConstant.Unit.UnitPrice,
-                ContractValue = null,
-                UrlFile = null,
-                Note = null,
-                Deflag = true,
-                RoughPackagePrice = 0,
-                FinishedPackagePrice = 0,
-                Status = AppConstant.ContractStatus.PROCESSING,
-                Type = AppConstant.ContractType.Design.ToString(),
-            };
-            await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+            projectInfo.IsContractDesign = true;
+
+            _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return isSuccessful;

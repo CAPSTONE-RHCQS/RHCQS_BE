@@ -30,6 +30,7 @@ public static class AppConstant
         public const string Active = "Active";
         public const double MaxVersion = 10.0;
     }
+
     public class Unit
     {
         public const string UnitPrice = "VNĐ";
@@ -75,6 +76,7 @@ public static class AppConstant
         public const string APPROVED = "Approved";
         public const string FINALIZED = "Finalized";
         public const string CANCELED = "Canceled";
+        public const string ENDED = "Ended";
     }
 
     public class HouseDesignStatus
@@ -180,6 +182,14 @@ public static class AppConstant
         public const string SUCCESSFUL_DELETE = "Xóa thành công";
         public const string SEND_SUCESSFUL = "Gửi thành công!";
         public const string PASSWORD_SUCESSFUL = "Cập nhật mật khẩu thành công!";
+        public const string SUCCESSFUL_NOTIFICATION_SEND = "Gửi thông báo thành công!";
+        public const string ERROR_NOTIFICATION_SEND = "Gửi thông báo thất bại!";
+        public const string NO_NOTIFICATIONS_FOUND = "Không có thông báo cho người dùng này.";
+        public const string SUCCESSFUL_DEVICE_TOKEN_SAVE = "Lưu token thiết bị thành công!";
+        public const string ERROR_DEVICE_TOKEN_SAVE = "Lưu token thiết bị thất bại!";
+        public const string SUCCESSFUL_DEVICE_TOKEN_RETRIEVE = "Lấy token thiết bị thành công!";
+        public const string ERROR_DEVICE_TOKEN_RETRIEVE = "Lấy token thiết bị thất bại!";
+        public const string SUCCESSFUL_APPROVE = "Phê duyệt thành công!";
     }
     public class ErrMessage
     {
@@ -195,6 +205,9 @@ public static class AppConstant
         public const string Send_Fail = "Gửi thất bại!";
         public const string InvalidData = "Dữ liệu không hợp lệ!";
         public const string InvalidFile = "Không có file";
+        
+        public const string InvalidToken = "Token không hợp lệ!";
+        public const string Not_Token_expired = "Token chưa hết hạn.";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
@@ -203,6 +216,7 @@ public static class AppConstant
 
         //Login
         public const string EmailExists = "Email đã tồn tại!";
+        public const string PhoneNumberExists = "Số điện thoại đã được sử dụng!";
         public const string AccountInActive = "Tài khoản bị khóa!";
         public const string InvalidPassword = "Mật khẩu không đúng!";
         public const string PasswordMismatch = "Mật khẩu không trùng khớp!";
@@ -244,7 +258,7 @@ public static class AppConstant
         public const string Invalid_ElectricityWater = "Cần cung cấp đủ bản vẽ điện & nước";
 
         //Quotation
-        public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ!";
+        public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ phù hợp(status finalized)!";
         public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
         public const string FinalQuotaionExists = "FinalQuotaion đã tồn tại.";
         public const string CreateFinalQuotaion = "Tạo FinalQuotaion thất bại.";
@@ -256,6 +270,12 @@ public static class AppConstant
         public const string InvalidPackageQuotation = "Bắt buộc phải có gói thi công! Hãy chọn gói thi công trước khi hoàn tất";
         public const string InvalidBatchPayment = "Các đợt thanh toán hợp đồng là bắt buộc!";
         public const string MaxVersionQuotation = "Báo giá đã đạt tới lần chỉnh sửa thứ 10, dự án sẽ bị hủy!";
+        public const string DuplicatedConstruction = "Hạng mục xây dựng bị trùng lặp!";
+        public const string DuplicatedUtility = "Tiện ích xây dựng bị trùng lặp!";
+        public const string DuplicatedEquiment = "Thiết bị xây dựng bị trùng lặp!";
+
+        //Contract
+        public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
 
         //Discount
         public const string InvalidDiscount = "Tiền giảm giá không hợp lệ!";
@@ -274,6 +294,7 @@ public static class AppConstant
         public const string NotFinishedContractDesign = "Hợp đồng thiết kế chưa được hoàn thành! " +
             "Hãy hoàn thành hợp đồng thiết kế trước khi phân công";
         public const string NotStartContractDesign = "Hợp đồng thiết chưa thống nhất! Hãy kí hợp đồng trước khi phân công!";
+        public const string RequestOverloadStaff = "Chỉ yêu cầu 1 nhân viên - 2 công việc, hiện tại đang việc quá 2 công việc!";
 
         //Package
         public const string CreatePackage = "Tạo packaget thất bại.";
@@ -314,8 +335,13 @@ public static class AppConstant
 
         //FinalQuotation
         public const string FinalQuotationExists = "FinalQuotation đã tồn tại.";
+        public const string FinalQuotationUpdateFailed = "FinalQuotation cập nhật thất bại.";
+        //InitalQuotation
+        public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
+        //
 
-
+        //Room
+        public const string Room_Not_Found = "Phòng không tồn tại!";
     }
 }
 

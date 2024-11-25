@@ -113,6 +113,22 @@ namespace RHCQS_Services.Implement
                     }
                     drawingInfo.Status = AppConstant.HouseDesignStatus.REVIEWING;
 
+                    //Update project status Processing -> Designed
+                    if (drawingInfo.Step == 4)
+                    {
+                        var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                        predicate: p => p.Id == drawingInfo.ProjectId, 
+                                        include: p => p.Include(p => p.Contracts));
+                        if (projectInfo == null)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
+                        }
+                        projectInfo.Status = AppConstant.ProjectStatus.DESIGNED;
+                        projectInfo.Contracts.FirstOrDefault(contract => contract.Type == AppConstant.ContractType.Design.ToString())!.Status 
+                            = AppConstant.ContractStatus.COMPLETED;
+                        _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
+                    }
+
                     _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(drawingInfo);
 
                     //Create media save file
@@ -145,6 +161,22 @@ namespace RHCQS_Services.Implement
                     //Update status in house desgin draw previous
                     availableDrawing!.HouseDesignDrawing.Status = AppConstant.Status.UPDATED;
 
+                    //Update project status Processing -> Designed
+                    if (availableDrawing.HouseDesignDrawing.Step == 4)
+                    {
+                        var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                        predicate: p => p.Id == availableDrawing.HouseDesignDrawing.ProjectId,
+                                        include: p => p.Include(p => p.Contracts));
+                        if (projectInfo == null)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
+                        }
+                        projectInfo.Status = AppConstant.ProjectStatus.DESIGNED;
+                        projectInfo.Contracts.FirstOrDefault(contract => contract.Type == AppConstant.ContractType.Design.ToString())!.Status
+                            = AppConstant.ContractStatus.COMPLETED;
+                        _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
+                    }
+
                     _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(availableDrawing);
 
                     await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesignUpdate);
@@ -160,6 +192,9 @@ namespace RHCQS_Services.Implement
                     };
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
                 }
+
+               
+
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 if (isSuccessful)
                 {
@@ -223,7 +258,7 @@ namespace RHCQS_Services.Implement
             itemDrawing.HouseDesignDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
             itemDrawing.UpsDate = LocalDateTime.VNDateTime();
 
-            _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(itemDrawing);
+           
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;
             return isUpdate;
         }

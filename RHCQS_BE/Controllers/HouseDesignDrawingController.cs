@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
@@ -17,10 +18,13 @@ namespace RHCQS_BE.Controllers
     public class HouseDesignDrawingController : ControllerBase
     {
         private readonly IHouseDesignDrawingService _houseService;
-
-        public HouseDesignDrawingController(IHouseDesignDrawingService houseService)
+        private readonly IFirebaseService _firebaseService;
+        private readonly IAccountService _accountService;
+        public HouseDesignDrawingController(IHouseDesignDrawingService houseService, IFirebaseService firebaseService, IAccountService accountService)
         {
             _houseService = houseService;
+            _firebaseService = firebaseService;
+            _accountService = accountService;
         }
 
         #region GetListHouseDesignDrawing
@@ -283,6 +287,24 @@ namespace RHCQS_BE.Controllers
             var design = await _houseService.ConfirmDrawingAvaliable(versionId, request);
             if (design == null) return NotFound(new { message = AppConstant.ErrMessage.HouseDesignDrawing });
             var result = JsonConvert.SerializeObject(design, Formatting.Indented);
+
+            var detail = await _houseService.GetDetailHouseDesignDrawing(versionId);
+
+            var customerEmail = await _accountService.GetEmailByProjectIdAsync(detail.ProjectId);
+            var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
+            var notificationRequest = new NotificationRequest
+            {
+                Email = customerEmail,
+                DeviceToken = deviceToken,
+                Title = "Bản vẽ có cập nhật",
+                Body = $"Bản vẽ có cập nhật có cập nhật mới bạn cần xem."
+            };
+            await _firebaseService.SendNotificationAsync(
+                notificationRequest.Email,
+                notificationRequest.DeviceToken,
+                notificationRequest.Title,
+                notificationRequest.Body
+            );
             return new ContentResult()
             {
                 Content = result,
