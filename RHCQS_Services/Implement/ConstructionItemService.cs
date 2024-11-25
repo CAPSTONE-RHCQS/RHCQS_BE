@@ -185,22 +185,22 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var normalizedName = name.RemoveDiacritics();
+                var normalizedName = name.RemoveDiacritics().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
                     .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
 
                 var filteredItems = constructionItems
-                    .Where(con =>
-                        (con.Name != null && con.Name.RemoveDiacritics().Contains(normalizedName)) ||
-                        con.SubConstructionItems.Any(sub => sub.Name.RemoveDiacritics().Contains(normalizedName)))
-                    .ToList();
+                  .Where(con =>
+                      (!string.IsNullOrEmpty(con.Name) && con.Name.RemoveDiacritics().ToLower().Contains(normalizedName)) ||
+                      con.SubConstructionItems.Any(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName)))
+                  .ToList();
 
                 return filteredItems.SelectMany(constructionItem =>
                 {
 
                     var matchingSubConstructions = constructionItem.SubConstructionItems
-                        .Where(sub => sub.Name.RemoveDiacritics().Contains(normalizedName))
+                        .Where(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
                         .Select(subConstruction => new AutoConstructionResponse(
                             constructionItem.Id,
                             subConstructionId: subConstruction.Id,

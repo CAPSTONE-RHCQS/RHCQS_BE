@@ -370,48 +370,44 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var normalizedName = name.RemoveDiacritics();
+                var normalizedName = name.RemoveDiacritics().ToLower();
 
-                var utilityItems = await _unitOfWork.GetRepository<UtilitiesSection>()
+                var utilitySections = await _unitOfWork.GetRepository<UtilitiesSection>()
                     .GetListAsync(include: con => con.Include(c => c.UtilitiesItems));
 
-                var filteredItems = utilityItems
-                    .Where(con =>
-                        (con.Name != null && con.Name.RemoveDiacritics().Contains(normalizedName)) ||
-                        con.UtilitiesItems.Any(sub => sub.Name.RemoveDiacritics().Contains(normalizedName)))
-                    .ToList();
-
-                return filteredItems.SelectMany(utilityItems =>
+                var filteredItems = utilitySections.SelectMany(utilitySection =>
                 {
-
-                    var matchingUtilityItem = utilityItems.UtilitiesItems
-                        .Where(item => item.Name!.RemoveDiacritics().Contains(normalizedName))
-                        .Select(utilityItems => new AutoUtilityResponse(
-                            utilitySectionId: utilityItems.Section.Id,
-                            utilityItemId: utilityItems.Id,
-                            name: utilityItems.Name!,
-                            coefficient: utilityItems.Coefficient,
+                    var matchingUtilityItems = utilitySection.UtilitiesItems
+                        .Where(item => !string.IsNullOrEmpty(item.Name) &&
+                                       item.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
+                        .Select(utilityItem => new AutoUtilityResponse(
+                            utilitySectionId: utilityItem.SectionId,
+                            utilityItemId: utilityItem.Id,
+                            name: utilityItem.Name!,
+                            coefficient: utilityItem.Coefficient,
                             unitPrice: 0
                         )).ToList();
 
-
-                    if (!matchingUtilityItem.Any() && utilityItems.Name!.RemoveDiacritics().Contains(normalizedName))
+                    if (!matchingUtilityItems.Any() && !string.IsNullOrEmpty(utilitySection.Name) &&
+                        utilitySection.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
                     {
-                        matchingUtilityItem.Add(new AutoUtilityResponse(
-                            utilitySectionId: utilityItems.Id,
+                        matchingUtilityItems.Add(new AutoUtilityResponse(
+                            utilitySectionId: utilitySection.Id,
                             utilityItemId: null,
-                            name: utilityItems.Name!,
+                            name: utilitySection.Name!,
                             coefficient: 0,
-                            unitPrice: utilityItems.UnitPrice
+                            unitPrice: utilitySection.UnitPrice
                         ));
                     }
 
-                    return matchingUtilityItem;
+                    return matchingUtilityItems;
                 }).ToList();
+
+                return filteredItems;
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new Exception($"An error occurred while fetching utility details: {ex.Message}");
             }
         }
     }

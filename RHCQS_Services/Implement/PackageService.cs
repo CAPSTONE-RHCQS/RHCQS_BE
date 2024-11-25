@@ -412,16 +412,18 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var normalizedName = name.RemoveDiacritics();
+                var normalizedSearch = name.RemoveDiacritics().ToLower();
 
                 var packageItems = await _unitOfWork.GetRepository<Package>()
-                    .GetListAsync(predicate: p => p.Status == AppConstant.General.Active || p.PackageType.Name!.ToLower() == name.ToLower(),
-                                   include: p => p.Include(p => p.PackageType));
+                    .GetListAsync(predicate: p => p.Status == AppConstant.General.Active,
+                                  include: p => p.Include(p => p.PackageType));
 
                 var filteredItems = packageItems
                     .Where(con =>
-                        con.PackageName != null && con.PackageName.RemoveDiacritics().Contains(normalizedName) ||
-                                                   con.PackageType.Name.ToLower().RemoveDiacritics().Contains(normalizedName.ToLower()))
+                        !string.IsNullOrEmpty(con.PackageName) &&
+                        con.PackageName.RemoveDiacritics().ToLower().Contains(normalizedSearch) ||
+                        !string.IsNullOrEmpty(con.PackageType.Name) &&
+                        con.PackageType.Name.RemoveDiacritics().ToLower().Contains(normalizedSearch))
                     .ToList();
 
                 return filteredItems.Select(packageItem => new AutoPackageResponse(
