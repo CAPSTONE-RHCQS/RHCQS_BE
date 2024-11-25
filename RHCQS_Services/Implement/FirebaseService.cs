@@ -100,8 +100,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> SendNotificationAsync(string email, string deviceToken, string title, string body)
         {
-            //try
-            //{
+            try
+            {
                 var message = new Message()
                 {
                     Token = deviceToken,
@@ -117,12 +117,12 @@ namespace RHCQS_Services.Implement
                 await SaveNotificationAsync(email, deviceToken, title, body);
 
                 return response;
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine($"Error sending notification: {ex.Message}");
-            //    throw new Exception("Failed to send notification", ex);
-            //}
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error sending notification: {ex.Message}");
+                throw new Exception("Failed to send notification", ex);
+            }
         }
         public async Task<List<NotificationResponse>> GetNotificationsAsync(string email)
         {
