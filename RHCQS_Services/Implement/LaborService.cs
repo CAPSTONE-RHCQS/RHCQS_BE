@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OfficeOpenXml;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
@@ -141,6 +143,50 @@ namespace RHCQS_Services.Implement
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate)
             );
+        }
+
+        public async Task<bool> ImportLaborFromExcel(IFormFile excelFile)
+        {
+            try
+            {
+                if (excelFile == null || excelFile.Length == 0)
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "No file uploaded");
+
+                using (var stream = new MemoryStream())
+                {
+                    await excelFile.CopyToAsync(stream);
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        var worksheet = package.Workbook.Worksheets[0]; 
+                        var rowCount = worksheet.Dimension.Rows;
+
+                        for (int row = 2; row <= rowCount; row++) 
+                        {
+                            var labor = new Labor
+                            {
+                                Id = Guid.NewGuid(),
+                                Name = worksheet.Cells[row, 1].Value?.ToString(),
+                                Price = Convert.ToDouble(worksheet.Cells[row, 2].Value ?? 0),
+                                Deflag = Convert.ToBoolean(worksheet.Cells[row, 3].Value ?? false),
+                                Type = worksheet.Cells[row, 4].Value?.ToString(),
+                                Code = worksheet.Cells[row, 5].Value?.ToString(),
+                                InsDate = LocalDateTime.VNDateTime(),
+                                UpsDate = LocalDateTime.VNDateTime()
+                            };
+
+                            await _unitOfWork.GetRepository<Labor>().InsertAsync(labor);
+                        }
+
+                        return await _unitOfWork.CommitAsync() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"Error while importing data: {ex.Message}");
+            }
         }
     }
 }

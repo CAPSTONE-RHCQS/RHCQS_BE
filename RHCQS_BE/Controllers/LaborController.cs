@@ -98,6 +98,36 @@ namespace RHCQS_BE.Controllers
             return isCreated ? Ok(isCreated) : BadRequest();
         }
 
+        #region ImportLaborFromExcel
+        /// <summary>
+        /// Imports labor data from an Excel file.
+        /// </summary>
+        /// <remarks>
+        /// Upload an Excel file with the following format:
+        /// Column 1: Name (string)  
+        /// Column 2: Price (double)  
+        /// Column 3: Deflag (bool)  
+        /// Column 4: Type (string)  
+        /// Column 5: Code (string)
+        /// </remarks>
+        /// <param name="file">Excel file containing labor data</param>
+        /// <returns>Returns true if the data is imported successfully, otherwise false</returns>
+        /// <response code="200">Data imported successfully</response>
+        /// <response code="400">Failed to import data</response>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Labor.ImportExcel)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ImportLaborFromExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            var isImported = await _laborService.ImportLaborFromExcel(file);
+            return isImported ? Ok(true) : BadRequest("Failed to import data");
+        }
+
         #region UpdateLabor
         /// <summary>
         /// Updates an existing labor.

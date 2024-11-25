@@ -249,6 +249,7 @@ namespace RHCQS_BE.Extenstion
             public const string LaborListEndpoint = ApiEndpoint + "/alllabors";
             public const string SearchLaborEndpoint = LaborEndpoint + "/name";
             public const string LaborDetailEndpoint = LaborEndpoint + "/id";
+            public const string ImportExcel = "api/v1/labor/import-excel";
         }
 
         public static class MaterialType

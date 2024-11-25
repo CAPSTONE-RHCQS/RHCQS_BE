@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
@@ -18,5 +19,6 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateLabor(LaborRequest request);
         Task<bool> UpdateLabor(Guid id, LaborRequest request);
         Task<List<LaborResponse>> SearchLaborByName(string name);
+        Task<bool> ImportLaborFromExcel(IFormFile excelFile);
     }
 }
