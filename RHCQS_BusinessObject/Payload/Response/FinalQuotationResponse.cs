@@ -352,7 +352,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class UtilityInf
     {
         public UtilityInf(Guid id, Guid? utilitiesItemId, Guid? utilitiesSectionId, string name, string description,
-            double coefficient, double price, double unitPrice, string unit, int quantity)
+            double coefficient, double price, double unitPrice, string unit, int? quantity)
         {
             Id = id;
             this.utilitiesItemId = utilitiesItemId;
@@ -375,7 +375,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double Price { get; set; }
         public double UnitPrice { get; set; }
         public string Unit { get; set; }
-        public int Quantity { get; set; }
+        public int? Quantity { get; set; }
     }
     public class HouseDrawingVersionInf
     {

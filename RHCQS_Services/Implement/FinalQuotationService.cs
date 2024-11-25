@@ -1313,7 +1313,7 @@ namespace RHCQS_Services.Implement
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
                     qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
-                    qUtility.Quanity ?? 0
+                    qUtility.Quanity ?? null
                 )).ToList() ?? new List<UtilityInf>();
 
                 var constructionRough = finalQuotationItemsList
@@ -1614,7 +1614,7 @@ namespace RHCQS_Services.Implement
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
                     qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
-                    qUtility.Quanity ?? 0
+                    qUtility.Quanity ?? null
                 )).ToList() ?? new List<UtilityInf>();
 
                 var constructionRough = finalQuotationItemsList
