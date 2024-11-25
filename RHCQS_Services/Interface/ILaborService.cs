@@ -17,6 +17,6 @@ namespace RHCQS_Services.Interface
         Task<LaborResponse> GetDetailLabor(Guid id);
         Task<bool> CreateLabor(LaborRequest request);
         Task<bool> UpdateLabor(Guid id, LaborRequest request);
-        Task<List<LaborResponse>> SearchLaborByName(string name);
+        Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string name);
     }
 }
