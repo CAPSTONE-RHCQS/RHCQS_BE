@@ -104,16 +104,15 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
     public class UtilitiesUpdateRequestForFinal
     {
+        [Required(ErrorMessage = "UltilitiesItemId là bắt buộc.")]
         public Guid UtilitiesItemId { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
         public double? Coefficient { get; set; }
 
-        [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
-
         public string? Description { get; set; }
-        [Range(1, double.MaxValue, ErrorMessage = "Số lượng là một số dương.")]
         public int? Quantity { get; set; }
 
     }
