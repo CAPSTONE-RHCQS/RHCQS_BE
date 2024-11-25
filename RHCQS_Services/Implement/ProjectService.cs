@@ -569,13 +569,14 @@ namespace RHCQS_Services.Implement
 
             var initialResponse = await GetInitialQuotationResponse(projectId);
             var finalResponse = await GetFinalQuotationResponse(projectId);
-
+            var processingResponse = await GetContractResponse<ContractProcessingAppResponse>(projectId,
+                   AppConstant.ContractType.Construction.ToString());
             if (projectTrack.IsDrawing == true)
             {
                 var contractDesignResponse = await GetContractResponse<ContractDesignAppResponse>(projectId, 
                     AppConstant.ContractType.Design.ToString());
-                var processingResponse = await GetContractResponse<ContractProcessingAppResponse>(projectId, 
-                    AppConstant.ContractType.Construction.ToString());
+               
+               
 
                 return new ProjectAppResponse(
                     initialResponse,
@@ -583,13 +584,19 @@ namespace RHCQS_Services.Implement
                     finalResponse,
                     processingResponse
                 );
+            } else
+            {
+                if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
+                {
+                    processingResponse.Status = AppConstant.ContractStatus.PROCESSING;
+                }
             }
 
             return new ProjectAppResponse(
                 initialResponse,
                 null,
                 finalResponse,
-                null
+                processingResponse
             );
         }
 
