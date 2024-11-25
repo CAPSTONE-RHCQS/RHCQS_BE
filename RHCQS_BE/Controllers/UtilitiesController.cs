@@ -304,7 +304,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="404">Not Found. No utility section with the given name was found.</response>
         /// <returns>A utility section object with associated utility items.</returns>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityAutoCharacterEndpoint)]
         [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailUtilityByContainName(string name)

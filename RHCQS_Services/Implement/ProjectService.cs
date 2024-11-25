@@ -415,7 +415,8 @@ namespace RHCQS_Services.Implement
                                 Description = sectionItem.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = sectionItem.Id
+                                UtilitiesSectionId = sectionItem.Id,
+                                Quanity = utl.Quantity ?? 0
                             };
                         }
                         else
@@ -434,7 +435,8 @@ namespace RHCQS_Services.Implement
                                 Description = utilityItem.Name,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilityItem.SectionId
+                                UtilitiesSectionId = utilityItem.SectionId,
+                                Quanity = utl.Quantity ?? 0
                             };
                         }
 

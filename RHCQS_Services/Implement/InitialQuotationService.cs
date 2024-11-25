@@ -107,7 +107,8 @@ namespace RHCQS_Services.Implement
                             item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
-                            item.Price ?? 0
+                            item.Price ?? 0,
+                            item.Quanity ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
@@ -221,7 +222,8 @@ namespace RHCQS_Services.Implement
                             item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
-                            item.Price ?? 0
+                            item.Price ?? 0,
+                            item.Quanity ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
@@ -330,7 +332,8 @@ namespace RHCQS_Services.Implement
                             item.UtilitiesSectionId,
                             item.Description ?? string.Empty,
                             item.Coefficient ?? 0,
-                            item.Price ?? 0
+                            item.Price ?? 0,
+                            item.Quanity ?? 0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
@@ -976,7 +979,8 @@ namespace RHCQS_Services.Implement
                                 Description = sectionItem.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = sectionItem.Id
+                                UtilitiesSectionId = sectionItem.Id,
+                                Quanity = utl.Quantity
                             };
                         }
                         else
@@ -995,7 +999,8 @@ namespace RHCQS_Services.Implement
                                 Description = null,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilityItem.SectionId
+                                UtilitiesSectionId = utilityItem.SectionId,
+                                Quanity = utl.Quantity
                             };
                         }
 

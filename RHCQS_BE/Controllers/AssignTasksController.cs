@@ -43,5 +43,28 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region ListStaffSalesAvailable
+        /// <summary>
+        /// Retrieves a list of available sale staff work assignments.
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet(ApiEndPointConstant.AssignTask.AssignTaskSaleStaffAvailableEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ListStaffSalesAvailable()
+        {
+            var list = await _assignService.ListStaffSalesAvailable();
+            var result = JsonConvert.SerializeObject(list, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

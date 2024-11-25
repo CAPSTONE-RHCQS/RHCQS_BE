@@ -11,6 +11,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IAssignTaskService
     {
+        Task<List<AccountResponse>> ListStaffSalesAvailable();
         Task<List<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable();
     }
 }

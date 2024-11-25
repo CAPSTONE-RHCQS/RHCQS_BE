@@ -27,50 +27,43 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        //public async Task<IPaginate<AssignTaskResponse>> GetListAssignTaskAll(int page, int size)
-        //{
-        //    var listTask = await _unitOfWork.GetRepository<AssignTask>().GetList(
-        //        selector: a => new AssignTaskResponse (a.Id, a.AccountId, a.Account.Username, a.Name, a.Status, a.InsDate),
-        //        include: a => a.Include( a => a.Account),
-        //        page: page,
-        //        size: size
-        //        );
-        //    return listTask;
-        //}
+        public async Task<List<AccountResponse>> ListStaffSalesAvailable()
+        {
+            try
+            {
+                var listSales = await _unitOfWork.GetRepository<Account>().GetListAsync(
+                predicate: x => x.RoleId == Guid.Parse("9959CE96-DE26-40A7-B8A7-28A704062E89"),
+                include: x => x.Include(x => x.AssignTasks!)
+                               .ThenInclude(assignTask => assignTask.Project!)
+                               .Include(x => x.Role));
 
-        //public async Task<bool> AssignWork(List<AssignTaskRequest> request)
-        //{
-        //    foreach(var itemTask in request)
-        //    {
-        //        var task = new AssignTask
-        //        {
-        //            Id = Guid.NewGuid(),
-        //            AccountId = itemTask.AccountId,
-        //            Name = "",
-        //            Status = "Pending",
-        //            InsDate = LocalDateTime.VNDateTime()
-        //        };
-        //        await _unitOfWork.GetRepository<AssignTask>().InsertAsync(task);
+                var accounts = listSales.Where(account => account.AssignTasks
+                                                .Select(assignTask => assignTask.ProjectId)
+                                   .Distinct().Count() < 2);
 
-        //        var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-        //            .FirstOrDefaultAsync(x => x.Id.Equals(itemTask.HouseDesignDrawingId));
+                var accountResponses = accounts.Select(account => new AccountResponse(
+                    id: account.Id,
+                    username: account.Username,
+                    phoneNumber: account.PhoneNumber,
+                    dateOfBirth: account.DateOfBirth,
+                    passwordHash: account.PasswordHash,
+                    email: account.Email,
+                    imageUrl: account.ImageUrl,
+                    deflag: account.Deflag,
+                    rolename: account.Role?.RoleName, 
+                    roleId: account.RoleId,
+                    insDate: account.InsDate,
+                    upsDate: account.UpsDate
+                )).ToList();
 
-        //        //Update AssignTaskId in table HouseDesignDrawing
-        //        if (drawingItem != null)
-        //        {
-        //            drawingItem.AssignTaskId = task.Id;
-        //            _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(drawingItem);
-        //        }
-        //    }
+                return accountResponses; 
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An error occurred while fetching staff sales: {ex.Message}");
+            }
+        }
 
-
-        //    bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-        //    if (isSuccessful)
-        //    {
-        //        return true;
-        //    }
-        //    return false;
-        //}
 
         public async Task<List<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable()
         {
