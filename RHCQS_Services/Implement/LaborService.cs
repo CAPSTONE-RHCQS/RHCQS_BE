@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.Mate;
@@ -161,14 +162,29 @@ namespace RHCQS_Services.Implement
                 {
                     await excelFile.CopyToAsync(stream);
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
                     using (var package = new ExcelPackage(stream))
                     {
                         var worksheet = package.Workbook.Worksheets[0]; 
                         var rowCount = worksheet.Dimension.Rows;
 
-                        for (int row = 2; row <= rowCount; row++) 
+                        var newCodes = new HashSet<string>(); // Danh sách kiểm tra mã trùng trong file
+
+                        for (int row = 2; row <= rowCount; row++) // Bỏ qua tiêu đề
                         {
+                            var code = worksheet.Cells[row, 5].Value?.ToString(); // Giả sử mã Code nằm ở cột 5
+
+                            // Kiểm tra trùng lặp mã Code trong database hoặc trong danh sách tạm
+                            if (await _unitOfWork.GetRepository<Labor>().AnyAsync(l => l.Code == code) || newCodes.Contains(code))
+                            {
+                                throw new AppConstant.MessageError(
+                                    (int)AppConstant.ErrCode.Conflict,
+                                    $"Duplicate code found: {code}. Please upload another file."
+                                );
+                            }
+
+                            // Thêm mã vào danh sách tạm thời
+                            newCodes.Add(code);
+
                             var labor = new Labor
                             {
                                 Id = Guid.NewGuid(),
@@ -176,7 +192,7 @@ namespace RHCQS_Services.Implement
                                 Price = Convert.ToDouble(worksheet.Cells[row, 2].Value ?? 0),
                                 Deflag = Convert.ToBoolean(worksheet.Cells[row, 3].Value ?? false),
                                 Type = worksheet.Cells[row, 4].Value?.ToString(),
-                                Code = worksheet.Cells[row, 5].Value?.ToString(),
+                                Code = code,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime()
                             };
@@ -184,9 +200,14 @@ namespace RHCQS_Services.Implement
                             await _unitOfWork.GetRepository<Labor>().InsertAsync(labor);
                         }
 
+
                         return await _unitOfWork.CommitAsync() > 0;
                     }
                 }
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"Duplicate code found. Please upload another file.");
             }
             catch (Exception ex)
             {

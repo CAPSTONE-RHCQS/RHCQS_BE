@@ -31,6 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\RHCQS_BusinessObject\RHCQS_BusinessObject.csproj" />
 		<ProjectReference Include="..\RHCQS_Services\RHCQS_Services.csproj" />
 	</ItemGroup>
 

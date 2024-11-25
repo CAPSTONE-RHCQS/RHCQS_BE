@@ -208,7 +208,7 @@ namespace RHCQS_Services.Implement
                     ImgUrl = x.ImgUrl,
                     Description = x.Description,
                     IsAvailable = x.IsAvailable,
-                    UnitPrice = x.UnitPrice,
+                    UnitPrice = x.UnitPrice, 
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
                     MaterialSectionType = x.MaterialSection.Type,
@@ -219,7 +219,7 @@ namespace RHCQS_Services.Implement
                 include: m => m.Include(m => m.MaterialSection)
                                .Include(m => m.Supplier),
                 orderBy: x => x.OrderBy(x => x.InsDate)
-            ); 
+            );
         }
 
         public async Task<List<MaterialResponse>> FilterMaterialBySection(Guid materialSectionId)
