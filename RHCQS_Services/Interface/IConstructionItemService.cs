@@ -16,7 +16,7 @@ namespace RHCQS_Services.Interface
         Task<List<ConstructionItemResponse>> GetListConstructionRough(string type);
         Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id);
         Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name);
-        Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string type, string name);
+        Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string name);
 
         Task<bool> CreateConstructionItem(ConstructionItemRequest item);
         Task<bool> UpdateConstruction(Guid id, UpdateConstructionRequest request);

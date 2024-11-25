@@ -393,7 +393,6 @@ namespace RHCQS_Services.Implement
             return true; 
         }
 
-
         public async Task<List<ListHouseDesginResponse>> GetListTaskByAccount(Guid accountId)
         {
             var listTask = (await _unitOfWork.GetRepository<HouseDesignDrawing>().GetList(

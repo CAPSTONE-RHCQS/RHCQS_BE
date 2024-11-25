@@ -9,12 +9,13 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
 {
     public class AutoConstructionResponse
     {
-        public AutoConstructionResponse(Guid id, Guid? subConstructionId, string? name, double? coefficient)
+        public AutoConstructionResponse(Guid id, Guid? subConstructionId, string? name, double? coefficient, string type)
         {
             Id = id;
             SubConstructionId = subConstructionId;
             Name = name;
             Coefficient = coefficient;
+            Type = type;
         }
         public Guid Id { get; set; }
 
@@ -23,6 +24,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
         public string? Name { get; set; }
 
         public double? Coefficient { get; set; }
+        public string Type { get; set; }
     }
 
     public class AutoSubConstructionResponse
