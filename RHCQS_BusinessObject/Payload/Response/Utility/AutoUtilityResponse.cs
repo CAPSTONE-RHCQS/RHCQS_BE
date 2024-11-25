@@ -8,14 +8,15 @@ namespace RHCQS_BusinessObject.Payload.Response.Utility
 {
     public class AutoUtilityResponse
     {
-        public AutoUtilityResponse(Guid utilitySectionId,
+        public AutoUtilityResponse(
+            Guid utilitySectionId,
             Guid? utilityItemId,
             string name,
             double? coefficient,
             double? unitPrice)
         {
             UtilitySectionId = utilitySectionId;
-            UtilityItemId = UtilityItemId; 
+            UtilityItemId = utilityItemId; 
             Name = name;
             Coefficient = coefficient;
             UnitPrice = unitPrice;

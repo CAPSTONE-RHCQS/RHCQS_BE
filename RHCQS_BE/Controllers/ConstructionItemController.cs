@@ -146,7 +146,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item construction in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionContainNameEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItemByContainName(string name)
