@@ -106,15 +106,15 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
     {
         public Guid UtilitiesItemId { get; set; }
 
-        /*        public string? Name { get; set; }*/
-
-/*        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
-        public double? Coefficient { get; set; }*/
+        [Range(0, double.MaxValue, ErrorMessage = "Hệ số phải là một số dương.")]
+        public double? Coefficient { get; set; }
 
         [Range(1, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
         public double? Price { get; set; }
 
-        /*        public string? Description { get; set; }*/
+        public string? Description { get; set; }
+        [Range(1, double.MaxValue, ErrorMessage = "Số lượng là một số dương.")]
+        public int? Quantity { get; set; }
 
     }
     public class QuotationItemRequest

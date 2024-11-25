@@ -605,16 +605,17 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = item?.Id ?? null,
                                 FinalQuotationId = finalQuotation.Id,
                                 Name = item?.Name ?? itemOption?.Name ?? utilitiesSection.Name ?? string.Empty,
-                                Coefficient = item?.Coefficient ?? 0,
+                                Coefficient = utility.Coefficient ?? 0,
                                 Price = utility.Price,
-                                Description = utilitiesSection.Description,
+                                Description = utility.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilitiesSection.Id
+                                UtilitiesSectionId = utilitiesSection.Id,
+                                Quanity = utility.Quantity
                             };
 
                             // Update totalUtilities based on available coefficient from item or itemOption
-                            var coefficient = item?.Coefficient ?? 0;
+                            //var coefficient = item?.Coefficient ?? 0;
                             totalUtilities += /*(coefficient != 0) ? utility.Price * coefficient :*/ utility.Price;
                         }
                         else
@@ -626,12 +627,13 @@ namespace RHCQS_Services.Implement
                                 UtilitiesItemId = utilityItem.Id,
                                 FinalQuotationId = finalQuotation.Id,
                                 Name = utilityItem.Name ?? string.Empty,
-                                Coefficient = utilityItem.Coefficient,
+                                Coefficient = utility.Coefficient,
                                 Price = utility.Price,
-                                Description = section.Description,
+                                Description = utility.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilityItem.SectionId
+                                UtilitiesSectionId = utilityItem.SectionId,
+                                Quanity = utility.Quantity
                             };
                             totalUtilities += utility.Price;
                         }
@@ -1310,7 +1312,8 @@ namespace RHCQS_Services.Implement
                     qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
+                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
+                    qUtility.Quanity ?? 0
                 )).ToList() ?? new List<UtilityInf>();
 
                 var constructionRough = finalQuotationItemsList
@@ -1610,7 +1613,8 @@ namespace RHCQS_Services.Implement
                     qUtility.Coefficient ?? 0,
                     qUtility.Price ?? 0,
                     qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty
+                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
+                    qUtility.Quanity ?? 0
                 )).ToList() ?? new List<UtilityInf>();
 
                 var constructionRough = finalQuotationItemsList
