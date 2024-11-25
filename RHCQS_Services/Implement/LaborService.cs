@@ -167,13 +167,12 @@ namespace RHCQS_Services.Implement
                         var worksheet = package.Workbook.Worksheets[0]; 
                         var rowCount = worksheet.Dimension.Rows;
 
-                        var newCodes = new HashSet<string>(); // Danh sách kiểm tra mã trùng trong file
+                        var newCodes = new HashSet<string>(); 
 
-                        for (int row = 2; row <= rowCount; row++) // Bỏ qua tiêu đề
+                        for (int row = 2; row <= rowCount; row++) 
                         {
-                            var code = worksheet.Cells[row, 5].Value?.ToString(); // Giả sử mã Code nằm ở cột 5
+                            var code = worksheet.Cells[row, 5].Value?.ToString(); 
 
-                            // Kiểm tra trùng lặp mã Code trong database hoặc trong danh sách tạm
                             if (await _unitOfWork.GetRepository<Labor>().AnyAsync(l => l.Code == code) || newCodes.Contains(code))
                             {
                                 throw new AppConstant.MessageError(
@@ -182,7 +181,6 @@ namespace RHCQS_Services.Implement
                                 );
                             }
 
-                            // Thêm mã vào danh sách tạm thời
                             newCodes.Add(code);
 
                             var labor = new Labor
