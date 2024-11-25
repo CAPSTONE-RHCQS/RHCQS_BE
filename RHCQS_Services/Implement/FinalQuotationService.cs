@@ -789,8 +789,8 @@ namespace RHCQS_Services.Implement
                             }
                     };
 
-                    //string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-                    //NativeLibrary.Load(dllPath);
+                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
                     //Upload cloudinary
