@@ -68,6 +68,8 @@ namespace RHCQS_Services.Implement
                                        .Include(x => x.Promotion)
                                        .Include(x => x.QuotationUtilities)
                                             .ThenInclude(x => x.UtilitiesItem)
+                                        .Include(x => x.QuotationUtilities)
+                                            .ThenInclude(x => x.UtilitiesSection)
                                        .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Payment!)
                 );
@@ -108,7 +110,8 @@ namespace RHCQS_Services.Implement
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
-                            item.Quanity ?? 0
+                            item.Quanity ?? 0,
+                            item.UtilitiesSection.UnitPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
@@ -179,6 +182,8 @@ namespace RHCQS_Services.Implement
                                        .Include(x => x.Promotion)
                                        .Include(x => x.QuotationUtilities)
                                             .ThenInclude(x => x.UtilitiesItem)
+                                       .Include(x => x.QuotationUtilities)
+                                            .ThenInclude(x => x.UtilitiesSection)
                                        .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Payment!)
                 );
@@ -224,7 +229,8 @@ namespace RHCQS_Services.Implement
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
-                            item.Quanity ?? 0
+                            item.Quanity ?? 0,
+                            item.UtilitiesSection.UnitPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
@@ -334,7 +340,8 @@ namespace RHCQS_Services.Implement
                             item.Description ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
-                            item.Quanity ?? 0
+                            item.Quanity ?? 0,
+                            item.UtilitiesItem.Section.UnitPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
