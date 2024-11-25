@@ -223,16 +223,16 @@ public static class AppConstant
         public const string Not_Found_Account = "Tài khoản không tồn tại!";
         public const string RoleNotFound = "Role này không tồn tại!";
         public const string CreateAccountError = "Tạo tài khoản thất bại!";
-        public const string NullValue = "Invalid input: Field cannot be empty";
+        public const string NullValue = "Thông tin nhập không hợp lệ: Trường không được để trống";
 
         //Acount
         public const string AccountIdError = "AccounntId không hợp lệ (phải theo kiểu Gui)!";
-        public const string PageAndSizeError = "Page and size must be greater than 0!";
-        public const string FailedToGetList = "Lấy danh sách account thất bại!";
-        public const string BanAccount = "Ban tài khoản thất bại!";
+        public const string PageAndSizeError = "Trang và kích thước phải lớn hơn 0!";
+        public const string FailedToGetList = "Lấy danh sách tài khoản thất bại!";
+        public const string BanAccount = "Cấm tài khoản thất bại!";
         public const string UpdateAccount = "Cập nhật tài khoản thất bại!";
         public const string UpdatePasswordFailed = "Cập nhật mật khẩu thất bại!";
-        public const string IncorrectPassword = "Password cũ không đúng!";
+        public const string IncorrectPassword = "Mật khẩu cũ cũ không đúng!";
         public const string Invalid_Customer = "Khách hàng không tồn tại trong hệ thống!";
 
         //HouseTemplate
@@ -241,10 +241,10 @@ public static class AppConstant
         public const string Not_Found_DesignDrawing = "Không tìm thấy bản vẽ!";
         public const string UpdateTempalte = "Cập nhật mẫu nhà thất bại!";
         public const string DesignTemplate = "Mẫu nhà này đã tồn tại!";
-        public const string TemplateItem = "Tempalate item này đã tồn tại!";
-        public const string SubTemplateItem = "SubTempalate item này đã tồn tại!";
-        public const string TemplateItemNotFound = "TemplateItem không tìm thấy.";
-        public const string SubTemplateNotFound = "SubTemplate không tìm thấy.";
+        public const string TemplateItem = "Mục mẫu này đã tồn tại!";
+        public const string SubTemplateItem = "Mục mẫu con này đã tồn tại!";
+        public const string TemplateItemNotFound = "Mục mẫu không tìm thấy.";
+        public const string SubTemplateNotFound = "Mục mẫu con không tìm thấy.";
 
         //House Design Drawing Version
         public const string FailUploadDrawing = "Cập nhập bản vẽ thất bại!";
@@ -258,12 +258,12 @@ public static class AppConstant
         public const string Invalid_ElectricityWater = "Cần cung cấp đủ bản vẽ điện & nước";
 
         //Quotation
-        public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ phù hợp(status finalized)!";
+        public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ phù hợp(trạng thái hoàn thành)!";
         public const string Not_Found_FinalQuotaion = "Không tìm thấy báo giá chi tiết!";
-        public const string FinalQuotaionExists = "FinalQuotaion đã tồn tại.";
-        public const string CreateFinalQuotaion = "Tạo FinalQuotaion thất bại.";
-        public const string CancelFinalQuotaion = "Cancel FinalQuotaion thất bại.";
-        public const string CancelFinalQuotaionAlready = "Quotes không thể cancel được vì status không phù hợp.";
+        public const string FinalQuotaionExists = "Báo giá chi tiết đã tồn tại.";
+        public const string CreateFinalQuotaion = "Tạo Báo giá chi tiết thất bại.";
+        public const string CancelFinalQuotaion = "Huy bỏ báo giá chi tiết thất bại.";
+        public const string CancelFinalQuotaionAlready = "Báo giá không thể hủy vì trạng thái không phù hợp.";
         public const string Not_Finalized_Final_Quotation = "Báo giá chưa kết thúc!";
         public const string Conflict_Version = "Hiện tại đã có phiên bản báo giá này!";
         public const string Reason_Rejected_Required = "Cần phải có lý do báo giá bị từ chối!";
@@ -284,8 +284,8 @@ public static class AppConstant
         public const string Not_Found_Role = "Không tìm thấy role theo id đã nhập.";
 
         //PackageType
-        public const string CreatePackageType = "Tạo packagetype thất bại.";
-        public const string PackageTypeExists = "PackageType đã tồn tại.";
+        public const string CreatePackageType = "Tạo loại gói thất bại.";
+        public const string PackageTypeExists = "Loại gói đã tồn tại.";
 
         //Assign staff
         public const string OverloadStaff = "Sales đã nhận đủ dự án báo giá! Hãy chọn Sales khác!";
@@ -297,14 +297,14 @@ public static class AppConstant
         public const string RequestOverloadStaff = "Chỉ yêu cầu 1 nhân viên - 2 công việc, hiện tại đang việc quá 2 công việc!";
 
         //Package
-        public const string CreatePackage = "Tạo packaget thất bại.";
-        public const string UpdatePackage = "Cập nhật packaget thất bại.";
-        public const string PackageExists = "Package đã tồn tại.";
-        public const string PackageNotFound = "Package không tìm thấy.";
-        public const string PackageLaborNotFound = "Package labor không tìm thấy.";
-        public const string PackageHouseNotFound = "Package house không tìm thấy.";
-        public const string PackagematerialNotFound = "Package material không tìm thấy.";
-        public const string FailUploadPackagePdf = "Update package pdf thất bại.";
+        public const string CreatePackage = "Tạo gói thất bại.";
+        public const string UpdatePackage = "Cập nhật gói thất bại.";
+        public const string PackageExists = "Gói đã tồn tại.";
+        public const string PackageNotFound = "Gói không tìm thấy.";
+        public const string PackageLaborNotFound = "Gói nhân công không tìm thấy.";
+        public const string PackageHouseNotFound = "Gói nhà không tìm thấy.";
+        public const string PackagematerialNotFound = "Gói vật tư không tìm thấy.";
+        public const string FailUploadPackagePdf = "Cập nhật gói dạng pdf thất bại.";
 
         //Media
         public const string Not_Found_Media = "Không tìm thấy Media!";
@@ -334,8 +334,16 @@ public static class AppConstant
         public const string Utility_Duplicate = "Tên tiện ích đã bị trùng! Hãy đổi tên khác!";
 
         //FinalQuotation
-        public const string FinalQuotationExists = "FinalQuotation đã tồn tại.";
-        public const string FinalQuotationUpdateFailed = "FinalQuotation cập nhật thất bại.";
+        public const string FinalQuotationExists = "Báo giá chi tiết đã tồn tại.";
+        public const string FinalQuotationUpdateFailed = "Báo giá chi tiết cập nhật thất bại.";
+        public const string FinalNotfound = "Báo giá chi tiết không tồn tại.";
+        public const string PromotionIdNotfound = "Mã giảm giá không tồn tại.";
+        public const string ProjectFinalIdNotfound = "Mã dự án không tồn tại.";
+        public const string ConstructionIdNotfound = "Hạng mục không tồn tại.";
+        public const string ConstructionTypeInvalidate= "Kiểu hạng mục không hợp lệ.";
+        public const string LaborIdNotfound = "Nhân công không tồn tại.";
+        public const string MaterialIdNotfound = "Vật tư không tồn tại.";
+        public const string FinalizedFinalUpdateFailed = " Báo giá chi tiết đang trạng thái hoàn thành không thể cập nhật nữa .";
         //InitalQuotation
         public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
         //
