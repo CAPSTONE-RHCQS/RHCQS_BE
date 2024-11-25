@@ -179,7 +179,7 @@ namespace RHCQS_Services.Implement
                 Name = projectItem.Name,
                 Phone = projectItem.Customer.PhoneNumber ?? "Không có",
                 Avatar = projectItem.Customer.ImgUrl,
-                AccountName = projectItem.Customer!.Username!,
+                AccountName = projectItem.CustomerName!,
                 Address = projectItem.Address,
                 Area = projectItem.Area,
                 Type = projectItem.Type,
@@ -568,53 +568,83 @@ namespace RHCQS_Services.Implement
                 return new ProjectAppResponse(null, null, null, null);
             }
 
+            var initialResponse = await GetInitialQuotationResponse(projectId);
+            var finalResponse = await GetFinalQuotationResponse(projectId);
+
+            if (projectTrack.IsDrawing == true)
+            {
+                var contractDesignResponse = await GetContractResponse<ContractDesignAppResponse>(projectId, 
+                    AppConstant.ContractType.Design.ToString());
+                var processingResponse = await GetContractResponse<ContractProcessingAppResponse>(projectId, 
+                    AppConstant.ContractType.Construction.ToString());
+
+                return new ProjectAppResponse(
+                    initialResponse,
+                    contractDesignResponse,
+                    finalResponse,
+                    processingResponse
+                );
+            }
+
+            return new ProjectAppResponse(
+                initialResponse,
+                null,
+                finalResponse,
+                null
+            );
+        }
+
+        #region InitialQuotationTracking
+        private async Task<InitialAppResponse?> GetInitialQuotationResponse(Guid projectId)
+        {
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                 .FirstOrDefaultAsync(
                     predicate: q => q.ProjectId == projectId,
                     orderBy: q => q.OrderByDescending(q => q.Version)
                 );
 
-            var initialResponse = initialQuotation != null
+            return initialQuotation != null
                 ? new InitialAppResponse { Status = initialQuotation.Status! }
                 : null;
+        }
+        #endregion
 
+        #region FinalQuotationTracking
+        private async Task<FinalAppResponse?> GetFinalQuotationResponse(Guid projectId)
+        {
             var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>()
-               .FirstOrDefaultAsync(
-                   predicate: q => q.ProjectId == projectId,
-                   orderBy: q => q.OrderByDescending(q => q.Version)
-               );
+                .FirstOrDefaultAsync(
+                    predicate: q => q.ProjectId == projectId,
+                    orderBy: q => q.OrderByDescending(q => q.Version)
+                );
 
-            var finalResponse = finalQuotation != null
+            return finalQuotation != null
                 ? new FinalAppResponse { Status = finalQuotation.Status! }
                 : null;
-
-            var contracts = await _unitOfWork.GetRepository<Contract>()
-               .GetListAsync(
-                   predicate: c => c.ProjectId == projectId
-            );
-
-            var contractDesignResponse = contracts
-              .Where(c => c.Type == AppConstant.ContractType.Design.ToString())
-              .Select(c => new ContractDesignAppResponse { Status = c.Status })
-                    .FirstOrDefault();
-
-            var processingResponse = contracts
-                .Where(c => c.Type == AppConstant.ContractType.Construction.ToString())
-                .Select(c => new ContractProcessingAppResponse { Status = c.Status })
-                .FirstOrDefault();
-
-            return new ProjectAppResponse(
-                initialResponse,
-                contractDesignResponse,
-                finalResponse,
-                processingResponse
-            );
         }
+        #endregion
+
+        #region Support GetContract
+        private async Task<T?> GetContractResponse<T>(Guid projectId, string contractType) where T : class
+        {
+            var contract = await _unitOfWork.GetRepository<Contract>()
+                .FirstOrDefaultAsync(
+                    predicate: c => c.ProjectId == projectId && c.Type == contractType
+                );
+
+            if (contract == null) return null;
+
+            return contractType == AppConstant.ContractType.Design.ToString()
+                ? new ContractDesignAppResponse { Status = contract.Status } as T
+                : new ContractProcessingAppResponse { Status = contract.Status } as T;
+        }
+        #endregion
 
         public async Task<bool> CreateProjectTemplateHouse(TemplateHouseProjectRequest request)
         {
             try
             {
+                #region Check template house
                 var templateHouseInfo = await _unitOfWork.GetRepository<SubTemplate>().FirstOrDefaultAsync(
                                     predicate: x => x.Id == request.SubTemplateId,
                                     include: x => x.Include(x => x.TemplateItems)
@@ -632,8 +662,9 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Customer);
                 }
+                #endregion
 
-
+                #region Create project
                 var projectItem = new Project
                 {
                     Id = Guid.NewGuid(),
@@ -650,8 +681,9 @@ namespace RHCQS_Services.Implement
                     CustomerName = customerInfo.Username
                 };
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
+                #endregion
 
-
+                #region Calculate total price rough
                 //System find package rough
                 var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
                                         predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH
@@ -667,7 +699,9 @@ namespace RHCQS_Services.Implement
                 {
                     totalPriceRough = 0;
                 }
+                #endregion
 
+                #region Create initial quotation
                 var initialItem = new InitialQuotation
                 {
                     Id = Guid.NewGuid(),
@@ -688,8 +722,9 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
+                #endregion
 
-
+                #region Create package quotation
                 var packageRoughQuotation = new PackageQuotation
                 {
                     Id = Guid.NewGuid(),
@@ -712,7 +747,9 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<PackageQuotation>().InsertAsync(packageFinishedQuotation);
+                #endregion
 
+                #region Create initial quotation item
                 foreach (var item in templateHouseInfo.TemplateItems!)
                 {
                     var initialQuotationItem = new InitialQuotationItem
@@ -730,7 +767,9 @@ namespace RHCQS_Services.Implement
                     };
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(initialQuotationItem);
                 }
+                #endregion
 
+                #region Create utility
                 if (request.QuotationUtilitiesRequest != null)
                 {
                     foreach (var utl in request.QuotationUtilitiesRequest)
@@ -756,7 +795,8 @@ namespace RHCQS_Services.Implement
                                 Description = sectionItem.Description,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = sectionItem.Id
+                                UtilitiesSectionId = sectionItem.Id,
+                                Quanity = utl.Quantity ?? 0
                             };
                         }
                         else
@@ -775,16 +815,17 @@ namespace RHCQS_Services.Implement
                                 Description = null,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
-                                UtilitiesSectionId = utilityItem.SectionId
+                                UtilitiesSectionId = utilityItem.SectionId,
+                                Quanity = utl.Quantity ?? 0
                             };
                         }
 
                         await _unitOfWork.GetRepository<QuotationUtility>().InsertAsync(utlItem);
                     }
                 }
+                #endregion
 
                 //Promotion ....
-
                 var saveResutl = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
 
                 return true;
