@@ -340,7 +340,7 @@ public static class AppConstant
         public const string FinalQuotationUpdateFailed = "Báo giá chi tiết cập nhật thất bại.";
         public const string FinalNotfound = "Báo giá chi tiết không tồn tại.";
         public const string PromotionIdNotfound = "Mã giảm giá không tồn tại.";
-        public const string ProjectFinalIdNotfound = "Mã dự án không tồn tại.";
+        public const string ProjectFinalIdNotfound = "Mã dự án không hợp lệ.";
         public const string ConstructionIdNotfound = "Hạng mục không tồn tại.";
         public const string ConstructionTypeInvalidate= "Kiểu hạng mục không hợp lệ.";
         public const string LaborIdNotfound = "Nhân công không tồn tại.";
