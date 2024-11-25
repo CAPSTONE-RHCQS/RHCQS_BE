@@ -167,7 +167,7 @@ namespace RHCQS_Services.Implement
             }
 
             var projectExists = await _unitOfWork.GetRepository<Project>()
-                .FirstOrDefaultAsync(p => p.Id == projectId && p.IsDrawing == true);
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.IsDrawing == false);
             if (projectExists == null) 
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
@@ -270,7 +270,7 @@ namespace RHCQS_Services.Implement
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
 
                 var projectExists = await _unitOfWork.GetRepository<Project>()
-                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId && p.IsDrawing == true);
+                    .FirstOrDefaultAsync(p => p.Id == request.ProjectId && p.IsDrawing == false);
                 var checkFinalized = await finalQuotationRepo.FirstOrDefaultAsync(
                     p => p.ProjectId == request.ProjectId && p.Status == AppConstant.QuotationStatus.FINALIZED);
                 if (checkFinalized != null)
