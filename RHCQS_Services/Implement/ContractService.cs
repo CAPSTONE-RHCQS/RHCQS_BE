@@ -758,7 +758,7 @@ namespace RHCQS_Services.Implement
                         PaymentPhase = batchPayment.Payment.PaymentPhase,
                         Percents = batchPayment.Payment.Percents ?? 0,
                         Description = batchPayment.Payment.Description
-                    }).OrderByDescending(x =>x.NumberOfBatches)
+                    }).OrderBy(x =>x.NumberOfBatches) 
                     .ToList();
 
                 var result = new FinalToContractResponse()
