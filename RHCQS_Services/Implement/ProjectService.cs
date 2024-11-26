@@ -593,7 +593,10 @@ namespace RHCQS_Services.Implement
                     finalResponse = null;
                 } else if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
                 {
-                    processingResponse.Status = AppConstant.ContractStatus.PROCESSING;
+                    processingResponse = new ContractProcessingAppResponse
+                    {
+                        Status = AppConstant.ContractStatus.PROCESSING
+                    };
                 }
             }
 
@@ -605,7 +608,7 @@ namespace RHCQS_Services.Implement
             );
         }
 
-        #region InitialQuotationTracking
+        #region Get InitialQuotationTracking
         private async Task<InitialAppResponse?> GetInitialQuotationResponse(Guid projectId)
         {
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
@@ -620,7 +623,7 @@ namespace RHCQS_Services.Implement
         }
         #endregion
 
-        #region FinalQuotationTracking
+        #region Get FinalQuotationTracking
         private async Task<FinalAppResponse?> GetFinalQuotationResponse(Guid projectId)
         {
             var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>()

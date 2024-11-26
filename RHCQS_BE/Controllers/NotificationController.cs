@@ -78,7 +78,7 @@ namespace RHCQS_BE.Controllers
         /// }
         /// ``` 
         /// </remarks>
-        /// <param name="userId">The ID of the user whose notifications are to be retrieved</param>
+        /// <param name="email">The ID of the user whose notifications are to be retrieved</param>
         /// <returns>List of notifications</returns>
         /// <response code="200">Notifications retrieved successfully</response>
         /// <response code="404">No notifications found for the given user</response>

@@ -192,6 +192,7 @@ namespace RHCQS_BE.Controllers
         /// Searches materials by name.
         /// </summary>
         /// <param name="name">The name or partial name of the material.</param>
+        /// <param name="packageId"></param>
         #endregion 
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Material.SearchMaterialEndpoint)]
@@ -213,7 +214,7 @@ namespace RHCQS_BE.Controllers
         /// <summary>
         /// Filters materials by material section.
         /// </summary>
-        /// <param name="materialTypeId">The ID of the material section to filter by.</param>
+        /// <param name="materialSectionId">The ID of the material section to filter by.</param>
         #endregion
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Material.FilterMaterialEndpoint)]

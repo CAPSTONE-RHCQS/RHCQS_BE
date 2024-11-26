@@ -33,4 +33,5 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
 
         public string? Note { get; set; }
     }
+   
 }

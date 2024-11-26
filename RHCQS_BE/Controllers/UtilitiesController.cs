@@ -303,6 +303,7 @@ namespace RHCQS_BE.Controllers
         /// It returns a utility section along with its associated utility items. If no utility section is found, an error will be thrown.
         /// </remarks>
         /// <param name="name">The name of the utility section to search for.</param>
+        /// <param name="projectType"></param>
         /// <response code="200">Returns the utility section and associated utility items.</response>
         /// <response code="400">Bad Request. The search term is invalid.</response>
         /// <response code="404">Not Found. No utility section with the given name was found.</response>
@@ -311,9 +312,14 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityAutoCharacterEndpoint)]
         [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetDetailUtilityByContainName(string name)
+        public async Task<IActionResult> GetDetailUtilityByContainName(string projectType, string name)
         {
-            var utilityItem = await _utilitiesService.GetDetailUtilityByContainName(name);
+            if (string.IsNullOrEmpty(projectType))
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Utility_Not_Empty_ProjectType);
+            }
+
+            var utilityItem = await _utilitiesService.GetDetailUtilityByContainName(projectType, name);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
             return new ContentResult()
             {
