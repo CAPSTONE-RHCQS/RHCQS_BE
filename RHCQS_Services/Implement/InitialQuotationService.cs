@@ -511,14 +511,10 @@ namespace RHCQS_Services.Implement
                 }
                 catch (Exception ex)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                       $"{ex}" +
-                       $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
-);
+                    throw new Exception(ex.Message, ex);
                 }
-==
             }
-            else if(request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
+            else if (request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
             {
                 if (request.Reason == null)
                 {
@@ -1136,9 +1132,9 @@ namespace RHCQS_Services.Implement
         public bool ValidateDuplicateConstructionItems(List<InitialQuotaionItemUpdateRequest> items, out string? duplicateNames)
         {
             var duplicateItems = items
-                .GroupBy(item => item.Name?.Trim().ToLower()) 
-                .Where(g => g.Count() > 1)                   
-                .Select(g => g.Key)                          
+                .GroupBy(item => item.Name?.Trim().ToLower())
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
                 .ToList();
 
             if (duplicateItems.Any())
@@ -1148,24 +1144,24 @@ namespace RHCQS_Services.Implement
             }
 
             duplicateNames = null;
-            return true; 
+            return true;
         }
 
         public bool ValidateDuplicateUtilities(List<UtilitiesUpdateRequest> items, out List<Guid>? duplicateIds)
         {
             var duplicateGroups = items
                 .GroupBy(item => item.UtilitiesItemId)
-                .Where(g => g.Count() > 1) 
+                .Where(g => g.Count() > 1)
                 .ToList();
 
             if (duplicateGroups.Any())
             {
                 duplicateIds = duplicateGroups.Select(g => g.Key).ToList();
-                return false; 
+                return false;
             }
 
             duplicateIds = null;
-            return true; 
+            return true;
         }
 
 
