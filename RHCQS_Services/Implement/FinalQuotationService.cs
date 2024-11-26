@@ -178,6 +178,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 PromotionId = initialQuotation.PromotionId,
+                Discount = initialQuotation.Discount,
                 TotalPrice = 0,
                 Note = null,
                 Version = 0,
@@ -1139,7 +1140,8 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(x => x.HouseDesignVersions)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
-                                       .ThenInclude(qu => qu.UtilitiesItem)
+                                       .ThenInclude(qu => qu.UtilitiesSection)
+                                       .ThenInclude(qu => qu.UtilitiesItems)
                                    .Include(x => x.EquipmentItems)
                                    .Include(x => x.FinalQuotationItems)
                                    .Include(x => x.FinalQuotationItems)
@@ -1315,20 +1317,24 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
-                    qUtility.Id,
-                    qUtility.UtilitiesItemId,
-                    qUtility.UtilitiesSectionId,
-                    qUtility.Name,
-                    qUtility.Description ?? string.Empty,
-                    qUtility.Coefficient ?? 0,
-                    qUtility.Price ?? 0,
-                    qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
-                    qUtility.Quanity ?? null
-                )).ToList() ?? new List<UtilityInf>();
+            var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
+                qUtility.Id,
+                qUtility.UtilitiesItemId,
+                qUtility.UtilitiesSectionId,
+                qUtility.Name,
+                qUtility.Description ?? string.Empty,
+                qUtility.Coefficient ?? 0,
+                qUtility.Price ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.UnitPrice ?? 0
+                    : qUtility.UtilitiesSection?.UnitPrice ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.Unit ?? string.Empty
+                    : qUtility.UtilitiesSection?.Unit ?? string.Empty,
+                qUtility.Quanity ?? null
+            )).ToList() ?? new List<UtilityInf>();
 
-                var constructionRough = finalQuotationItemsList
+            var constructionRough = finalQuotationItemsList
                     .Where(item => item.Type == "ROUGH")
                     .SelectMany(item => item.QuotationItems)
                     .GroupBy(qi => "ROUGH")
@@ -1440,6 +1446,9 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
                                        .ThenInclude(qu => qu.Section)
+                                   .Include(x => x.QuotationUtilities)
+                                       .ThenInclude(qu => qu.UtilitiesSection)
+                                       .ThenInclude(qu => qu.UtilitiesItems)
                                    .Include(x => x.EquipmentItems)
                                    .Include(x => x.FinalQuotationItems)
                                    .Include(x => x.FinalQuotationItems)
@@ -1616,20 +1625,24 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
-                    qUtility.Id,
-                    qUtility.UtilitiesItemId,
-                    qUtility.UtilitiesSectionId,
-                    qUtility.Name,
-                    qUtility.Description ?? string.Empty,
-                    qUtility.Coefficient ?? 0,
-                    qUtility.Price ?? 0,
-                    qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
-                    qUtility.Quanity ?? null
-                )).ToList() ?? new List<UtilityInf>();
+            var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
+                qUtility.Id,
+                qUtility.UtilitiesItemId,
+                qUtility.UtilitiesSectionId,
+                qUtility.Name,
+                qUtility.Description ?? string.Empty,
+                qUtility.Coefficient ?? 0,
+                qUtility.Price ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.UnitPrice ?? 0
+                    : qUtility.UtilitiesSection?.UnitPrice ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.Unit ?? string.Empty 
+                    : qUtility.UtilitiesSection?.Unit ?? string.Empty,
+                qUtility.Quanity ?? null
+            )).ToList() ?? new List<UtilityInf>();
 
-                var constructionRough = finalQuotationItemsList
+            var constructionRough = finalQuotationItemsList
                     .Where(item => item.Type == "ROUGH")
                     .SelectMany(item => item.QuotationItems)
                     .GroupBy(qi => "ROUGH")
