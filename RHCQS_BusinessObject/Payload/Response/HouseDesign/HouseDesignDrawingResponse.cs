@@ -10,7 +10,9 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
 {
     public class HouseDesignDrawingResponse
     {
-        public HouseDesignDrawingResponse(Guid id, Guid projectId,
+        public HouseDesignDrawingResponse(
+            string projectType,
+            Guid id, Guid projectId,
             string staffName, double? versionPresent,
             string? name, int? step,
             string? status, string? type,
@@ -18,6 +20,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             List<DependOnVersion> dependOnVersion,
             List<HouseDesignVersionResponse>? versions)
         {
+            ProjectType = projectType;
             Id = id;
             ProjectId = projectId;
             StaffName = staffName;
@@ -31,7 +34,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             DependOnVersion = dependOnVersion;
             Versions = versions;
         }
-
+        public string ProjectType { get; set; }
         public Guid Id { get; set; }
 
         public Guid ProjectId { get; set; }

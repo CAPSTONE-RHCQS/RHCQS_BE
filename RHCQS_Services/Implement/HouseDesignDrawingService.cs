@@ -104,6 +104,7 @@ namespace RHCQS_Services.Implement
                 include: x => x.Include(x => x.HouseDesignVersions)
                                .ThenInclude(x => x.Media)
                                .Include(x => x.Account!)
+                               .Include(x => x.Project)
             );
 
             if (drawingItem == null)
@@ -146,6 +147,7 @@ namespace RHCQS_Services.Implement
             }
 
             var result = new HouseDesignDrawingResponse(
+                projectType: drawingItem.Project.Type,
                 id: drawingItem.Id,
                 projectId: drawingItem.ProjectId,
                 staffName: drawingItem.Account.Username,
@@ -182,6 +184,7 @@ namespace RHCQS_Services.Implement
                 include: x => x.Include(x => x.HouseDesignVersions)
                                 .ThenInclude(x => x.Media)
                                 .Include(x => x.Account!)
+                               .Include(x => x.Project)
             );
 
             if (drawingItem == null)
@@ -224,6 +227,7 @@ namespace RHCQS_Services.Implement
             }
 
             var result = new HouseDesignDrawingResponse(
+                projectType: drawingItem.Project.Type,
                 id: drawingItem.Id,
                 projectId: drawingItem.ProjectId,
                 staffName: drawingItem.Account.Username,

@@ -780,5 +780,10 @@ namespace RHCQS_Services.Implement
             var result = await _mediaService.UploadImageSubTemplate(file, "Contract");
             return result;
         }
+
+        //public async Task<string> ManagerApproverBillFromCustomer(Guid paymentId)
+        //{
+
+        //}
     }
 }
