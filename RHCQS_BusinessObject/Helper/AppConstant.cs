@@ -276,6 +276,8 @@ public static class AppConstant
         public const string DuplicatedConstruction = "Hạng mục xây dựng bị trùng lặp!";
         public const string DuplicatedUtility = "Tiện ích xây dựng bị trùng lặp!";
         public const string DuplicatedEquiment = "Thiết bị xây dựng bị trùng lặp!";
+        public const string DuplicatedLabor = "Nhân công bị trùng lặp!";
+        public const string DuplicatedMaterial = "Vật tư bị trùng lặp!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";

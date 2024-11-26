@@ -261,10 +261,23 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedEquiment);
                 }
-                #endregion
+                //Labor
+                var isValidLabor = ValidateDuplicateLaborInConstructionOrSubconstruction(request.FinalQuotationItems, out var duplicateLaborDetails);
+                if (!isValidUtility)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedLabor);
+                }
+                //Material
+                var isValidMaterial = ValidateDuplicateMaterialInConstructionOrSubconstruction(request.FinalQuotationItems, out var duplicateMaterialDetails);
+                if (!isValidUtility)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedMaterial);
+                }
 
-                #region check and update something
-                var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
+            #endregion
+
+            #region check and update something
+            var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
 
                 var projectExists = await _unitOfWork.GetRepository<Project>()
                     .FirstOrDefaultAsync(p => p.Id == request.ProjectId);
@@ -2305,5 +2318,85 @@ namespace RHCQS_Services.Implement
             duplicateNames = null;
             return true;
         }
+        public bool ValidateDuplicateLaborInConstructionOrSubconstruction(
+            List<FinalQuotationItemRequest> items,
+            out string? duplicateLaborDetails)
+        {
+            var duplicates = new List<string>();
+
+            // Nhóm theo ConstructionId và SubconstructionId
+            var groupedItems = items.GroupBy(item => new { item.ConstructionId, item.SubconstructionId });
+
+            foreach (var group in groupedItems)
+            {
+                // Lấy danh sách QuotationItems trong nhóm
+                var quotationItems = group
+                    .SelectMany(item => item.QuotationItems ?? new List<QuotationItemRequest>())
+                    .ToList();
+
+                // Kiểm tra trùng lặp LaborId
+                var duplicateLabors = quotationItems
+                    .Where(qi => qi.LaborId.HasValue)
+                    .GroupBy(qi => qi.LaborId.Value)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                if (duplicateLabors.Any())
+                {
+                    duplicates.Add($"ConstructionId: {group.Key.ConstructionId}, SubconstructionId: {group.Key.SubconstructionId}, Duplicate LaborIds: {string.Join(", ", duplicateLabors)}");
+                }
+            }
+
+            if (duplicates.Any())
+            {
+                duplicateLaborDetails = string.Join("\n", duplicates);
+                return false;
+            }
+
+            duplicateLaborDetails = null;
+            return true;
+        }
+
+        public bool ValidateDuplicateMaterialInConstructionOrSubconstruction(
+            List<FinalQuotationItemRequest> items,
+            out string? duplicateMaterialDetails)
+        {
+            var duplicates = new List<string>();
+
+            // Nhóm theo ConstructionId và SubconstructionId
+            var groupedItems = items.GroupBy(item => new { item.ConstructionId, item.SubconstructionId });
+
+            foreach (var group in groupedItems)
+            {
+                // Lấy danh sách QuotationItems trong nhóm
+                var quotationItems = group
+                    .SelectMany(item => item.QuotationItems ?? new List<QuotationItemRequest>())
+                    .ToList();
+
+                // Kiểm tra trùng lặp MaterialId
+                var duplicateMaterials = quotationItems
+                    .Where(qi => qi.MaterialId.HasValue)
+                    .GroupBy(qi => qi.MaterialId.Value)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                if (duplicateMaterials.Any())
+                {
+                    duplicates.Add($"ConstructionId: {group.Key.ConstructionId}, SubconstructionId: {group.Key.SubconstructionId}, Duplicate MaterialIds: {string.Join(", ", duplicateMaterials)}");
+                }
+            }
+
+            if (duplicates.Any())
+            {
+                duplicateMaterialDetails = string.Join("\n", duplicates);
+                return false;
+            }
+
+            duplicateMaterialDetails = null;
+            return true;
+        }
+
     }
 }
