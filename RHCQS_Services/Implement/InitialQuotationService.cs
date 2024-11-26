@@ -72,6 +72,8 @@ namespace RHCQS_Services.Implement
                                             .ThenInclude(x => x.UtilitiesSection)
                                        .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Payment!)
+                                       .Include(x => x.BatchPayments)
+                                        .ThenInclude(x => x.Contract!)
                 );
 
             var roughPackage = initialQuotation.PackageQuotations
@@ -123,18 +125,24 @@ namespace RHCQS_Services.Implement
                                               : new PromotionInfo();
 
             var batchPaymentResponse = initialQuotation!.BatchPayments
-                .OrderBy(bp => bp.NumberOfBatch)
-                .Select(item => new BatchPaymentInfo(
-                                         item.Id,
-                                         item.Payment.Description,
-                                         item.Payment.Percents ?? 0,
-                                         item.Payment.TotalPrice,
-                                         item.Payment.Unit,
-                                         item.Status,
-                                         item.NumberOfBatch,
-                                         item.Payment.PaymentDate,
-                                         item.Payment.PaymentPhase
-                                     )).ToList() ?? new List<BatchPaymentInfo>();
+                 .Where(bp =>
+                        bp.ContractId == null || 
+                        (bp.Contract != null && bp.Contract.Type == AppConstant.ContractType.Construction.ToString()) 
+                    )
+                 .OrderBy(bp => bp.NumberOfBatch)
+                 .Select(item => new BatchPaymentInfo(
+                                     item.PaymentId,
+                                     item.Payment.Description,
+                                     item.Payment.Percents ?? 0,
+                                     item.Payment.TotalPrice,
+                                     item.Payment.Unit,
+                                     item.Status,
+                                     item.NumberOfBatch,
+                                     item.Payment.PaymentDate,
+                                     item.Payment.PaymentPhase
+                                 ))
+                 .ToList() ?? new List<BatchPaymentInfo>();
+
 
 
             var result = new InitialQuotationResponse
