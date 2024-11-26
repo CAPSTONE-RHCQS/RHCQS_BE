@@ -336,31 +336,6 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region CloneInitialInfoToContract
-        /// <summary>
-        /// Clone initial quotation to contract design
-        /// 
-        /// Role: MANAGER - SALES STAFF
-        /// </summary>
-        /// <param name="projectId"></param>
-        /// <returns></returns>
-        #endregion
-        [Authorize(Roles = "Manager, SalesStaff")]
-        [HttpGet(ApiEndPointConstant.Contract.FinalToContract)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CloneInitialInfoToContract(Guid projectId)
-        {
-            var contractItem = await _contractService.CloneFinalInfoToContract(projectId);
-            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
-            return new ContentResult()
-            {
-                Content = result,
-                StatusCode = StatusCodes.Status200OK,
-                ContentType = "application/json"
-            };
-        }
-
         #region UploadFileContract
         /// <summary>
         /// Upload file contract (design + construction)
