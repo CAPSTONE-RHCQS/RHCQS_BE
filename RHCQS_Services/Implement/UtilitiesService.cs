@@ -9,6 +9,7 @@ using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
+using System.Linq.Expressions;
 
 
 namespace RHCQS_Services.Implement
@@ -372,9 +373,23 @@ namespace RHCQS_Services.Implement
             {
                 var normalizedName = name.RemoveDiacritics().ToLower();
 
+                Expression<Func<UtilitiesSection, bool>> predicate;
+                if (projectType.ToUpper() == AppConstant.Type.ALL)
+                {
+                    predicate = x => x.Utilities.Type.ToUpper() == AppConstant.Type.FINISHED
+                    || x.Utilities.Type.ToUpper() == AppConstant.Type.ROUGH;
+                }
+                else if (projectType.ToUpper() == AppConstant.Type.DRAWINGHAVE)
+                {
+                    predicate = x => x.Utilities.Type.ToUpper() == AppConstant.Type.FINISHED;
+                }
+                else
+                {
+                    predicate = x => x.Utilities.Type.ToLower() == projectType.ToLower();
+                }
+
                 var utilitySections = await _unitOfWork.GetRepository<UtilitiesSection>()
-                    .GetListAsync(predicate: x => x.Utilities.Type.ToLower() == projectType.ToLower(),
-                    include: con => con.Include(c => c.UtilitiesItems));
+            .GetListAsync(predicate: predicate, include: con => con.Include(c => c.UtilitiesItems));
 
                 var filteredItems = utilitySections.SelectMany(utilitySection =>
                 {

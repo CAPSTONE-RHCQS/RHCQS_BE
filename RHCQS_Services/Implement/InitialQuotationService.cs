@@ -106,7 +106,7 @@ namespace RHCQS_Services.Implement
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.UtilitiesSectionId,
+                            item.UtilitiesItemId ?? item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
@@ -225,7 +225,7 @@ namespace RHCQS_Services.Implement
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.UtilitiesSectionId,
+                            item.UtilitiesItemId ?? item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
@@ -258,6 +258,7 @@ namespace RHCQS_Services.Implement
 
             var result = new InitialQuotationResponse
             {
+                ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
                 AccountName = initialQuotation.Project!.CustomerName,
                 Address = initialQuotation.Project.Address!,
