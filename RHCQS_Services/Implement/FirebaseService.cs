@@ -19,11 +19,11 @@ namespace RHCQS_Services.Implement
     {
         private readonly FirebaseClient _firebaseClient;
         private readonly FirebaseMessaging _firebaseMessaging;
-
+        private readonly IConfiguration _configuration;
         public FirebaseService(IConfiguration configuration)
         {
             var firebaseDatabaseUrl = configuration["Firebase:DatabaseUrl"];
-
+            _configuration = configuration;
             _firebaseClient = new FirebaseClient(firebaseDatabaseUrl);
             _firebaseMessaging = FirebaseMessaging.DefaultInstance;
         }
@@ -49,6 +49,10 @@ namespace RHCQS_Services.Implement
         {
             //try
             //{
+            if(deviceToken== null)
+            {
+                deviceToken = _configuration["Firebase:deviceTokens"]; ;
+            }
             var sanitizedEmail = email.Replace("@", "_at_").Replace(".", "_dot_");
             var notificationData = new
                 {
@@ -102,7 +106,11 @@ namespace RHCQS_Services.Implement
         {
             //try
             //{
-                var message = new Message()
+            if (deviceToken == null)
+            {
+                deviceToken = _configuration["Firebase:deviceTokens"]; ;
+            }
+            var message = new Message()
                 {
                     Token = deviceToken,
                     Notification = new Notification

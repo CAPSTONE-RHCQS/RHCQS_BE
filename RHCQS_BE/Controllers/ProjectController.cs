@@ -293,7 +293,7 @@ namespace RHCQS_BE.Controllers
         ///     
         /// </remarks>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Project.ProjectAssignEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -369,7 +369,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="403">If the user is forbidden from accessing this resource.</response>
         /// <response code="404">If no projects are found for the provided email.</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectTrackingEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> TrackingProject(Guid projectId)

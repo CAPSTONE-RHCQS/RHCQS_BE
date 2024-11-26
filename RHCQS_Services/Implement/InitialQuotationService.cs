@@ -106,7 +106,7 @@ namespace RHCQS_Services.Implement
                             )).ToList();
 
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.UtilitiesSectionId,
+                            item.UtilitiesItemId ?? item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
@@ -193,6 +193,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
             }
 
+            #region Package
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == "ROUGH");
 
@@ -208,6 +209,9 @@ namespace RHCQS_Services.Implement
                finishedPackage?.Package.Price ?? 0,
                finishedPackage?.Package.Unit ?? string.Empty
            );
+            #endregion
+
+            #region Initial quotation item
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
                             item.Id,
                             item.ConstructionItem?.Name,
@@ -223,16 +227,20 @@ namespace RHCQS_Services.Implement
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
                             item.ConstructionItem!.Coefficient
                             )).ToList();
+            #endregion
 
+            #region Utility
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
-                            item.UtilitiesSectionId,
+                            item.UtilitiesItemId ?? item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
                             item.Quanity ?? 0,
                             item.UtilitiesSection.UnitPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
+            #endregion
 
+            #region Promotion
             var promotionResponse = initialQuotation?.Promotion != null
                                               ? new PromotionInfo(
                                                   initialQuotation.Promotion.Id,
@@ -240,7 +248,9 @@ namespace RHCQS_Services.Implement
                                                   initialQuotation.Promotion.Value
                                                )
                                               : new PromotionInfo();
+            #endregion
 
+            #region Batchpayment
             var batchPaymentResponse = initialQuotation!.BatchPayments
                           .OrderBy(bp => bp.NumberOfBatch)
                             .Select(item => new BatchPaymentInfo(
@@ -254,12 +264,13 @@ namespace RHCQS_Services.Implement
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
-
+            #endregion
 
             var result = new InitialQuotationResponse
             {
+                ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.CustomerName,
+                AccountName = initialQuotation.Project!.CustomerName!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -370,7 +381,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.CustomerName,
+                AccountName = initialQuotation.Project.CustomerName!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -494,22 +505,16 @@ namespace RHCQS_Services.Implement
                         };
 
                         await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
-                        _unitOfWork.Commit();
-
-                        return uploadResult.SecureUrl.ToString();
                     }
+                    var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                    return isSuccessful;
                 }
                 catch (Exception ex)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
-                       $"{ex}" +
-                       $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
-);
+                    throw new Exception(ex.Message, ex);
                 }
-                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
-                return isSuccessful;
             }
-            else if(request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
+            else if (request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
             {
                 if (request.Reason == null)
                 {
@@ -865,7 +870,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 //Utility
-                var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
+                var isValidUtility = ValidateDuplicateUtilities(request.Utilities!, out var duplicateIds);
                 if (!isValidUtility)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedUtility);
@@ -1127,9 +1132,9 @@ namespace RHCQS_Services.Implement
         public bool ValidateDuplicateConstructionItems(List<InitialQuotaionItemUpdateRequest> items, out string? duplicateNames)
         {
             var duplicateItems = items
-                .GroupBy(item => item.Name?.Trim().ToLower()) 
-                .Where(g => g.Count() > 1)                   
-                .Select(g => g.Key)                          
+                .GroupBy(item => item.Name?.Trim().ToLower())
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
                 .ToList();
 
             if (duplicateItems.Any())
@@ -1139,24 +1144,24 @@ namespace RHCQS_Services.Implement
             }
 
             duplicateNames = null;
-            return true; 
+            return true;
         }
 
         public bool ValidateDuplicateUtilities(List<UtilitiesUpdateRequest> items, out List<Guid>? duplicateIds)
         {
             var duplicateGroups = items
                 .GroupBy(item => item.UtilitiesItemId)
-                .Where(g => g.Count() > 1) 
+                .Where(g => g.Count() > 1)
                 .ToList();
 
             if (duplicateGroups.Any())
             {
                 duplicateIds = duplicateGroups.Select(g => g.Key).ToList();
-                return false; 
+                return false;
             }
 
             duplicateIds = null;
-            return true; 
+            return true;
         }
 
 

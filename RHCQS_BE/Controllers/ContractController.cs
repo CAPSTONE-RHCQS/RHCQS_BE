@@ -11,7 +11,9 @@ using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
+using System.ComponentModel.DataAnnotations;
 using Xceed.Words.NET;
+using static RHCQS_BusinessObjects.AppConstant;
 
 namespace RHCQS_BE.Controllers
 {
@@ -280,32 +282,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> BillContractDesign(Guid paymentId, List<IFormFile> files)
         {
-            var result = await _contractService.BillContractDesign(paymentId, files);
-            return Ok(result);
-        }
-
-        #region BillContractContruction
-        /// <summary>
-        /// Manager upload bill payment contract design 
-        /// 
-        /// Role: MANAGER
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="paymentId">Approve payment contract design</param>
-        /// <param name="files"></param>
-        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
-        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
-        /// <response code="400">Failed to approve contract due to invalid input</response>
-        /// 
-        #endregion
-        [Authorize(Roles = "Manager")]
-        [HttpPut(ApiEndPointConstant.Contract.PaymentBatchConstructionConfirmEndpoint)]
-        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> BillContractContruction(Guid paymentId, List<IFormFile> files)
-        {
-            var result = await _contractService.BillContractContruction(paymentId, files);
+            var result = await _contractService.BillContract(paymentId, files);
             return Ok(result);
         }
 
@@ -348,6 +325,32 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> UploadFileContract(IFormFile file)
         {
             var contractItem = await _contractService.UploadFileContract(file);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
+        #region ManagerApproverBillFromCustomer
+        /// <summary>
+        /// Manager confirm invoice bill from customer 
+        /// If approver -> contract - project is finalized
+        /// Else display upload bill from Manager
+        /// </summary>
+        /// <param name="paymentId"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        #endregion
+        [HttpPost(ApiEndPointConstant.Contract.ManagerApproveBillFromCustomerEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ManagerApproverBillFromCustomer(Guid paymentId, 
+            [FromQuery][Required(ErrorMessage = "Type là cần thiết.")] string type)
+        {
+            var contractItem = await _contractService.ManagerApproverBillFromCustomer(paymentId, type);
             var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
             return new ContentResult()
             {

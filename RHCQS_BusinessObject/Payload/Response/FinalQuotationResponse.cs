@@ -195,7 +195,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         {
             Id = id;
             ConstructionId = contructionId;
-            SubconstructionId = subcontructionId;
+            SubConstructionId = subcontructionId;
             ContructionName = contructionName;
             Type = type;
             //Coefficient = coefficient;
@@ -206,7 +206,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
         public Guid ConstructionId { get; set; }
 
-        public Guid? SubconstructionId { get; set; }
+        public Guid? SubConstructionId { get; set; }
         public string? ContructionName { get; set; }
 
         public string? Type { get; set; }

@@ -135,12 +135,12 @@ namespace RHCQS_BE.Controllers
                     Title = "Báo giá chi tiết",
                     Body = $"Báo giá chi tiết có cập nhật mới bạn cần xem."
                 };
-                await _firebaseService.SendNotificationAsync(
+                Task.Run(() => _firebaseService.SendNotificationAsync(
                     notificationRequest.Email,
                     notificationRequest.DeviceToken,
                     notificationRequest.Title,
                     notificationRequest.Body
-                );
+                ));
                 return new ContentResult()
                 {
                     Content = result,

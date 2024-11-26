@@ -119,9 +119,9 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
             }
-            var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
-            project.Status = AppConstant.ProjectStatus.FINALIZED;
-            _unitOfWork.GetRepository<Project>().UpdateAsync(project);
+            //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
+            //project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+            //_unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
             finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
@@ -144,12 +144,8 @@ namespace RHCQS_Services.Implement
                         x => x.ProjectId == projectId &&
                         x.Status == AppConstant.QuotationStatus.FINALIZED,
                         include: x => x.Include(x => x.InitialQuotationItems)
-                                       .ThenInclude(x => x.ConstructionItem)
-                                       .ThenInclude(x => x.SubConstructionItems!)
                                        .Include(x => x.Project)
-                                       .ThenInclude(x => x.Customer!)
                                        .Include(x => x.PackageQuotations)
-                                       .ThenInclude(x => x.Package)
                                        .Include(x => x.Promotion)
                                        .Include(x => x.QuotationUtilities)
                                             .ThenInclude(x => x.UtilitiesItem)
@@ -770,9 +766,9 @@ namespace RHCQS_Services.Implement
                 finalItem.Status = AppConstant.QuotationStatus.APPROVED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
 
-                var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
-                project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
-                _unitOfWork.GetRepository<Project>().UpdateAsync(project);
+                //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
+                //project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+                //_unitOfWork.GetRepository<Project>().UpdateAsync(project);
                 var data = await GetDetailFinalQuotationById(finalItem.Id);
                 try
                 {

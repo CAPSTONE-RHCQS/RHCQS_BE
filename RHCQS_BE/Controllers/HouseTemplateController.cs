@@ -381,6 +381,7 @@ namespace RHCQS_BE.Controllers
         /// Role: MANAGER
         /// </summary>
         /// <param name="request"></param>
+        /// <param name="subTempateId"></param>
         /// <returns></returns>
         #endregion
         [Authorize(Roles = "Manager")]
