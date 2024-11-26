@@ -366,14 +366,15 @@ namespace RHCQS_Services.Implement
             return save;
         }
 
-        public async Task<List<AutoUtilityResponse>> GetDetailUtilityByContainName(string name)
+        public async Task<List<AutoUtilityResponse>> GetDetailUtilityByContainName(string projectType, string name)
         {
             try
             {
                 var normalizedName = name.RemoveDiacritics().ToLower();
 
                 var utilitySections = await _unitOfWork.GetRepository<UtilitiesSection>()
-                    .GetListAsync(include: con => con.Include(c => c.UtilitiesItems));
+                    .GetListAsync(predicate: x => x.Utilities.Type.ToLower() == projectType.ToLower(),
+                    include: con => con.Include(c => c.UtilitiesItems));
 
                 var filteredItems = utilitySections.SelectMany(utilitySection =>
                 {

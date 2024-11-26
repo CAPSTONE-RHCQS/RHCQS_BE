@@ -334,6 +334,7 @@ public static class AppConstant
         //Utility
         public const string Utility_Not_Found = "Không tìm thấy tiện ích!";
         public const string Utility_Duplicate = "Tên tiện ích đã bị trùng! Hãy đổi tên khác!";
+        public const string Utility_Not_Empty_ProjectType = "Loại dự án không được để trống!";
 
         //FinalQuotation
         public const string FinalQuotationExists = "Báo giá chi tiết đã tồn tại.";
@@ -348,7 +349,6 @@ public static class AppConstant
         public const string FinalizedFinalUpdateFailed = " Báo giá chi tiết đang trạng thái hoàn thành không thể cập nhật nữa .";
         //InitalQuotation
         public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
-        //
 
         //Room
         public const string Room_Not_Found = "Phòng không tồn tại!";

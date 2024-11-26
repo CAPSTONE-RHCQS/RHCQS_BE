@@ -593,7 +593,10 @@ namespace RHCQS_Services.Implement
                     finalResponse = null;
                 } else if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
                 {
-                    processingResponse.Status = AppConstant.ContractStatus.PROCESSING;
+                    processingResponse = new ContractProcessingAppResponse
+                    {
+                        Status = AppConstant.ContractStatus.PROCESSING
+                    };
                 }
             }
 

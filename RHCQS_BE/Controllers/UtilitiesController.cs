@@ -311,9 +311,14 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Utility.UtilityAutoCharacterEndpoint)]
         [ProducesResponseType(typeof(UtilityResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetDetailUtilityByContainName(string name)
+        public async Task<IActionResult> GetDetailUtilityByContainName(string projectType, string name)
         {
-            var utilityItem = await _utilitiesService.GetDetailUtilityByContainName(name);
+            if (string.IsNullOrEmpty(projectType))
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Utility_Not_Empty_ProjectType);
+            }
+
+            var utilityItem = await _utilitiesService.GetDetailUtilityByContainName(projectType, name);
             var result = JsonConvert.SerializeObject(utilityItem, Formatting.Indented);
             return new ContentResult()
             {

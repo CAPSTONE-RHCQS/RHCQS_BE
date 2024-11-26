@@ -15,6 +15,6 @@ namespace RHCQS_Services.Interface
         Task<bool> UpdateUtility(UpdateUtilityRequest request);
         Task<string> BanUtility(Guid utilityId);
 
-        Task<List<AutoUtilityResponse>> GetDetailUtilityByContainName(string name);
+        Task<List<AutoUtilityResponse>> GetDetailUtilityByContainName(string projectType, string name);
     }
 }
