@@ -497,7 +497,7 @@ namespace RHCQS_Services.Implement
                     ProjectId = projectId,
                     Name = name,
                     Step = step,
-                    Status = AppConstant.HouseDesignStatus.PROCESSING,
+                    Status = AppConstant.HouseDesignStatus.REVIEWING,
                     Type = type,
                     HaveDrawing = true,
                     InsDate = LocalDateTime.VNDateTime(),
