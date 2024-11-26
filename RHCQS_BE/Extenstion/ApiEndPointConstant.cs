@@ -253,6 +253,7 @@ namespace RHCQS_BE.Extenstion
             public const string SearchMaterialEndpoint = MaterialEndpoint + "/name";
             public const string FilterMaterialEndpoint = MaterialEndpoint + "/materialsectionid";
             public const string MaterialDetailEndpoint = MaterialEndpoint + "/id";
+            public const string ImportExcel = MaterialEndpoint + "/import-excel";
         }
 
         public static class Labor
@@ -261,7 +262,7 @@ namespace RHCQS_BE.Extenstion
             public const string LaborListEndpoint = ApiEndpoint + "/alllabors";
             public const string SearchLaborEndpoint = LaborEndpoint + "/name";
             public const string LaborDetailEndpoint = LaborEndpoint + "/id";
-            public const string ImportExcel = "api/v1/labor/import-excel";
+            public const string ImportExcel = LaborEndpoint + "/import-excel";
         }
 
         public static class MaterialType

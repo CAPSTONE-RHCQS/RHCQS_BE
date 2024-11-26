@@ -117,6 +117,41 @@ namespace RHCQS_BE.Controllers
             }
         }
 
+        #region ImportMaterialFromExcel
+        /// <summary>
+        /// Imports material data from an Excel file.
+        /// </summary>
+        /// <remarks>
+        /// Upload an Excel file with the following format:
+        /// Column 1: SupplierId (Guid)  
+        /// Column 2: Name (string)
+        /// Column 3: Price (double) 
+        /// Column 4: Unit (string) 
+        /// Column 5: Size (string) 
+        /// Column 6: Shape (string) 
+        /// Column 7: Description (string) 
+        /// Column 8: UnitPrice (string) 
+        /// Column 9: MaterialSectionId (Guid)  
+        /// Column 10: Code (string)
+        /// </remarks>
+        /// <param name="file">Excel file containing labor data</param>
+        /// <returns>Returns true if the data is imported successfully, otherwise false</returns>
+        /// <response code="200">Data imported successfully</response>
+        /// <response code="400">Failed to import data</response>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Material.ImportExcel)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ImportMaterialFromExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded");
+
+            var isImported = await _materialService.ImportMaterialFromExcel(file);
+            return isImported ? Ok(true) : BadRequest("Failed to import data");
+        } 
+
         #region UpdateMaterial
         /// <summary>
         /// Updates an existing material.
@@ -161,9 +196,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Material.SearchMaterialEndpoint)]
         [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchMaterialByName(string name)
+        public async Task<IActionResult> SearchMaterialByName(Guid packageId, string name)
         {
-            var listSearchMaterial = await _materialService.SearchMaterialByName(name);
+            var listSearchMaterial = await _materialService.SearchMaterialByName(packageId ,name);
             var result = JsonConvert.SerializeObject(listSearchMaterial, Formatting.Indented);
             return new ContentResult()
             {

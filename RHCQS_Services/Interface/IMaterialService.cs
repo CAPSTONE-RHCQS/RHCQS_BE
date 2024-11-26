@@ -17,7 +17,8 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateMaterial(MaterialRequest request);
         Task<string?> UploadMaterialImage(IFormFile image);
         Task<bool> UpdateMaterial(Guid id, MaterialUpdateRequest request);
-        Task<List<MaterialResponse>> SearchMaterialByName(string name);
+        Task<List<MaterialResponse>> SearchMaterialByName(Guid packageId, string name);
         Task<List<MaterialResponse>> FilterMaterialBySection(Guid materialSectionId);
+        Task<bool> ImportMaterialFromExcel(IFormFile excelFile);
     }
 }
