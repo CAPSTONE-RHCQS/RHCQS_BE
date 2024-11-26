@@ -374,14 +374,10 @@ namespace RHCQS_Services.Implement
                 var normalizedName = name.RemoveDiacritics().ToLower();
 
                 Expression<Func<UtilitiesSection, bool>> predicate;
-                if (projectType.ToUpper() == AppConstant.Type.ALL)
+                if (projectType.ToUpper() == AppConstant.Type.ALL || projectType.ToUpper() == AppConstant.Type.DRAWINGHAVE)
                 {
-                    predicate = x => x.Utilities.Type.ToUpper() == AppConstant.Type.FINISHED
+                    predicate = x => x.Utilities.Type!.ToUpper() == AppConstant.Type.FINISHED
                     || x.Utilities.Type.ToUpper() == AppConstant.Type.ROUGH;
-                }
-                else if (projectType.ToUpper() == AppConstant.Type.DRAWINGHAVE)
-                {
-                    predicate = x => x.Utilities.Type.ToUpper() == AppConstant.Type.FINISHED;
                 }
                 else
                 {

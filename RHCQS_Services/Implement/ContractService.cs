@@ -349,7 +349,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<bool> CreateContractConstruction(ContractConstructionRequest request)
         {
-
+            #region Check contract
             var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
                                 predicate: x => x.Id == request.ProjectId,
                                 include: x => x.Include(x => x.InitialQuotations)
@@ -368,11 +368,13 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ContractOver);
             }
+            #endregion
 
             bool isInitialFinalized = infoProject.InitialQuotations.Any(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
 
             if (isInitialFinalized)
             {
+                #region Query package
                 var packageInfo = infoProject.InitialQuotations
                     .SelectMany(x => x.PackageQuotations)
                     .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
@@ -383,9 +385,9 @@ namespace RHCQS_Services.Implement
                         Price = pq.Package.Price
                     })
                     .ToList();
+                #endregion
 
-
-                // Tạo hợp đồng
+                #region Create contract
                 var contractDrawing = new Contract
                 {
                     Id = Guid.NewGuid(),
@@ -411,7 +413,9 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+                #endregion
 
+                #region Update Batch payment
                 var finalInfo = infoProject.FinalQuotations.FirstOrDefault(x => x.Status == AppConstant.ProjectStatus.FINALIZED);
 
                 if (finalInfo == null)
@@ -433,6 +437,7 @@ namespace RHCQS_Services.Implement
                     pay.ContractId = contractDrawing.Id;
                     _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(pay);
                 }
+                #endregion
 
                 bool isSuccessful = _unitOfWork.Commit() > 0;
                 return isSuccessful;

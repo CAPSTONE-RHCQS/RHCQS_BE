@@ -193,6 +193,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
             }
 
+            #region Package
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == "ROUGH");
 
@@ -208,6 +209,9 @@ namespace RHCQS_Services.Implement
                finishedPackage?.Package.Price ?? 0,
                finishedPackage?.Package.Unit ?? string.Empty
            );
+            #endregion
+
+            #region Initial quotation item
             var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponse(
                             item.Id,
                             item.ConstructionItem?.Name,
@@ -223,7 +227,9 @@ namespace RHCQS_Services.Implement
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
                             item.ConstructionItem!.Coefficient
                             )).ToList();
+            #endregion
 
+            #region Utility
             var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfo(
                             item.UtilitiesItemId ?? item.UtilitiesSectionId,
                             item.Name ?? string.Empty,
@@ -232,7 +238,9 @@ namespace RHCQS_Services.Implement
                             item.Quanity ?? 0,
                             item.UtilitiesSection.UnitPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
+            #endregion
 
+            #region Promotion
             var promotionResponse = initialQuotation?.Promotion != null
                                               ? new PromotionInfo(
                                                   initialQuotation.Promotion.Id,
@@ -240,7 +248,9 @@ namespace RHCQS_Services.Implement
                                                   initialQuotation.Promotion.Value
                                                )
                                               : new PromotionInfo();
+            #endregion
 
+            #region Batchpayment
             var batchPaymentResponse = initialQuotation!.BatchPayments
                           .OrderBy(bp => bp.NumberOfBatch)
                             .Select(item => new BatchPaymentInfo(
@@ -254,7 +264,7 @@ namespace RHCQS_Services.Implement
                                          item.Payment.PaymentDate,
                                          item.Payment.PaymentPhase
                                      )).ToList() ?? new List<BatchPaymentInfo>();
-
+            #endregion
 
             var result = new InitialQuotationResponse
             {
