@@ -414,7 +414,8 @@ namespace RHCQS_Services.Implement
                 .GetList(
                     predicate: x => x.ProjectId == projectId &&
                                (x.Status == AppConstant.QuotationStatus.APPROVED ||
-                                x.Status == AppConstant.QuotationStatus.FINALIZED),
+                                x.Status == AppConstant.QuotationStatus.FINALIZED ||
+                                x.Status == AppConstant.QuotationStatus.ENDED),
                     selector: x => new InitialQuotationAppResponse(
                         x.Id,
                         x.Version,
