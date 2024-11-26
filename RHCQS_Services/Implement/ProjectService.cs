@@ -457,7 +457,9 @@ namespace RHCQS_Services.Implement
         public async Task<string> AssignQuotation(Guid accountId, Guid projectId)
         {
             var projectCount = await _unitOfWork.GetRepository<AssignTask>()
-                                                .CountAsync(a => a.AccountId == accountId);
+                                .CountAsync(at => at.AccountId == accountId &&
+                                    at.Project.Status == AppConstant.ProjectStatus.PROCESSING);
+
             var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == projectId);
 
             var projectAval = await _unitOfWork.GetRepository<AssignTask>().CountAsync(a => a.ProjectId == projectId);
