@@ -119,9 +119,9 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
             }
-            //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
-            //project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
-            //_unitOfWork.GetRepository<Project>().UpdateAsync(project);
+            var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
+            project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+            _unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
             finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
@@ -602,14 +602,13 @@ namespace RHCQS_Services.Implement
                         {
                             var utilitiesSection = await _unitOfWork.GetRepository<UtilitiesSection>().FirstOrDefaultAsync(u => u.Id == utility.UtilitiesItemId);
                             var item = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.SectionId == utilitiesSection.Id);
-                            var itemOption = await _unitOfWork.GetRepository<UtilityOption>().FirstOrDefaultAsync(u => u.Id == utilitiesSection.UtilitiesId);
 
                             utlItem = new QuotationUtility
                             {
                                 Id = Guid.NewGuid(),
                                 UtilitiesItemId = item?.Id ?? null,
                                 FinalQuotationId = finalQuotation.Id,
-                                Name = item?.Name ?? itemOption?.Name ?? utilitiesSection.Name ?? string.Empty,
+                                Name = item?.Name ?? utilitiesSection.Name ?? string.Empty,
                                 Coefficient = utility.Coefficient ?? 0,
                                 Price = utility.Price,
                                 Description = utility.Description,
@@ -766,9 +765,9 @@ namespace RHCQS_Services.Implement
                 finalItem.Status = AppConstant.QuotationStatus.APPROVED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
 
-                //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
-                //project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
-                //_unitOfWork.GetRepository<Project>().UpdateAsync(project);
+                var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
+                project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+                _unitOfWork.GetRepository<Project>().UpdateAsync(project);
                 var data = await GetDetailFinalQuotationById(finalItem.Id);
                 try
                 {
