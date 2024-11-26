@@ -75,8 +75,8 @@ namespace RHCQS_Services.Implement
                                                     x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
                 include: x => x.Include(x => x.Project!)
                                 .ThenInclude(x => x.Customer!),
-                orderBy: x => x.OrderBy(x => x.InsDate)
-                               .ThenBy(x => x.Project!.Status == AppConstant.ProjectStatus.PROCESSING),
+                orderBy: x => x.OrderByDescending(x => x.Project!.Status == AppConstant.ProjectStatus.PROCESSING)
+                               .ThenBy(x => x.InsDate),
                 page: page,
                 size: size
             );
@@ -586,7 +586,12 @@ namespace RHCQS_Services.Implement
                 );
             } else
             {
-                if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
+                //Change step Final quotation -> Contract construction
+                if (processingResponse == null && finalResponse == null)
+                {
+                    processingResponse = null;
+                    finalResponse = null;
+                } else if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
                 {
                     processingResponse.Status = AppConstant.ContractStatus.PROCESSING;
                 }
