@@ -528,7 +528,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Waiting);
             }
-            var resutl = new ContractAppResponse(contractInfo.Id, contractInfo.UrlFile);
+            var resutl = new ContractAppResponse(contractInfo.Id, contractInfo.UrlFile!);
 
             return resutl;
         }

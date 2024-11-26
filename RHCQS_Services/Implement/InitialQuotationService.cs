@@ -270,7 +270,7 @@ namespace RHCQS_Services.Implement
             {
                 ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.CustomerName,
+                AccountName = initialQuotation.Project!.CustomerName!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -381,7 +381,7 @@ namespace RHCQS_Services.Implement
             var result = new InitialQuotationResponse
             {
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.CustomerName,
+                AccountName = initialQuotation.Project.CustomerName!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -505,10 +505,9 @@ namespace RHCQS_Services.Implement
                         };
 
                         await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
-                        _unitOfWork.Commit();
-
-                        return uploadResult.SecureUrl.ToString();
                     }
+                    var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                    return isSuccessful;
                 }
                 catch (Exception ex)
                 {
@@ -517,8 +516,7 @@ namespace RHCQS_Services.Implement
                        $"{Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll")}"
 );
                 }
-                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
-                return isSuccessful;
+==
             }
             else if(request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())
             {
@@ -876,7 +874,7 @@ namespace RHCQS_Services.Implement
                 }
 
                 //Utility
-                var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
+                var isValidUtility = ValidateDuplicateUtilities(request.Utilities!, out var duplicateIds);
                 if (!isValidUtility)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedUtility);

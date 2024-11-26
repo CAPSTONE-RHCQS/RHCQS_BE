@@ -303,6 +303,7 @@ namespace RHCQS_BE.Controllers
         /// It returns a utility section along with its associated utility items. If no utility section is found, an error will be thrown.
         /// </remarks>
         /// <param name="name">The name of the utility section to search for.</param>
+        /// <param name="projectType"></param>
         /// <response code="200">Returns the utility section and associated utility items.</response>
         /// <response code="400">Bad Request. The search term is invalid.</response>
         /// <response code="404">Not Found. No utility section with the given name was found.</response>

@@ -154,6 +154,7 @@ namespace RHCQS_BE.Controllers
         /// Searches labors by name.
         /// </summary>
         /// <param name="name">The name or partial name of the labor.</param>
+        /// <param name="packageId"></param>
         #endregion
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Labor.SearchLaborEndpoint)]
