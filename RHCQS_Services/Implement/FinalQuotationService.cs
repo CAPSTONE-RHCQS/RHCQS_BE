@@ -134,7 +134,7 @@ namespace RHCQS_Services.Implement
             try
             {
 
-                var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
+            var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
             if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == projectId && p.Version == 0))
             {
                 return await GetDetailFinalQuotationByProjectId(projectId);
@@ -2151,7 +2151,7 @@ namespace RHCQS_Services.Implement
                         <td>{noPro++}</td>
                         <td>{promotion.Name}</td>
                         <td>{promotion.Value}</td>
-                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
+                        <td>{roundedTotal - promotion.Value:N0}</td>
                     </tr>");
             }
             else
