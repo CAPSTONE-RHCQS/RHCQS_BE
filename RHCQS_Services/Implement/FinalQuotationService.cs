@@ -144,12 +144,8 @@ namespace RHCQS_Services.Implement
                         x => x.ProjectId == projectId &&
                         x.Status == AppConstant.QuotationStatus.FINALIZED,
                         include: x => x.Include(x => x.InitialQuotationItems)
-                                       .ThenInclude(x => x.ConstructionItem)
-                                       .ThenInclude(x => x.SubConstructionItems!)
                                        .Include(x => x.Project)
-                                       .ThenInclude(x => x.Customer!)
                                        .Include(x => x.PackageQuotations)
-                                       .ThenInclude(x => x.Package)
                                        .Include(x => x.Promotion)
                                        .Include(x => x.QuotationUtilities)
                                             .ThenInclude(x => x.UtilitiesItem)
