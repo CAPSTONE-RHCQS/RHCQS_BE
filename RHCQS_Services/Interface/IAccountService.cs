@@ -28,5 +28,9 @@ namespace RHCQS_Services.Interface
         Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword);
         Task<bool> CreateImageAccount(Guid accountId, ImageForAccount files);
         Task<CurrentUserModel> GetCurrentLoginUser();
+        Task<int> GetSStaffAccountCountAsync();
+        Task<int> GetDStaffAccountCountAsync();
+        Task<int> GetCustomerAccountCountAsync();
+        Task<int> GetCustomerAccountsCreatedTodayAsync();
     }
 }

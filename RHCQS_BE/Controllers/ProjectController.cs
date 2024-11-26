@@ -9,6 +9,7 @@ using RHCQS_BusinessObject.Payload.Request.Project;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -491,5 +492,19 @@ namespace RHCQS_BE.Controllers
         //    var isCreate = await _projectService.DeleteProjectAsync(projectId);
         //    return Ok(isCreate);
         //}
+
+        #region GetTotalProject
+        /// <summary>
+        /// Get total projects.
+        /// </summary>
+        /// <returns>Number of projects.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Project.TotalProjectEndpoint)]
+        public async Task<ActionResult<int>> GetTotalProject()
+        {
+            var totalProjectCount = await _projectService.GetTotalProjectCountAsync();
+            return Ok(totalProjectCount);
+        }
     }
 }

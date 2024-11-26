@@ -89,7 +89,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while creating a new labor."
+                    "Có lỗi khi tạo mới 1 nhân công."
                 );
             }
         }
@@ -151,12 +151,30 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+        public async Task<List<LaborResponse>> SearchLaborByNameWithoutPackage(string name)
+        {
+            return (List<LaborResponse>)await _unitOfWork.GetRepository<Labor>().GetListAsync(
+                selector: x => new LaborResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Price = x.Price,
+                    InsDate = x.InsDate,
+                    UpsDate = x.UpsDate,
+                    Deflag = x.Deflag,
+                    Type = x.Type
+                },
+                predicate: m => m.Name.Contains(name),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            );
+        }
+
         public async Task<bool> ImportLaborFromExcel(IFormFile excelFile)
         {
             try
             {
                 if (excelFile == null || excelFile.Length == 0)
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "No file uploaded");
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "Không tìm thấy file được tải");
 
                 using (var stream = new MemoryStream())
                 {
@@ -177,7 +195,7 @@ namespace RHCQS_Services.Implement
                             {
                                 throw new AppConstant.MessageError(
                                     (int)AppConstant.ErrCode.Conflict,
-                                    $"Duplicate code found: {code}. Please upload another file."
+                                    $"Tìm thấy mã {code} bị nhập trùng. Hãy chọn lại file khác để tải lên."
                                 );
                             }
 
@@ -203,13 +221,13 @@ namespace RHCQS_Services.Implement
                     }
                 }
             }
-            catch (AppConstant.MessageError ex)
+            catch (AppConstant.MessageError ex) 
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"Duplicate code found. Please upload another file.");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"Tìm thấy mã bị nhập trùng. Hãy chọn lại file khác để tải lên..");
             }
             catch (Exception ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"Error while importing data: {ex.Message}");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, $"Lỗi khi nhập data {ex.Message}");
             }
         }
     }

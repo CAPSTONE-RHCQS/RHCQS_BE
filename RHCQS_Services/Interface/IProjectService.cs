@@ -41,6 +41,6 @@ namespace RHCQS_Services.Interface
                 string? type,
                 string? code,
                 string? phone);
-
+        Task<int> GetTotalProjectCountAsync();
     }
 }

@@ -20,5 +20,6 @@ namespace RHCQS_Services.Interface
         Task<bool> UpdateLabor(Guid id, LaborRequest request);
         Task<bool> ImportLaborFromExcel(IFormFile excelFile);
         Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string name);
+        Task<List<LaborResponse>> SearchLaborByNameWithoutPackage(string name);
     }
 }

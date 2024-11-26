@@ -169,5 +169,26 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region SearchLaborByNameWithoutPackage
+        /// <summary>
+        /// Searches labors by name.
+        /// </summary>
+        /// <param name="name">The name or partial name of the labor.</param>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Labor.SearchLaborWithoutPackageEndpoint)]
+        [ProducesResponseType(typeof(List<LaborResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchLaborByNameWithoutPackage(string name)
+        {
+            var listSearchLabor = await _laborService.SearchLaborByNameWithoutPackage(name);
+            var result = JsonConvert.SerializeObject(listSearchLabor, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

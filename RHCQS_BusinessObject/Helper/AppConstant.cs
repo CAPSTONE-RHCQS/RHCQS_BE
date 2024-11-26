@@ -41,7 +41,8 @@ public static class AppConstant
     public class Role
     {
         public const string Manager = "Manager";
-        public const string Staff = "Staff";
+        public const string SalesStaff = "SalesStaff";
+        public const string DesignStaff = "DesignStaff";
         public const string Customer = "Customer";
     }
 

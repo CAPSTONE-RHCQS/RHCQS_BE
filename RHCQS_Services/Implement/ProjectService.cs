@@ -1104,5 +1104,11 @@ namespace RHCQS_Services.Implement
             return listProjects;
         }
 
+        public async Task<int> GetTotalProjectCountAsync()
+        {
+            var projectCount = _unitOfWork.GetRepository<Project>();
+            return await projectCount.CountAsync();
+        }
+
     }
 }

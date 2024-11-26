@@ -76,6 +76,10 @@ namespace RHCQS_BE.Extenstion
             public const string SearchAccountEndpoint = AccountEndpoint + "/name";
             public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
             public const string UploadImageProfileEndpoint = ApiEndpoint + "/upload-profile-images";
+            public const string TotalSStaffAccountEndpoint = ApiEndpoint + "/account/total-s-staff-account";
+            public const string TotalDStaffAccountEndpoint = ApiEndpoint + "/account/total-d-staff-account";
+            public const string TotalCustomerAccountEndpoint = ApiEndpoint + "/account/total-customer-account";
+            public const string TotalCustomerTodayAccountEndpoint = ApiEndpoint + "/account/total-cus-today-account";
 
         }
         public static class EquiqmentExcel
@@ -125,6 +129,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectSearchByContainName = ProjectEndpoint + "/contain/name";
             public const string ProjectHaveDrawingEndpoint = ProjectEndpoint + "/drawing-have";
             public const string FilterProjectsMultiParams = ProjectEndpoint + "/multi-filter";
+            public const string TotalProjectEndpoint = ProjectEndpoint + "/total-project";
         }
 
         public static class Construction
@@ -262,6 +267,7 @@ namespace RHCQS_BE.Extenstion
             public const string LaborEndpoint = ApiEndpoint + "/labor";
             public const string LaborListEndpoint = ApiEndpoint + "/alllabors";
             public const string SearchLaborEndpoint = LaborEndpoint + "/name";
+            public const string SearchLaborWithoutPackageEndpoint = LaborEndpoint + "/allname";
             public const string LaborDetailEndpoint = LaborEndpoint + "/id";
             public const string ImportExcel = LaborEndpoint + "/import-excel";
         }

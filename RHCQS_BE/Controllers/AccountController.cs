@@ -419,5 +419,61 @@ namespace RHCQS_BE.Controllers
                 return BadRequest($"Error uploading images: {ex.Message}");
             }
         }
+
+        #region GetTotalSStaffAccount
+        /// <summary>
+        /// Get total sales staff accounts.
+        /// </summary>
+        /// <returns>Number of sales staff accounts.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Account.TotalSStaffAccountEndpoint)]
+        public async Task<ActionResult<int>> GetTotalSStaffAccountCount()
+        {
+            var totalSStaffAccountCount = await _accountService.GetSStaffAccountCountAsync();
+            return Ok(totalSStaffAccountCount);
+        }
+
+        #region GetTotalDStaffAccount
+        /// <summary>
+        /// Get total design staff accounts.
+        /// </summary>
+        /// <returns>Number of design staff accounts.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Account.TotalDStaffAccountEndpoint)]
+        public async Task<ActionResult<int>> GetTotalDStaffAccountCount()
+        {
+            var totalDStaffAccountCount = await _accountService.GetDStaffAccountCountAsync();
+            return Ok(totalDStaffAccountCount);
+        }
+
+        #region GetTotalCustomerAccount
+        /// <summary>
+        /// Get total customer accounts.
+        /// </summary>
+        /// <returns>Number of customer accounts.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Account.TotalCustomerAccountEndpoint)]
+        public async Task<ActionResult<int>> GetTotalCustomerAccount()
+        {
+            var totalCustomerAccountCount = await _accountService.GetCustomerAccountCountAsync();
+            return Ok(totalCustomerAccountCount);
+        }
+
+        #region GetTotalCustomerAccountToday
+        /// <summary>
+        /// Get total customer accounts today.
+        /// </summary>
+        /// <returns>Number of customer accounts.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Account.TotalCustomerTodayAccountEndpoint)]
+        public async Task<ActionResult<int>> GetTotalCustomerAccountToday()
+        {
+            var totalCustomerAccountCount = await _accountService.GetCustomerAccountsCreatedTodayAsync();
+            return Ok(totalCustomerAccountCount);
+        }
     }
 }
