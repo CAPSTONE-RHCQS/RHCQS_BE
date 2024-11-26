@@ -76,7 +76,7 @@ namespace RHCQS_BE.Controllers
         /// Role: CUSTOMER
         /// </summary>
         #endregion
-        [Authorize(Roles = "Customer")]
+        //[Authorize(Roles = "Customer")]
         [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationProjectEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListInitialQuotationByProjectId(Guid projectId)

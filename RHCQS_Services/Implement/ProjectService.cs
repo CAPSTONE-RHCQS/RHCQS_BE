@@ -573,13 +573,12 @@ namespace RHCQS_Services.Implement
             var finalResponse = await GetFinalQuotationResponse(projectId);
             var processingResponse = await GetContractResponse<ContractProcessingAppResponse>(projectId,
                    AppConstant.ContractType.Construction.ToString());
-            if (projectTrack.IsDrawing == true)
-            {
-                var contractDesignResponse = await GetContractResponse<ContractDesignAppResponse>(projectId, 
-                    AppConstant.ContractType.Design.ToString());
-               
-               
 
+            //Case: Have drawing - contract design: null
+            if (projectTrack.IsDrawing == false || projectTrack.Type == AppConstant.Type.TEMPLATE)
+            {
+                var contractDesignResponse = await GetContractResponse<ContractDesignAppResponse>(projectId,
+                    AppConstant.ContractType.Design.ToString());
                 return new ProjectAppResponse(
                     initialResponse,
                     contractDesignResponse,

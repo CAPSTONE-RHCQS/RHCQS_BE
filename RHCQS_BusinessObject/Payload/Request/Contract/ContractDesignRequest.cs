@@ -23,7 +23,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
         [Required(ErrorMessage = "Ngày kết thúc là bắt buộc.")]
         public DateTime? EndDate { get; set; }
 
-        [Range(1, 60, ErrorMessage = "Thời hạn hợp đồng phải từ 1 đến 60 tháng.")]
+        [Range(1, 300, ErrorMessage = "Thời hạn hợp đồng phải từ 1 đến 10 tháng.")]
         public int? ValidityPeriod { get; set; }
 
         //[StringLength(15, ErrorMessage = "Mã số thuế không được vượt quá 15 ký tự.")]
@@ -63,6 +63,5 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
         [Required(ErrorMessage = "Mô tả là bắt buộc.")]
         [StringLength(1000, ErrorMessage = "Mô tả không được vượt quá 1000 ký tự.")]
         public string? Description { get; set; }
-        public int NumberOfBatch {  get; set; }
     }
 }
