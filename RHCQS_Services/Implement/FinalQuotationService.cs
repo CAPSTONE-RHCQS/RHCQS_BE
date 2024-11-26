@@ -119,9 +119,9 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
             }
-            var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
-            project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
-            _unitOfWork.GetRepository<Project>().UpdateAsync(project);
+            //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
+            //project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+            //_unitOfWork.GetRepository<Project>().UpdateAsync(project);
 
             finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
@@ -766,9 +766,9 @@ namespace RHCQS_Services.Implement
                 finalItem.Status = AppConstant.QuotationStatus.APPROVED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
 
-                var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
-                project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
-                _unitOfWork.GetRepository<Project>().UpdateAsync(project);
+                //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
+                //project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+                //_unitOfWork.GetRepository<Project>().UpdateAsync(project);
                 var data = await GetDetailFinalQuotationById(finalItem.Id);
                 try
                 {
