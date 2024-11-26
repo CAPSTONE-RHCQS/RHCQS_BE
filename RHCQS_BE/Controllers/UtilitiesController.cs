@@ -59,6 +59,7 @@ namespace RHCQS_BE.Controllers
         ///     GET /api/v1/utility/type?type=ROUGH 
         ///     GET /api/v1/utility/type?type=FINISHED
         ///     GET /api/v1/utility/type?type=ALL
+        ///     GET /api/v1/utility/type?type=TEMPLATE
         ///     
         /// </remarks>
         /// <param name="type">
@@ -82,7 +83,10 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetListUtilitiesByType(string type)
         {
             if (string.IsNullOrWhiteSpace(type) ||
-                (type != AppConstant.Type.ROUGH && type != AppConstant.Type.FINISHED && type != AppConstant.Type.ALL))
+                (type != AppConstant.Type.ROUGH && 
+                type != AppConstant.Type.FINISHED && 
+                type != AppConstant.Type.ALL &&
+                type != AppConstant.Type.TEMPLATE))
             {
                 return BadRequest("Invalid type. Allowed values are ROUGH, FINISHED, or ALL.");
             }

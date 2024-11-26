@@ -117,14 +117,14 @@ namespace RHCQS_Services.Implement
                     if (drawingInfo.Step == 4)
                     {
                         var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                                        predicate: p => p.Id == drawingInfo.ProjectId, 
+                                        predicate: p => p.Id == drawingInfo.ProjectId,
                                         include: p => p.Include(p => p.Contracts));
                         if (projectInfo == null)
                         {
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
                         }
                         projectInfo.Status = AppConstant.ProjectStatus.DESIGNED;
-                        projectInfo.Contracts.FirstOrDefault(contract => contract.Type == AppConstant.ContractType.Design.ToString())!.Status 
+                        projectInfo.Contracts.FirstOrDefault(contract => contract.Type == AppConstant.ContractType.Design.ToString())!.Status
                             = AppConstant.ContractStatus.COMPLETED;
                         _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
                     }
@@ -193,7 +193,7 @@ namespace RHCQS_Services.Implement
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(itemMedia);
                 }
 
-               
+
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 if (isSuccessful)
@@ -258,39 +258,74 @@ namespace RHCQS_Services.Implement
             itemDrawing.HouseDesignDrawing.Status = itemMedia!.Url != null ? "Finished" : "Processing";
             itemDrawing.UpsDate = LocalDateTime.VNDateTime();
 
-           
+
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;
             return isUpdate;
         }
 
         public async Task<bool> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
         {
-            var drawingItem = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(x => x.Id == Id,
-                                                include: x => x.Include(x => x.HouseDesignDrawing));
-
-            if (drawingItem == null) throw new AppConstant.MessageError((int)(AppConstant.ErrCode.Not_Found),
-                                               AppConstant.ErrMessage.HouseDesignDrawing);
-
-            if (request.Type == AppConstant.HouseDesignStatus.APPROVED)
+            try
             {
-                drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.APPROVED;
-                drawingItem.Deflag = true;
-                var designDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().
-                    FirstOrDefaultAsync(x => x.Id == drawingItem.HouseDesignDrawingId);
-                designDrawing.Status = AppConstant.HouseDesignStatus.APPROVED;
+                var drawingItem = await _unitOfWork.GetRepository<HouseDesignVersion>().FirstOrDefaultAsync(x => x.Id == Id,
+                                                    include: x => x.Include(x => x.HouseDesignDrawing)
+                                                                    .ThenInclude(x => x.Project));
+
+                if (drawingItem == null) throw new AppConstant.MessageError((int)(AppConstant.ErrCode.Not_Found),
+                                                   AppConstant.ErrMessage.HouseDesignDrawing);
+
+                if ((bool)!drawingItem.HouseDesignDrawing.HaveDrawing!)
+                {
+                    if (request.Type == AppConstant.HouseDesignStatus.APPROVED)
+                    {
+                        drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.APPROVED;
+                        drawingItem.Deflag = true;
+                        var designDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>().
+                            FirstOrDefaultAsync(x => x.Id == drawingItem.HouseDesignDrawingId);
+                        designDrawing.Status = AppConstant.HouseDesignStatus.APPROVED;
+                    }
+                    else
+                    {
+                        drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.UPDATING;
+                        if (request.Reason == null)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Not_Reason);
+                        }
+                        drawingItem.Reason = request.Reason;
+                    }
+                    _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
+                }
+                else
+                {
+                    if (request.Type == AppConstant.HouseDesignStatus.APPROVED)
+                    {
+                        drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.FINALIZED;
+                        drawingItem.Deflag = true;
+                        if (drawingItem.HouseDesignDrawing.Step == 4)
+                        {
+                            drawingItem.HouseDesignDrawing.Project.Status = AppConstant.ProjectStatus.DESIGNED;
+                        }
+                    }
+                    else
+                    {
+                        drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.REJECTED;
+                        if (request.Reason == null)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Not_Reason);
+                        }
+                        drawingItem.Reason = request.Reason;
+                    }
+                    _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
+                }
+
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+
+                return isSuccessful;
             }
-            else
+            catch (Exception ex)
             {
-                drawingItem.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.UPDATING;
-                drawingItem.Reason = request.Reason;
+                throw new Exception(ex.Message, ex);
             }
-            _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
-
-
-
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-
-            return isSuccessful;
         }
 
         public async Task<string> ConfirmDesignDrawingFromCustomer(Guid versionId)
@@ -307,8 +342,8 @@ namespace RHCQS_Services.Implement
 
             var nextStep = designVersionInfo.HouseDesignDrawing.Step + 1;
 
-            if (nextStep == 2 || nextStep == 3||nextStep == 4)
-            { 
+            if (nextStep == 2 || nextStep == 3 || nextStep == 4)
+            {
                 var nextStepDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                     .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId && x.Step == nextStep);
 
@@ -338,7 +373,6 @@ namespace RHCQS_Services.Implement
             string saveResult = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return saveResult;
         }
-
 
         public async Task<string> CommentDesignDrawingFromCustomer(Guid versionId, FeedbackHouseDesignDrawingRequest comment)
         {

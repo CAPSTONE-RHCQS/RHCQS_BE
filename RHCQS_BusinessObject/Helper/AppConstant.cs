@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection.Metadata;
 
 namespace RHCQS_BusinessObjects;
 
@@ -208,6 +209,7 @@ public static class AppConstant
         
         public const string InvalidToken = "Token không hợp lệ!";
         public const string Not_Token_expired = "Token chưa hết hạn.";
+        public const string Not_Reason = "Cần lý do từ chối!";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
@@ -338,7 +340,7 @@ public static class AppConstant
         public const string FinalQuotationUpdateFailed = "Báo giá chi tiết cập nhật thất bại.";
         public const string FinalNotfound = "Báo giá chi tiết không tồn tại.";
         public const string PromotionIdNotfound = "Mã giảm giá không tồn tại.";
-        public const string ProjectFinalIdNotfound = "Mã dự án không tồn tại.";
+        public const string ProjectFinalIdNotfound = "Mã dự án không hợp lệ.";
         public const string ConstructionIdNotfound = "Hạng mục không tồn tại.";
         public const string ConstructionTypeInvalidate= "Kiểu hạng mục không hợp lệ.";
         public const string LaborIdNotfound = "Nhân công không tồn tại.";

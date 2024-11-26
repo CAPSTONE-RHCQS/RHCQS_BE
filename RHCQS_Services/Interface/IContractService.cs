@@ -23,5 +23,6 @@ namespace RHCQS_Services.Interface
         Task<string> BillContractDesign(Guid paymentId, List<IFormFile> bills);
         Task<string> BillContractContruction(Guid paymentId, List<IFormFile> bills);
         Task<FinalToContractResponse> CloneFinalInfoToContract(Guid projectId);
+        Task<string> UploadFileContract(IFormFile file);
     }
 }

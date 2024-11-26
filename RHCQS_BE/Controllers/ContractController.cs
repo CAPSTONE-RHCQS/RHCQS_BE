@@ -333,5 +333,28 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region UploadFileContract
+        /// <summary>
+        /// Upload file contract (design + construction)
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager, SalesStaff")]
+        [HttpPost(ApiEndPointConstant.Contract.UploadFileContractEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadFileContract(IFormFile file)
+        {
+            var contractItem = await _contractService.UploadFileContract(file);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

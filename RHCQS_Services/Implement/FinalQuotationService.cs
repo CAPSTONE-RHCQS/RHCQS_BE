@@ -131,8 +131,8 @@ namespace RHCQS_Services.Implement
         }
         public async Task<FinalQuotationResponse> CreateFinalQuotation(Guid projectId)
         {
-            //try
-            //{
+            try
+            {
 
             var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
             if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == projectId && p.Version == 0))
@@ -141,7 +141,8 @@ namespace RHCQS_Services.Implement
             }
 
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                        x => x.ProjectId == projectId && x.Status == AppConstant.QuotationStatus.FINALIZED,
+                        x => x.ProjectId == projectId &&
+                        x.Status == AppConstant.QuotationStatus.FINALIZED,
                         include: x => x.Include(x => x.InitialQuotationItems)
                                        .ThenInclude(x => x.ConstructionItem)
                                        .ThenInclude(x => x.SubConstructionItems!)
@@ -165,11 +166,19 @@ namespace RHCQS_Services.Implement
                 );
             }
 
+            var projectExists = await _unitOfWork.GetRepository<Project>()
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+            if (projectExists == null) 
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+                    AppConstant.ErrMessage.ProjectFinalIdNotfound);
+            }
             var finalQuotation = new FinalQuotation
             {
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 PromotionId = initialQuotation.PromotionId,
+                Discount = initialQuotation.Discount,
                 TotalPrice = 0,
                 Note = null,
                 Version = 0,
@@ -215,13 +224,13 @@ namespace RHCQS_Services.Implement
                 );
             }
             return await GetDetailFinalQuotationByProjectId(projectId);
-            //}
-            //catch (Exception ex) { throw; }
+            }
+            catch (Exception ex) { throw; }
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
-            try
-            {
+            //try
+            //{
                 double? totalUtilities = 0;
                 double? totalEquipmentItems = 0;
                 double? totalQuotationItems = 0;
@@ -311,7 +320,7 @@ namespace RHCQS_Services.Implement
                     _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
                 }
 
-                if (highestFinalQuotation.Version >= AppConstant.General.MaxVersion)
+                if (highestFinalQuotation?.Version >= AppConstant.General.MaxVersion)
                 {
                     highestFinalQuotation.Project.Status = AppConstant.ProjectStatus.ENDED;
                     _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
@@ -405,7 +414,7 @@ namespace RHCQS_Services.Implement
                             constructionId = fqi.ConstructionId;
                             subConstructionId = subConstructionItemExists.Id;
                             //coefficient = subConstructionItemExists.Coefficient;
-                            contructionType = constructionItemExists.Type;
+                            contructionType = constructionItemExists.Type ?? string.Empty;
 
                             finalQuotationItem = new FinalQuotationItem
                             {
@@ -428,7 +437,7 @@ namespace RHCQS_Services.Implement
                             }
                             constructionId = constructionItemExists.Id;
                             //coefficient = constructionItemExists.Coefficient;
-                            contructionType = constructionItemExists.Type;
+                            contructionType = constructionItemExists.Type ?? string.Empty;
                             finalQuotationItem = new FinalQuotationItem
                             {
                                 Id = Guid.NewGuid(),
@@ -657,16 +666,16 @@ namespace RHCQS_Services.Implement
                     );
                 }
                 return finalQuotation.Id;
-            }catch(Exception ex)
-            {
-                throw;
-            }
+            //}catch(Exception ex)
+            //{
+            //    throw;
+            //}
 
         }
         public async Task DeleteFinalQuotation(Guid finalQuotationId)
         {
-            try
-            {
+            //try
+            //{
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
                 var finalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(fq => fq.Id == finalQuotationId,
                     include: fq => fq
@@ -747,8 +756,8 @@ namespace RHCQS_Services.Implement
                         AppConstant.ErrMessage.FinalQuotationUpdateFailed
                     );
                 }
-            }
-            catch (Exception ex) { throw; }
+            //}
+            //catch (Exception ex) { throw; }
         }
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
         {
@@ -760,6 +769,10 @@ namespace RHCQS_Services.Implement
             {
                 finalItem.Status = AppConstant.QuotationStatus.APPROVED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalItem);
+
+                var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalItem.ProjectId);
+                project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+                _unitOfWork.GetRepository<Project>().UpdateAsync(project);
                 var data = await GetDetailFinalQuotationById(finalItem.Id);
                 try
                 {
@@ -1116,8 +1129,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id)
         {
-            try
-            {
+            //try
+            //{
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                     x => x.Id.Equals(id) && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
@@ -1127,7 +1140,8 @@ namespace RHCQS_Services.Implement
                                        .ThenInclude(x => x.HouseDesignVersions)
                                    .Include(x => x.Promotion)
                                    .Include(x => x.QuotationUtilities)
-                                       .ThenInclude(qu => qu.UtilitiesItem)
+                                       .ThenInclude(qu => qu.UtilitiesSection)
+                                       .ThenInclude(qu => qu.UtilitiesItems)
                                    .Include(x => x.EquipmentItems)
                                    .Include(x => x.FinalQuotationItems)
                                    .Include(x => x.FinalQuotationItems)
@@ -1157,8 +1171,8 @@ namespace RHCQS_Services.Implement
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
                         bp?.ContractId ?? null,
-                        bp.InsDate,
-                        bp.Status,
+                        bp?.InsDate ?? null,
+                        bp?.Status,
                         bp?.Payment?.UpsDate,
                         bp?.Payment?.Description,
                         bp?.Payment?.Percents ?? 0,
@@ -1252,8 +1266,8 @@ namespace RHCQS_Services.Implement
                         var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
                         subConstructionId = fqi.SubContructionId;
                         //coefficient = subConstructionItem.Coefficient;
-                        constructionType = constructionItem?.Type;
-                        name = subConstructionItem.Name;
+                        constructionType = constructionItem?.Type ?? string.Empty;
+                        name = subConstructionItem.Name ?? string.Empty;
 
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                             fqi.Id,
@@ -1277,8 +1291,8 @@ namespace RHCQS_Services.Implement
 
                         constructionId = constructionItem.Id;
                         //coefficient = constructionItem.Coefficient;
-                        constructionType = constructionItem?.Type;
-                        name = constructionItem.Name;
+                        constructionType = constructionItem?.Type ?? string.Empty;
+                        name = constructionItem?.Name ?? string.Empty;
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                             fqi.Id,
                             constructionId,
@@ -1303,20 +1317,24 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
-                    qUtility.Id,
-                    qUtility.UtilitiesItemId,
-                    qUtility.UtilitiesSectionId,
-                    qUtility.Name,
-                    qUtility.Description ?? string.Empty,
-                    qUtility.Coefficient ?? 0,
-                    qUtility.Price ?? 0,
-                    qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
-                    qUtility.Quanity ?? null
-                )).ToList() ?? new List<UtilityInf>();
+            var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
+                qUtility.Id,
+                qUtility.UtilitiesItemId,
+                qUtility.UtilitiesSectionId,
+                qUtility.Name,
+                qUtility.Description ?? string.Empty,
+                qUtility.Coefficient ?? 0,
+                qUtility.Price ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.UnitPrice ?? 0
+                    : qUtility.UtilitiesSection?.UnitPrice ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.Unit ?? string.Empty
+                    : qUtility.UtilitiesSection?.Unit ?? string.Empty,
+                qUtility.Quanity ?? null
+            )).ToList() ?? new List<UtilityInf>();
 
-                var constructionRough = finalQuotationItemsList
+            var constructionRough = finalQuotationItemsList
                     .Where(item => item.Type == "ROUGH")
                     .SelectMany(item => item.QuotationItems)
                     .GroupBy(qi => "ROUGH")
@@ -1405,18 +1423,18 @@ namespace RHCQS_Services.Implement
                 );
 
                 return response;
-            }
-            catch (Exception ex)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            //}
         }
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationByProjectId(Guid projectid)
         {
 
-            try
-            {
+            //try
+            //{
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                     x => x.ProjectId.Equals(projectid) && x.Version == 0 && (x.Deflag == true),
                     include: x => x.Include(x => x.Project)
@@ -1428,6 +1446,9 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.QuotationUtilities)
                                        .ThenInclude(qu => qu.UtilitiesItem)
                                        .ThenInclude(qu => qu.Section)
+                                   .Include(x => x.QuotationUtilities)
+                                       .ThenInclude(qu => qu.UtilitiesSection)
+                                       .ThenInclude(qu => qu.UtilitiesItems)
                                    .Include(x => x.EquipmentItems)
                                    .Include(x => x.FinalQuotationItems)
                                    .Include(x => x.FinalQuotationItems)
@@ -1457,8 +1478,8 @@ namespace RHCQS_Services.Implement
                         bp?.Payment?.PaymentTypeId ?? Guid.Empty,
                         bp?.Payment?.PaymentType?.Name ?? string.Empty,
                         bp?.ContractId ?? null,
-                        bp.InsDate,
-                        bp.Status,
+                        bp?.InsDate ?? null,
+                        bp?.Status,
                         bp?.Payment?.UpsDate,
                         bp?.Payment?.Description,
                         bp?.Payment?.Percents ?? 0,
@@ -1553,8 +1574,8 @@ namespace RHCQS_Services.Implement
                         var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
                         subConstructionId = fqi.SubContructionId;
                         //coefficient = subConstructionItem.Coefficient;
-                        constructionType = constructionItem?.Type;
-                        name = subConstructionItem.Name;
+                        constructionType = constructionItem?.Type ?? string.Empty;
+                        name = subConstructionItem?.Name ?? string.Empty;
 
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                             fqi.Id,
@@ -1578,8 +1599,8 @@ namespace RHCQS_Services.Implement
 
                         constructionId = constructionItem.Id;
                         //coefficient = constructionItem.Coefficient;
-                        constructionType = constructionItem?.Type;
-                        name = constructionItem.Name;
+                        constructionType = constructionItem?.Type ?? string.Empty;
+                        name = constructionItem?.Name ?? string.Empty;
                         finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                             fqi.Id,
                             constructionId,
@@ -1604,20 +1625,24 @@ namespace RHCQS_Services.Implement
                     )
                     : null;
 
-                var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
-                    qUtility.Id,
-                    qUtility.UtilitiesItemId,
-                    qUtility.UtilitiesSectionId,
-                    qUtility.Name,
-                    qUtility.Description ?? string.Empty,
-                    qUtility.Coefficient ?? 0,
-                    qUtility.Price ?? 0,
-                    qUtility.UtilitiesItem?.Section?.UnitPrice ?? 0,
-                    qUtility.UtilitiesItem?.Section?.Unit ?? string.Empty,
-                    qUtility.Quanity ?? null
-                )).ToList() ?? new List<UtilityInf>();
+            var utilityInfoList = finalQuotation.QuotationUtilities?.Select(qUtility => new UtilityInf(
+                qUtility.Id,
+                qUtility.UtilitiesItemId,
+                qUtility.UtilitiesSectionId,
+                qUtility.Name,
+                qUtility.Description ?? string.Empty,
+                qUtility.Coefficient ?? 0,
+                qUtility.Price ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.UnitPrice ?? 0
+                    : qUtility.UtilitiesSection?.UnitPrice ?? 0,
+                qUtility.UtilitiesItem != null
+                    ? qUtility.UtilitiesItem.Section?.Unit ?? string.Empty 
+                    : qUtility.UtilitiesSection?.Unit ?? string.Empty,
+                qUtility.Quanity ?? null
+            )).ToList() ?? new List<UtilityInf>();
 
-                var constructionRough = finalQuotationItemsList
+            var constructionRough = finalQuotationItemsList
                     .Where(item => item.Type == "ROUGH")
                     .SelectMany(item => item.QuotationItems)
                     .GroupBy(qi => "ROUGH")
@@ -1704,11 +1729,11 @@ namespace RHCQS_Services.Implement
                 );
 
                 return response;
-            }
-            catch (Exception ex)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            //}
 
         }
 
@@ -2139,7 +2164,7 @@ namespace RHCQS_Services.Implement
                         <td>{noPro++}</td>
                         <td>{promotion.Name}</td>
                         <td>{promotion.Value}</td>
-                        <td>{roundedTotal * promotion.Value / 100:N0}</td>
+                        <td>{roundedTotal - promotion.Value:N0}</td>
                     </tr>");
             }
             else

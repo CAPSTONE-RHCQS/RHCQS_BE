@@ -368,7 +368,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="403">If the user is forbidden from accessing this resource.</response>
         /// <response code="404">If no projects are found for the provided email.</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Project.ProjectTrackingEndpoint)]
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> TrackingProject(Guid projectId)
@@ -431,7 +431,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Project created successfully</response>
         /// <response code="400">Failed to create the project due to validation errors</response>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff")]
+        [Authorize(Roles = "Customer, SalesStaff")]
         [HttpPost(ApiEndPointConstant.Project.ProjectHaveDrawingEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

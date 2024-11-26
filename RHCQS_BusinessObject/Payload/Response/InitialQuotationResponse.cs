@@ -42,6 +42,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class InitialQuotationResponse
     {
+        public string ProjectType { get; set; }
         public InitialQuotationResponse() { }
         public Guid Id { get; set; }
         public string AccountName { get; set; }
@@ -151,19 +152,22 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class UtilityInfo
     {
-        public UtilityInfo(Guid id, string description, double coefficient, double price, int? quantity)
+        public UtilityInfo(Guid id, string description, double coefficient,
+            double price, int? quantity, double unitPrice)
         {
             Id = id;
             Description = description;
             Coefficient = coefficient;
             Price = price;
             Quantity = quantity;
+            UnitPrice = unitPrice;
         }
         public Guid Id { get; set; }
         public string Description { get; set; }
         public double Coefficient { get; set; }
         public double Price { get; set; }
         public int? Quantity { get; set; }
+        public double UnitPrice { get; set; }
     }
 
     public class BatchPaymentInfo

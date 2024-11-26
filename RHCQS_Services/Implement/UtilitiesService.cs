@@ -45,7 +45,7 @@ namespace RHCQS_Services.Implement
 
         public async Task<List<UtilityResponse>> GetListUtilitiesByType(string type)
         {
-            if (AppConstant.Type.ROUGH == type || AppConstant.Type.FINISHED == type)
+            if (AppConstant.Type.ROUGH == type || AppConstant.Type.FINISHED == type || AppConstant.Type.TEMPLATE == type)
             {
                 var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
                predicate: x => x.Type!.Equals(type.ToUpper()),

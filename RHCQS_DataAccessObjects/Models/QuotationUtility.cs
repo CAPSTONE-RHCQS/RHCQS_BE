@@ -34,4 +34,6 @@ public partial class QuotationUtility
     public virtual InitialQuotation? InitialQuotation { get; set; }
 
     public virtual UtilitiesItem? UtilitiesItem { get; set; }
+
+    public virtual UtilitiesSection UtilitiesSection { get; set; } = null!;
 }

@@ -181,15 +181,14 @@ namespace RHCQS_Services.Implement
             return new ConstructionItemResponse();
         }
 
-        public async Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string type, string name)
+        public async Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string name)
         {
             try
             {
                 var normalizedName = name.RemoveDiacritics().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
-                    .GetListAsync(predicate: con => con.Type.ToLower() == type.ToLower(),
-                    include: con => con.Include(c => c.SubConstructionItems));
+                    .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
 
                 var filteredItems = constructionItems
                   .Where(con =>
@@ -206,7 +205,8 @@ namespace RHCQS_Services.Implement
                             constructionItem.Id,
                             subConstructionId: subConstruction.Id,
                             name: subConstruction.Name,
-                            coefficient: subConstruction.Coefficient
+                            coefficient: subConstruction.Coefficient,
+                            type: subConstruction.ConstructionItems.Type!
                         )).ToList();
 
                     if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
@@ -215,7 +215,8 @@ namespace RHCQS_Services.Implement
                             constructionItem.Id,
                             subConstructionId: null,
                             name: constructionItem.Name,
-                            coefficient: constructionItem.Coefficient
+                            coefficient: constructionItem.Coefficient,
+                            type: constructionItem.Type!
                         ));
                     }
 
