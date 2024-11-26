@@ -292,7 +292,7 @@ namespace RHCQS_BE.Controllers
         ///     
         /// </remarks>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Project.ProjectAssignEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
