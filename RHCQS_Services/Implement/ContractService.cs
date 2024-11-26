@@ -605,6 +605,13 @@ namespace RHCQS_Services.Implement
                     {
                         payBatchInfo.First().Contract.Status = AppConstant.ContractStatus.FINISHED;
                     }
+                    if (payBatchInfo.First().Contract.Type == AppConstant.ContractType.Construction.ToString())
+                    {
+                        var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                            predicate: x => x.Id == payBatchInfo.First().Contract.ProjectId);
+                        project.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Project>().UpdateAsync(project);
+                    }
                 }
                 _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
 
