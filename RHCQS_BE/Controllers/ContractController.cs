@@ -282,8 +282,58 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> BillContractDesign(Guid paymentId, List<IFormFile> files)
         {
-            var result = await _contractService.BillContract(paymentId, files);
+            var result = await _contractService.BillContractDesign(paymentId, files);
             return Ok(result);
+        }
+
+        #region BillContractContruction
+        /// <summary>
+        /// Manager upload bill payment contract design 
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="paymentId">Approve payment contract design</param>
+        /// <param name="files"></param>
+        /// <returns>Returns true if the payment contract is created successfully, otherwise false.</returns>
+        /// <response code="200">Media created - Payment chanage status "Paid" successfully</response>
+        /// <response code="400">Failed to approve contract due to invalid input</response>
+        /// 
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Contract.PaymentBatchConstructionConfirmEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> BillContractContruction(Guid paymentId, List<IFormFile> files)
+        {
+            var result = await _contractService.BillContractContruction(paymentId, files);
+            return Ok(result);
+        }
+
+        #region CloneInitialInfoToContract
+        /// <summary>
+        /// Clone initial quotation to contract design
+        /// 
+        /// Role: MANAGER - SALES STAFF
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager, SalesStaff")]
+        [HttpGet(ApiEndPointConstant.Contract.FinalToContract)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CloneInitialInfoToContract(Guid projectId)
+        {
+            var contractItem = await _contractService.CloneFinalInfoToContract(projectId);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CloneInitialInfoToContract

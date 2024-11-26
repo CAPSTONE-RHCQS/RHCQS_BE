@@ -20,7 +20,8 @@ namespace RHCQS_Services.Interface
         Task<ContractResponse> GetDetailContractByType(string type);
         Task<ContractAppResponse> GetListContractApp(Guid projectId, string type);
         Task<string> UploadContractSign(Guid contractId, List<IFormFile> contractFile);
-        Task<string> BillContract(Guid paymentId, List<IFormFile> bills);
+        Task<string> BillContractDesign(Guid paymentId, List<IFormFile> bills);
+        Task<string> BillContractContruction(Guid paymentId, List<IFormFile> bills);
         Task<FinalToContractResponse> CloneFinalInfoToContract(Guid projectId);
         Task<string> UploadFileContract(IFormFile file);
         Task<bool> ManagerApproverBillFromCustomer(Guid paymentId, string type);

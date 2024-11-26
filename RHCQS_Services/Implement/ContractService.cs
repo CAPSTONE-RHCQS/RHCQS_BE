@@ -396,7 +396,7 @@ namespace RHCQS_Services.Implement
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
                     ValidityPeriod = request.ValidityPeriod,
-                    TaxCode = null,
+                    TaxCode = request.TaxCode,
                     Area = infoProject.Area,
                     UnitPrice = AppConstant.Unit.UnitPrice,
                     ContractValue = request.ContractValue,
@@ -531,22 +531,24 @@ namespace RHCQS_Services.Implement
             return resutl;
         }
 
-        public async Task<string> BillContract(Guid paymentId, List<IFormFile> bills)
+        public async Task<string> BillContractDesign(Guid paymentId, List<IFormFile> bills)
         {
             try
             {
+                //Check list batch payment 
                 var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
-                    predicate: p => p.PaymentId == paymentId,
-                    include: p => p.Include(p => p.Contract!));
+                                    predicate: p => p.PaymentId == paymentId,
+                                    include: p => p.Include(p => p.Contract!));
 
                 if (payBatchInfo == null || !payBatchInfo.Any())
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
                 }
-
                 int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
 
-                #region Create bill & save in media
+                var contractInfo = payBatchInfo.FirstOrDefault()?.Contract;
+                string contractType = contractInfo.Type;
+
                 for (int i = 0; i < imageCount; i++)
                 {
                     var file = bills[i];
@@ -556,10 +558,14 @@ namespace RHCQS_Services.Implement
                         continue;
                     }
 
+                    var publicId = contractType == "Design"
+                            ? $"Hoa_don_thiet_ke_{paymentId}_{i}"
+                            : $"Hoa_don_thi_cong_{paymentId}_{i}";
+
                     var uploadParams = new ImageUploadParams()
                     {
                         File = new FileDescription(file.FileName, file.OpenReadStream()),
-                        PublicId = $"Hoa_don_{paymentId}_{i}",
+                        PublicId = publicId,
                         Folder = "Contract",
                         UseFilename = true,
                         UniqueFilename = false,
@@ -573,6 +579,7 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
                     }
 
+                    // Tạo mới Media cho mỗi hình ảnh và gán PaymentId tương ứng
                     var mediaInfo = new Medium
                     {
                         Id = Guid.NewGuid(),
@@ -593,28 +600,21 @@ namespace RHCQS_Services.Implement
                         currentBatch.Status = AppConstant.PaymentStatus.PAID;
                     }
                 }
-                #endregion
 
+                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
+
+                var contractId = payBatchInfo.First().ContractId;
                 var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
 
                 if (allPaid)
                 {
-                    var firstBatch = payBatchInfo.First();
-
-                    if (firstBatch.ContractId.HasValue)
+                    var contract = payBatchInfo.First().Contract;
+                    if (contract != null)
                     {
-                        payBatchInfo.First().Contract.Status = AppConstant.ContractStatus.FINISHED;
-                    }
-                    if (payBatchInfo.First().Contract.Type == AppConstant.ContractType.Construction.ToString())
-                    {
-                        var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                            predicate: x => x.Id == payBatchInfo.First().Contract.ProjectId);
-                        project.Status = AppConstant.ContractStatus.FINISHED;
-                        _unitOfWork.GetRepository<Project>().UpdateAsync(project);
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
                     }
                 }
-                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
-
 
                 string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
                 return result;
@@ -624,6 +624,109 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
         }
+
+        //Manager update bill 
+        public async Task<string> BillContractContruction(Guid paymentId, List<IFormFile> bills)
+        {
+            try
+            {
+                var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                    predicate: p => p.PaymentId == paymentId,
+                                    include: p => p.Include(p => p.Contract!));
+                if (payBatchInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+                }
+
+                int imageCount = Math.Min(bills.Count, payBatchInfo.Count);
+
+                var payBatchList = payBatchInfo.ToList();
+                for (int i = 0; i < imageCount; i++)
+                {
+                    var file = bills[i];
+
+                    if (file == null || file.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var publicId = $"Hoa_don_thi_cong_{paymentId}_{i}";
+
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = publicId,
+                        Folder = "Contract",
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                    }
+
+                    // Tạo mới Media cho mỗi hình ảnh và gán PaymentId tương ứng
+                    var mediaInfo = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        HouseDesignVersionId = null,
+                        Name = AppConstant.General.Bill,
+                        Url = uploadResult.Url.ToString(),
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
+                        SubTemplateId = null,
+                        PaymentId = payBatchList[i].PaymentId
+                    };
+
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+
+                    var currentBatch = payBatchInfo.ElementAt(i);
+                    if (currentBatch.Status == AppConstant.PaymentStatus.PROGRESS)
+                    {
+                        currentBatch.Status = AppConstant.PaymentStatus.PAID;
+                    }
+                }
+
+                //Find batch item has status Paid
+                var contractId = payBatchInfo.First().ContractId;
+                var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+
+                if (allPaid)
+                {
+                    var contract = payBatchInfo.First().Contract;
+                    if (contract != null)
+                    {
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+
+                        //Update project status "SIGNED CONTRACT" -> "FINALIZED"
+                        var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == contract.ProjectId);
+                        if (projectInfo != null)
+                        {
+                            projectInfo.Status = AppConstant.ProjectStatus.FINALIZED;
+                            _unitOfWork.GetRepository<Project>().UpdateAsync(projectInfo);
+                        }
+                    }
+                }
+
+                //Update batch payment status 
+                payBatchInfo.ToList().ForEach(pay => pay.Status = AppConstant.PaymentStatus.PAID);
+                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
+
+                string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
+
+        }
+
 
 
         //Clone final info to contract construction
@@ -655,7 +758,8 @@ namespace RHCQS_Services.Implement
                         PaymentPhase = batchPayment.Payment.PaymentPhase,
                         Percents = batchPayment.Payment.Percents ?? 0,
                         Description = batchPayment.Payment.Description
-                    }).ToList();
+                    }).OrderByDescending(x =>x.NumberOfBatches)
+                    .ToList();
 
                 var result = new FinalToContractResponse()
                 {
