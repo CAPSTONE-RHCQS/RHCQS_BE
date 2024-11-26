@@ -63,5 +63,6 @@ namespace RHCQS_BusinessObject.Payload.Request.Contract
         [Required(ErrorMessage = "Mô tả là bắt buộc.")]
         [StringLength(1000, ErrorMessage = "Mô tả không được vượt quá 1000 ký tự.")]
         public string? Description { get; set; }
+        public int NumberOfBatch {  get; set; }
     }
 }

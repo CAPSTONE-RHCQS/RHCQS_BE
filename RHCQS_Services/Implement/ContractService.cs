@@ -297,7 +297,6 @@ namespace RHCQS_Services.Implement
                     // Tạo payment thiết kế
                     foreach (var pay in request.BatchPaymentRequests!)
                     {
-                        int batch = 0;
                         // Lấy PaymentType từ bảng PaymentType
                         var paymentType = await _unitOfWork.GetRepository<PaymentType>()
                                     .FirstOrDefaultAsync(pt => pt.Name == EnumExtensions.GetEnumDescription(contractType));
@@ -313,7 +312,7 @@ namespace RHCQS_Services.Implement
                             PaymentPhase = LocalDateTime.VNDateTime(),
                             Unit = AppConstant.Unit.UnitPrice,
                             Percents = pay.Percents,
-                            Description = pay.Description,
+                            Description = pay.Description
                         };
 
                         await _unitOfWork.GetRepository<Payment>().InsertAsync(payInfo);
@@ -327,7 +326,7 @@ namespace RHCQS_Services.Implement
                             FinalQuotationId = null,
                             PaymentId = payInfo.Id,
                             Status = AppConstant.PaymentStatus.PROGRESS,
-                            NumberOfBatch = batch++
+                            NumberOfBatch = pay.NumberOfBatch
                         };
 
                         await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
