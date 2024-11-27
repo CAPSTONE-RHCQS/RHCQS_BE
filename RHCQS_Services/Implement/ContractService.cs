@@ -307,8 +307,8 @@ namespace RHCQS_Services.Implement
                             InsDate = LocalDateTime.VNDateTime(),
                             UpsDate = LocalDateTime.VNDateTime(),
                             TotalPrice = request.ContractValue,
-                            PaymentDate = LocalDateTime.VNDateTime(),
-                            PaymentPhase = LocalDateTime.VNDateTime(),
+                            PaymentDate = pay.PaymentDate,
+                            PaymentPhase = pay.PaymentPhase,
                             Unit = AppConstant.Unit.UnitPrice,
                             Percents = pay.Percents,
                             Description = pay.Description
