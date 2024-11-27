@@ -1444,7 +1444,11 @@ namespace RHCQS_Services.Implement
             //try
             //{
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
-                    x => x.ProjectId.Equals(projectid) && x.Version == 0 && (x.Deflag == true),
+                    x => x.ProjectId.Equals(projectid) 
+                    && x.Version == 0 
+                    && (x.Deflag == true)
+                    && x.QuotationUtilities.Any()
+                    && x.BatchPayments.Any(),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Project)
