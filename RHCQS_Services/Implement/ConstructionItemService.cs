@@ -185,7 +185,7 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var normalizedName = name.RemoveDiacritics().ToLower();
+                var normalizedName = name.RemoveDiacritics().Trim().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
                     .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
@@ -196,9 +196,34 @@ namespace RHCQS_Services.Implement
                       con.SubConstructionItems.Any(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName)))
                   .ToList();
 
+                //return filteredItems.SelectMany(constructionItem =>
+                //{
+
+                //    var matchingSubConstructions = constructionItem.SubConstructionItems
+                //        .Where(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
+                //        .Select(subConstruction => new AutoConstructionResponse(
+                //            constructionItem.Id,
+                //            subConstructionId: subConstruction.Id,
+                //            name: subConstruction.Name,
+                //            coefficient: subConstruction.Coefficient,
+                //            type: subConstruction.ConstructionItems.Type!
+                //        )).ToList();
+
+                //    if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
+                //    {
+                //        matchingSubConstructions.Add(new AutoConstructionResponse(
+                //            constructionItem.Id,
+                //            subConstructionId: null,
+                //            name: constructionItem.Name,
+                //            coefficient: constructionItem.Coefficient,
+                //            type: constructionItem.Type!
+                //        ));
+                //    }
+
+                //    return matchingSubConstructions;
+                //}).ToList();
                 return filteredItems.SelectMany(constructionItem =>
                 {
-
                     var matchingSubConstructions = constructionItem.SubConstructionItems
                         .Where(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
                         .Select(subConstruction => new AutoConstructionResponse(
@@ -209,7 +234,8 @@ namespace RHCQS_Services.Implement
                             type: subConstruction.ConstructionItems.Type!
                         )).ToList();
 
-                    if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
+                    // Luôn thêm ConstructionItem nếu khớp
+                    if (constructionItem.Name!.RemoveDiacritics().ToLower().Contains(normalizedName))
                     {
                         matchingSubConstructions.Add(new AutoConstructionResponse(
                             constructionItem.Id,
