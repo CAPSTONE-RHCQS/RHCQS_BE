@@ -539,12 +539,23 @@ namespace RHCQS_Services.Implement
                 //Check list batch payment 
                 var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
                                     predicate: p => p.PaymentId == paymentId,
-                                    include: p => p.Include(p => p.Contract!));
+                                    include: p => p.Include(p => p.Contract!)
+                                                    .ThenInclude(p => p.Project));
 
                 if (payBatchInfo == null || !payBatchInfo.Any())
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
                 }
+                string projectStatus = payBatchInfo.First().Contract.Project.Status.ToString();
+                if (projectStatus != AppConstant.ProjectStatus.DESIGNED
+                && projectStatus != AppConstant.ProjectStatus.UNDER_REVIEW
+                && projectStatus != AppConstant.ProjectStatus.SIGNED_CONTRACT
+                && projectStatus != AppConstant.ProjectStatus.FINALIZED)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Completed_Design);
+                }
+
+
                 int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
 
                 var contractInfo = payBatchInfo.FirstOrDefault()?.Contract;
@@ -612,6 +623,8 @@ namespace RHCQS_Services.Implement
 
                 if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                 {
+                   
+
                     var contract = payBatchInfo.First().Contract;
                     if (contract != null)
                     {
@@ -623,7 +636,7 @@ namespace RHCQS_Services.Implement
                 string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
                 return result;
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
