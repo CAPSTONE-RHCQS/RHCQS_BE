@@ -257,19 +257,19 @@ namespace RHCQS_Services.Implement
 
                 //Equiment
                 var isValidEquiqment = ValidateDuplicateEquiment(request.EquipmentItems, out var duplicateNames);
-                if (!isValidUtility)
+                if (!isValidEquiqment)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedEquiment);
                 }
                 //Labor
                 var isValidLabor = ValidateDuplicateLaborInConstructionOrSubconstruction(request.FinalQuotationItems, out var duplicateLaborDetails);
-                if (!isValidUtility)
+                if (!isValidLabor)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedLabor);
                 }
                 //Material
                 var isValidMaterial = ValidateDuplicateMaterialInConstructionOrSubconstruction(request.FinalQuotationItems, out var duplicateMaterialDetails);
-                if (!isValidUtility)
+                if (!isValidMaterial)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedMaterial);
                 }
@@ -2324,17 +2324,14 @@ namespace RHCQS_Services.Implement
         {
             var duplicates = new List<string>();
 
-            // Nhóm theo ConstructionId và SubconstructionId
             var groupedItems = items.GroupBy(item => new { item.ConstructionId, item.SubconstructionId });
 
             foreach (var group in groupedItems)
             {
-                // Lấy danh sách QuotationItems trong nhóm
                 var quotationItems = group
                     .SelectMany(item => item.QuotationItems ?? new List<QuotationItemRequest>())
                     .ToList();
 
-                // Kiểm tra trùng lặp LaborId
                 var duplicateLabors = quotationItems
                     .Where(qi => qi.LaborId.HasValue)
                     .GroupBy(qi => qi.LaborId.Value)
@@ -2364,17 +2361,14 @@ namespace RHCQS_Services.Implement
         {
             var duplicates = new List<string>();
 
-            // Nhóm theo ConstructionId và SubconstructionId
             var groupedItems = items.GroupBy(item => new { item.ConstructionId, item.SubconstructionId });
 
             foreach (var group in groupedItems)
             {
-                // Lấy danh sách QuotationItems trong nhóm
                 var quotationItems = group
                     .SelectMany(item => item.QuotationItems ?? new List<QuotationItemRequest>())
                     .ToList();
 
-                // Kiểm tra trùng lặp MaterialId
                 var duplicateMaterials = quotationItems
                     .Where(qi => qi.MaterialId.HasValue)
                     .GroupBy(qi => qi.MaterialId.Value)
