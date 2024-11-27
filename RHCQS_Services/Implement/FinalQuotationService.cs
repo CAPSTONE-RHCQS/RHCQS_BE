@@ -174,7 +174,7 @@ namespace RHCQS_Services.Implement
                 Id = Guid.NewGuid(),
                 ProjectId = projectId,
                 PromotionId = initialQuotation.PromotionId,
-                Discount = initialQuotation.Discount,
+                Discount = initialQuotation.Promotion.Value * projectExists.Area,
                 TotalPrice = 0,
                 Note = null,
                 Version = 0,
@@ -302,7 +302,7 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
                             AppConstant.ErrMessage.PromotionIdNotfound);
                     }
-                    promotation = promotionExists.Value;
+                    promotation = promotionExists.Value * projectExists.Area;
 
                 }
 
