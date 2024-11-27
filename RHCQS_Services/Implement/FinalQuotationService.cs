@@ -1140,7 +1140,10 @@ namespace RHCQS_Services.Implement
             //try
             //{
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
-                    x => x.Id.Equals(id) && (x.Deflag == true),
+                    x => x.Id.Equals(id) 
+                    && (x.Deflag == true)
+                    && x.QuotationUtilities.Any()
+                    && x.BatchPayments.Any(),
                     include: x => x.Include(x => x.Project)
                                    .ThenInclude(x => x.Customer!)
                                    .Include(x => x.Project)
@@ -1172,7 +1175,6 @@ namespace RHCQS_Services.Implement
                 }
 
                 var BatchPayments = () => finalQuotation.BatchPayments
-                .Where(bp => bp.ContractId == null)
                 .OrderBy(bp => bp.NumberOfBatch)
                 .Select(bp =>new BatchPaymentResponse(
                         bp?.Payment!.Id ?? Guid.Empty,
@@ -1404,6 +1406,7 @@ namespace RHCQS_Services.Implement
                     finalQuotation.Id,
                     finalQuotation.Project.CustomerName ?? string.Empty,
                     finalQuotation.ProjectId,
+                    finalQuotation.Project.Area ?? null,
                     initialQuotation.Id,
                     initialQuotation.Version,
                     houseDesignDrawingsList,
@@ -1483,7 +1486,6 @@ namespace RHCQS_Services.Implement
                 }
 
                 var BatchPayments = () => finalQuotation.BatchPayments
-                .Where(bp => bp.ContractId == null)
                 .OrderBy(bp => bp.NumberOfBatch)
                 .Select(bp =>new BatchPaymentResponse(
                         bp?.Payment.Id ?? Guid.Empty,
@@ -1714,6 +1716,7 @@ namespace RHCQS_Services.Implement
                     finalQuotation.Id,
                     finalQuotation.Project.CustomerName ?? string.Empty,
                     finalQuotation.ProjectId,
+                    finalQuotation.Project.Area ?? null,
                     initialQuotation.Id,
                     initialQuotation.Version,
                     houseDesignDrawingsList,
@@ -1858,7 +1861,7 @@ namespace RHCQS_Services.Implement
     <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
     <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
     <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
-
+    <p><strong>DIỆN TÍCH XÂY DỰNG:</strong> " + request.Area + @"</p>
     <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
     <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
     <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
