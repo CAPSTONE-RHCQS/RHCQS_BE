@@ -546,15 +546,6 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
                 }
-                string projectStatus = payBatchInfo.First().Contract.Project.Status.ToString();
-                if (projectStatus != AppConstant.ProjectStatus.DESIGNED
-                && projectStatus != AppConstant.ProjectStatus.UNDER_REVIEW
-                && projectStatus != AppConstant.ProjectStatus.SIGNED_CONTRACT
-                && projectStatus != AppConstant.ProjectStatus.FINALIZED)
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Completed_Design);
-                }
-
 
                 int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
 
@@ -623,7 +614,14 @@ namespace RHCQS_Services.Implement
 
                 if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                 {
-                   
+                    string projectStatus = payBatchInfo.First().Contract.Project.Status.ToString();
+                    if (projectStatus != AppConstant.ProjectStatus.DESIGNED
+                    && projectStatus != AppConstant.ProjectStatus.UNDER_REVIEW
+                    && projectStatus != AppConstant.ProjectStatus.SIGNED_CONTRACT
+                    && projectStatus != AppConstant.ProjectStatus.FINALIZED)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Completed_Design);
+                    }
 
                     var contract = payBatchInfo.First().Contract;
                     if (contract != null)
