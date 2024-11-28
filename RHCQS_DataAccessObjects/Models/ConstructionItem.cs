@@ -21,9 +21,13 @@ public partial class ConstructionItem
 
     public bool? IsFinalQuotation { get; set; }
 
+    public virtual ICollection<ConstructionWork> ConstructionWorks { get; set; } = new List<ConstructionWork>();
+
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();
 
     public virtual ICollection<SubConstructionItem> SubConstructionItems { get; set; } = new List<SubConstructionItem>();
 
     public virtual ICollection<TemplateItem> TemplateItems { get; set; } = new List<TemplateItem>();
+
+    public virtual ICollection<WorkTemplate> WorkTemplates { get; set; } = new List<WorkTemplate>();
 }

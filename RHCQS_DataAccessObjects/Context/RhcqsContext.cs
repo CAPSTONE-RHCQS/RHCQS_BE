@@ -26,6 +26,8 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<ConstructionItem> ConstructionItems { get; set; }
 
+    public virtual DbSet<ConstructionWork> ConstructionWorks { get; set; }
+
     public virtual DbSet<Contract> Contracts { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
@@ -58,8 +60,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<Package> Packages { get; set; }
 
-    public virtual DbSet<PackageDetail> PackageDetails { get; set; }
-
     public virtual DbSet<PackageHouse> PackageHouses { get; set; }
 
     public virtual DbSet<PackageLabor> PackageLabors { get; set; }
@@ -69,8 +69,6 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<PackageMaterial> PackageMaterials { get; set; }
 
     public virtual DbSet<PackageQuotation> PackageQuotations { get; set; }
-
-    public virtual DbSet<PackageType> PackageTypes { get; set; }
 
     public virtual DbSet<Payment> Payments { get; set; }
 
@@ -105,6 +103,8 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilitiesSection> UtilitiesSections { get; set; }
 
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
+
+    public virtual DbSet<WorkTemplate> WorkTemplates { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -196,6 +196,22 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<ConstructionWork>(entity =>
+        {
+            entity.ToTable("ConstructionWork");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+            entity.Property(e => e.Unit)
+                .HasMaxLength(10)
+                .IsFixedLength();
+            entity.Property(e => e.WorkName).HasMaxLength(500);
+
+            entity.HasOne(d => d.Construction).WithMany(p => p.ConstructionWorks)
+                .HasForeignKey(d => d.ConstructionId)
+                .HasConstraintName("FK_ConstructionWork_ConstructionItems");
         });
 
         modelBuilder.Entity<Contract>(entity =>
@@ -404,6 +420,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Shape).HasMaxLength(50);
             entity.Property(e => e.Size).HasMaxLength(50);
+            entity.Property(e => e.Type).HasMaxLength(20);
             entity.Property(e => e.Unit).HasMaxLength(50);
             entity.Property(e => e.UnitPrice).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
@@ -426,7 +443,6 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(50);
-            entity.Property(e => e.Type).HasMaxLength(20);
         });
 
         modelBuilder.Entity<Medium>(entity =>
@@ -486,27 +502,9 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.PackageName).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
+            entity.Property(e => e.Type).HasMaxLength(20);
             entity.Property(e => e.Unit).HasMaxLength(20);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.PackageType).WithMany(p => p.Packages)
-                .HasForeignKey(d => d.PackageTypeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_Package_PackageType");
-        });
-
-        modelBuilder.Entity<PackageDetail>(entity =>
-        {
-            entity.ToTable("PackageDetail");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Type).HasMaxLength(50);
-
-            entity.HasOne(d => d.Package).WithMany(p => p.PackageDetails)
-                .HasForeignKey(d => d.PackageId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PackageDetail_Package");
         });
 
         modelBuilder.Entity<PackageHouse>(entity =>
@@ -539,10 +537,9 @@ public partial class RhcqsContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PackageLabor_Labor");
 
-            entity.HasOne(d => d.PackageDetail).WithMany(p => p.PackageLabors)
-                .HasForeignKey(d => d.PackageDetailId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PackageLabor_PackageDetail");
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageLabors)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK_PackageLabor_Package");
         });
 
         modelBuilder.Entity<PackageMapPromotion>(entity =>
@@ -574,10 +571,9 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.MaterialId)
                 .HasConstraintName("PackageMaterial_Material_FK");
 
-            entity.HasOne(d => d.PackageDetail).WithMany(p => p.PackageMaterials)
-                .HasForeignKey(d => d.PackageDetailId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_PackageMaterial_PackageMaterial");
+            entity.HasOne(d => d.Package).WithMany(p => p.PackageMaterials)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK_PackageMaterial_Package");
         });
 
         modelBuilder.Entity<PackageQuotation>(entity =>
@@ -597,15 +593,6 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.PackageId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_PackageQuotation_Package");
-        });
-
-        modelBuilder.Entity<PackageType>(entity =>
-        {
-            entity.ToTable("PackageType");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InsDate).HasColumnType("datetime");
-            entity.Property(e => e.Name).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Payment>(entity =>
@@ -681,6 +668,10 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.FinalQuotationItem).WithMany(p => p.QuotationItems)
                 .HasForeignKey(d => d.FinalQuotationItemId)
                 .HasConstraintName("QuotationItem_FinalQuotationItem_FK");
+
+            entity.HasOne(d => d.WorkTemplate).WithMany(p => p.QuotationItems)
+                .HasForeignKey(d => d.WorkTemplateId)
+                .HasConstraintName("FK_QuotationItem_WorkTemplate");
         });
 
         modelBuilder.Entity<QuotationLabor>(entity =>
@@ -885,6 +876,22 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(50);
             entity.Property(e => e.Type).HasMaxLength(50);
             entity.Property(e => e.UpsDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<WorkTemplate>(entity =>
+        {
+            entity.ToTable("WorkTemplate");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ConstructionItems).WithMany(p => p.WorkTemplates)
+                .HasForeignKey(d => d.ConstructionItemsId)
+                .HasConstraintName("FK_WorkTemplate_ConstructionItems");
+
+            entity.HasOne(d => d.Package).WithMany(p => p.WorkTemplates)
+                .HasForeignKey(d => d.PackageId)
+                .HasConstraintName("FK_WorkTemplate_Package");
         });
 
         OnModelCreatingPartial(modelBuilder);

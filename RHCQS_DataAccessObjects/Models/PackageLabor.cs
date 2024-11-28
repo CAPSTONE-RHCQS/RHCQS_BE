@@ -7,15 +7,15 @@ public partial class PackageLabor
 {
     public Guid Id { get; set; }
 
-    public Guid PackageDetailId { get; set; }
-
     public Guid LaborId { get; set; }
 
     public double? Price { get; set; }
 
     public DateTime? InsDate { get; set; }
 
+    public Guid? PackageId { get; set; }
+
     public virtual Labor Labor { get; set; } = null!;
 
-    public virtual PackageDetail PackageDetail { get; set; } = null!;
+    public virtual Package? Package { get; set; }
 }
