@@ -1372,10 +1372,10 @@ namespace RHCQS_Services.Implement
                     0
                 );
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                                ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED,
+                                ci => ci.ProjectId == finalQuotation.ProjectId,
                                 include: ci => ci.Include(x => x.PackageQuotations)
-                                                 .ThenInclude(x => x.Package)
-                                                   );
+                                                 .ThenInclude(x => x.Package),
+                                orderBy: query => query.OrderByDescending(x => x.Version));
 
                 var roughPackage = initialQuotation.PackageQuotations
                     .FirstOrDefault(item => item.Type == "ROUGH");
@@ -1683,12 +1683,13 @@ namespace RHCQS_Services.Implement
                     (double)(equipmentCost ?? 0.0),
                     0
                 );
-                var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                                ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.FINALIZED,
-                                include: ci => ci.Include(x => x.PackageQuotations)
-                                                .ThenInclude(x => x.Package)
-                                                   );
-                var roughPackage = initialQuotation.PackageQuotations
+            var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                            ci => ci.ProjectId == finalQuotation.ProjectId,
+                            include: ci => ci.Include(x => x.PackageQuotations)
+                                             .ThenInclude(x => x.Package),
+                            orderBy: query => query.OrderByDescending(x => x.Version));
+
+            var roughPackage = initialQuotation.PackageQuotations
                     .FirstOrDefault(item => item.Type == "ROUGH");
 
                 var finishedPackage = initialQuotation.PackageQuotations
