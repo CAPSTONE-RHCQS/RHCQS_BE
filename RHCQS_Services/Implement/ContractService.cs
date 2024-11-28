@@ -211,7 +211,6 @@ namespace RHCQS_Services.Implement
                                 include: x => x.Include(x => x.InitialQuotations)
                                                 .ThenInclude(x => x.PackageQuotations)
                                                 .ThenInclude(x => x.Package)
-                                                .ThenInclude(x => x.PackageType)
                                                 .Include(x => x.Customer!));
 
             if (infoProject == null)
@@ -230,11 +229,11 @@ namespace RHCQS_Services.Implement
             {
                 var packageInfo = infoProject.InitialQuotations
                     .SelectMany(x => x.PackageQuotations)
-                    .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
-                              || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
+                    .Where(pq => pq.Package.Type == AppConstant.Type.ROUGH
+                              || pq.Package.Type == AppConstant.Type.FINISHED)
                     .Select(pq => new
                     {
-                        TypeName = pq.Package.PackageType.Name,
+                        TypeName = pq.Package.Type,
                         Price = pq.Package.Price
                     })
                     .ToList();
@@ -353,7 +352,6 @@ namespace RHCQS_Services.Implement
                                 include: x => x.Include(x => x.InitialQuotations)
                                                 .ThenInclude(x => x.PackageQuotations)
                                                 .ThenInclude(x => x.Package)
-                                                .ThenInclude(x => x.PackageType)
                                                 .Include(x => x.FinalQuotations)
                                                 .Include(x => x.Customer!));
 
@@ -375,11 +373,11 @@ namespace RHCQS_Services.Implement
                 #region Query package
                 var packageInfo = infoProject.InitialQuotations
                     .SelectMany(x => x.PackageQuotations)
-                    .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
-                              || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
+                    .Where(pq => pq.Package.Type == AppConstant.Type.ROUGH
+                              || pq.Package.Type == AppConstant.Type.FINISHED)
                     .Select(pq => new
                     {
-                        TypeName = pq.Package.PackageType.Name,
+                        TypeName = pq.Package.Type,
                         Price = pq.Package.Price
                     })
                     .ToList();

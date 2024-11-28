@@ -9,8 +9,6 @@ public partial class PackageLabor
 
     public Guid LaborId { get; set; }
 
-    public double? Price { get; set; }
-
     public DateTime? InsDate { get; set; }
 
     public Guid? PackageId { get; set; }

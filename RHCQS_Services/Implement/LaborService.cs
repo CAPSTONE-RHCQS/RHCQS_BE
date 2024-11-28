@@ -142,10 +142,9 @@ namespace RHCQS_Services.Implement
                         Deflag = x.Labor.Deflag,
                         Type = x.Labor.Type
                     },
-                    predicate: pl => pl.PackageDetail.PackageId == packageId &&
+                    predicate: pl => pl.PackageId == packageId &&
                                      pl.Labor.Name.Contains(name),
-                    include: x => x.Include(pl => pl.Labor)
-                                   .Include(pl => pl.PackageDetail),
+                    include: x => x.Include(pl => pl.Labor),
                     orderBy: x => x.OrderBy(pl => pl.Labor.InsDate)
                 )).ToList();
             return result;

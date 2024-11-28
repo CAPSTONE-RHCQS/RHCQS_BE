@@ -52,7 +52,7 @@ namespace RHCQS_Services.Implement
                     x.NumberOfBed,
                     x.ImgUrl,
                     x.InsDate,
-                    PackageRough = x.PackageHouses.FirstOrDefault(pkg => pkg.Package.PackageType.Name == "ROUGH"),
+                    PackageRough = x.PackageHouses.FirstOrDefault(pkg => pkg.Package.Type == AppConstant.Type.ROUGH),
                     SubTemplates = x.SubTemplates.Select(
                         sub => new SubTemplatesResponse(
                             sub.Id,
@@ -321,7 +321,6 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(st => st.Media)
                                .Include(x => x.PackageHouses)
                                .ThenInclude(p => p.Package)
-                               .ThenInclude(p => p.PackageType)
                                .Include(x => x.Media)
             );
 
@@ -329,7 +328,7 @@ namespace RHCQS_Services.Implement
             {
                 //Package ROUGH
                 var roughPackage = template.PackageHouses
-                    .FirstOrDefault(pkg => pkg.Package.PackageType.Name == "ROUGH");
+                    .FirstOrDefault(pkg => pkg.Package.Type == AppConstant.Type.ROUGH);
 
                 var packageRoughId = roughPackage?.PackageId ?? Guid.Empty;
                 var packageRoughPrice = roughPackage?.Package.Price ?? 0;
@@ -380,7 +379,7 @@ namespace RHCQS_Services.Implement
                             )).ToList() // DesignDrawings
                     )).ToList(),
                     template.PackageHouses
-                        .Where(pkg => pkg.Package.PackageType.Name != "ROUGH")
+                        .Where(pkg => pkg.Package.Type != AppConstant.Type.ROUGH)
                         .Select(pkg => new PackageHouseResponse(
                             pkg.Id,
                             pkg.PackageId,
@@ -525,7 +524,7 @@ namespace RHCQS_Services.Implement
             {
                 //Package ROUGH
                 var roughPackage = template.PackageHouses
-                    .FirstOrDefault(pkg => pkg.Package.PackageType.Name == "ROUGH");
+                    .FirstOrDefault(pkg => pkg.Package.Type == AppConstant.Type.ROUGH);
 
                 var packageRoughId = roughPackage?.PackageId ?? Guid.Empty;
                 var packageRoughPrice = roughPackage?.Package.Price ?? 0;
@@ -576,7 +575,7 @@ namespace RHCQS_Services.Implement
                             )).ToList() // DesignDrawings
                     )).ToList(),
                     template.PackageHouses
-                        .Where(pkg => pkg.Package.PackageType.Name != "ROUGH")
+                        .Where(pkg => pkg.Package.Type != AppConstant.Type.ROUGH)
                         .Select(pkg => new PackageHouseResponse(
                             pkg.Id,
                             pkg.PackageId,

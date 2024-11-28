@@ -83,7 +83,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             LaborId = laborId;
             NameOfLabor = nameOfLabor;
             Type = type;
-            TotalPrice = totalPrice;
+            Price = totalPrice;
             InsDate = insDate;
         }
 
@@ -94,7 +94,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? NameOfLabor { get; set; }
         public string? Type { get; set; }
 
-        public double? TotalPrice { get; set; }
+        public double? Price { get; set; }
 
         public DateTime? InsDate { get; set; }
     }

@@ -701,7 +701,7 @@ namespace RHCQS_Services.Implement
                 #region Calculate total price rough
                 //System find package rough
                 var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                                        predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH
+                                        predicate: p => p.Type == AppConstant.Type.ROUGH
                                         && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
 
                 //Calculate total rough from buidling area

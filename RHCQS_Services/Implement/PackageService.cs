@@ -52,7 +52,7 @@ namespace RHCQS_Services.Implement
                     pl.LaborId,
                     pl.Labor?.Name,
                     pl.Labor?.Type ?? string.Empty,
-                    pl.Price,
+                    pl.Labor?.Price ?? 0.0,
                     pl.InsDate
                 )).ToList() ?? new List<PackageLaborResponse>(),
 
@@ -607,7 +607,7 @@ namespace RHCQS_Services.Implement
             <tr>
                 <td>{labor.NameOfLabor}</td>
                 <td>{laborType}</td>
-                <td>{labor.TotalPrice:N0} VND</td>
+                <td>{labor.Price:N0} VND</td>
             </tr>");
                 }
 
