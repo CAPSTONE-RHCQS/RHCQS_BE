@@ -127,11 +127,14 @@ namespace RHCQS_Services.Implement
             List<BatchPaymentInfo> batchPaymentResponse = null;
             var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
                                 predicate: c => c.BatchPayments.Any(c => c.Contract.Type == AppConstant.ContractType.Construction.ToString()));
+
+            //Case: Initial quotation version 0
             if (initialQuotation.BatchPayments.Count == 0)
             {
                 batchPaymentResponse = new List<BatchPaymentInfo>();
             }
-            else if  (contractInfo == null)
+            //Case: Initial quotation processing and not contract design
+            else if  (contractInfo == null || initialQuotation.BatchPayments.Count != 0)
             {
                 batchPaymentResponse = initialQuotation.BatchPayments
                 .Where(bp =>
@@ -151,10 +154,12 @@ namespace RHCQS_Services.Implement
                 ))
                 .ToList();
             }
+            //Case: Contract design
             else if (contractInfo.Type == AppConstant.ContractType.Design.ToString())
             {
                 batchPaymentResponse = new List<BatchPaymentInfo>();
             }
+            //Case: Final quotation
             else
             {
                 var firstBatchPayment = initialQuotation.BatchPayments?.FirstOrDefault(
@@ -177,25 +182,6 @@ namespace RHCQS_Services.Implement
                         )
                     ))?.ToList() ?? new List<BatchPaymentInfo>();
             }
-
-            //        var batchPaymentResponse = initialQuotation.BatchPayments
-            //         .Where(bp =>
-            //    bp.ContractId == null ||
-            //    (bp.Contract != null && bp.Contract.ProjectId == new Guid("5E60C412-2F46-4FB1-95B8-CA65C810E7A3") && bp.Contract.Type == "Construction")
-            //)
-            //         .OrderBy(bp => bp.NumberOfBatch)
-            //         .Select(item => new BatchPaymentInfo(
-            //             item.PaymentId,
-            //             item.Payment.Description,
-            //             item.Payment.Percents ?? 0,
-            //             item.Payment.TotalPrice,
-            //             item.Payment.Unit,
-            //             item.Status,
-            //             item.NumberOfBatch,
-            //             item.Payment.PaymentDate,
-            //             item.Payment.PaymentPhase
-            //         ))
-            //         .ToList();
 
             var result = new InitialQuotationResponse
             {
