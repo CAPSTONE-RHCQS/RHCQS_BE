@@ -7,8 +7,6 @@ public partial class Package
 {
     public Guid Id { get; set; }
 
-    public Guid PackageTypeId { get; set; }
-
     public string? PackageName { get; set; }
 
     public string? Unit { get; set; }
@@ -21,13 +19,17 @@ public partial class Package
 
     public DateTime? UpsDate { get; set; }
 
-    public virtual ICollection<PackageDetail> PackageDetails { get; set; } = new List<PackageDetail>();
+    public string? Type { get; set; }
 
     public virtual ICollection<PackageHouse> PackageHouses { get; set; } = new List<PackageHouse>();
 
+    public virtual ICollection<PackageLabor> PackageLabors { get; set; } = new List<PackageLabor>();
+
     public virtual ICollection<PackageMapPromotion> PackageMapPromotions { get; set; } = new List<PackageMapPromotion>();
+
+    public virtual ICollection<PackageMaterial> PackageMaterials { get; set; } = new List<PackageMaterial>();
 
     public virtual ICollection<PackageQuotation> PackageQuotations { get; set; } = new List<PackageQuotation>();
 
-    public virtual PackageType PackageType { get; set; } = null!;
+    public virtual ICollection<WorkTemplate> WorkTemplates { get; set; } = new List<WorkTemplate>();
 }

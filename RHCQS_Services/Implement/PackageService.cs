@@ -41,68 +41,58 @@ namespace RHCQS_Services.Implement
         {
             return new PackageResponse(
                 package.Id,
-                package.PackageTypeId,
                 package.PackageName,
                 package.Unit,
                 package.Price,
                 package.Status,
                 package.InsDate,
                 package.UpsDate,
-                package.PackageDetails?.Select(pd => new PackageDetailsResponse(
-                    pd.Id,
-                    pd.Type,
-                    pd.InsDate,
-                    pd.PackageLabors?.Select(pl => new PackageLaborResponse(
-                        pl.Id,
-                        pl.LaborId,
-                        pl.Labor?.Name,
-                        pl.Labor?.Type,
-                        pl.Price,
-                        pl.InsDate
-                    )).ToList() ?? new List<PackageLaborResponse>(),
-                    pd.PackageMaterials?.Select(pm => new PackageMaterialResponse(
-                        pm.Id,
-                        pm.Material.MaterialSectionId,
-                        pm.Material.MaterialSection?.Name,
-                        pm.Material?.Name,
-                        pm.Material.Price ?? 0.0,
-                        pm.Material.Unit,
-                        pm.Material.Size,
-                        pm.Material.Shape,
-                        pm.Material.ImgUrl,
-                        pm.Material.Description,
-                        pm.InsDate
-                    )).ToList() ?? new List<PackageMaterialResponse>()
-                )).ToList() ?? new List<PackageDetailsResponse>(),
+                package.PackageLabors?.Select(pl => new PackageLaborResponse(
+                    pl.Id,
+                    pl.LaborId,
+                    pl.Labor?.Name,
+                    pl.Labor?.Type ?? string.Empty,
+                    pl.Labor?.Price ?? 0.0,
+                    pl.InsDate
+                )).ToList() ?? new List<PackageLaborResponse>(),
+
+                package.PackageMaterials?.Select(pm => new PackageMaterialResponse(
+                    pm.Id,
+                    pm.Material.MaterialSectionId,
+                    pm.Material.MaterialSection?.Name,
+                    pm.Material?.Name,
+                    pm.Material.Type ?? string.Empty,
+                    pm.Material.Price ?? 0.0,
+                    pm.Material.Unit,
+                    pm.Material.Size,
+                    pm.Material.Shape,
+                    pm.Material.ImgUrl,
+                    pm.Material.Description,
+                    pm.InsDate
+                )).ToList() ?? new List<PackageMaterialResponse>(),
+
                 package.PackageHouses?.Select(ph => new PackageHousesResponse(
                     ph.Id,
                     ph.DesignTemplateId,
                     ph.ImgUrl,
                     ph.InsDate
                 )).ToList() ?? new List<PackageHousesResponse>(),
-                package.PackageType != null
-                    ? new PackageTypeResponse(
-                        package.PackageType.Id,
-                        package.PackageType.Name,
-                        package.PackageType.InsDate
-                    )
-                    : new PackageTypeResponse()
+
+                package.Type ?? string.Empty
             );
         }
+
 
         public async Task<IPaginate<PackageResponse>> GetListPackageAsync(int page, int size)
         {
             var listPackage = await _unitOfWork.GetRepository<Package>().GetList(
                 selector: x => MapPackageToResponse(x),
                 include: x => x.Include(x => x.PackageHouses)
-                           .Include(x => x.PackageDetails)
-                           .ThenInclude(pd => pd.PackageLabors)
+                           .Include(pd => pd.PackageLabors)
                            .ThenInclude(lb => lb.Labor)
-                           .Include(x => x.PackageDetails)
-                           .ThenInclude(pd => pd.PackageMaterials)
+                           .Include(pd => pd.PackageMaterials)
                            .ThenInclude(ms => ms.Material)
-                           .ThenInclude(ms => ms.MaterialSection)
-                           .Include(x => x.PackageType),
+                           .ThenInclude(ms => ms.MaterialSection),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active",
                 page: page,
@@ -116,29 +106,25 @@ namespace RHCQS_Services.Implement
             try
             {
                 var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
-                selector: x => new PackageResponseForMoblie(
-                    x.Id,
-                    x.PackageTypeId,
-                    x.PackageType.Name,
-                    x.PackageName,
-                    x.Unit,
-                    x.Price,
-                    x.Status,
-                    x.InsDate,
-                    x.UpsDate,
-                    x.PackageDetails.Select(pd => new PackageDetailsResponseForMoblie(
-                        pd.Id,
-                        pd.Type,
-                        pd.InsDate,
-                        pd.PackageLabors.Select(pl => new PackageLaborResponseForMoblie(
+                    selector: x => new PackageResponseForMoblie(
+                        x.Id,
+                        x.Type,
+                        x.PackageName,
+                        x.Unit,
+                        x.Price,
+                        x.Status,
+                        x.InsDate,
+                        x.UpsDate,
+                        x.PackageLabors.Select(pl => new PackageLaborResponseForMoblie(
                             pl.Labor.Name,
                             pl.Labor.Type
                         )).ToList(),
-                        pd.PackageMaterials.Select(pm => new PackageMaterialResponse(
+                        x.PackageMaterials.Select(pm => new PackageMaterialResponse(
                             pm.Id,
                             pm.Material.MaterialSectionId,
                             pm.Material.MaterialSection.Name,
                             pm.Material.Name,
+                            pm.Material.Type,
                             pm.Material.Price ?? 0.0,
                             pm.Material.Unit,
                             pm.Material.Size,
@@ -146,27 +132,23 @@ namespace RHCQS_Services.Implement
                             pm.Material.ImgUrl,
                             pm.Material.Description,
                             pm.InsDate
-                        )).ToList() ?? new List<PackageMaterialResponse>()
-                    )).ToList(),
-                    x.PackageHouses.Select(ph => new PackageHousesResponse(
-                        ph.Id,
-                        ph.DesignTemplateId,
-                        ph.ImgUrl,
-                        ph.InsDate
-                    )).ToList() ?? new List<PackageHousesResponse>()
-                ),
-                include: x => x.Include(x => x.PackageType)
-                               .Include(x => x.PackageDetails)
-                                   .ThenInclude(pd => pd.PackageLabors)
-                                       .ThenInclude(lb => lb.Labor)
-                               .Include(x => x.PackageDetails)
-                                   .ThenInclude(pd => pd.PackageMaterials)
-                                       .ThenInclude(ms => ms.Material)
-                                       .ThenInclude(ms => ms.MaterialSection)
-                               .Include(x => x.PackageHouses),
-                orderBy: x => x.OrderBy(x => x.InsDate),
-                predicate: x => x.Status == "Active"
-            );
+                        )).ToList() ?? new List<PackageMaterialResponse>(),
+                        x.PackageHouses.Select(ph => new PackageHousesResponse(
+                            ph.Id,
+                            ph.DesignTemplateId,
+                            ph.ImgUrl,
+                            ph.InsDate
+                        )).ToList() ?? new List<PackageHousesResponse>()
+                    ),
+                    include: x => x.Include(pd => pd.PackageLabors)
+                                   .ThenInclude(lb => lb.Labor)
+                                .Include(pd => pd.PackageMaterials)
+                                   .ThenInclude(ms => ms.Material)
+                                   .ThenInclude(ms => ms.MaterialSection)
+                                .Include(x => x.PackageHouses),
+                    orderBy: x => x.OrderBy(x => x.InsDate),
+                    predicate: x => x.Status == "Active"
+                );
 
                 return listPackage.ToList();
             }
@@ -174,22 +156,19 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
-
         }
+
 
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
                 predicate: x => x.Id.Equals(id) && x.Status == "Active",
                 include: x => x.Include(x => x.PackageHouses)
-                               .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageLabors)
+                               .Include(pd => pd.PackageLabors)
                                .ThenInclude(lb => lb.Labor)
-                               .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageMaterials)
+                               .Include(pd => pd.PackageMaterials)
                                .ThenInclude(ms => ms.Material)
                                .ThenInclude(ms => ms.MaterialSection)
-                               .Include(x => x.PackageType)
             );
 
             return package != null ? MapPackageToResponse(package) :
@@ -204,14 +183,11 @@ namespace RHCQS_Services.Implement
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
                 predicate: x => x.PackageName.Contains(name) && x.Status == "Active",
                 include: x => x.Include(x => x.PackageHouses)
-                               .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageLabors)
+                               .Include(pd => pd.PackageLabors)
                                .ThenInclude(lb => lb.Labor)
-                               .Include(x => x.PackageDetails)
-                               .ThenInclude(pd => pd.PackageMaterials)
+                               .Include(pd => pd.PackageMaterials)
                                .ThenInclude(ms => ms.Material)
                                .ThenInclude(ms => ms.MaterialSection)
-                               .Include(x => x.PackageType)
             );
 
             return package != null ? MapPackageToResponse(package) :
@@ -232,6 +208,8 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
+
+            // Check if package with the same name already exists
             if (await packageRepo.AnyAsync(p => p.PackageName.Contains(packageRequest.PackageName)))
             {
                 throw new AppConstant.MessageError(
@@ -240,43 +218,45 @@ namespace RHCQS_Services.Implement
                 );
             }
 
+            // Create a new package object from the request
             var package = new Package
             {
                 Id = Guid.NewGuid(),
-                PackageTypeId = packageRequest.PackageTypeId,
+                Type = packageRequest.PackageType,
                 PackageName = packageRequest.PackageName,
                 Unit = packageRequest.Unit,
                 Price = packageRequest.Price,
                 Status = packageRequest.Status,
                 InsDate = LocalDateTime.VNDateTime(),
-                PackageDetails = packageRequest.PackageDetails.Select(pd => new PackageDetail
-                {
-                    Id = Guid.NewGuid(),
-                    Type = pd.Type,
-                    InsDate = LocalDateTime.VNDateTime(),
-                    PackageLabors = pd.PackageLabors?.Select(pl => new PackageLabor
-                    {
-                        Id = Guid.NewGuid(),
-                        LaborId = pl.LaborId,
-                        Price = pl.TotalPrice,
-                        InsDate = LocalDateTime.VNDateTime(),
-                    }).ToList(),
-                    PackageMaterials = pd.PackageMaterials?.Select(pm => new PackageMaterial
-                    {
-                        Id = Guid.NewGuid(),
-                        MaterialId = pm.MaterialId,
-                        InsDate = LocalDateTime.VNDateTime()
-                    }).ToList()
-                }).ToList(),
-                PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
-                {
-                    Id = Guid.NewGuid(),
-                    DesignTemplateId = ph.DesignTemplateId,
-                    ImgUrl = ph.ImgUrl,
-                    Description = ph.Description,
-                    InsDate = LocalDateTime.VNDateTime()
-                }).ToList()
             };
+
+            // Now that the package has been initialized, you can set the PackageId for related entities
+            package.PackageLabors = packageRequest.PackageLabors?.Select(pl => new PackageLabor
+            {
+                Id = Guid.NewGuid(),
+                LaborId = pl.LaborId,
+                PackageId = package.Id,
+                InsDate = LocalDateTime.VNDateTime(),
+            }).ToList() ?? new List<PackageLabor>();
+
+            package.PackageMaterials = packageRequest.PackageMaterials?.Select(pm => new PackageMaterial
+            {
+                Id = Guid.NewGuid(),
+                MaterialId = pm.MaterialId,
+                PackageId = package.Id,
+                InsDate = LocalDateTime.VNDateTime()
+            }).ToList() ?? new List<PackageMaterial>(); ;
+
+            package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+            {
+                Id = Guid.NewGuid(),
+                DesignTemplateId = ph.DesignTemplateId,
+                ImgUrl = ph.ImgUrl,
+                Description = ph.Description,
+                PackageId = package.Id,
+                InsDate = LocalDateTime.VNDateTime()
+            }).ToList() ?? new List<PackageHouse>();
+
 
             await packageRepo.InsertAsync(package);
 
@@ -288,8 +268,10 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.CreatePackage
                 );
             }
+
             return isSuccessful;
         }
+
 
         public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageid)
         {
@@ -305,11 +287,9 @@ namespace RHCQS_Services.Implement
 
             var existingPackage = await packageRepo.FirstOrDefaultAsync(
                 predicate: p => p.Id == packageid,
-                include: p => p.Include(pd => pd.PackageDetails)
-                               .ThenInclude(pl => pl.PackageLabors)
-                               .Include(pd => pd.PackageDetails)
-                               .ThenInclude(pm => pm.PackageMaterials)
-                               .Include(p => p.PackageHouses)
+                include: p => p.Include(pl => pl.PackageLabors)
+                              .Include(pm => pm.PackageMaterials)
+                              .Include(p => p.PackageHouses)
             );
 
             if (existingPackage == null)
@@ -320,78 +300,63 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            existingPackage.PackageTypeId = packageRequest.PackageTypeId;
+            existingPackage.Type = packageRequest.PackageType;
             existingPackage.PackageName = packageRequest.PackageName;
             existingPackage.Unit = packageRequest.Unit;
             existingPackage.Price = packageRequest.Price;
             existingPackage.Status = packageRequest.Status;
             existingPackage.UpsDate = LocalDateTime.VNDateTime();
 
-            foreach (var pd in packageRequest.PackageDetails)
+            foreach (var pl in packageRequest.PackageLabors)
             {
-                var existingPackageDetail = existingPackage.PackageDetails.FirstOrDefault(detail => detail.PackageId == packageid);
+                var existingPackageLabor = existingPackage.PackageLabors
+                    .FirstOrDefault(l => l.LaborId == pl.LaborId);
 
-                if (existingPackageDetail != null)
+                existingPackage.PackageLabors.Add(new PackageLabor
                 {
-                    existingPackageDetail.Type = pd.Type;
+                    Id = Guid.NewGuid(),
+                    LaborId = pl.LaborId,
+                    PackageId = existingPackage.Id,
+                    InsDate = LocalDateTime.VNDateTime()
+                });
 
-                    foreach (var labor in pd.PackageLabors)
+            }
+
+            foreach (var pm in packageRequest.PackageMaterials)
+            {
+                var existingPackageMaterial = existingPackage.PackageMaterials
+                    .FirstOrDefault(m => m.MaterialId == pm.MaterialId);
+
+                    existingPackage.PackageMaterials.Add(new PackageMaterial
                     {
-                        var existingLabor = existingPackageDetail.PackageLabors.FirstOrDefault(l => l.PackageDetailId == existingPackageDetail.Id);
-                        if (existingLabor != null)
-                        {
-                            existingLabor.LaborId = labor.LaborId;
-                            existingLabor.Price = labor.TotalPrice;
-                        }
-                        else
-                        {
-                            continue;
-                            throw new AppConstant.MessageError(
-                                (int)AppConstant.ErrCode.Conflict,
-                                AppConstant.ErrMessage.PackageLaborNotFound
-                            );
-                        }
-                    }
-
-                    foreach (var material in pd.PackageMaterials)
-                    {
-                        var existingMaterial = existingPackageDetail.PackageMaterials.FirstOrDefault(m => m.PackageDetailId == existingPackageDetail.Id);
-                        if (existingMaterial != null)
-                        {
-                            existingMaterial.MaterialId = material.MaterialId;
-                        }
-                        else
-                        {
-                            continue;
-                            throw new AppConstant.MessageError(
-                                (int)AppConstant.ErrCode.Conflict,
-                                AppConstant.ErrMessage.PackagematerialNotFound
-                            );
-                        }
-                    }
-                }
-                else
-                {
-
-                }
+                        Id = Guid.NewGuid(),
+                        MaterialId = pm.MaterialId,
+                        PackageId = existingPackage.Id,
+                        InsDate = LocalDateTime.VNDateTime()
+                    });
             }
 
             foreach (var ph in packageRequest.PackageHouses)
             {
-                var existingPackageHouse = existingPackage.PackageHouses.FirstOrDefault(h => h.PackageId == packageid);
+                var existingPackageHouse = existingPackage.PackageHouses
+                    .FirstOrDefault(h => h.DesignTemplateId == ph.DesignTemplateId);
+
                 if (existingPackageHouse != null)
                 {
-                    existingPackageHouse.DesignTemplateId = ph.DesignTemplateId;
                     existingPackageHouse.ImgUrl = ph.ImgUrl;
                     existingPackageHouse.Description = ph.Description;
                 }
                 else
                 {
-                    continue;
-                    throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.PackageHouseNotFound
-                    );
+                    existingPackage.PackageHouses.Add(new PackageHouse
+                    {
+                        Id = Guid.NewGuid(),
+                        DesignTemplateId = ph.DesignTemplateId,
+                        ImgUrl = ph.ImgUrl,
+                        Description = ph.Description,
+                        PackageId = existingPackage.Id,
+                        InsDate = LocalDateTime.VNDateTime()
+                    });
                 }
             }
 
@@ -409,6 +374,7 @@ namespace RHCQS_Services.Implement
             return existingPackage;
         }
 
+
         public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
         {
             try
@@ -416,21 +382,20 @@ namespace RHCQS_Services.Implement
                 var normalizedSearch = name.RemoveDiacritics().ToLower();
 
                 var packageItems = await _unitOfWork.GetRepository<Package>()
-                    .GetListAsync(predicate: p => p.Status == AppConstant.General.Active,
-                                  include: p => p.Include(p => p.PackageType));
+                    .GetListAsync(predicate: p => p.Status == AppConstant.General.Active);
 
                 var filteredItems = packageItems
                     .Where(con =>
                         !string.IsNullOrEmpty(con.PackageName) &&
                         con.PackageName.RemoveDiacritics().ToLower().Contains(normalizedSearch) ||
-                        !string.IsNullOrEmpty(con.PackageType.Name) &&
-                        con.PackageType.Name.RemoveDiacritics().ToLower().Contains(normalizedSearch))
+                        !string.IsNullOrEmpty(con.Type) &&
+                        con.Type.RemoveDiacritics().ToLower().Contains(normalizedSearch))
                     .ToList();
 
                 return filteredItems.Select(packageItem => new AutoPackageResponse(
                     packageId: packageItem.Id,
                     packageName: packageItem.PackageName!,
-                    type: packageItem.PackageType.Name!,
+                    type: packageItem.Type!,
                     price: packageItem.Price ?? 0
                 )).ToList();
             }
@@ -472,8 +437,8 @@ namespace RHCQS_Services.Implement
             }
                 };
 
-/*                string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-                NativeLibrary.Load(dllPath);*/
+                /*                string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                                NativeLibrary.Load(dllPath);*/
 
                 var pdf = _converter.Convert(doc);
 
@@ -576,95 +541,79 @@ namespace RHCQS_Services.Implement
 <!-- Package Metadata -->
 <h1>{package.PackageName}</h1>
 <p><strong>Loại:</strong> {(
-            string.Equals(package.PackageType?.Name, "ROUGH", StringComparison.OrdinalIgnoreCase) ? "Thô" :
-            string.Equals(package.PackageType?.Name, "FINISHED", StringComparison.OrdinalIgnoreCase) ? "Hoàn thiện" :
-            package.PackageType?.Name)}</p>
+                    string.Equals(package.PackageType, "ROUGH", StringComparison.OrdinalIgnoreCase) ? "Thô" :
+                    string.Equals(package.PackageType, "FINISHED", StringComparison.OrdinalIgnoreCase) ? "Hoàn thiện" :
+                    package.PackageType)}</p>
 
 <p><strong>Đơn vị:</strong> {package.Unit}</p>
 <p><strong>Giá:</strong> {package.Price:N0} VND</p>");
 
-            // Package Details - Materials
-            if (package.PackageDetails != null && package.PackageDetails.Any(detail => detail.PackageMaterials != null && detail.PackageMaterials.Any()))
+            // Package Materials
+            if (package.PackageMaterials != null && package.PackageMaterials.Any())
             {
                 sb.Append($@"
-    <h2 class='section-title'>Nguyên vật liệu</h2>");
-
-                foreach (var detail in package.PackageDetails)
-                {
-                    if (detail.PackageMaterials != null && detail.PackageMaterials.Any())
-                    {
-                        sb.Append($@"
-            <table>
-                <thead>
-                    <tr>
-                        <th>Mục Vật Liệu</th>
-                        <th>Tên Vật Liệu</th>
-                        <th>Đơn Vị</th>
-                        <th>Giá</th>
-                        <th>Kích Thước</th>
-                        <th>Hình Dạng</th>
-                    </tr>
-                </thead>
-                <tbody>");
-
-                        foreach (var material in detail.PackageMaterials)
-                        {
-                            sb.Append($@"
+    <h2 class='section-title'>Nguyên vật liệu</h2>
+        <table>
+            <thead>
                 <tr>
-                    <td>{material.MaterialSectionName}</td>
-                    <td>{material.MaterialName}</td>
-                    <td>{material.Unit}</td>
-                    <td>{material.Price:N0} VND</td>
-                    <td>{material.Size}</td>
-                    <td>{material.Shape}</td>
-                </tr>");
-                        }
+                    <th>Mục Vật Liệu</th>
+                    <th>Tên Vật Liệu</th>
+                    <th>Đơn Vị</th>
+                    <th>Giá</th>
+                    <th>Kích Thước</th>
+                    <th>Hình Dạng</th>
+                </tr>
+            </thead>
+            <tbody>");
 
-                        sb.Append($@"
-            </tbody>
-        </table>");
-                    }
+                foreach (var material in package.PackageMaterials)
+                {
+                    sb.Append($@"
+            <tr>
+                <td>{material.MaterialSectionName}</td>
+                <td>{material.MaterialName}</td>
+                <td>{material.Unit}</td>
+                <td>{material.Price:N0} VND</td>
+                <td>{material.Size}</td>
+                <td>{material.Shape}</td>
+            </tr>");
                 }
+
+                sb.Append($@"
+        </tbody>
+    </table>");
             }
 
-            // Package Details - Labor
-            if (package.PackageDetails != null && package.PackageDetails.Any(detail => detail.PackageLabors != null && detail.PackageLabors.Any()))
+            // Package Labors
+            if (package.PackageLabors != null && package.PackageLabors.Any())
             {
                 sb.Append($@"
-    <h2 class='section-title'>Nhân công</h2>");
-
-                foreach (var detail in package.PackageDetails)
-                {
-                    if (detail.PackageLabors != null && detail.PackageLabors.Any())
-                    {
-                        sb.Append($@"
-            <table>
-                <thead>
-                    <tr>
-                        <th>Tên Công Việc</th>
-                        <th>Loại</th>
-                        <th>Thành Tiền</th>
-                    </tr>
-                </thead>
-                <tbody>");
-
-                        foreach (var labor in detail.PackageLabors)
-                        {
-                            var laborType = labor.Type == "Rough" ? "Thô" : labor.Type == "Finished" ? "Hoàn thiện" : labor.Type;
-
-                            sb.Append($@"
+    <h2 class='section-title'>Nhân công</h2>
+        <table>
+            <thead>
                 <tr>
-                    <td>{labor.NameOfLabor}</td>
-                    <td>{laborType}</td>
-                    <td>{labor.TotalPrice:N0} VND</td>
-                </tr>");
-                        }
+                    <th>Tên Công Việc</th>
+                    <th>Loại</th>
+                    <th>Thành Tiền</th>
+                </tr>
+            </thead>
+            <tbody>");
 
-                        sb.Append($@"
-            </tbody>
-        </table>");
-                    }
+                foreach (var labor in package.PackageLabors)
+                {
+                    var laborType = labor.Type == "Rough" ? "Thô" : labor.Type == "Finished" ? "Hoàn thiện" : labor.Type;
+
+                    sb.Append($@"
+            <tr>
+                <td>{labor.NameOfLabor}</td>
+                <td>{laborType}</td>
+                <td>{labor.Price:N0} VND</td>
+            </tr>");
                 }
+
+                sb.Append($@"
+        </tbody>
+    </table>");
             }
 
             sb.Append($@"
@@ -673,6 +622,7 @@ namespace RHCQS_Services.Implement
 
             return sb.ToString();
         }
+
 
     }
 

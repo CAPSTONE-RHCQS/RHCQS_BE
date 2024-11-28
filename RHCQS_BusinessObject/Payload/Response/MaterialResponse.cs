@@ -20,7 +20,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string UnitPrice { get; set; }
         public Guid? MaterialSectionId { get; set; }
         public Guid SupplierId { get; set; }
-        public string MaterialSectionType { get; set; }
+        public string MaterialType { get; set; }
         public string SupplierName { get; set; }
         public string? Code { get; set; }
     }

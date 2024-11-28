@@ -13,7 +13,5 @@ public partial class MaterialSection
 
     public string Code { get; set; } = null!;
 
-    public string? Type { get; set; }
-
     public virtual ICollection<Material> Materials { get; set; } = new List<Material>();
 }

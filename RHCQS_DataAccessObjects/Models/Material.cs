@@ -35,6 +35,8 @@ public partial class Material
 
     public string? Code { get; set; }
 
+    public string? Type { get; set; }
+
     public virtual MaterialSection? MaterialSection { get; set; }
 
     public virtual ICollection<PackageMaterial> PackageMaterials { get; set; } = new List<PackageMaterial>();

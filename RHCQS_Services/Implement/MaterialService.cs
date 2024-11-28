@@ -48,7 +48,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionType = x.MaterialSection.Type,
+                    MaterialType = x.Type,
                     SupplierName = x.Supplier.Name,
                     Code = x.Code
                 },
@@ -81,7 +81,7 @@ namespace RHCQS_Services.Implement
                 UnitPrice = material.UnitPrice,
                 MaterialSectionId = material.MaterialSectionId,
                 SupplierId = material.SupplierId,
-                MaterialSectionType = material.MaterialSection.Type,
+                MaterialType = material.Type,
                 SupplierName = material.Supplier.Name,
                 Code = material.Code
             };
@@ -214,11 +214,11 @@ namespace RHCQS_Services.Implement
                         UnitPrice = x.Material.UnitPrice,
                         MaterialSectionId = x.Material.MaterialSectionId,
                         SupplierId = x.Material.SupplierId,
-                        MaterialSectionType = x.Material.MaterialSection.Type,
+                        MaterialType = x.Material.Type,
                         SupplierName = x.Material.Supplier.Name,
                         Code = x.Material.Code
                     },
-                predicate: m => m.PackageDetail.PackageId == packageId && m.Material.Name.Contains(name),
+                predicate: m => m.PackageId == packageId && m.Material.Name.Contains(name),
                 include: m => m.Include(m => m.Material.MaterialSection)
                                .Include(m => m.Material.Supplier),
                 orderBy: x => x.OrderBy(x => x.Material.InsDate)
@@ -243,7 +243,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionType = x.MaterialSection.Type,
+                    MaterialType = x.Type,
                     SupplierName = x.Supplier.Name,
                     Code = x.Code
                 },
