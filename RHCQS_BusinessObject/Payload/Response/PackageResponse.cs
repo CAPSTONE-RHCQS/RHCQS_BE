@@ -9,26 +9,27 @@ namespace RHCQS_BusinessObject.Payload.Response
 {
     public class PackageResponse
     {
-        public PackageResponse(Guid id, Guid packageTypeId, string? packageName, string? unit, double? price, string? status,
-            DateTime? insDate, DateTime? upsDate, List<PackageDetailsResponse> packageDetails, List<PackageHousesResponse> packageHouses,
-            PackageTypeResponse packageType)
+        public PackageResponse(Guid id/*, Guid packageTypeId*/, string? packageName, string? unit, double? price, string? status,
+            DateTime? insDate, DateTime? upsDate, List<PackageLaborResponse> packageLabor, List<PackageMaterialResponse> packageMaterial,
+            List<PackageHousesResponse> packageHouses,string packageType)
         {
             Id = id;
-            PackageTypeId = packageTypeId;
+            //PackageTypeId = packageTypeId;
             PackageName = packageName;
             Unit = unit;
             Price = price;
             Status = status;
             InsDate = insDate;
             UpsDate = upsDate;
-            PackageDetails = packageDetails;
+            PackageLabors = packageLabor;
+            PackageMaterials = packageMaterial;
             PackageHouses = packageHouses;
             PackageType = packageType;
         }
 
         public Guid Id { get; set; }
 
-        public Guid PackageTypeId { get; set; }
+        //public Guid PackageTypeId { get; set; }
 
         public string? PackageName { get; set; }
 
@@ -41,35 +42,38 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
-        public List<PackageDetailsResponse> PackageDetails { get; set; }
-
-        public List<PackageHousesResponse> PackageHouses { get; set; }
-
-        public PackageTypeResponse PackageType { get; set; } = null!;
-
-    }
-
-    public class PackageDetailsResponse
-    {
-        public PackageDetailsResponse(Guid id, string? type, DateTime? insDate,
-            List<PackageLaborResponse> packageLabors, List<PackageMaterialResponse> packageMaterials)
-        {
-            Id = id;
-            Type = type;
-            InsDate = insDate;
-            PackageLabors = packageLabors;
-            PackageMaterials = packageMaterials;
-        }
-
-        public Guid Id { get; set; }
-
-        public string? Type { get; set; }
-
-        public DateTime? InsDate { get; set; }
+        //public List<PackageDetailsResponse> PackageDetails { get; set; }
         public List<PackageLaborResponse> PackageLabors { get; set; }
 
         public List<PackageMaterialResponse> PackageMaterials { get; set; }
+
+        public List<PackageHousesResponse> PackageHouses { get; set; }
+
+        public string PackageType { get; set; } = null!;
+
     }
+
+    //public class PackageDetailsResponse
+    //{
+    //    public PackageDetailsResponse(Guid id, string? type, DateTime? insDate,
+    //        List<PackageLaborResponse> packageLabors, List<PackageMaterialResponse> packageMaterials)
+    //    {
+    //        Id = id;
+    //        Type = type;
+    //        InsDate = insDate;
+    //        PackageLabors = packageLabors;
+    //        PackageMaterials = packageMaterials;
+    //    }
+
+    //    public Guid Id { get; set; }
+
+    //    public string? Type { get; set; }
+
+    //    public DateTime? InsDate { get; set; }
+    //    public List<PackageLaborResponse> PackageLabors { get; set; }
+
+    //    public List<PackageMaterialResponse> PackageMaterials { get; set; }
+    //}
     public class PackageLaborResponse
     {
 
@@ -97,13 +101,14 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class PackageMaterialResponse
     {
 
-        public PackageMaterialResponse(Guid id, Guid? materialSectionId, string? materialSectionName, string? materialName
+        public PackageMaterialResponse(Guid id, Guid? materialSectionId, string? materialSectionName, string? materialName, string? type
             , double? price, string? unit, string? size, string? shape, string? imgUrl, string? description, DateTime? insDate)
         {
             Id = id;
             MaterialSectionId = materialSectionId;
             MaterialSectionName = materialSectionName;
             MaterialName = materialName;
+            Type = type;
             Price = price;
             Unit = unit;
             Size = size;
@@ -118,6 +123,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid? MaterialSectionId { get; set; }
         public string? MaterialSectionName { get; set; }
         public string? MaterialName { get; set; }
+        public string? Type { get; set; }
 
         public double? Price { get; set; }
 
@@ -154,12 +160,13 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageResponseForMoblie
     {
-        public PackageResponseForMoblie(Guid id, Guid packageTypeId, string? packageType, string? packageName,
+        public PackageResponseForMoblie(Guid id,/* Guid packageTypeId,*/ string? packageType, string? packageName,
             string? unit, double? price, string? status, DateTime? insDate, DateTime? upsDate,
-            List<PackageDetailsResponseForMoblie> packageDetails, List<PackageHousesResponse> packageHouses)
+            List<PackageLaborResponseForMoblie> packageLabor, List<PackageMaterialResponse> packagematerial,
+            List<PackageHousesResponse> packageHouses)
         {
             Id = id;
-            PackageTypeId = packageTypeId;
+            //PackageTypeId = packageTypeId;
             PackageType = packageType;
             PackageName = packageName;
             Unit = unit;
@@ -167,13 +174,14 @@ namespace RHCQS_BusinessObject.Payload.Response
             Status = status;
             InsDate = insDate;
             UpsDate = upsDate;
-            PackageDetails = packageDetails;
+            PackageLabors = packageLabor;
+            PackageMaterials = packagematerial;
             PackageHouses = packageHouses;
         }
 
         public Guid Id { get; set; }
 
-        public Guid PackageTypeId { get; set; }
+        //public Guid PackageTypeId { get; set; }
 
         public string? PackageType { get; set; }
 
@@ -188,33 +196,36 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
-        public List<PackageDetailsResponseForMoblie> PackageDetails { get; set; }
+        //public List<PackageDetailsResponseForMoblie> PackageDetails { get; set; }
+        public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
+
+        public List<PackageMaterialResponse> PackageMaterials { get; set; }
 
         public List<PackageHousesResponse> PackageHouses { get; set; }
 
 
     }
-    public class PackageDetailsResponseForMoblie
-    {
-        public PackageDetailsResponseForMoblie(Guid id, string? type, DateTime? insDate,
-            List<PackageLaborResponseForMoblie> packageLabors, List<PackageMaterialResponse> packageMaterials)
-        {
-            Id = id;
-            Type = type;
-            InsDate = insDate;
-            PackageLabors = packageLabors;
-            PackageMaterials = packageMaterials;
-        }
+    //public class PackageDetailsResponseForMoblie
+    //{
+    //    public PackageDetailsResponseForMoblie(Guid id, string? type, DateTime? insDate,
+    //        List<PackageLaborResponseForMoblie> packageLabors, List<PackageMaterialResponse> packageMaterials)
+    //    {
+    //        Id = id;
+    //        Type = type;
+    //        InsDate = insDate;
+    //        PackageLabors = packageLabors;
+    //        PackageMaterials = packageMaterials;
+    //    }
 
-        public Guid Id { get; set; }
+    //    public Guid Id { get; set; }
 
-        public string? Type { get; set; }
+    //    public string? Type { get; set; }
 
-        public DateTime? InsDate { get; set; }
-        public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
+    //    public DateTime? InsDate { get; set; }
+    //    public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
 
-        public List<PackageMaterialResponse> PackageMaterials { get; set; }
-    }
+    //    public List<PackageMaterialResponse> PackageMaterials { get; set; }
+    //}
     public class PackageLaborResponseForMoblie
     {
         public PackageLaborResponseForMoblie(string? nameOfLabor, string? type)
