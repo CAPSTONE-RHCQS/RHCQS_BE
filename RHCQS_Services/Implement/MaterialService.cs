@@ -181,6 +181,7 @@ namespace RHCQS_Services.Implement
                 material.MaterialSectionId = request.MaterialSectionId ?? material.MaterialSectionId;
                 material.UnitPrice = request.UnitPrice ?? material.UnitPrice;
                 material.IsAvailable = request.IsAvailable ?? material.IsAvailable;
+                material.Code = request.Code ?? material.Code;
 
                 material.UpsDate = LocalDateTime.VNDateTime();
 
