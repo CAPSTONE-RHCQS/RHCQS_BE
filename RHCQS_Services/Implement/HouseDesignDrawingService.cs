@@ -176,7 +176,6 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
-
         public async Task<HouseDesignDrawingResponse> GetDetailHouseDesignDrawingByType(string type)
         {
             var drawingItem = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(
@@ -465,7 +464,10 @@ namespace RHCQS_Services.Implement
         public async Task<List<ListHouseDesginResponse>> ViewDrawingByProjectId(Guid projectId)
         {
             var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                                                .GetList(predicate: x => x.ProjectId == projectId,
+                                                .GetList(predicate: x => x.ProjectId == projectId &&
+                                                         x.Status == AppConstant.HouseDesignStatus.APPROVED ||
+                                                         x.Status == AppConstant.HouseDesignStatus.ACCEPTED ||
+                                                         x.Status == AppConstant.HouseDesignStatus.FINALIZED,
                                                  selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,
                                                           x.Account.Username!,
                                                           x.Name, x.Step, x.Status,

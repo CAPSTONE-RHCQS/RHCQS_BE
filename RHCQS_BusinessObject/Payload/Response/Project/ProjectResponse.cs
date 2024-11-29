@@ -48,6 +48,8 @@ namespace RHCQS_BusinessObject.Payload.Response.Project
 
         public string AccountName { get; set; }
         public string? Address { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string Mail { get; set; }
         public double? Area { get; set; }
 
         public string? Type { get; set; }

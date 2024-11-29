@@ -1040,7 +1040,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = sectionItem.Id,
-                                Quanity = utl.Quantity
+                                Quanity = utl.Quantity,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
                         else
@@ -1060,7 +1061,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId,
-                                Quanity = utl.Quantity
+                                Quanity = utl.Quantity,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
 

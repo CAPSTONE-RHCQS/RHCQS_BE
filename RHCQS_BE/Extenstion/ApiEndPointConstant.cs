@@ -118,6 +118,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectEndpoint = ApiEndpoint + "/project";
             public const string ProjectSalesStaffEndpoint = ProjectEndpoint + "/sales";
             public const string ProjectDetailEndpoint = ProjectEndpoint + "/id";
+            public const string ProjectDesignStaffEndpoint = ProjectEndpoint + "/desgin-staff";
             public const string ProjectByNumberPhone = ProjectEndpoint + "/phone";
             public const string ProjectListForCustomerEndpoint = ProjectEndpoint + "/email";
             public const string ProjectAssignEndpoint = ProjectEndpoint + "/assign";

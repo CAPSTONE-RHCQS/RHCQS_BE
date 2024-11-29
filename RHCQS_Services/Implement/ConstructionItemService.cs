@@ -364,5 +364,37 @@ namespace RHCQS_Services.Implement
 
             return true;
         }
+
+        //public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work)
+        //{
+        //    var listConstruction = await _unitOfWork.GetRepository<WorkTemplate>()
+        //        .GetListAsync(predicate: w => w.PackageId == packageId,
+        //                      include: w => w.Include(w => w.ConstructionItems!)
+        //                                     .ThenInclude(w => w.ConstructionWorks)
+        //                                     .Include(w => w.Package)
+        //                                     .ThenInclude(w => w.PackageLabors)
+        //                                     .Include(w => w.Package)
+        //                                     .ThenInclude(w => w.PackageMaterials));
+
+        //    var filteredItems = listConstruction
+        //      .Where(c => c.ConstructionItems != null)
+        //      .SelectMany(c => c.ConstructionItems.ConstructionWorks!)
+        //      .Where(cw => cw.WorkName.Contains(work, StringComparison.OrdinalIgnoreCase))
+        //      .Select(cw => new AutoConstructionWorkResponse(
+        //          cw.Id,
+        //          cw.WorkName,
+        //          (Guid)cw.LaborId,
+        //          (double)cw.UnitPrice,
+        //          cw.MaterialId,
+        //          null,
+        //          null,
+        //          null
+        //      ))
+        //      .ToList();
+
+
+        //    return filteredItems;
+        //}
+
     }
 }
