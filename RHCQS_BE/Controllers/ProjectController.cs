@@ -195,7 +195,8 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailProjectByIdForDesignStaff(Guid id)
         {
-            var listProjects = await _projectService.GetDetailProjectByIdForDesignStaff(id);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var listProjects = await _projectService.GetDetailProjectByIdForDesignStaff(id, accountId);
             var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
             return new ContentResult()
             {

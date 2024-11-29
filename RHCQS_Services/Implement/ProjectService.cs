@@ -201,9 +201,10 @@ namespace RHCQS_Services.Implement
             return projectDetailItem;
         }
 
-        public async Task<ProjectDesignStaffResponse> GetDetailProjectByIdForDesignStaff(Guid id)
+        public async Task<ProjectDesignStaffResponse> GetDetailProjectByIdForDesignStaff(Guid id, Guid accountId)
         {
-            var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id,
+            var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id 
+                                && w.HouseDesignDrawings.Any( h => h.AccountId == accountId),
                                 include: w => w.Include(p => p.Customer)
                                                 .Include(p => p.AssignTasks)
                                                 .ThenInclude(p => p.Account)
