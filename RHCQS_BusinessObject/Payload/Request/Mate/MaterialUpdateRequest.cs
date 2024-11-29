@@ -21,6 +21,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Mate
         public string? Description { get; set; }
         public bool? IsAvailable { get; set; }
         public string? UnitPrice { get; set; }
+        public string? Code { get; set; }
         [JsonIgnore]
         public IFormFile? Image { get; set; }
     }
