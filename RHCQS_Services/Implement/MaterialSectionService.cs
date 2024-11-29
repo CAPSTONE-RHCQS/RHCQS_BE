@@ -80,7 +80,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while creating a new material section."
+                    "Xuất hiện lỗi khi tạo mới loại vật liệu."
                 );
             }
         }
@@ -96,7 +96,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Material section does not exist."
+                        "Loại vật liệu không tồn tại."
                     );
                 }
 
@@ -109,7 +109,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while updating a new material section."
+                    "Xuất hiện lỗi khi cập nhật loại vật liệu."
                 );
             }
         }
