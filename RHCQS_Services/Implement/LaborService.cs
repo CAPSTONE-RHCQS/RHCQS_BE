@@ -41,7 +41,8 @@ namespace RHCQS_Services.Implement
                     InsDate = x.InsDate,
                     UpsDate = x.UpsDate,
                     Deflag = x.Deflag,
-                    Type = x.Type
+                    Type = x.Type,
+                    Code = x.Code
                 },
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -64,7 +65,8 @@ namespace RHCQS_Services.Implement
                 InsDate = labor.InsDate,
                 UpsDate = labor.UpsDate,
                 Deflag = labor.Deflag,
-                Type = labor.Type
+                Type = labor.Type,
+                Code = labor.Code
             };
         }
 
@@ -80,7 +82,8 @@ namespace RHCQS_Services.Implement
                     InsDate = LocalDateTime.VNDateTime(),
                     UpsDate = LocalDateTime.VNDateTime(),
                     Deflag = request.Deflag,
-                    Type = request.Type
+                    Type = request.Type,
+                    Code = request.Code
                 };
                 await _unitOfWork.GetRepository<Labor>().InsertAsync(newLabor);
                 return await _unitOfWork.CommitAsync() > 0;
@@ -105,7 +108,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Labor does not exist."
+                        "Nhân công không tồn tại."
                     );
                 }
 
@@ -113,6 +116,7 @@ namespace RHCQS_Services.Implement
                 labor.Price = request.Price.HasValue ? (double)request.Price.Value : labor.Price;
                 labor.Deflag = request.Deflag ?? labor.Deflag;
                 labor.Type = request.Type ?? labor.Type;
+                labor.Code = request.Code ?? labor.Code;
 
                 labor.UpsDate = LocalDateTime.VNDateTime();
 
@@ -123,7 +127,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while updating a new labor."
+                    "Xuất hiện lỗi khi cập nhật nhân công."
                 );
             }
         }
