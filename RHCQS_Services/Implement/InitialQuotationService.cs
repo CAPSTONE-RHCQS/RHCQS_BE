@@ -72,6 +72,8 @@ namespace RHCQS_Services.Implement
                                             .ThenInclude(x => x.UtilitiesSection)
                                        .Include(x => x.BatchPayments)
                                         .ThenInclude(x => x.Payment!)
+                                       .Include(x => x.BatchPayments)
+                                        .ThenInclude(x => x.Contract!)
                 );
 
             var roughPackage = initialQuotation.PackageQuotations
@@ -122,20 +124,64 @@ namespace RHCQS_Services.Implement
                                                )
                                               : new PromotionInfo();
 
-            var batchPaymentResponse = initialQuotation!.BatchPayments
+            List<BatchPaymentInfo> batchPaymentResponse = null;
+            var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                predicate: c => c.BatchPayments.Any(c => c.Contract.Type == AppConstant.ContractType.Construction.ToString()));
+
+            //Case: Initial quotation version 0
+            if (initialQuotation.BatchPayments.Count == 0)
+            {
+                batchPaymentResponse = new List<BatchPaymentInfo>();
+            }
+            //Case: Initial quotation processing and not contract design
+            else if  (contractInfo == null || initialQuotation.BatchPayments.Count != 0)
+            {
+                batchPaymentResponse = initialQuotation.BatchPayments
+                .Where(bp =>
+                    bp.ContractId == null
+                )
                 .OrderBy(bp => bp.NumberOfBatch)
                 .Select(item => new BatchPaymentInfo(
-                                         item.Id,
-                                         item.Payment.Description,
-                                         item.Payment.Percents ?? 0,
-                                         item.Payment.TotalPrice,
-                                         item.Payment.Unit,
-                                         item.Status,
-                                         item.NumberOfBatch,
-                                         item.Payment.PaymentDate,
-                                         item.Payment.PaymentPhase
-                                     )).ToList() ?? new List<BatchPaymentInfo>();
+                    item.PaymentId,
+                    item.Payment.Description,
+                    item.Payment.Percents ?? 0,
+                    item.Payment.TotalPrice,
+                    item.Payment.Unit,
+                    item.Status,
+                    item.NumberOfBatch,
+                    item.Payment.PaymentDate,
+                    item.Payment.PaymentPhase
+                ))
+                .ToList();
+            }
+            //Case: Contract design
+            else if (contractInfo.Type == AppConstant.ContractType.Design.ToString())
+            {
+                batchPaymentResponse = new List<BatchPaymentInfo>();
+            }
+            //Case: Final quotation
+            else
+            {
+                var firstBatchPayment = initialQuotation.BatchPayments?.FirstOrDefault(
+                   predicate: c => c.Contract?.Type == AppConstant.ContractType.Construction.ToString());
 
+                batchPaymentResponse = (await _unitOfWork.GetRepository<BatchPayment>()
+                    .GetListAsync(
+                        predicate: bp => bp.ContractId == firstBatchPayment.ContractId,
+                        include: bp => bp.Include(bp => bp.Payment),
+                        selector: item => new BatchPaymentInfo(
+                            item.PaymentId,
+                            item.Payment.Description,
+                            item.Payment.Percents ?? 0,
+                            item.Payment.TotalPrice,
+                            item.Payment.Unit,
+                            item.Status,
+                            item.NumberOfBatch,
+                            item.Payment.PaymentDate,
+                            item.Payment.PaymentPhase
+                        )
+                    ))?.ToList() ?? new List<BatchPaymentInfo>();
+            }
 
             var result = new InitialQuotationResponse
             {
@@ -414,7 +460,8 @@ namespace RHCQS_Services.Implement
                 .GetList(
                     predicate: x => x.ProjectId == projectId &&
                                (x.Status == AppConstant.QuotationStatus.APPROVED ||
-                                x.Status == AppConstant.QuotationStatus.FINALIZED),
+                                x.Status == AppConstant.QuotationStatus.FINALIZED ||
+                                x.Status == AppConstant.QuotationStatus.ENDED),
                     selector: x => new InitialQuotationAppResponse(
                         x.Id,
                         x.Version,
@@ -919,7 +966,7 @@ namespace RHCQS_Services.Implement
                     Unit = AppConstant.Unit.UnitPrice,
                     ReasonReject = null,
                     IsDraft = true,
-                    Discount = request.Promotions?.Discount ?? 0.0
+                    Discount = request.Promotions?.Discount * request.Area
                 };
                 await _unitOfWork.GetRepository<InitialQuotation>().InsertAsync(initialItem);
                 #endregion
@@ -993,7 +1040,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = sectionItem.Id,
-                                Quanity = utl.Quantity
+                                Quanity = utl.Quantity,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
                         else
@@ -1013,7 +1061,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId,
-                                Quanity = utl.Quantity
+                                Quanity = utl.Quantity,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
 

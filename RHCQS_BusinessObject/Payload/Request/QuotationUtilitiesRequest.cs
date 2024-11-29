@@ -15,5 +15,6 @@ namespace RHCQS_BusinessObject.Payload.Request
         public double? Price { get; set; }
 
         public int? Quantity { get; set; }
+        public double TotalPrice { get; set; }
     }
 }

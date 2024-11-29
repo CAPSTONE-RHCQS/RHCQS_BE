@@ -86,11 +86,14 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
 
         public string? Description { get; set; }
         public int? Quantity { get; set; }
+
+        [Range(0, double.MaxValue, ErrorMessage = "Tổng phải là một số dương.")]
+        public double TotalPrice { get; set; }
     }
 
     public class PromotionUpdateRequest
     {
-        //[Required(ErrorMessage = "Mã khuyến mãi là bắt buộc.")]
+        [Required(ErrorMessage = "Mã khuyến mãi là bắt buộc.")]
         public Guid Id { get; set; }
         public double Discount { get; set; }
     }

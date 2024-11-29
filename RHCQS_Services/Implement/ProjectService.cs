@@ -181,6 +181,7 @@ namespace RHCQS_Services.Implement
                 Avatar = projectItem.Customer.ImgUrl,
                 AccountName = projectItem.CustomerName!,
                 Address = projectItem.Address,
+                Mail = projectItem.Customer!.Email!,
                 Area = projectItem.Area,
                 Type = projectItem.Type,
                 Status = projectItem.Status,
@@ -195,6 +196,95 @@ namespace RHCQS_Services.Implement
                 HouseDesignDrawingInfo = houseDesignItem,
                 FinalInfo = finalItem,
                 ContractInfo = contractItem,
+            };
+
+            return projectDetailItem;
+        }
+
+        public async Task<ProjectDesignStaffResponse> GetDetailProjectByIdForDesignStaff(Guid id, Guid accountId)
+        {
+            var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id 
+                                && w.HouseDesignDrawings.Any( h => h.AccountId == accountId),
+                                include: w => w.Include(p => p.Customer)
+                                                .Include(p => p.AssignTasks)
+                                                .ThenInclude(p => p.Account)
+                                                .Include(p => p.InitialQuotations)
+                                                .Include(p => p.HouseDesignDrawings)
+                                                    .ThenInclude(p => p.Account)
+                                                .Include(p => p.HouseDesignDrawings)
+                                                    .ThenInclude(h => h.HouseDesignVersions)
+                                                .Include(p => p.HouseDesignDrawings));
+            if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
+
+            var initialItem = projectItem.InitialQuotations?
+                                        .Where(i => i.Version > 0)
+                                        .Select(i => new InitialInfo
+                                        {
+                                            Id = i.Id,
+                                            AccountName = projectItem.AssignTasks.FirstOrDefault()?.Account.Username,
+                                            Version = i.Version,
+                                            InsDate = i.InsDate,
+                                            Status = i.Status
+                                        }).OrderByDescending(i => i.InsDate)
+                                        .ToList() ?? new List<InitialInfo>();
+
+            var finalItem = projectItem.FinalQuotations?
+                                .Where(d => d.Version > 0)
+                              .Select(d => new FinalInfo
+                              {
+                                  Id = d.Id,
+                                  AccountName = projectItem.AssignTasks.FirstOrDefault()?.Account.Username,
+                                  Version = d.Version,
+                                  InsDate = d.InsDate,
+                                  Status = d.Status
+                              }).OrderByDescending(d => d.InsDate)
+                              .ToList() ?? new List<FinalInfo>();
+
+
+            var houseDesignItem = projectItem.HouseDesignDrawings?
+                                                                     .Select(h => new HouseDesignDrawingInfo
+                                                                     {
+                                                                         Id = h.Id,
+                                                                         DesignName = h.Account!.Username!,
+                                                                         Step = h.Step,
+                                                                         Name = h.Name!,
+                                                                         Type = h.Type!,
+                                                                         InsDate = h.InsDate,
+                                                                         Status = h.Status
+                                                                     }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
+
+            var contractItem = projectItem.Contracts?.Select(c => new ContractInfo
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Status = c.Status,
+                Note = c.Note,
+                FileContract = c.UrlFile ?? null
+            })
+            .ToList() ?? new List<ContractInfo>();
+
+
+            var projectDetailItem = new ProjectDesignStaffResponse
+            {
+                Id = projectItem.Id,
+                Name = projectItem.Name,
+                Phone = projectItem.Customer.PhoneNumber ?? "Không có",
+                Avatar = projectItem.Customer.ImgUrl,
+                AccountName = projectItem.CustomerName!,
+                Address = projectItem.Address,
+                Mail = projectItem.Customer!.Email!,
+                Area = projectItem.Area,
+                Type = projectItem.Type,
+                Status = projectItem.Status,
+                InsDate = projectItem.InsDate,
+                UpsDate = projectItem.UpsDate,
+                ProjectCode = projectItem.ProjectCode,
+                StaffName = string.Join(", ", projectItem.AssignTasks.Select(x => x.Account.Username)),
+                StaffPhone = string.Join(", ", projectItem.AssignTasks.Select(x => x.Account.PhoneNumber)),
+                StaffAvatar = string.Join(", ", projectItem.AssignTasks.Select(x => x.Account.ImageUrl)),
+                IsDrawing = projectItem.IsDrawing,
+                InitialInfo = initialItem,
+                HouseDesignDrawingInfo = houseDesignItem
             };
 
             return projectDetailItem;
@@ -416,7 +506,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = sectionItem.Id,
-                                Quanity = utl.Quantity ?? 0
+                                Quanity = utl.Quantity ?? 0,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
                         else
@@ -436,7 +527,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId,
-                                Quanity = utl.Quantity ?? 0
+                                Quanity = utl.Quantity ?? 0,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
 
@@ -573,13 +665,12 @@ namespace RHCQS_Services.Implement
             var finalResponse = await GetFinalQuotationResponse(projectId);
             var processingResponse = await GetContractResponse<ContractProcessingAppResponse>(projectId,
                    AppConstant.ContractType.Construction.ToString());
-            if (projectTrack.IsDrawing == true)
-            {
-                var contractDesignResponse = await GetContractResponse<ContractDesignAppResponse>(projectId, 
-                    AppConstant.ContractType.Design.ToString());
-               
-               
 
+            //Case: Have drawing - contract design: null
+            if (projectTrack.IsDrawing == false || projectTrack.Type == AppConstant.Type.TEMPLATE)
+            {
+                var contractDesignResponse = await GetContractResponse<ContractDesignAppResponse>(projectId,
+                    AppConstant.ContractType.Design.ToString());
                 return new ProjectAppResponse(
                     initialResponse,
                     contractDesignResponse,
@@ -702,7 +793,7 @@ namespace RHCQS_Services.Implement
                 #region Calculate total price rough
                 //System find package rough
                 var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                                        predicate: p => p.PackageType.Name == AppConstant.Type.ROUGH
+                                        predicate: p => p.Type == AppConstant.Type.ROUGH
                                         && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
 
                 //Calculate total rough from buidling area
@@ -812,7 +903,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = sectionItem.Id,
-                                Quanity = utl.Quantity ?? 0
+                                Quanity = utl.Quantity ?? 0,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
                         else
@@ -832,7 +924,8 @@ namespace RHCQS_Services.Implement
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime(),
                                 UtilitiesSectionId = utilityItem.SectionId,
-                                Quanity = utl.Quantity ?? 0
+                                Quanity = utl.Quantity ?? 0,
+                                TotalPrice = utl.TotalPrice
                             };
                         }
 

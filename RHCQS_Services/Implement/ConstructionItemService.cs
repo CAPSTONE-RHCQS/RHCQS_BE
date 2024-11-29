@@ -185,7 +185,7 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var normalizedName = name.RemoveDiacritics().ToLower();
+                var normalizedName = name.RemoveDiacritics().Trim().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
                     .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
@@ -196,9 +196,34 @@ namespace RHCQS_Services.Implement
                       con.SubConstructionItems.Any(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName)))
                   .ToList();
 
+                //return filteredItems.SelectMany(constructionItem =>
+                //{
+
+                //    var matchingSubConstructions = constructionItem.SubConstructionItems
+                //        .Where(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
+                //        .Select(subConstruction => new AutoConstructionResponse(
+                //            constructionItem.Id,
+                //            subConstructionId: subConstruction.Id,
+                //            name: subConstruction.Name,
+                //            coefficient: subConstruction.Coefficient,
+                //            type: subConstruction.ConstructionItems.Type!
+                //        )).ToList();
+
+                //    if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
+                //    {
+                //        matchingSubConstructions.Add(new AutoConstructionResponse(
+                //            constructionItem.Id,
+                //            subConstructionId: null,
+                //            name: constructionItem.Name,
+                //            coefficient: constructionItem.Coefficient,
+                //            type: constructionItem.Type!
+                //        ));
+                //    }
+
+                //    return matchingSubConstructions;
+                //}).ToList();
                 return filteredItems.SelectMany(constructionItem =>
                 {
-
                     var matchingSubConstructions = constructionItem.SubConstructionItems
                         .Where(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
                         .Select(subConstruction => new AutoConstructionResponse(
@@ -209,7 +234,8 @@ namespace RHCQS_Services.Implement
                             type: subConstruction.ConstructionItems.Type!
                         )).ToList();
 
-                    if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
+                    // Luôn thêm ConstructionItem nếu khớp
+                    if (constructionItem.Name!.RemoveDiacritics().ToLower().Contains(normalizedName))
                     {
                         matchingSubConstructions.Add(new AutoConstructionResponse(
                             constructionItem.Id,
@@ -338,5 +364,37 @@ namespace RHCQS_Services.Implement
 
             return true;
         }
+
+        //public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work)
+        //{
+        //    var listConstruction = await _unitOfWork.GetRepository<WorkTemplate>()
+        //        .GetListAsync(predicate: w => w.PackageId == packageId,
+        //                      include: w => w.Include(w => w.ConstructionItems!)
+        //                                     .ThenInclude(w => w.ConstructionWorks)
+        //                                     .Include(w => w.Package)
+        //                                     .ThenInclude(w => w.PackageLabors)
+        //                                     .Include(w => w.Package)
+        //                                     .ThenInclude(w => w.PackageMaterials));
+
+        //    var filteredItems = listConstruction
+        //      .Where(c => c.ConstructionItems != null)
+        //      .SelectMany(c => c.ConstructionItems.ConstructionWorks!)
+        //      .Where(cw => cw.WorkName.Contains(work, StringComparison.OrdinalIgnoreCase))
+        //      .Select(cw => new AutoConstructionWorkResponse(
+        //          cw.Id,
+        //          cw.WorkName,
+        //          (Guid)cw.LaborId,
+        //          (double)cw.UnitPrice,
+        //          cw.MaterialId,
+        //          null,
+        //          null,
+        //          null
+        //      ))
+        //      .ToList();
+
+
+        //    return filteredItems;
+        //}
+
     }
 }

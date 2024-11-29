@@ -183,6 +183,29 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetDetailProjectByIdForDesignStaff
+        /// <summary>
+        /// Project detail for designer staff
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff")]
+        [HttpGet(ApiEndPointConstant.Project.ProjectDesignStaffEndpoint)]
+        [ProducesResponseType(typeof(ProjectResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailProjectByIdForDesignStaff(Guid id)
+        {
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var listProjects = await _projectService.GetDetailProjectByIdForDesignStaff(id, accountId);
+            var result = JsonConvert.SerializeObject(listProjects, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+
         #region GetListProjectByPhone
         /// <summary>
         /// Role: SALE STAFF - MANAGER

@@ -219,7 +219,7 @@ namespace RHCQS_Services.Implement
                         SupplierName = x.Material.Supplier.Name,
                         Code = x.Material.Code
                     },
-                predicate: m => m.PackageDetail.PackageId == packageId && m.Material.Name.Contains(name),
+                predicate: m => m.PackageId == packageId && m.Material.Name.Contains(name),
                 include: m => m.Include(m => m.Material.MaterialSection)
                                .Include(m => m.Material.Supplier),
                 orderBy: x => x.OrderBy(x => x.Material.InsDate)

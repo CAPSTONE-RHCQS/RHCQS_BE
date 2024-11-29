@@ -29,6 +29,8 @@ public partial class QuotationUtility
 
     public int? Quanity { get; set; }
 
+    public double? TotalPrice { get; set; }
+
     public virtual FinalQuotation? FinalQuotation { get; set; }
 
     public virtual InitialQuotation? InitialQuotation { get; set; }

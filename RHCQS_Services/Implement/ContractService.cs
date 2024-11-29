@@ -211,7 +211,6 @@ namespace RHCQS_Services.Implement
                                 include: x => x.Include(x => x.InitialQuotations)
                                                 .ThenInclude(x => x.PackageQuotations)
                                                 .ThenInclude(x => x.Package)
-                                                .ThenInclude(x => x.PackageType)
                                                 .Include(x => x.Customer!));
 
             if (infoProject == null)
@@ -230,11 +229,11 @@ namespace RHCQS_Services.Implement
             {
                 var packageInfo = infoProject.InitialQuotations
                     .SelectMany(x => x.PackageQuotations)
-                    .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
-                              || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
+                    .Where(pq => pq.Package.Type == AppConstant.Type.ROUGH
+                              || pq.Package.Type == AppConstant.Type.FINISHED)
                     .Select(pq => new
                     {
-                        TypeName = pq.Package.PackageType.Name,
+                        TypeName = pq.Package.Type,
                         Price = pq.Package.Price
                     })
                     .ToList();
@@ -307,8 +306,8 @@ namespace RHCQS_Services.Implement
                             InsDate = LocalDateTime.VNDateTime(),
                             UpsDate = LocalDateTime.VNDateTime(),
                             TotalPrice = request.ContractValue,
-                            PaymentDate = LocalDateTime.VNDateTime(),
-                            PaymentPhase = LocalDateTime.VNDateTime(),
+                            PaymentDate = pay.PaymentDate,
+                            PaymentPhase = pay.PaymentPhase,
                             Unit = AppConstant.Unit.UnitPrice,
                             Percents = pay.Percents,
                             Description = pay.Description
@@ -325,7 +324,7 @@ namespace RHCQS_Services.Implement
                             FinalQuotationId = null,
                             PaymentId = payInfo.Id,
                             Status = AppConstant.PaymentStatus.PROGRESS,
-                            NumberOfBatch = pay.NumberOfBatch
+                            NumberOfBatch = pay.NumberOfBatches
                         };
 
                         await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
@@ -353,7 +352,6 @@ namespace RHCQS_Services.Implement
                                 include: x => x.Include(x => x.InitialQuotations)
                                                 .ThenInclude(x => x.PackageQuotations)
                                                 .ThenInclude(x => x.Package)
-                                                .ThenInclude(x => x.PackageType)
                                                 .Include(x => x.FinalQuotations)
                                                 .Include(x => x.Customer!));
 
@@ -375,11 +373,11 @@ namespace RHCQS_Services.Implement
                 #region Query package
                 var packageInfo = infoProject.InitialQuotations
                     .SelectMany(x => x.PackageQuotations)
-                    .Where(pq => pq.Package.PackageType.Name == AppConstant.Type.ROUGH
-                              || pq.Package.PackageType.Name == AppConstant.Type.FINISHED)
+                    .Where(pq => pq.Package.Type == AppConstant.Type.ROUGH
+                              || pq.Package.Type == AppConstant.Type.FINISHED)
                     .Select(pq => new
                     {
-                        TypeName = pq.Package.PackageType.Name,
+                        TypeName = pq.Package.Type,
                         Price = pq.Package.Price
                     })
                     .ToList();
@@ -396,7 +394,7 @@ namespace RHCQS_Services.Implement
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
                     ValidityPeriod = request.ValidityPeriod,
-                    TaxCode = null,
+                    TaxCode = request.TaxCode,
                     Area = infoProject.Area,
                     UnitPrice = AppConstant.Unit.UnitPrice,
                     ContractValue = request.ContractValue,
@@ -531,13 +529,16 @@ namespace RHCQS_Services.Implement
             return resutl;
         }
 
-        public async Task<string> BillContract(Guid paymentId, List<IFormFile> bills)
+        public async Task<string> BillContractDesign(Guid paymentId, List<IFormFile> bills)
         {
             try
             {
+                BatchPayment currentBatch = null;
+                //Check list batch payment 
                 var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
-                    predicate: p => p.PaymentId == paymentId,
-                    include: p => p.Include(p => p.Contract!));
+                                    predicate: p => p.PaymentId == paymentId,
+                                    include: p => p.Include(p => p.Contract!)
+                                                    .ThenInclude(p => p.Project));
 
                 if (payBatchInfo == null || !payBatchInfo.Any())
                 {
@@ -546,7 +547,9 @@ namespace RHCQS_Services.Implement
 
                 int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
 
-                #region Create bill & save in media
+                var contractInfo = payBatchInfo.FirstOrDefault()?.Contract;
+                string contractType = contractInfo.Type;
+
                 for (int i = 0; i < imageCount; i++)
                 {
                     var file = bills[i];
@@ -556,10 +559,14 @@ namespace RHCQS_Services.Implement
                         continue;
                     }
 
+                    var publicId = contractType == "Design"
+                            ? $"Hoa_don_thiet_ke_{paymentId}_{i}"
+                            : $"Hoa_don_thi_cong_{paymentId}_{i}";
+
                     var uploadParams = new ImageUploadParams()
                     {
                         File = new FileDescription(file.FileName, file.OpenReadStream()),
-                        PublicId = $"Hoa_don_{paymentId}_{i}",
+                        PublicId = publicId,
                         Folder = "Contract",
                         UseFilename = true,
                         UniqueFilename = false,
@@ -587,44 +594,143 @@ namespace RHCQS_Services.Implement
 
                     await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
 
-                    var currentBatch = payBatchInfo.ElementAt(i);
+                    currentBatch = payBatchInfo.ElementAt(i);
                     if (currentBatch.Status == AppConstant.PaymentStatus.PROGRESS)
                     {
                         currentBatch.Status = AppConstant.PaymentStatus.PAID;
                     }
                 }
-                #endregion
 
-                var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
-
-                if (allPaid)
-                {
-                    var firstBatch = payBatchInfo.First();
-
-                    if (firstBatch.ContractId.HasValue)
-                    {
-                        payBatchInfo.First().Contract.Status = AppConstant.ContractStatus.FINISHED;
-                    }
-                    if (payBatchInfo.First().Contract.Type == AppConstant.ContractType.Construction.ToString())
-                    {
-                        var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
-                            predicate: x => x.Id == payBatchInfo.First().Contract.ProjectId);
-                        project.Status = AppConstant.ContractStatus.FINISHED;
-                        _unitOfWork.GetRepository<Project>().UpdateAsync(project);
-                    }
-                }
                 _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
 
+                var contractId = payBatchInfo.First().ContractId;
+                var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+                var finalBatch = await _unitOfWork.GetRepository<BatchPayment>()
+                 .FirstOrDefaultAsync(predicate: x => x.ContractId == contractId,
+                                      orderBy: q => q.OrderByDescending(x => x.NumberOfBatch));
+
+
+                if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
+                {
+                    string projectStatus = payBatchInfo.First().Contract.Project.Status.ToString();
+                    if (projectStatus != AppConstant.ProjectStatus.DESIGNED
+                    && projectStatus != AppConstant.ProjectStatus.UNDER_REVIEW
+                    && projectStatus != AppConstant.ProjectStatus.SIGNED_CONTRACT
+                    && projectStatus != AppConstant.ProjectStatus.FINALIZED)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Completed_Design);
+                    }
+
+                    var contract = payBatchInfo.First().Contract;
+                    if (contract != null)
+                    {
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                    }
+                }
+
+                string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+                return result;
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
+            }
+        }
+
+        //Manager update bill 
+        public async Task<string> BillContractContruction(Guid paymentId, List<IFormFile> bills)
+        {
+            try
+            {
+                BatchPayment currentBatch = null;
+                var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                    predicate: p => p.PaymentId == paymentId,
+                                    include: p => p.Include(p => p.Contract!)
+                                                    .ThenInclude(p => p.Project));
+
+                if (payBatchInfo == null || !payBatchInfo.Any())
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+                }
+                int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
+
+                for (int i = 0; i < imageCount; i++)
+                {
+                    var file = bills[i];
+
+                    if (file == null || file.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = $"Hop_dong_{paymentId}_{i}",
+                        Folder = "Contract",
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                    }
+
+                    // Tạo mới Media cho mỗi hình ảnh và gán PaymentId tương ứng
+                    var mediaInfo = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        HouseDesignVersionId = null,
+                        Name = AppConstant.General.Bill,
+                        Url = uploadResult.Url.ToString(),
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
+                        SubTemplateId = null,
+                        PaymentId = payBatchInfo.ElementAt(i).PaymentId
+                    };
+
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+
+                    currentBatch = payBatchInfo.ElementAt(i);
+                    if (currentBatch.Status == AppConstant.PaymentStatus.PROGRESS)
+                    {
+                        currentBatch.Status = AppConstant.PaymentStatus.PAID;
+                    }
+                }
+
+                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
+
+                var contractId = payBatchInfo.First().ContractId;
+                var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+                var finalBatch = await _unitOfWork.GetRepository<BatchPayment>()
+                     .FirstOrDefaultAsync(predicate: x => x.ContractId == contractId,
+                                          orderBy: q => q.OrderByDescending(x => x.NumberOfBatch));
+
+
+                if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
+                {
+                    var contract = payBatchInfo.First().Contract;
+                    if (contract != null)
+                    {
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                    }
+                }
 
                 string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
                 return result;
             }
             catch (Exception ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
             }
         }
-
 
         //Clone final info to contract construction
         public async Task<FinalToContractResponse> CloneFinalInfoToContract(Guid projectId)
@@ -655,7 +761,8 @@ namespace RHCQS_Services.Implement
                         PaymentPhase = batchPayment.Payment.PaymentPhase,
                         Percents = batchPayment.Payment.Percents ?? 0,
                         Description = batchPayment.Payment.Description
-                    }).ToList();
+                    }).OrderBy(x =>x.NumberOfBatches) 
+                    .ToList();
 
                 var result = new FinalToContractResponse()
                 {

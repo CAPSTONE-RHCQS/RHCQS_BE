@@ -276,6 +276,8 @@ public static class AppConstant
         public const string DuplicatedConstruction = "Hạng mục xây dựng bị trùng lặp!";
         public const string DuplicatedUtility = "Tiện ích xây dựng bị trùng lặp!";
         public const string DuplicatedEquiment = "Thiết bị xây dựng bị trùng lặp!";
+        public const string DuplicatedLabor = "Nhân công bị trùng lặp!";
+        public const string DuplicatedMaterial = "Vật tư bị trùng lặp!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
@@ -316,6 +318,7 @@ public static class AppConstant
         public const string Invail_Quotation = "Báo giá chưa chốt!";
         public const string Contract_Not_Found = "Không tìm thấy báo giá!";
         public const string Contract_Waiting = "Hợp đồng đang chờ duyệt";
+        public const string Not_Completed_Design = "Cần hoàn thành các bản thiết kế để thanh toán hoàn tất hợp đồng thiết kế!";
 
         //Promotion
         public const string Invalid_Start_Time = "Thời gian bắt đầu ở quá khứ hoặc trùng với thời gian hiện tại!";
