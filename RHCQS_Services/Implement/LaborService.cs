@@ -144,11 +144,13 @@ namespace RHCQS_Services.Implement
                         InsDate = x.Labor.InsDate,
                         UpsDate = x.Labor.UpsDate,
                         Deflag = x.Labor.Deflag,
-                        Type = x.Labor.Type
+                        Type = x.Labor.Type,
+                        Code = x.Labor.Code,
                     },
-                    predicate: pl => pl.PackageId == packageId &&
+                    predicate: pl => pl.Package.Id == packageId &&
                                      pl.Labor.Name.Contains(name),
-                    include: x => x.Include(pl => pl.Labor),
+                    include: x => x.Include(pl => pl.Labor)
+                                   .Include(pl => pl.Package),
                     orderBy: x => x.OrderBy(pl => pl.Labor.InsDate)
                 )).ToList();
             return result;
@@ -165,7 +167,8 @@ namespace RHCQS_Services.Implement
                     InsDate = x.InsDate,
                     UpsDate = x.UpsDate,
                     Deflag = x.Deflag,
-                    Type = x.Type
+                    Type = x.Type,
+                    Code = x.Code
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate)
@@ -177,7 +180,7 @@ namespace RHCQS_Services.Implement
             try
             {
                 if (excelFile == null || excelFile.Length == 0)
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "Không tìm thấy file được tải");
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "Không tìm thấy file được tải.");
 
                 using (var stream = new MemoryStream())
                 {
