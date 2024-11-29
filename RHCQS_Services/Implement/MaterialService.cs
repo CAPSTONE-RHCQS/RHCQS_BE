@@ -48,7 +48,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionType = x.MaterialSection.Type,
+                    MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name,
                     Code = x.Code
                 },
@@ -81,7 +81,7 @@ namespace RHCQS_Services.Implement
                 UnitPrice = material.UnitPrice,
                 MaterialSectionId = material.MaterialSectionId,
                 SupplierId = material.SupplierId,
-                MaterialSectionType = material.MaterialSection.Type,
+                MaterialSectionName = material.MaterialSection.Name,
                 SupplierName = material.Supplier.Name,
                 Code = material.Code
             };
@@ -101,7 +101,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Conflict,
-                        "MaterialSection or Supplier does not exist."
+                        "Loại vật liệu hoặc nhà cung cấp không hợp lệ."
                     );
                 }
 
@@ -130,7 +130,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error occurred while creating the material."
+                    "Xuất hiện lỗi khi tạo mới vật liệu."
                 );
             }
         }
@@ -141,7 +141,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Bad_Request,
-                    "No image file uploaded."
+                    "Không tìm thấy ảnh được tải."
                 );
             }
 
@@ -160,7 +160,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Material không tồn tại."
+                        "Vật liệu không tồn tại."
                     );
                 }
 
@@ -192,7 +192,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "Có lỗi xảy ra khi cập nhật material."
+                    "Có lỗi xảy ra khi cập nhật vật liệu."
                 );
             }
         }
@@ -215,7 +215,7 @@ namespace RHCQS_Services.Implement
                         UnitPrice = x.Material.UnitPrice,
                         MaterialSectionId = x.Material.MaterialSectionId,
                         SupplierId = x.Material.SupplierId,
-                        MaterialSectionType = x.Material.MaterialSection.Type,
+                        MaterialSectionName = x.Material.MaterialSection.Name,
                         SupplierName = x.Material.Supplier.Name,
                         Code = x.Material.Code
                     },
@@ -244,7 +244,7 @@ namespace RHCQS_Services.Implement
                     UnitPrice = x.UnitPrice,
                     MaterialSectionId = x.MaterialSectionId,
                     SupplierId = x.SupplierId,
-                    MaterialSectionType = x.MaterialSection.Type,
+                    MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name,
                     Code = x.Code
                 },
@@ -259,7 +259,7 @@ namespace RHCQS_Services.Implement
             try
             {
                 if (excelFile == null || excelFile.Length == 0)
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "No file uploaded");
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, "Không tìm thấy file được tải.");
 
                 using (var stream = new MemoryStream())
                 {
@@ -280,7 +280,7 @@ namespace RHCQS_Services.Implement
                             {
                                 throw new AppConstant.MessageError(
                                     (int)AppConstant.ErrCode.Bad_Request,
-                                    $"Duplicate code found: {code}. Please upload another file."
+                                    $"Tìm thấy mã {code} bị nhập trùng. Hãy chọn lại file khác để tải lên."
                                 );
                             }
 
@@ -291,7 +291,7 @@ namespace RHCQS_Services.Implement
                             {
                                 throw new AppConstant.MessageError(
                                     (int)AppConstant.ErrCode.Bad_Request,
-                                    $"Invalid SupplierId format at row {row}. Please check the file."
+                                    $"ID nhà cung cấp không hợp lệ ở hàng {row}. Hãy kiểm tra lại file trước khi tải lên."
                                 );
                             }
 
@@ -300,7 +300,7 @@ namespace RHCQS_Services.Implement
                             {
                                 throw new AppConstant.MessageError(
                                     (int)AppConstant.ErrCode.Bad_Request,
-                                    $"Invalid SupplierId format at row {row}. Please check the file."
+                                    $"ID vật liệu xây dựng không hợp lệ ở hàng {row}. Hãy kiểm tra lại file trước khi tải lên.."
                                 );
                             }
 
@@ -332,11 +332,11 @@ namespace RHCQS_Services.Implement
             }
             catch (AppConstant.MessageError ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, $"Duplicate code found. Please upload another file.");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, $"Tìm thấy mã bị nhập trùng. Hãy chọn lại file khác để tải lên.");
             }
             catch (Exception ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, $"Error while importing data: {ex.Message}");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, $"Lỗi khi nhập data {ex.Message}");
             }
         }
     }
