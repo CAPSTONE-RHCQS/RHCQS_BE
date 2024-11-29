@@ -21,5 +21,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public bool? Deflag { get; set; }
 
         public string? Type { get; set; }
+        public string? Code { get; set; }
     }
 }
