@@ -7,13 +7,19 @@ public partial class WorkTemplate
 {
     public Guid Id { get; set; }
 
-    public Guid? ConstructionItemsId { get; set; }
-
     public Guid? PackageId { get; set; }
 
     public DateTime? InsDate { get; set; }
 
-    public virtual ConstructionItem? ConstructionItems { get; set; }
+    public Guid? ContructionWorkResourcesId { get; set; }
+
+    public double? LaborCost { get; set; }
+
+    public double? MaterialCost { get; set; }
+
+    public double? TotalCost { get; set; }
+
+    public virtual ConstructionWorkResource? ContructionWorkResources { get; set; }
 
     public virtual Package? Package { get; set; }
 

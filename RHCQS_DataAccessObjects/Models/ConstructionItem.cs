@@ -28,6 +28,4 @@ public partial class ConstructionItem
     public virtual ICollection<SubConstructionItem> SubConstructionItems { get; set; } = new List<SubConstructionItem>();
 
     public virtual ICollection<TemplateItem> TemplateItems { get; set; } = new List<TemplateItem>();
-
-    public virtual ICollection<WorkTemplate> WorkTemplates { get; set; } = new List<WorkTemplate>();
 }

@@ -28,6 +28,8 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<ConstructionWork> ConstructionWorks { get; set; }
 
+    public virtual DbSet<ConstructionWorkResource> ConstructionWorkResources { get; set; }
+
     public virtual DbSet<Contract> Contracts { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
@@ -212,6 +214,24 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.Construction).WithMany(p => p.ConstructionWorks)
                 .HasForeignKey(d => d.ConstructionId)
                 .HasConstraintName("FK_ConstructionWork_ConstructionItems");
+        });
+
+        modelBuilder.Entity<ConstructionWorkResource>(entity =>
+        {
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.ConstructionWork).WithMany(p => p.ConstructionWorkResources)
+                .HasForeignKey(d => d.ConstructionWorkId)
+                .HasConstraintName("FK_ConstructionWorkResources_ConstructionWork");
+
+            entity.HasOne(d => d.Labor).WithMany(p => p.ConstructionWorkResources)
+                .HasForeignKey(d => d.LaborId)
+                .HasConstraintName("FK_ConstructionWorkResources_MaterialSection1");
+
+            entity.HasOne(d => d.MaterialSection).WithMany(p => p.ConstructionWorkResources)
+                .HasForeignKey(d => d.MaterialSectionId)
+                .HasConstraintName("FK_ConstructionWorkResources_MaterialSection");
         });
 
         modelBuilder.Entity<Contract>(entity =>
@@ -885,9 +905,9 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.ConstructionItems).WithMany(p => p.WorkTemplates)
-                .HasForeignKey(d => d.ConstructionItemsId)
-                .HasConstraintName("FK_WorkTemplate_ConstructionItems");
+            entity.HasOne(d => d.ContructionWorkResources).WithMany(p => p.WorkTemplates)
+                .HasForeignKey(d => d.ContructionWorkResourcesId)
+                .HasConstraintName("FK_WorkTemplate_ConstructionWorkResources");
 
             entity.HasOne(d => d.Package).WithMany(p => p.WorkTemplates)
                 .HasForeignKey(d => d.PackageId)
