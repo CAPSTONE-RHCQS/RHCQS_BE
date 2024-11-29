@@ -91,6 +91,14 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                var existingMaterial = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(m => m.Code == request.Code);
+                if (existingMaterial != null)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        "Mã Code vật liệu đã tồn tại."
+                    );
+                }
 
                 var materialSection = await _unitOfWork.GetRepository<MaterialSection>()
                     .FirstOrDefaultAsync(ms => ms.Id == request.MaterialSectionId);
@@ -219,7 +227,7 @@ namespace RHCQS_Services.Implement
                         SupplierName = x.Material.Supplier.Name,
                         Code = x.Material.Code
                     },
-                predicate: m => m.PackageId == packageId && m.Material.Name.Contains(name),
+                predicate: m => m.Package.Id == packageId && m.Material.Name.Contains(name),
                 include: m => m.Include(m => m.Material.MaterialSection)
                                .Include(m => m.Material.Supplier),
                 orderBy: x => x.OrderBy(x => x.Material.InsDate)
