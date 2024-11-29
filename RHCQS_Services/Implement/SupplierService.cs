@@ -53,7 +53,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while creating a new supplier."
+                    "Xuất hiện lỗi khi tạo mới nhà cung cấp."
                 );
             }
         }
@@ -64,7 +64,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Bad_Request,
-                    "No image file uploaded."
+                    "Không tìm thấy ảnh được tải."
                 );
             }
 
@@ -151,7 +151,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.NotFound,
-                        "Supplier does not exist."
+                        "Nhà cung cấp không tồn tại."
                     );
                 }
 
@@ -177,7 +177,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Conflict,
-                    "An error while updating a supplier."
+                    "Xuất hiện lỗi khi tạo mới nhà cung cấp."
                 );
             }
         }
