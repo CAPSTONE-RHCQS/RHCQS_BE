@@ -113,7 +113,8 @@ namespace RHCQS_Services.Implement
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
                             item.Quanity ?? 0,
-                            item.UtilitiesSection.UnitPrice ?? 0.0
+                            item.UtilitiesSection.UnitPrice ?? 0.0,
+                            item.TotalPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null
@@ -213,6 +214,84 @@ namespace RHCQS_Services.Implement
 
             return result;
         }
+        public async Task<InitialQuotationForDesignStaffResponse> GetDetailInitialQuotationByIdForDesignStaff(Guid accountId, Guid id)
+        {
+            var designProjects = await _unitOfWork.GetRepository<HouseDesignDrawing>().GetListAsync(
+                            predicate: x => x.AccountId == accountId,
+                            include: q => q.Include(p => p.Project) 
+                        );
+
+            var projectIds = designProjects.Select(p => p.ProjectId).Distinct().ToList();
+
+
+            var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                        x => x.Id.Equals(id) && projectIds.Contains(x.ProjectId) && x.Status == AppConstant.QuotationStatus.FINALIZED,
+                        include: x => x.Include(x => x.InitialQuotationItems)
+                                       .ThenInclude(x => x.ConstructionItem)
+                                       .ThenInclude(x => x.SubConstructionItems!)
+                                       .Include(x => x.Project)
+                                       .ThenInclude(x => x.Customer!)
+                                       .Include(x => x.PackageQuotations)
+                                       .ThenInclude(x => x.Package)
+                                       .Include(x => x.Promotion)
+                                       .Include(x => x.QuotationUtilities)
+                                            .ThenInclude(x => x.UtilitiesItem)
+                                        .Include(x => x.QuotationUtilities)
+                                            .ThenInclude(x => x.UtilitiesSection)
+                                       .Include(x => x.BatchPayments)
+                                        .ThenInclude(x => x.Payment!)
+                                       .Include(x => x.BatchPayments)
+                                        .ThenInclude(x => x.Contract!)
+                );
+
+            if(initialQuotation == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Scope_InitialQuotation);
+            }
+
+            var itemInitialResponses = initialQuotation.InitialQuotationItems.Select(item => new InitialQuotationItemResponseForDesign(
+                            item.Id,
+                            item.ConstructionItem?.Name,
+                            item.ConstructionItemId,
+                            item.SubConstructionId.HasValue ?
+                              item.ConstructionItem?.SubConstructionItems
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
+                            item.SubConstructionId,
+                            item.Area,
+                            item.Price,
+                            item.UnitPrice,
+                                item.ConstructionItem?.SubConstructionItems
+                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Coefficient,
+                            item.ConstructionItem!.Coefficient
+                            )).ToList();
+
+            var utiResponse = initialQuotation.QuotationUtilities.Select(item => new UtilityInfoForDesign(
+                            item.UtilitiesItemId ?? item.UtilitiesSectionId,
+                            item.Name ?? string.Empty,
+                            item.Coefficient ?? 0,
+                            item.Price ?? 0,
+                            item.Quanity ?? 0,
+                            item.UtilitiesSection.UnitPrice ?? 0.0,
+                            item.TotalPrice ?? 0.0
+                )).ToList() ?? new List<UtilityInfoForDesign>();
+
+
+            var result = new InitialQuotationForDesignStaffResponse
+            {
+                ProjectType = initialQuotation.Project.Type!,
+                Id = initialQuotation.Id,
+                AccountName = initialQuotation.Project!.CustomerName,
+                Address = initialQuotation.Project.Address!,
+                ProjectId = initialQuotation.Project.Id,
+                Area = initialQuotation.Area,
+                TotalRough = initialQuotation.TotalRough,
+                TotalUtilities = initialQuotation.TotalUtilities,
+                ItemInitial = itemInitialResponses,
+                UtilityInfos = utiResponse,
+            };
+
+            return result;
+        }
 
         public async Task<InitialQuotationResponse> GetDetailInitialNewVersion(Guid projectId)
         {
@@ -282,7 +361,8 @@ namespace RHCQS_Services.Implement
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
                             item.Quanity ?? 0,
-                            item.UtilitiesSection.UnitPrice ?? 0.0
+                            item.UtilitiesSection.UnitPrice ?? 0.0,
+                            item.TotalPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
             #endregion
 
@@ -398,7 +478,8 @@ namespace RHCQS_Services.Implement
                             item.Coefficient ?? 0,
                             item.Price ?? 0,
                             item.Quanity ?? 0,
-                            item.UtilitiesItem.Section.UnitPrice ?? 0.0
+                            item.UtilitiesItem.Section.UnitPrice ?? 0.0,
+                            item.TotalPrice ?? 0.0
                 )).ToList() ?? new List<UtilityInfo>();
 
             var promotionResponse = initialQuotation?.Promotion != null

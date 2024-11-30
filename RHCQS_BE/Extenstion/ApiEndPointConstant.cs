@@ -118,7 +118,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectEndpoint = ApiEndpoint + "/project";
             public const string ProjectSalesStaffEndpoint = ProjectEndpoint + "/sales";
             public const string ProjectDetailEndpoint = ProjectEndpoint + "/id";
-            public const string ProjectDesignStaffEndpoint = ProjectEndpoint + "/desgin-staff";
+            public const string ProjectDesignStaffEndpoint = ProjectEndpoint + "/design-staff";
             public const string ProjectByNumberPhone = ProjectEndpoint + "/phone";
             public const string ProjectListForCustomerEndpoint = ProjectEndpoint + "/email";
             public const string ProjectAssignEndpoint = ProjectEndpoint + "/assign";
@@ -192,6 +192,7 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationNewVersionEndpoint = InitialQuotationEndpoint + "/new";
             public const string InitialQuotationCustomerComment = InitialQuotationEndpoint + "/comment";
             public const string InitialQuotationCustomerAgree = ApiEndpoint + "/quotation" + "/finalized";
+            public const string InitialQuotationDesignStaffEndpoint = InitialQuotationEndpoint + "/design-staff";
         }
         public static class FinalQuotation
         {

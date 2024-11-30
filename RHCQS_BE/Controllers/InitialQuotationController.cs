@@ -10,6 +10,7 @@ using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Interface;
+using System.Security.Claims;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace RHCQS_BE.Controllers
@@ -551,6 +552,30 @@ namespace RHCQS_BE.Controllers
             var result = await _initialService.FeedbackFixInitialFromCustomer(initialId, request);
 
             return Ok(result);
+        }
+
+        #region GetDetailInitialQuotationByIdForDesignStaff
+        /// <summary>
+        /// Initial quotation for designer staff
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff")]
+        [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationDesignStaffEndpoint)]
+        [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetDetailInitialQuotationByIdForDesignStaff(Guid id)
+        {
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var quotation = await _initialService.GetDetailInitialQuotationByIdForDesignStaff(accountId, id);
+            if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_InitialQuotaion });
+            var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }

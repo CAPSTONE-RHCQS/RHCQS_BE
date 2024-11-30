@@ -153,7 +153,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class UtilityInfo
     {
         public UtilityInfo(Guid id, string description, double coefficient,
-            double price, int? quantity, double unitPrice)
+            double price, int? quantity, double unitPrice, double totalPrice)
         {
             Id = id;
             Description = description;
@@ -161,6 +161,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Price = price;
             Quantity = quantity;
             UnitPrice = unitPrice;
+            TotalPrice = totalPrice;
         }
         public Guid Id { get; set; }
         public string Description { get; set; }
@@ -168,6 +169,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double Price { get; set; }
         public int? Quantity { get; set; }
         public double UnitPrice { get; set; }
+        public double TotalPrice { get; set; }
     }
 
     public class BatchPaymentInfo
