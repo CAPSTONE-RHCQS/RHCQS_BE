@@ -15,7 +15,11 @@ public partial class ConstructionWork
 
     public string? Unit { get; set; }
 
+    public string? Code { get; set; }
+
     public virtual ConstructionItem? Construction { get; set; }
 
     public virtual ICollection<ConstructionWorkResource> ConstructionWorkResources { get; set; } = new List<ConstructionWorkResource>();
+
+    public virtual ICollection<WorkTemplate> WorkTemplates { get; set; } = new List<WorkTemplate>();
 }

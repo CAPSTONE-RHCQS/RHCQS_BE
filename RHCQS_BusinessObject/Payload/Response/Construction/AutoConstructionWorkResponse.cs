@@ -9,31 +9,26 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
     public class AutoConstructionWorkResponse
     {
         public AutoConstructionWorkResponse(
+            Guid workTemplateId,
             Guid constructionWorkId,
             string constructionWorkName,
-            Guid laborId,
-            double unitLabor,
-            Guid? materialRoughId,
-            double? unitMaterialRough,
-            Guid? materialFinishedId,
-            double? unitMaterialFinished)
+            double laborCost,
+            double? materialRoughCost,
+            double? materialFinishedCost)
         {
+            WorkTemplateId = workTemplateId;
             ConstructionWorkId = constructionWorkId;
             ConstructionWorkName = constructionWorkName;
-            LaborId = laborId;
-            UnitLabor = unitLabor;
-            MaterialRoughId = materialRoughId;
-            UnitMaterialRough = unitMaterialRough;
-            MaterialFinishedId = materialFinishedId;
-            UnitMaterialFinished = unitMaterialFinished;
+            LaborCost = laborCost;
+            MaterialRoughCost = materialRoughCost;
+            MaterialFinishedCost = materialFinishedCost;
         }
+        public Guid WorkTemplateId { get; set; }
         public Guid ConstructionWorkId { get; set; }
         public string ConstructionWorkName { get; set; }
-        public Guid LaborId { get; set; }
-        public double UnitLabor { get; set; }
-        public Guid? MaterialRoughId { get; set; }
-        public double? UnitMaterialRough { get; set; }
-        public Guid? MaterialFinishedId { get; set; }
-        public double? UnitMaterialFinished { get; set; }
+        public double LaborCost { get; set; }
+        public double? MaterialRoughCost { get; set; }
+        public double? MaterialFinishedCost { get; set; }
+
     }
 }

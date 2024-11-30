@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
@@ -365,36 +366,40 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
-        //public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work)
-        //{
-        //    var listConstruction = await _unitOfWork.GetRepository<WorkTemplate>()
-        //        .GetListAsync(predicate: w => w.PackageId == packageId,
-        //                      include: w => w.Include(w => w.ConstructionItems!)
-        //                                     .ThenInclude(w => w.ConstructionWorks)
-        //                                     .Include(w => w.Package)
-        //                                     .ThenInclude(w => w.PackageLabors)
-        //                                     .Include(w => w.Package)
-        //                                     .ThenInclude(w => w.PackageMaterials));
+        public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work)
+        {
+            try
+            {
+                var normalizedName = work.RemoveDiacritics().Trim().ToLower();
 
-        //    var filteredItems = listConstruction
-        //      .Where(c => c.ConstructionItems != null)
-        //      .SelectMany(c => c.ConstructionItems.ConstructionWorks!)
-        //      .Where(cw => cw.WorkName.Contains(work, StringComparison.OrdinalIgnoreCase))
-        //      .Select(cw => new AutoConstructionWorkResponse(
-        //          cw.Id,
-        //          cw.WorkName,
-        //          (Guid)cw.LaborId,
-        //          (double)cw.UnitPrice,
-        //          cw.MaterialId,
-        //          null,
-        //          null,
-        //          null
-        //      ))
-        //      .ToList();
+                var listConstruction = (await _unitOfWork.GetRepository<WorkTemplate>()
+                    .GetListAsync(predicate: w => w.PackageId == packageId, include: w => w.Include(w => w.ContructionWork)))
+                    .ToList();
+
+                var filteredItems = listConstruction
+                .Where(w => w.ContructionWork != null &&
+                            !string.IsNullOrEmpty(w.ContructionWork.WorkName) &&
+                            w.ContructionWork.WorkName.RemoveDiacritics().ToLower().Contains(work.RemoveDiacritics().ToLower()))
+                .Select(w => new AutoConstructionWorkResponse(
+                    w.Id,
+                    w.ContructionWorkId ?? Guid.Empty, 
+                    w.ContructionWork.WorkName!,
+                    (double)(w.LaborCost ?? 0), 
+                    w.MaterialCost ?? 0, 
+                    w.MaterialFinishedCost ?? 0 
+                ))
+                .ToList();
 
 
-        //    return filteredItems;
-        //}
+                return filteredItems;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                throw; 
+            }
+        }
 
     }
 }

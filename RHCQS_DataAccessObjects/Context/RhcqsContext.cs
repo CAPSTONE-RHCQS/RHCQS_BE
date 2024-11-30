@@ -193,6 +193,7 @@ public partial class RhcqsContext : DbContext
         modelBuilder.Entity<ConstructionItem>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Name).HasMaxLength(100);
             entity.Property(e => e.Type).HasMaxLength(50);
@@ -205,6 +206,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("ConstructionWork");
 
             entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Unit)
                 .HasMaxLength(10)
@@ -900,14 +902,14 @@ public partial class RhcqsContext : DbContext
 
         modelBuilder.Entity<WorkTemplate>(entity =>
         {
-            entity.ToTable("WorkTemplate");
+            entity.ToTable("WorkTemplate", tb => tb.HasTrigger("trg_CalculateTotalCost"));
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
 
-            entity.HasOne(d => d.ContructionWorkResources).WithMany(p => p.WorkTemplates)
-                .HasForeignKey(d => d.ContructionWorkResourcesId)
-                .HasConstraintName("FK_WorkTemplate_ConstructionWorkResources");
+            entity.HasOne(d => d.ContructionWork).WithMany(p => p.WorkTemplates)
+                .HasForeignKey(d => d.ContructionWorkId)
+                .HasConstraintName("FK_WorkTemplate_ConstructionWork");
 
             entity.HasOne(d => d.Package).WithMany(p => p.WorkTemplates)
                 .HasForeignKey(d => d.PackageId)

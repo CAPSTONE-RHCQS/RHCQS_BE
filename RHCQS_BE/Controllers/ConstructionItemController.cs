@@ -242,5 +242,20 @@ namespace RHCQS_BE.Controllers
             var isCreate = await _constructionService.UpdateConstruction(id, request);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
+
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.ConstructionSearchWorkEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchConstructionWorkByContain(Guid packageId, string name)
+        {
+            var construction = await _constructionService.SearchConstructionWorkByContain(packageId, name);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

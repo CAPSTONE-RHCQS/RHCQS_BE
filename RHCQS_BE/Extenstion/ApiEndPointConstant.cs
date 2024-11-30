@@ -140,6 +140,7 @@ namespace RHCQS_BE.Extenstion
             public const string ConstructionDetailByNameEndpoint = ConstructionEndpoint + "/name";
             public const string ConstructionContainNameEndpoint = ConstructionEndpoint + "/contain/name";
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
+            public const string ConstructionSearchWorkEndpoint = ConstructionEndpoint + "/construction-work/search";
         }
 
         public static class Utility

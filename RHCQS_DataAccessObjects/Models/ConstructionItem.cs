@@ -21,6 +21,8 @@ public partial class ConstructionItem
 
     public bool? IsFinalQuotation { get; set; }
 
+    public string? Code { get; set; }
+
     public virtual ICollection<ConstructionWork> ConstructionWorks { get; set; } = new List<ConstructionWork>();
 
     public virtual ICollection<InitialQuotationItem> InitialQuotationItems { get; set; } = new List<InitialQuotationItem>();

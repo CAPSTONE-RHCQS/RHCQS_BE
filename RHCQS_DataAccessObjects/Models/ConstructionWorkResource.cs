@@ -24,6 +24,4 @@ public partial class ConstructionWorkResource
     public virtual Labor? Labor { get; set; }
 
     public virtual MaterialSection? MaterialSection { get; set; }
-
-    public virtual ICollection<WorkTemplate> WorkTemplates { get; set; } = new List<WorkTemplate>();
 }
