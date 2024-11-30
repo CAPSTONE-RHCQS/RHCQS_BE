@@ -7,15 +7,40 @@ using System.Threading.Tasks;
 
 namespace RHCQS_BusinessObject.Payload.Response
 {
+    public class PackageListResponse
+    {
+        public PackageListResponse(Guid id, string? packageName, string? unit, double? price, string? status, string packageType)
+        {
+            Id = id;
+            PackageName = packageName;
+            Unit = unit;
+            Price = price;
+            Status = status;
+            PackageType = packageType;
+        }
+
+        public Guid Id { get; set; }
+
+        public string? PackageName { get; set; }
+
+        public string? Unit { get; set; }
+
+        public double? Price { get; set; }
+
+        public string? Status { get; set; }
+
+        public string PackageType { get; set; } = null!;
+    }
     public class PackageResponse
     {
-        public PackageResponse(Guid id/*, Guid packageTypeId*/, string? packageName, string? unit, double? price, string? status,
+        public PackageResponse(Guid id/*, Guid packageTypeId*/, string? packageName, string packageType, string? unit, double? price, string? status,
             DateTime? insDate, DateTime? upsDate, List<PackageLaborResponse> packageLabor, List<PackageMaterialResponse> packageMaterial,
-            List<PackageHousesResponse> packageHouses,string packageType)
+            List<PackageHousesResponse> packageHouses, List<PackagePromotionResponse> packagePromotion)
         {
             Id = id;
             //PackageTypeId = packageTypeId;
             PackageName = packageName;
+            PackageType = packageType;
             Unit = unit;
             Price = price;
             Status = status;
@@ -24,7 +49,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             PackageLabors = packageLabor;
             PackageMaterials = packageMaterial;
             PackageHouses = packageHouses;
-            PackageType = packageType;
+            PackageMapPromotions = packagePromotion;
         }
 
         public Guid Id { get; set; }
@@ -32,7 +57,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         //public Guid PackageTypeId { get; set; }
 
         public string? PackageName { get; set; }
-
+        public string PackageType { get; set; } = null!;
         public string? Unit { get; set; }
 
         public double? Price { get; set; }
@@ -48,8 +73,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public List<PackageMaterialResponse> PackageMaterials { get; set; }
 
         public List<PackageHousesResponse> PackageHouses { get; set; }
-
-        public string PackageType { get; set; } = null!;
+        public List<PackagePromotionResponse> PackageMapPromotions { get; set; }
 
     }
 
@@ -74,6 +98,26 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     //    public List<PackageMaterialResponse> PackageMaterials { get; set; }
     //}
+    public class PackagePromotionResponse
+    {
+        public PackagePromotionResponse(Guid id, Guid promotionId, string? promotionName, int? value, DateTime? startDate, DateTime? insDate)
+        {
+            Id = id;
+            PromotionId = promotionId;
+            PromotionName = promotionName;
+            Value = value;
+            StartDate = startDate;
+            InsDate = insDate;
+        }
+
+        public Guid Id { get; set; }
+
+        public Guid PromotionId { get; set; }
+        public string? PromotionName { get; set; }
+        public int? Value { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? InsDate { get; set; }
+    }
     public class PackageLaborResponse
     {
 

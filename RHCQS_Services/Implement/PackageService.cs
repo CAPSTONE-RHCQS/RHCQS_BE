@@ -42,6 +42,7 @@ namespace RHCQS_Services.Implement
             return new PackageResponse(
                 package.Id,
                 package.PackageName,
+                package.Type ?? string.Empty,
                 package.Unit,
                 package.Price,
                 package.Status,
@@ -78,21 +79,38 @@ namespace RHCQS_Services.Implement
                     ph.InsDate
                 )).ToList() ?? new List<PackageHousesResponse>(),
 
-                package.Type ?? string.Empty
+                package.PackageMapPromotions?.Select(ph => new PackagePromotionResponse(
+                    ph.Id,
+                    ph.PromotionId,
+                    ph.Promotion.Name,
+                    ph.Promotion.Value,
+                    ph.Promotion.StartTime,
+                    ph.Promotion.InsDate
+                )).ToList() ?? new List<PackagePromotionResponse>()
             );
         }
 
-
-        public async Task<IPaginate<PackageResponse>> GetListPackageAsync(int page, int size)
+        private static PackageListResponse MapPackageListToResponse(Package package)
+        {
+            return new PackageListResponse(
+                package.Id,
+                package.PackageName,
+                package.Unit,
+                package.Price,
+                package.Status,
+                package.Type ?? string.Empty
+            );
+        }
+        public async Task<IPaginate<PackageListResponse>> GetListPackageAsync(int page, int size)
         {
             var listPackage = await _unitOfWork.GetRepository<Package>().GetList(
-                selector: x => MapPackageToResponse(x),
-                include: x => x.Include(x => x.PackageHouses)
-                           .Include(pd => pd.PackageLabors)
-                           .ThenInclude(lb => lb.Labor)
-                           .Include(pd => pd.PackageMaterials)
-                           .ThenInclude(ms => ms.Material)
-                           .ThenInclude(ms => ms.MaterialSection),
+                selector: x => MapPackageListToResponse(x),
+                //include: x => x.Include(x => x.PackageHouses)
+                //           .Include(pd => pd.PackageLabors)
+                //           .ThenInclude(lb => lb.Labor)
+                //           .Include(pd => pd.PackageMaterials)
+                //           .ThenInclude(ms => ms.Material)
+                //           .ThenInclude(ms => ms.MaterialSection),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active",
                 page: page,
@@ -169,6 +187,8 @@ namespace RHCQS_Services.Implement
                                .Include(pd => pd.PackageMaterials)
                                .ThenInclude(ms => ms.Material)
                                .ThenInclude(ms => ms.MaterialSection)
+                               .Include(p => p.PackageMapPromotions)
+                               .ThenInclude(p => p.Promotion)
             );
 
             return package != null ? MapPackageToResponse(package) :
@@ -188,6 +208,8 @@ namespace RHCQS_Services.Implement
                                .Include(pd => pd.PackageMaterials)
                                .ThenInclude(ms => ms.Material)
                                .ThenInclude(ms => ms.MaterialSection)
+                               .Include(p => p.PackageMapPromotions)
+                               .ThenInclude(p => p.Promotion)
             );
 
             return package != null ? MapPackageToResponse(package) :
