@@ -243,7 +243,15 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        #region SearchConstructionWorkByContain
+        /// <summary>
+        /// Search construction work by contain and packageId
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionSearchWorkEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> SearchConstructionWorkByContain(Guid packageId, string name)
