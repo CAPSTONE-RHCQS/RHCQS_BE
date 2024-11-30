@@ -217,7 +217,7 @@ namespace RHCQS_Services.Implement
             if (projectItem == null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
 
             var initialItem = projectItem.InitialQuotations?
-                                        .Where(i => i.Version > 0)
+                                        .Where(i => i.Version > 0 && i.Status == AppConstant.QuotationStatus.FINALIZED)
                                         .Select(i => new InitialInfo
                                         {
                                             Id = i.Id,
@@ -241,27 +241,21 @@ namespace RHCQS_Services.Implement
                               .ToList() ?? new List<FinalInfo>();
 
 
-            var houseDesignItem = projectItem.HouseDesignDrawings?
-                                                                     .Select(h => new HouseDesignDrawingInfo
-                                                                     {
-                                                                         Id = h.Id,
-                                                                         DesignName = h.Account!.Username!,
-                                                                         Step = h.Step,
-                                                                         Name = h.Name!,
-                                                                         Type = h.Type!,
-                                                                         InsDate = h.InsDate,
-                                                                         Status = h.Status
-                                                                     }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
+            var currentStep = projectItem.HouseDesignDrawings
+                              .FirstOrDefault(h => h.AccountId == accountId)?.Step;
 
-            var contractItem = projectItem.Contracts?.Select(c => new ContractInfo
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Status = c.Status,
-                Note = c.Note,
-                FileContract = c.UrlFile ?? null
-            })
-            .ToList() ?? new List<ContractInfo>();
+            var houseDesignItem = projectItem.HouseDesignDrawings?
+                .Where(h => h.Step < currentStep && h.Status == AppConstant.HouseDesignStatus.ACCEPTED) 
+                .Select(h => new HouseDesignDrawingInfo
+                {
+                    Id = h.Id,
+                    DesignName = h.Account!.Username!,
+                    Step = h.Step,
+                    Name = h.Name!,
+                    Type = h.Type!,
+                    InsDate = h.InsDate,
+                    Status = h.Status
+                }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
 
 
             var projectDetailItem = new ProjectDesignStaffResponse
