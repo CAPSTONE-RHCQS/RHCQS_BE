@@ -28,10 +28,12 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
         public Guid Id { get; set; }
 
         public Guid? MaterialSectionId { get; set; }
+        public string? MaterialSectionName { get; set; }
 
         public double? MaterialSectionNorm { get; set; }
 
         public Guid? LaborId { get; set; }
+        public string? LaborName { get; set; }
 
         public double? LaborNorm { get; set; }
 
@@ -46,6 +48,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
         public double? MaterialCost { get; set; }
 
         public double? MaterialFinishedCost { get; set; }
+        public double TotalCost {  get; set; }
 
         public DateTime? InsDate { get; set; }
     }

@@ -25,11 +25,11 @@ namespace RHCQS_Services.Implement
             _unitOfWork = unitOfWork;
             _logger = logger;
         }
-        
+
         public async Task<IPaginate<ListConstructionWorkResponse>> GetListConstructionWork(int page, int size)
         {
             var listConstruction = await _unitOfWork.GetRepository<ConstructionWork>().GetList(
-                selector: x => new ListConstructionWorkResponse(x.Id, x.WorkName, x.ConstructionId,x.InsDate, x.Unit,
+                selector: x => new ListConstructionWorkResponse(x.Id, x.WorkName, x.ConstructionId, x.InsDate, x.Unit,
                                                             x.Code),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 page: page,
@@ -42,6 +42,9 @@ namespace RHCQS_Services.Implement
             var workInfo = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
                     predicate: x => x.Id == workId,
                     include: x => x.Include(x => x.ConstructionWorkResources)
+                                        .ThenInclude(x => x.MaterialSection)
+                                    .Include(x => x.ConstructionWorkResources)
+                                        .ThenInclude(x => x.Labor)
                                     .Include(x => x.WorkTemplates)
                                       .ThenInclude(x => x.Package!));
             if (workInfo == null)
@@ -60,8 +63,10 @@ namespace RHCQS_Services.Implement
                 {
                     Id = resource.Id,
                     MaterialSectionId = resource.MaterialSectionId,
+                    MaterialSectionName = resource.MaterialSection?.Name ?? null,
                     MaterialSectionNorm = resource.MaterialSectionNorm,
                     LaborId = resource.LaborId,
+                    LaborName = resource.Labor?.Name ?? null,
                     LaborNorm = resource.LaborNorm,
                     InsDate = resource.InsDate
                 }).ToList(),
@@ -71,6 +76,7 @@ namespace RHCQS_Services.Implement
                     LaborCost = work.LaborCost ?? 0.0,
                     MaterialCost = work.MaterialCost ?? 0.0,
                     MaterialFinishedCost = work.MaterialFinishedCost ?? 0.0,
+                    TotalCost = work.TotalCost ?? 0.0,
                     InsDate = work.InsDate
                 }).ToList()
             };
