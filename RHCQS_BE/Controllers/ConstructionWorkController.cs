@@ -20,6 +20,16 @@ namespace RHCQS_BE.Controllers
             _workService = workService;
         }
 
+        #region GetListConstructionWork
+        /// <summary>
+        /// List construction work 
+        /// 
+        /// Role: SALE STAFF - MANAGER
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        #endregion
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.ConstructionWork.ConstructionWorkEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
@@ -35,6 +45,15 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetConstructionWorkDetail
+        /// <summary>
+        /// Construction work detail by Id
+        /// 
+        /// Role: SALE STAFF - MANAGER
+        /// </summary>
+        /// <param name="workId"></param>
+        /// <returns></returns>
+        #endregion
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.ConstructionWork.ConstructionWorkDetailEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
@@ -49,6 +68,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.ConstructionWork.ConstructionWorkByConIdEndpoint)]
         [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]

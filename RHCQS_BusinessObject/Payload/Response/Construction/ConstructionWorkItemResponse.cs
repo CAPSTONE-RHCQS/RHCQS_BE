@@ -20,6 +20,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
 
         public string? Code { get; set; }
         public List<ConstructionWorkResourceItem> Resources { get; set; }
+        public List<WorkTemplateItem> WorkTemplates { get; set; }
     }
 
     public class ConstructionWorkResourceItem

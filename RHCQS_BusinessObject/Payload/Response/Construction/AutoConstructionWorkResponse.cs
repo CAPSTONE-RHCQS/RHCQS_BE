@@ -12,6 +12,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
             Guid workTemplateId,
             Guid constructionWorkId,
             string constructionWorkName,
+            string unit,
             double laborCost,
             double? materialRoughCost,
             double? materialFinishedCost)
@@ -19,6 +20,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
             WorkTemplateId = workTemplateId;
             ConstructionWorkId = constructionWorkId;
             ConstructionWorkName = constructionWorkName;
+            Unit = unit;
             LaborCost = laborCost;
             MaterialRoughCost = materialRoughCost;
             MaterialFinishedCost = materialFinishedCost;
@@ -26,6 +28,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
         public Guid WorkTemplateId { get; set; }
         public Guid ConstructionWorkId { get; set; }
         public string ConstructionWorkName { get; set; }
+        public string Unit { get; set; }
         public double LaborCost { get; set; }
         public double? MaterialRoughCost { get; set; }
         public double? MaterialFinishedCost { get; set; }

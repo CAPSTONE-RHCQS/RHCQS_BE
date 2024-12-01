@@ -41,7 +41,9 @@ namespace RHCQS_Services.Implement
         {
             var workInfo = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
                     predicate: x => x.Id == workId,
-                    include: x => x.Include(x => x.ConstructionWorkResources));
+                    include: x => x.Include(x => x.ConstructionWorkResources)
+                                    .Include(x => x.WorkTemplates)
+                                      .ThenInclude(x => x.Package!));
             if (workInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Construction_Work_Not_Found);
@@ -62,6 +64,14 @@ namespace RHCQS_Services.Implement
                     LaborId = resource.LaborId,
                     LaborNorm = resource.LaborNorm,
                     InsDate = resource.InsDate
+                }).ToList(),
+                WorkTemplates = workInfo.WorkTemplates.Select(work => new WorkTemplateItem
+                {
+                    Id = work.Id,
+                    LaborCost = work.LaborCost ?? 0.0,
+                    MaterialCost = work.MaterialCost ?? 0.0,
+                    MaterialFinishedCost = work.MaterialFinishedCost ?? 0.0,
+                    InsDate = work.InsDate
                 }).ToList()
             };
 
