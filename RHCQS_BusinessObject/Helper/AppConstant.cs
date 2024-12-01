@@ -357,6 +357,9 @@ public static class AppConstant
 
         //Room
         public const string Room_Not_Found = "Phòng không tồn tại!";
+
+        //ConstructionWork
+        public const string Construction_Work_Not_Found = "Công tác không tìm thấy!";
     }
 }
 
