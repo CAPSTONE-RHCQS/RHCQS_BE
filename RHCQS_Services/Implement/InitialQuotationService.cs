@@ -1294,6 +1294,15 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
-
+        public async Task<string> GetStatusInitialQuotation(Guid initialId)
+        {
+            var initialInfo = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(predicate: i => i.Id == initialId);
+            if (initialInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_InitialQuotaion);
+            }
+            string result = initialInfo.Status;
+            return result;
+        }
     }
 }

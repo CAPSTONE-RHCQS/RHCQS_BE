@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using System.Security.Claims;
 
@@ -339,6 +340,22 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        #region GetStatusHouseDesign
+        /// <summary>
+        /// Get status projects for Web
+        /// 
+        /// Role: DESIGNSTAFF - SALES STAFF - MANAGER
+        /// </summary>
+        /// <returns>Number of projects.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignStatusEndpoint)]
+        public async Task<ActionResult<int>> GetStatusHouseDesign(Guid houseDesignId)
+        {
+            var totalProjectCount = await _houseService.GetStatusHouseDesign(houseDesignId);
+            return Ok(totalProjectCount);
         }
     }
 }

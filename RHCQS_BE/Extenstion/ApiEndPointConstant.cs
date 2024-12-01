@@ -131,6 +131,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectHaveDrawingEndpoint = ProjectEndpoint + "/drawing-have";
             public const string FilterProjectsMultiParams = ProjectEndpoint + "/multi-filter";
             public const string TotalProjectEndpoint = ProjectEndpoint + "/total-project";
+            public const string ProjectStatusEndpoint = ProjectEndpoint + "/status/id";
         }
 
         public static class Construction
@@ -169,6 +170,7 @@ namespace RHCQS_BE.Extenstion
             public const string HouseDesignDrawingAssignTask = HouseDesignDrawingEndpoint + "/assign";
             public const string HouseDesignConfirmProjectHaveDrawing = HouseDesignDrawingEndpoint + "/confirm/drawing-have";
             public const string HouseDesignDesignRequiment = HouseDesignDrawingEndpoint + "/request/design";
+            public const string HouseDesignStatusEndpoint = HouseDesignDrawingEndpoint + "/status/id";
         }
 
         public static class HouseDesignVersion
@@ -194,6 +196,7 @@ namespace RHCQS_BE.Extenstion
             public const string InitialQuotationCustomerComment = InitialQuotationEndpoint + "/comment";
             public const string InitialQuotationCustomerAgree = ApiEndpoint + "/quotation" + "/finalized";
             public const string InitialQuotationDesignStaffEndpoint = InitialQuotationEndpoint + "/design-staff";
+            public const string InitialQuotationStatusEndpoint = InitialQuotationEndpoint + "/status/id";
         }
         public static class FinalQuotation
         {
@@ -208,6 +211,7 @@ namespace RHCQS_BE.Extenstion
             public const string FinalQuotationProjectEndpoint = FinalQuotationEndpoint + "/list";
             public const string FinalQuotationCustomerAgree = FinalQuotationEndpoint + "/finalized";
             public const string FinalQuotationCustomerComment = FinalQuotationEndpoint + "/comment";
+            public const string FianlQuotationStatusEndpoint = FinalQuotationEndpoint + "/status/id";
         }
 
         public static class Contract

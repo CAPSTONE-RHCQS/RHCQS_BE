@@ -24,5 +24,6 @@ namespace RHCQS_Services.Interface
 
         Task<string> ConfirmDrawingAvaliable(Guid drawingId, AssignHouseDrawingRequest request);
         Task<string> DesignRequirements(Guid projectId);
+        Task<string> GetStatusHouseDesign(Guid houseDesignId);
     }
 }

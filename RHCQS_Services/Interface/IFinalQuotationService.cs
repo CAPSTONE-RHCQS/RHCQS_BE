@@ -25,5 +25,6 @@ namespace RHCQS_Services.Interface
         Task<string> FeedbackFixFinalFromCustomer(Guid finalId, FeedbackQuotationRequest comment);
         Task<string> ConfirmArgeeFinalFromCustomer(Guid finalId);
         Task DeleteFinalQuotation(Guid finalQuotationId);
+        Task<string> GetStatusFinalQuotation(Guid finalId);
     }
 }

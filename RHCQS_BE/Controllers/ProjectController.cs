@@ -316,7 +316,7 @@ namespace RHCQS_BE.Controllers
         ///     
         /// </remarks>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Project.ProjectAssignEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -527,6 +527,22 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<int>> GetTotalProject()
         {
             var totalProjectCount = await _projectService.GetTotalProjectCountAsync();
+            return Ok(totalProjectCount);
+        }
+
+        #region GetStatusProjectDetail
+        /// <summary>
+        /// Get status projects for Web
+        /// 
+        /// Role: DESIGNSTAFF - SALES STAFF - MANAGER
+        /// </summary>
+        /// <returns>Number of projects.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Project.ProjectStatusEndpoint)]
+        public async Task<ActionResult<int>> GetStatusProjectDetail(Guid projectId)
+        {
+            var totalProjectCount = await _projectService.GetStatusProjectDetail(projectId);
             return Ok(totalProjectCount);
         }
     }

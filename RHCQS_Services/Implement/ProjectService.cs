@@ -1207,5 +1207,17 @@ namespace RHCQS_Services.Implement
             return await projectCount.CountAsync();
         }
 
+
+        public async Task<string> GetStatusProjectDetail(Guid projectId)
+        {
+            var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                            predicate: p => p.Id == projectId);
+            if (project == null)
+            {
+                throw new MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ProjectNotExit);
+            }
+            var result = project.Status;
+            return result.ToString();
+        }
     }
 }

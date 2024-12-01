@@ -733,5 +733,21 @@ namespace RHCQS_BE.Controllers
                 await _finalQuotationService.DeleteFinalQuotation(id);
                 return NoContent(); // 204 No Content on successful deletion
         }
+
+        #region GetStatusFinalQuotation
+        /// <summary>
+        /// Get status fianl quotation for Web
+        /// 
+        /// Role: DESIGNSTAFF - SALES STAFF - MANAGER
+        /// </summary>
+        /// <returns>Number of projects.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.FinalQuotation.FianlQuotationStatusEndpoint)]
+        public async Task<ActionResult<int>> GetStatusFinalQuotation(Guid finalId)
+        {
+            var totalProjectCount = await _finalQuotationService.GetStatusFinalQuotation(finalId);
+            return Ok(totalProjectCount);
+        }
     }
 }

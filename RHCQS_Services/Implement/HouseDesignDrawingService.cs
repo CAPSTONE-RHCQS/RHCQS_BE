@@ -658,5 +658,15 @@ namespace RHCQS_Services.Implement
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
             return isSuccessful;
         }
+        public async Task<string> GetStatusHouseDesign(Guid houseDesignId)
+        {
+            var designInfo = await _unitOfWork.GetRepository<HouseDesignDrawing>().FirstOrDefaultAsync(predicate: i => i.Id == houseDesignId);
+            if (designInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
+            }
+            string result = designInfo.Status;
+            return result;
+        }
     }
 }

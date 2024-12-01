@@ -22,5 +22,6 @@ namespace RHCQS_Services.Interface
         Task<bool> UpdateInitialQuotation(UpdateInitialRequest request);
         Task<string> ConfirmArgeeInitialFromCustomer(Guid quotationId);
         Task<string> FeedbackFixInitialFromCustomer(Guid initialId, FeedbackQuotationRequest comment);
+        Task<string> GetStatusInitialQuotation(Guid initialId);
     }
 }

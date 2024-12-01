@@ -2400,5 +2400,15 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
+        public async Task<string> GetStatusFinalQuotation(Guid finalId)
+        {
+            var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(predicate: i => i.Id == finalId);
+            if (finalInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.FinalNotfound);
+            }
+            string result = finalInfo.Status;
+            return result;
+        }
     }
 }

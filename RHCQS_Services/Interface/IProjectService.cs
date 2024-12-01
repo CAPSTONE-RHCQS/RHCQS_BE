@@ -43,5 +43,7 @@ namespace RHCQS_Services.Interface
                 string? code,
                 string? phone);
         Task<int> GetTotalProjectCountAsync();
+
+        Task<string> GetStatusProjectDetail(Guid projectId);
     }
 }

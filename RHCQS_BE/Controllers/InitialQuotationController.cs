@@ -9,6 +9,7 @@ using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using System.Security.Claims;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
@@ -576,6 +577,22 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        #region GetStatusInitialQuotation
+        /// <summary>
+        /// Get status initial quotation for Web
+        /// 
+        /// Role: DESIGNSTAFF - SALES STAFF - MANAGER
+        /// </summary>
+        /// <returns>Number of projects.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationStatusEndpoint)]
+        public async Task<ActionResult<int>> GetStatusInitialQuotation(Guid initialId)
+        {
+            var totalProjectCount = await _initialService.GetStatusInitialQuotation(initialId);
+            return Ok(totalProjectCount);
         }
     }
 }
