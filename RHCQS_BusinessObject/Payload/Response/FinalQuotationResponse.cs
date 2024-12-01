@@ -192,13 +192,14 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName, string? type/*, double? coefficient*/,
-            DateTime? insDate, List<QuotationItemResponse> quotationItems)
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName,
+            double? area, string? type/*, double? coefficient*/,DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
             ConstructionId = contructionId;
             SubConstructionId = subcontructionId;
             ContructionName = contructionName;
+            Area = area;
             Type = type;
             //Coefficient = coefficient;
             InsDate = insDate;
@@ -210,7 +211,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid? SubConstructionId { get; set; }
         public string? ContructionName { get; set; }
-
+        public Double? Area { get; set; }
         public string? Type { get; set; }
 
         //public double? Coefficient { get; set; }
@@ -222,12 +223,13 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class QuotationItemResponse
     {
-        public QuotationItemResponse(Guid id,string? name/*, string? code*/, string? unit, double? weight, double? unitPriceLabor, double? unitPriceRough,
+        public QuotationItemResponse(Guid id, Guid? workid,string? name,/*, string? code*/ string? unit, double? weight, double? unitPriceLabor, double? unitPriceRough,
             double? unitPriceFinished, double? totalPriceLabor, double? totalPriceRough, double? totalPriceFinished,
             DateTime? insDate, DateTime? upsDate, string? note/*, List<QuotationLaborResponse> quotationLabors, List<QuotationMaterialResponse> quotationMaterials*/)
         {
             Id = id;
-            Name = name;
+            WorkTemplateId = workid;
+            WorkName = name;
             //Code = code;
             Unit = unit;
             Weight = weight;
@@ -244,45 +246,46 @@ namespace RHCQS_BusinessObject.Payload.Response
             QuotationMaterials = quotationMaterials;*/
         }
 
-        public QuotationItemResponse(Guid id, Guid laborId, string? name/*, string? code*/, string? unit, double? weight,
-            double? unitPriceLabor, double? totalPriceLabor, DateTime? insDate, DateTime? upsDate, string? note)
-        {
-            Id = id;
-            LaborId = laborId;
-            Name = name;
-            //Code = code;
-            Unit = unit;
-            Weight = weight;
-            UnitPriceLabor = unitPriceLabor;
-            TotalPriceLabor = totalPriceLabor;
-            InsDate = insDate;
-            UpsDate = upsDate;
-            Note = note;
-        }
+        //public QuotationItemResponse(Guid id, Guid laborId, string? name/*, string? code*/, string? unit, double? weight,
+        //    double? unitPriceLabor, double? totalPriceLabor, DateTime? insDate, DateTime? upsDate, string? note)
+        //{
+        //    Id = id;
+        //    LaborId = laborId;
+        //    Name = name;
+        //    //Code = code;
+        //    Unit = unit;
+        //    Weight = weight;
+        //    UnitPriceLabor = unitPriceLabor;
+        //    TotalPriceLabor = totalPriceLabor;
+        //    InsDate = insDate;
+        //    UpsDate = upsDate;
+        //    Note = note;
+        //}
 
-        public QuotationItemResponse(Guid id, Guid materialId, string? name/*, string? code*/, string? unit, double? weight,
-            double? unitPriceRough, double? unitPriceFinished, double? totalPriceRough,
-            double? totalPriceFinished, DateTime? insDate, DateTime? upsDate, string? note)
-        {
-            Id = id;
-            MaterialId = materialId;
-            Name = name;
-            //Code = code;
-            Unit = unit;
-            Weight = weight;
-            UnitPriceRough = unitPriceRough;
-            UnitPriceFinished = unitPriceFinished;
-            TotalPriceRough = totalPriceRough;
-            TotalPriceFinished = totalPriceFinished;
-            InsDate = insDate;
-            UpsDate = upsDate;
-            Note = note;
-        }
+        //public QuotationItemResponse(Guid id, Guid materialId, string? name/*, string? code*/, string? unit, double? weight,
+        //    double? unitPriceRough, double? unitPriceFinished, double? totalPriceRough,
+        //    double? totalPriceFinished, DateTime? insDate, DateTime? upsDate, string? note)
+        //{
+        //    Id = id;
+        //    MaterialId = materialId;
+        //    Name = name;
+        //    //Code = code;
+        //    Unit = unit;
+        //    Weight = weight;
+        //    UnitPriceRough = unitPriceRough;
+        //    UnitPriceFinished = unitPriceFinished;
+        //    TotalPriceRough = totalPriceRough;
+        //    TotalPriceFinished = totalPriceFinished;
+        //    InsDate = insDate;
+        //    UpsDate = upsDate;
+        //    Note = note;
+        //}
 
         public Guid Id { get; set; }
-        public Guid? LaborId { get; set; }
-        public Guid? MaterialId { get; set; }
-        public string? Name { get; set; }
+        //public Guid? LaborId { get; set; }
+        //public Guid? MaterialId { get; set; }
+        public Guid? WorkTemplateId { get; set; }
+        public string? WorkName { get; set; }
 
         //public string? Code { get; set; }
         public string? Unit { get; set; }

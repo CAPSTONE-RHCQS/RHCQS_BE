@@ -118,16 +118,17 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
     }
     public class QuotationItemRequest
     {
-        public Guid? LaborId { get; set; }
+        //public Guid? LaborId { get; set; }
 
-        public Guid? MaterialId { get; set; }
+        //public Guid? MaterialId { get; set; }
 
-        //public string? Unit { get; set; }
+        public string? Unit { get; set; }
+        public Guid WorkTemplateId { get; set; }
 
         [Range(1, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
         public double? Weight { get; set; }
 
-/*        public double? UnitPriceLabor { get; set; }
+        public double? UnitPriceLabor { get; set; }
 
         public double? UnitPriceRough { get; set; }
 
@@ -137,7 +138,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public double? TotalPriceRough { get; set; }
 
-        public double? TotalPriceFinished { get; set; }*/
+        public double? TotalPriceFinished { get; set; }
         public string ? Note { get; set; }
 
 /*        public QuotationLaborRequest? QuotationLabors { get; set; }

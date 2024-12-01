@@ -274,6 +274,7 @@ public static class AppConstant
         public const string InvalidBatchPayment = "Các đợt thanh toán hợp đồng là bắt buộc!";
         public const string MaxVersionQuotation = "Báo giá đã đạt tới lần chỉnh sửa thứ 10, dự án sẽ bị hủy!";
         public const string DuplicatedConstruction = "Hạng mục xây dựng bị trùng lặp!";
+        public const string NotMatchConstruction = "Hạng mục xây dựng không khớp với bản cũ!";
         public const string DuplicatedUtility = "Tiện ích xây dựng bị trùng lặp!";
         public const string DuplicatedEquiment = "Thiết bị xây dựng bị trùng lặp!";
         public const string DuplicatedLabor = "Nhân công bị trùng lặp!";
