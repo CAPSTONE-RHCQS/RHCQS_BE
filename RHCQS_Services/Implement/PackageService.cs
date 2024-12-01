@@ -42,7 +42,12 @@ namespace RHCQS_Services.Implement
             return new PackageResponse(
                 package.Id,
                 package.PackageName,
-                package.Type ?? string.Empty,
+                package?.Type?.ToLower() switch
+                {
+                    "rough" => "Phần thô",
+                    "finished" => "Phần hoàn thiện",
+                    _ => string.Empty
+                },
                 package.Unit,
                 package.Price,
                 package.Status,
@@ -52,7 +57,12 @@ namespace RHCQS_Services.Implement
                     pl.Id,
                     pl.LaborId,
                     pl.Labor?.Name,
-                    pl.Labor?.Type ?? string.Empty,
+                    pl.Labor?.Type?.ToLower() switch
+                    {
+                        "rough" => "Phần thô",
+                        "finished" => "Phần hoàn thiện",
+                        _ => string.Empty
+                    },
                     pl.Labor?.Price ?? 0.0,
                     pl.InsDate
                 )).ToList() ?? new List<PackageLaborResponse>(),
@@ -62,7 +72,12 @@ namespace RHCQS_Services.Implement
                     pm.Material.MaterialSectionId,
                     pm.Material.MaterialSection?.Name,
                     pm.Material?.Name,
-                    pm.Material.Type ?? string.Empty,
+                    pm.Material?.Type?.ToLower() switch
+                    {
+                        "rough" => "Phần thô",
+                        "finished" => "Phần hoàn thiện",
+                        _ => string.Empty
+                    },
                     pm.Material.Price ?? 0.0,
                     pm.Material.Unit,
                     pm.Material.Size,
@@ -176,7 +191,6 @@ namespace RHCQS_Services.Implement
             }
         }
 
-
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
@@ -230,8 +244,9 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
+            var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
+            var constructionWorkResourceRepo = _unitOfWork.GetRepository<ConstructionWorkResource>();
 
-            // Check if package with the same name already exists
             if (await packageRepo.AnyAsync(p => p.PackageName.Contains(packageRequest.PackageName)))
             {
                 throw new AppConstant.MessageError(
@@ -240,7 +255,6 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            // Create a new package object from the request
             var package = new Package
             {
                 Id = Guid.NewGuid(),
@@ -252,7 +266,6 @@ namespace RHCQS_Services.Implement
                 InsDate = LocalDateTime.VNDateTime(),
             };
 
-            // Now that the package has been initialized, you can set the PackageId for related entities
             package.PackageLabors = packageRequest.PackageLabors?.Select(pl => new PackageLabor
             {
                 Id = Guid.NewGuid(),
@@ -267,7 +280,7 @@ namespace RHCQS_Services.Implement
                 MaterialId = pm.MaterialId,
                 PackageId = package.Id,
                 InsDate = LocalDateTime.VNDateTime()
-            }).ToList() ?? new List<PackageMaterial>(); ;
+            }).ToList() ?? new List<PackageMaterial>();
 
             package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
             {
@@ -279,8 +292,73 @@ namespace RHCQS_Services.Implement
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageHouse>();
 
-
+            ValidateWorkTemplateRequests(
+                packageRequest.WorkTemplate ?? new List<WorkTemplateRequest>(),
+                packageRequest.PackageLabors ?? new List<PackageLaborRequest>(),
+                packageRequest.PackageMaterials ?? new List<PackageMaterialRequest>()
+            );
             await packageRepo.InsertAsync(package);
+
+            foreach (var workTemplateRequest in packageRequest.WorkTemplate ?? new List<WorkTemplateRequest>())
+            {
+                Labor? labor = null;
+                Material? material = null;
+                double laborCost = 0;
+                double materialCost = 0;
+
+                if (workTemplateRequest.LaborId != null)
+                {
+                    labor = await _unitOfWork.GetRepository<Labor>().FirstOrDefaultAsync(l => l.Id == workTemplateRequest.LaborId);
+                    if (labor == null)
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Not_Found,
+                            AppConstant.ErrMessage.LaborIdNotfound
+                        );
+                    }
+                    laborCost = (double)(labor.Price * workTemplateRequest.LaborNorm);
+                }
+
+                if (workTemplateRequest.MaterialId != null)
+                {
+                    material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(m => m.Id == workTemplateRequest.MaterialId);
+                    if (material == null)
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Not_Found,
+                            AppConstant.ErrMessage.MaterialIdNotfound
+                        );
+                    }
+                    materialCost = (double)(material.Price * workTemplateRequest.MaterialNorm);
+                }
+
+                var workTemplate = new WorkTemplate
+                {
+                    Id = Guid.NewGuid(),
+                    PackageId = package.Id,
+                    ContructionWorkId = workTemplateRequest.ConstructionWorKid,
+                    LaborCost = laborCost,
+                    MaterialCost = materialCost,
+                    InsDate = LocalDateTime.VNDateTime(),
+                    TotalCost = laborCost + materialCost
+                };
+
+                await workTemplateRepo.InsertAsync(workTemplate);
+
+                var constructionWorkResource = new ConstructionWorkResource
+                {
+                    Id = Guid.NewGuid(),
+                    ConstructionWorkId = workTemplateRequest.ConstructionWorKid,
+                    LaborId = workTemplateRequest.LaborId,
+                    LaborNorm = workTemplateRequest.LaborNorm,
+                    MaterialSectionId = material?.MaterialSectionId,
+                    MaterialSectionNorm = workTemplateRequest.MaterialNorm,
+                    InsDate = LocalDateTime.VNDateTime()
+                };
+
+                await constructionWorkResourceRepo.InsertAsync(constructionWorkResource);
+            }
+
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
@@ -294,7 +372,6 @@ namespace RHCQS_Services.Implement
             return isSuccessful;
         }
 
-
         public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageid)
         {
             if (packageRequest == null)
@@ -306,6 +383,8 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
+            var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
+            var constructionWorkResourceRepo = _unitOfWork.GetRepository<ConstructionWorkResource>();
 
             var existingPackage = await packageRepo.FirstOrDefaultAsync(
                 predicate: p => p.Id == packageid,
@@ -322,6 +401,7 @@ namespace RHCQS_Services.Implement
                 );
             }
 
+            // Cập nhật các trường cơ bản của Package
             existingPackage.Type = packageRequest.PackageType;
             existingPackage.PackageName = packageRequest.PackageName;
             existingPackage.Unit = packageRequest.Unit;
@@ -329,56 +409,114 @@ namespace RHCQS_Services.Implement
             existingPackage.Status = packageRequest.Status;
             existingPackage.UpsDate = LocalDateTime.VNDateTime();
 
-            foreach (var pl in packageRequest.PackageLabors)
+            // Cập nhật PackageLabors
+            existingPackage.PackageLabors.Clear();
+            existingPackage.PackageLabors = packageRequest.PackageLabors?.Select(pl => new PackageLabor
             {
-                var existingPackageLabor = existingPackage.PackageLabors
-                    .FirstOrDefault(l => l.LaborId == pl.LaborId);
+                Id = Guid.NewGuid(),
+                LaborId = pl.LaborId,
+                PackageId = existingPackage.Id,
+                InsDate = LocalDateTime.VNDateTime()
+            }).ToList() ?? new List<PackageLabor>();
 
-                existingPackage.PackageLabors.Add(new PackageLabor
+            // Cập nhật PackageMaterials
+            existingPackage.PackageMaterials.Clear();
+            existingPackage.PackageMaterials = packageRequest.PackageMaterials?.Select(pm => new PackageMaterial
+            {
+                Id = Guid.NewGuid(),
+                MaterialId = pm.MaterialId,
+                PackageId = existingPackage.Id,
+                InsDate = LocalDateTime.VNDateTime()
+            }).ToList() ?? new List<PackageMaterial>();
+
+            // Cập nhật PackageHouses
+            existingPackage.PackageHouses.Clear();
+            existingPackage.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+            {
+                Id = Guid.NewGuid(),
+                DesignTemplateId = ph.DesignTemplateId,
+                ImgUrl = ph.ImgUrl,
+                Description = ph.Description,
+                PackageId = existingPackage.Id,
+                InsDate = LocalDateTime.VNDateTime()
+            }).ToList() ?? new List<PackageHouse>();
+
+            var existingWorkTemplates = await workTemplateRepo.GetListAsync(
+                wt => wt.PackageId == packageid,
+                null,
+                wt => wt.Include(w => w.ContructionWork)
+            );
+
+            var existingConstructionWorkResources = await constructionWorkResourceRepo.GetListAsync(
+                cwr => existingWorkTemplates.Select(wt => wt.ContructionWorkId).Contains(cwr.ConstructionWorkId),
+                null,
+                null
+            );
+
+            foreach (var workTemplateRequest in packageRequest.WorkTemplate ?? new List<WorkTemplateRequest>())
+            {
+                Labor? labor = null;
+                Material? material = null;
+                double laborCost = 0;
+                double materialCost = 0;
+
+                if (workTemplateRequest.LaborId != null)
                 {
-                    Id = Guid.NewGuid(),
-                    LaborId = pl.LaborId,
-                    PackageId = existingPackage.Id,
-                    InsDate = LocalDateTime.VNDateTime()
-                });
-
-            }
-
-            foreach (var pm in packageRequest.PackageMaterials)
-            {
-                var existingPackageMaterial = existingPackage.PackageMaterials
-                    .FirstOrDefault(m => m.MaterialId == pm.MaterialId);
-
-                    existingPackage.PackageMaterials.Add(new PackageMaterial
+                    labor = await _unitOfWork.GetRepository<Labor>().FirstOrDefaultAsync(l => l.Id == workTemplateRequest.LaborId);
+                    if (labor == null)
                     {
-                        Id = Guid.NewGuid(),
-                        MaterialId = pm.MaterialId,
-                        PackageId = existingPackage.Id,
-                        InsDate = LocalDateTime.VNDateTime()
-                    });
-            }
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Not_Found,
+                            AppConstant.ErrMessage.LaborIdNotfound
+                        );
+                    }
+                    laborCost = (double)(labor.Price * workTemplateRequest.LaborNorm);
+                }
 
-            foreach (var ph in packageRequest.PackageHouses)
-            {
-                var existingPackageHouse = existingPackage.PackageHouses
-                    .FirstOrDefault(h => h.DesignTemplateId == ph.DesignTemplateId);
-
-                if (existingPackageHouse != null)
+                if (workTemplateRequest.MaterialId != null)
                 {
-                    existingPackageHouse.ImgUrl = ph.ImgUrl;
-                    existingPackageHouse.Description = ph.Description;
+                    material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(m => m.Id == workTemplateRequest.MaterialId);
+                    if (material == null)
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Not_Found,
+                            AppConstant.ErrMessage.MaterialIdNotfound
+                        );
+                    }
+                    materialCost = (double)(material.Price * workTemplateRequest.MaterialNorm);
+                }
+
+                var existingWorkTemplate = existingWorkTemplates.FirstOrDefault(wt => wt.ContructionWorkId == workTemplateRequest.ConstructionWorKid);
+                if (existingWorkTemplate != null)
+                {
+                    // Cập nhật WorkTemplate
+                    existingWorkTemplate.LaborCost = laborCost;
+                    existingWorkTemplate.MaterialCost = materialCost;
+                    existingWorkTemplate.TotalCost = laborCost + materialCost;
+                    workTemplateRepo.UpdateAsync(existingWorkTemplate);
                 }
                 else
                 {
-                    existingPackage.PackageHouses.Add(new PackageHouse
-                    {
-                        Id = Guid.NewGuid(),
-                        DesignTemplateId = ph.DesignTemplateId,
-                        ImgUrl = ph.ImgUrl,
-                        Description = ph.Description,
-                        PackageId = existingPackage.Id,
-                        InsDate = LocalDateTime.VNDateTime()
-                    });
+                    throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    $"WorkTemplate không tìm thấy");
+                }
+
+                var existingConstructionWorkResource = existingConstructionWorkResources.FirstOrDefault(cwr => cwr.ConstructionWorkId == workTemplateRequest.ConstructionWorKid);
+                if (existingConstructionWorkResource != null)
+                {
+                    // Cập nhật ConstructionWorkResource
+                    existingConstructionWorkResource.LaborId = workTemplateRequest.LaborId;
+                    existingConstructionWorkResource.LaborNorm = workTemplateRequest.LaborNorm;
+                    existingConstructionWorkResource.MaterialSectionId = material?.MaterialSectionId;
+                    existingConstructionWorkResource.MaterialSectionNorm = workTemplateRequest.MaterialNorm;
+                    constructionWorkResourceRepo.UpdateAsync(existingConstructionWorkResource);
+                }
+                else
+                {
+                    throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    $"WorkResource không tìm thấy");
                 }
             }
 
@@ -395,7 +533,6 @@ namespace RHCQS_Services.Implement
 
             return existingPackage;
         }
-
 
         public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
         {
@@ -428,7 +565,6 @@ namespace RHCQS_Services.Implement
         }
         public async Task<string> GeneratePackagePdf(Guid packageId)
         {
-            // Retrieve package details by ID
             var package = await GetPackageDetail(packageId);
             if (package == null)
             {
@@ -438,10 +574,9 @@ namespace RHCQS_Services.Implement
 
             try
             {
-                // Step 1: Generate HTML content based on package details
-                var htmlContent = GeneratePackageHtmlContent(package); // Implement this method to format the package details as HTML
 
-                // Step 2: Configure and convert HTML to PDF
+                var htmlContent = GeneratePackageHtmlContent(package);
+
                 var doc = new HtmlToPdfDocument
                 {
                     GlobalSettings = {
@@ -459,12 +594,11 @@ namespace RHCQS_Services.Implement
             }
                 };
 
-                /*                string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-                                NativeLibrary.Load(dllPath);*/
+                string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                NativeLibrary.Load(dllPath);
 
                 var pdf = _converter.Convert(doc);
 
-                // Step 3: Upload PDF to Cloudinary
                 using (var pdfStream = new MemoryStream(pdf))
                 {
                     var uploadParams = new RawUploadParams
@@ -484,11 +618,6 @@ namespace RHCQS_Services.Implement
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found,
                                                            AppConstant.ErrMessage.FailUploadPackagePdf);
                     }
-
-                    // Optionally store the PDF URL in your database
-                    // ...
-
-                    // Step 4: Return the Cloudinary URL of the uploaded PDF
                     return uploadResult.SecureUrl.ToString();
                 }
             }
@@ -644,7 +773,28 @@ namespace RHCQS_Services.Implement
 
             return sb.ToString();
         }
+        private void ValidateWorkTemplateRequests(
+    List<WorkTemplateRequest> workTemplateRequests,
+    List<PackageLaborRequest> packageLaborRequests,
+    List<PackageMaterialRequest> packageMaterialRequests)
+        {
+            foreach (var workTemplateRequest in workTemplateRequests)
+            {
+                if (!packageLaborRequests.Any(pl => pl.LaborId == workTemplateRequest.LaborId))
+                {
+                    throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    $"LaborId {workTemplateRequest.LaborId} không tồn tại trong PackageLaborRequest.");
+                }
 
+                if (!packageMaterialRequests.Any(pm => pm.MaterialId == workTemplateRequest.MaterialId))
+                {
+                    throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    $"MaterialId {workTemplateRequest.MaterialId} không tồn tại trong PackageMaterialRequest.");
+                }
+            }
+        }
 
     }
 
