@@ -384,6 +384,7 @@ namespace RHCQS_Services.Implement
                     w.Id,
                     w.ContructionWorkId ?? Guid.Empty, 
                     w.ContructionWork.WorkName!,
+                    w.ContructionWork.Unit,
                     (double)(w.LaborCost ?? 0), 
                     w.MaterialCost ?? 0, 
                     w.MaterialFinishedCost ?? 0 
