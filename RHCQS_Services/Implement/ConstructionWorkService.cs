@@ -67,5 +67,16 @@ namespace RHCQS_Services.Implement
 
             return response;
         }
+        public async Task<List<ListConstructionWorkResponse>> GetListConstructionWorkByConstructionId(Guid constructionId)
+        {
+            var listConstruction = await _unitOfWork.GetRepository<ConstructionWork>().GetList(
+                selector: x => new ListConstructionWorkResponse(x.Id, x.WorkName, x.ConstructionId, x.InsDate, x.Unit, x.Code),
+                predicate: x => x.ConstructionId == constructionId,
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            );
+
+            return listConstruction.Items.ToList();
+        }
+
     }
 }

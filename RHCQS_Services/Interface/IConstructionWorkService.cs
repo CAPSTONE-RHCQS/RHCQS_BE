@@ -12,5 +12,6 @@ namespace RHCQS_Services.Interface
     {
         Task<IPaginate<ListConstructionWorkResponse>> GetListConstructionWork(int page, int size);
         Task<ConstructionWorkItemResponse> GetConstructionWorkDetail(Guid workId);
+        Task<List<ListConstructionWorkResponse>> GetListConstructionWorkByConstructionId(Guid constructionId);
     }
 }
