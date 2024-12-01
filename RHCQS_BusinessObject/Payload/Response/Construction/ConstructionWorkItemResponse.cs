@@ -36,5 +36,17 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
 
         public DateTime? InsDate { get; set; }
     }
+    public class WorkTemplateItem
+    {
+        public Guid Id { get; set; }
+
+        public double? LaborCost { get; set; }
+
+        public double? MaterialCost { get; set; }
+
+        public double? MaterialFinishedCost { get; set; }
+
+        public DateTime? InsDate { get; set; }
+    }
 
 }

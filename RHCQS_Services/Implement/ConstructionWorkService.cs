@@ -67,6 +67,25 @@ namespace RHCQS_Services.Implement
 
             return response;
         }
+        public async Task<WorkTemplateItem> GetConstructionWorkPrice(Guid workId)
+        {
+            var workInfo = await _unitOfWork.GetRepository<WorkTemplate>().FirstOrDefaultAsync(
+                    predicate: x => x.ContructionWorkId == workId);
+            if (workInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Construction_Work_Not_Found);
+            }
+            var response = new WorkTemplateItem
+            {
+                Id = workInfo.Id,
+                LaborCost = workInfo.LaborCost,
+                MaterialCost = workInfo.MaterialCost,
+                MaterialFinishedCost = workInfo.MaterialFinishedCost,
+                InsDate = workInfo.InsDate
+            };
+
+            return response;
+        }
         public async Task<List<ListConstructionWorkResponse>> GetListConstructionWorkByConstructionId(Guid constructionId)
         {
             var listConstruction = await _unitOfWork.GetRepository<ConstructionWork>().GetList(

@@ -65,5 +65,21 @@ namespace RHCQS_BE.Controllers
             };
 
         }
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.ConstructionWork.ConstructionWorkPriceEndpoint)]
+        [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetWorkPriceByWorkId(Guid workId)
+        {
+            var listConstructions = await _workService.GetConstructionWorkPrice(workId);
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+
+        }
     }
 }
