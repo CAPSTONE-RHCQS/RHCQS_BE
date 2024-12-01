@@ -487,6 +487,7 @@ namespace RHCQS_Services.Implement
                                 TotalPriceLabor = (qi.UnitPriceLabor) * (qi.Weight),
                                 TotalPriceRough = (qi.UnitPriceRough) * (qi.Weight),
                                 TotalPriceFinished = (qi.UnitPriceFinished) * (qi.Weight),
+                                WorkTemplateId = qi.WorkTemplateId,
                                 Note = qi.Note
                             };
                             quotationPrice = quotationItem.TotalPriceLabor + quotationItem.TotalPriceRough + quotationItem.TotalPriceFinished;
