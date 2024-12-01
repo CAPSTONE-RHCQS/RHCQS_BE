@@ -20,7 +20,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
 
         public string? Code { get; set; }
         public List<ConstructionWorkResourceItem> Resources { get; set; }
-        public List<WorkTemplateItem> WorkTemplates { get; set; }
+        public List<WorkTemplateItem>? WorkTemplates { get; set; }
     }
 
     public class ConstructionWorkResourceItem
@@ -43,6 +43,8 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
     {
         public Guid Id { get; set; }
 
+        public Guid PackageId { get; set; }
+        public string PackageName { get; set; } 
         public double? LaborCost { get; set; }
 
         public double? MaterialCost { get; set; }

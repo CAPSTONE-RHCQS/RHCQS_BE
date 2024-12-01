@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request.ConstructionWork;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.Construction;
 using RHCQS_Services.Interface;
@@ -91,6 +92,96 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetWorkPriceByWorkId(Guid workId)
         {
             var listConstructions = await _workService.GetConstructionWorkPrice(workId);
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+
+        }
+
+        #region CreateConstructionWork
+        /// <summary>
+        /// Creates a new construction work.
+        /// </summary>
+        /// <param name="request">The construction work creation request.</param>
+        /// <returns>A result indicating the success or failure of the operation.</returns>
+        /// <remarks>
+        /// **Sample Request:**
+        /// 
+        /// ```json
+        /// {
+        ///     "workName": "Bê tông nền SX bằng máy trộn, đổ bằng thủ công, M150, đá 1x2, PCB40 Test",
+        ///     "constructionId": "43A5F15A-A5AF-4B82-9E20-AFAF16DB6DBA",
+        ///     "unit": "m2",
+        ///     "code": "AF.81111",
+        ///     "resources": [
+        ///         {
+        ///             "materialSectionId": "BEDD5E81-0D35-4B6A-A12C-368593D42852",
+        ///             "materialSectionNorm": 12,
+        ///             "laborId": null,
+        ///             "laborNorm": 0
+        ///         }
+        ///     ]
+        /// }
+        /// ```
+        /// </remarks>
+        /// <response code="200">The construction work was created successfully.</response>
+        /// <response code="400">Validation error occurred.</response>
+        /// <response code="500">An internal server error occurred.</response>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.ConstructionWork.ConstructionWorkEndpoint)]
+        [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateConstructionWork(CreateConstructionWorkRequest request)
+        {
+            var listConstructions = await _workService.CreateConstructionWork(request);
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+
+        }
+
+        #region CreateWorkTemplate
+        /// <summary>
+        /// Creates a new Work Template for a construction work.
+        /// </summary>
+        /// <param name="request">List of work template requests.</param>
+        /// <returns>A result indicating success or failure.</returns>
+        /// <remarks>
+        /// **Sample Request:**
+        /// 
+        /// ```json
+        /// [
+        ///   {
+        ///     "constructionWorkId": "6400e868-c11e-49fb-bdd8-62a8adde4022",
+        ///     "packageId": "A1625F79-0AF9-4FE6-8021-2F317EE68B0D",
+        ///     "laborCost": 0,
+        ///     "materialCost": 218040,
+        ///     "materialFinishedCost": 0,
+        ///     "totalCost": 218040
+        ///   }
+        /// ]
+        /// ```
+        /// </remarks>
+        /// <response code="200">The work templates were created successfully.</response>
+        /// <response code="400">Validation error occurred.</response>
+        /// <response code="500">An internal server error occurred.</response>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.ConstructionWork.WorkTemplateEndpoint)]
+        [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> CreateWorkTemplate(List<CreateWorkTemplateRequest> request)
+        {
+            var listConstructions = await _workService.CreateWorkTemplate(request);
             var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
 
             return new ContentResult()
