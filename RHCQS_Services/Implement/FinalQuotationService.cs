@@ -310,7 +310,9 @@ namespace RHCQS_Services.Implement
             }
 
             var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
-                p => p.ProjectId == request.ProjectId,
+                p => p.ProjectId == request.ProjectId
+                    && p.QuotationUtilities.Any()
+                    && p.BatchPayments.Any(),
                 orderBy: p => p.OrderByDescending(p => p.Version),
                 include: p => p.Include(x => x.Project)
                                .Include(f => f.FinalQuotationItems)
@@ -373,9 +375,7 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var bp in request.BatchPaymentInfos)
                 {
-                    highestFinalQuotation.BatchPayments = highestFinalQuotation.BatchPayments
-                        .Where(bp => bp.ContractId == null)
-                        .ToList();
+                    highestFinalQuotation.BatchPayments = highestFinalQuotation.BatchPayments.ToList();
                     var matchingBatchPayment = highestFinalQuotation.BatchPayments
                         .FirstOrDefault(existingBatchPayment => existingBatchPayment.NumberOfBatch == bp.NumberOfBatch);
 
