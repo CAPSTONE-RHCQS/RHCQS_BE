@@ -61,6 +61,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public double? TotalRough { get; set; }
 
         public double? TotalUtilities { get; set; }
+        public double? TotalFinished { get; set; }
 
         public double? Discount { get; set; }
 

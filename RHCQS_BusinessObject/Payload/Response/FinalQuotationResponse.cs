@@ -25,17 +25,19 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class FinalQuotationResponse
     {
 
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId,double? area, Guid initailQuotationId,
+        public FinalQuotationResponse(Guid id, string accountName,string phone, string email, Guid projectId,double? area, Guid initailQuotationId,
             double? initailQuotationVersion, List<HouseDrawingVersionInf>? houseDrawingVersionInf, PackageQuotationList packageQuotationList,
             string? projectType,string? projectAddress,double? discount, double? totalPrice, string? note,
             string? othersAgreement, double? version, DateTime? insDate,
-            DateTime? upsDate, string? status, bool? deflag, string? reasonReject,
+            DateTime? upsDate, string? status, bool? deflag, string? reasonReject,List<InitQuotationInfo> initQuotationInfos,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
             List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo,
             List<UtilityInf>? utilityInfos, ConstructionSummary constructionRough, ConstructionSummary constructionFinished, ConstructionSummary equitment)
         {
             Id = id;
             AccountName = accountName;
+            PhoneNumber = phone;
+            Email = email;
             ProjectId = projectId;
             Area = area;
             InitailQuotationId = initailQuotationId;
@@ -54,6 +56,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Status = status;
             Deflag = deflag;
             ReasonReject = reasonReject;
+            InitQuotationInfos = initQuotationInfos;
             BatchPaymentInfos = batchPaymentInfos;
             EquipmentItems = equipmentItems;
             FinalQuotationItems = finalQuotationItems;
@@ -66,6 +69,8 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
         public string AccountName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
         public Guid ProjectId { get; set; }
         public double? Area { get; set; }
         public Guid InitailQuotationId { get; set; }
@@ -94,6 +99,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public bool? Deflag { get; set; }
 
         public string? ReasonReject { get; set; }
+
+        public List<InitQuotationInfo> InitQuotationInfos { get; set; }
 
         public List<BatchPaymentResponse> BatchPaymentInfos { get; set; }
 
@@ -145,8 +152,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid PaymentId { get; set; }
         public Guid PaymentTypeId { get; set; }
         public string? PaymentTypeName { get; set; }
-        //public Guid InitailQuotationId { get; set; }
-
         public Guid? ContractId { get; set; }
 
         public DateTime? InsDate { get; set; }
@@ -190,18 +195,27 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Note { get; set; }
         public string? Type { get; set; }
     }
+    public class InitQuotationInfo
+    {
+        public InitQuotationInfo( string? constructionName, double? area)
+        {
+            ConstructionName = constructionName;
+            Area = area;
+        }
+
+        public string? ConstructionName { get; set; }
+        public Double? Area { get; set; }
+
+    }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName,
-            double? area, string? type/*, double? coefficient*/,DateTime? insDate, List<QuotationItemResponse> quotationItems)
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, string? contructionName,
+            string? type,DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
             ConstructionId = contructionId;
-            SubConstructionId = subcontructionId;
             ContructionName = contructionName;
-            Area = area;
             Type = type;
-            //Coefficient = coefficient;
             InsDate = insDate;
             QuotationItems = quotationItems;
         }
@@ -209,12 +223,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
         public Guid ConstructionId { get; set; }
 
-        public Guid? SubConstructionId { get; set; }
         public string? ContructionName { get; set; }
-        public Double? Area { get; set; }
         public string? Type { get; set; }
-
-        //public double? Coefficient { get; set; }
 
         public DateTime? InsDate { get; set; }
 
@@ -223,14 +233,13 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class QuotationItemResponse
     {
-        public QuotationItemResponse(Guid id, Guid? workid,string? name,/*, string? code*/ string? unit, double? weight, double? unitPriceLabor, double? unitPriceRough,
+        public QuotationItemResponse(Guid id, Guid? workid,string? name,string? unit, double? weight, double? unitPriceLabor, double? unitPriceRough,
             double? unitPriceFinished, double? totalPriceLabor, double? totalPriceRough, double? totalPriceFinished,
-            DateTime? insDate, DateTime? upsDate, string? note/*, List<QuotationLaborResponse> quotationLabors, List<QuotationMaterialResponse> quotationMaterials*/)
+            DateTime? insDate, DateTime? upsDate, string? note)
         {
             Id = id;
             WorkTemplateId = workid;
             WorkName = name;
-            //Code = code;
             Unit = unit;
             Weight = weight;
             UnitPriceLabor = unitPriceLabor;
@@ -242,52 +251,13 @@ namespace RHCQS_BusinessObject.Payload.Response
             InsDate = insDate;
             UpsDate = upsDate;
             Note = note;
-/*            QuotationLabors = quotationLabors;
-            QuotationMaterials = quotationMaterials;*/
+
         }
 
-        //public QuotationItemResponse(Guid id, Guid laborId, string? name/*, string? code*/, string? unit, double? weight,
-        //    double? unitPriceLabor, double? totalPriceLabor, DateTime? insDate, DateTime? upsDate, string? note)
-        //{
-        //    Id = id;
-        //    LaborId = laborId;
-        //    Name = name;
-        //    //Code = code;
-        //    Unit = unit;
-        //    Weight = weight;
-        //    UnitPriceLabor = unitPriceLabor;
-        //    TotalPriceLabor = totalPriceLabor;
-        //    InsDate = insDate;
-        //    UpsDate = upsDate;
-        //    Note = note;
-        //}
-
-        //public QuotationItemResponse(Guid id, Guid materialId, string? name/*, string? code*/, string? unit, double? weight,
-        //    double? unitPriceRough, double? unitPriceFinished, double? totalPriceRough,
-        //    double? totalPriceFinished, DateTime? insDate, DateTime? upsDate, string? note)
-        //{
-        //    Id = id;
-        //    MaterialId = materialId;
-        //    Name = name;
-        //    //Code = code;
-        //    Unit = unit;
-        //    Weight = weight;
-        //    UnitPriceRough = unitPriceRough;
-        //    UnitPriceFinished = unitPriceFinished;
-        //    TotalPriceRough = totalPriceRough;
-        //    TotalPriceFinished = totalPriceFinished;
-        //    InsDate = insDate;
-        //    UpsDate = upsDate;
-        //    Note = note;
-        //}
-
         public Guid Id { get; set; }
-        //public Guid? LaborId { get; set; }
-        //public Guid? MaterialId { get; set; }
+
         public Guid? WorkTemplateId { get; set; }
         public string? WorkName { get; set; }
-
-        //public string? Code { get; set; }
         public string? Unit { get; set; }
 
         public double? Weight { get; set; }
@@ -310,50 +280,9 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Note { get; set; }
 
-        //public List<QuotationLaborResponse> QuotationLabors { get; set; }
 
-        //public List<QuotationMaterialResponse> QuotationMaterials { get; set; }
     }
-    //public class QuotationLaborResponse
-    //{
-    //    public QuotationLaborResponse(Guid id, Guid laborId, string? laborName, double? laborPrice)
-    //    {
-    //        Id = id;
-    //        LaborId = laborId;
-    //        LaborName = laborName;
-    //        LaborPrice = laborPrice;
-    //    }
 
-    //    public Guid Id { get; set; }
-    //    public Guid LaborId { get; set; }
-    //    public string? LaborName { get; set; }
-
-    //    public double? LaborPrice { get; set; }
-
-    //}
-    //public class QuotationMaterialResponse
-    //{
-    //    public QuotationMaterialResponse(Guid id, Guid materialId, string? materialName, string? unit, double? materialPrice)
-    //    {
-    //        Id = id;
-    //        MaterialId = materialId;
-    //        MaterialName = materialName;
-    //        Unit = unit;
-    //        MaterialPrice = materialPrice;
-    //    }
-
-    //    public Guid Id { get; set; }
-
-    //    public Guid MaterialId { get; set; }
-
-    //    public string? MaterialName { get; set; }
-
-    //    public string? Unit { get; set; }
-
-    //    public double? MaterialPrice { get; set; }
-
-
-    //}
     public class UtilityInf
     {
         public UtilityInf(Guid id, Guid? utilitiesItemId, Guid? utilitiesSectionId, string name, string description,

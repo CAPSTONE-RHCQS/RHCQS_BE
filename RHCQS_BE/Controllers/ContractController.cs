@@ -129,7 +129,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to create the contract design due to invalid input</response>
         /// 
         #endregion
-        [Authorize(Roles = "SalesStaff")]
+        //[Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Contract.ContractDesignEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -383,6 +383,23 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
+        }
+
+        #region CreateContractAppendix
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.Contract.ContractAppendixEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateContractAppendix(ContractAppendixRequest request)
+        {
+            var isCreate = await _contractService.CreateContractAppendix(request);
+            return isCreate ? Ok(isCreate) : BadRequest();
         }
     }
 }

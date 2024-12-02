@@ -41,7 +41,5 @@ public partial class Material
 
     public virtual ICollection<PackageMaterial> PackageMaterials { get; set; } = new List<PackageMaterial>();
 
-    public virtual ICollection<QuotationMaterial> QuotationMaterials { get; set; } = new List<QuotationMaterial>();
-
     public virtual Supplier Supplier { get; set; } = null!;
 }

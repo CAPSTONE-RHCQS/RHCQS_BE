@@ -39,6 +39,9 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền tiện ích phải là một số dương.")]
         public double? TotalUtilities { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Tổng tiền xây dựng phần hoàn thiện là một số dương.")]
+        public double? TotalFinished { get; set; }
+
         public List<InitialQuotaionItemUpdateRequest> Items { get; set; }
         public List<PackageQuotationUpdateRequest> Packages { get; set; }
 

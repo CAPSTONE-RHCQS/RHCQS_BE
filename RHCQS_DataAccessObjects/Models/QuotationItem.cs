@@ -35,9 +35,5 @@ public partial class QuotationItem
 
     public virtual FinalQuotationItem? FinalQuotationItem { get; set; }
 
-    public virtual ICollection<QuotationLabor> QuotationLabors { get; set; } = new List<QuotationLabor>();
-
-    public virtual ICollection<QuotationMaterial> QuotationMaterials { get; set; } = new List<QuotationMaterial>();
-
     public virtual WorkTemplate? WorkTemplate { get; set; }
 }

@@ -88,17 +88,15 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         //[Range(0, double.MaxValue, ErrorMessage = "Tổng tiền vật liệu phải là một số dương.")]
         //public double? TotalOfMaterial { get; set; }
-
         public string? Note { get; set; }
         public string? Type { get; set; }
     }
 
     public class FinalQuotationItemRequest
     {
-
         [Required(ErrorMessage = "ConstructionId là bắt buộc.")]
         public Guid ConstructionId { get; set; }
-        public Guid? SubconstructionId { get; set; }
+        //public Guid? SubconstructionId { get; set; }
         public List<QuotationItemRequest>? QuotationItems { get; set; }
     }
 
