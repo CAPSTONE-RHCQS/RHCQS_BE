@@ -123,6 +123,19 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                var findConstruction = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
+                                        predicate: c => c.Code!.ToLower() == request.Code!.ToLower() 
+                                               || c.WorkName!.ToLower() == request.WorkName!.ToLower());
+                if (findConstruction != null && request.Code!.ToLower() == findConstruction.Code!.ToLower())
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionWorkExisting);
+                }
+
+                if (findConstruction != null && request.WorkName.ToLower() == findConstruction.WorkName!.ToLower())
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Duplicated_WorkName);
+                }
+
                 var constructionWorkItem = new ConstructionWork
                 {
                     Id = Guid.NewGuid(),
@@ -173,9 +186,9 @@ namespace RHCQS_Services.Implement
                     AppConstant.Message.SUCCESSFUL_CREATE : AppConstant.ErrMessage.Fail_Save;
                 return result;
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
-                throw new Exception(ex.Message, ex);
+                throw new AppConstant.MessageError((int)ex.Code, ex.Message);
             }
         }
 
@@ -185,6 +198,20 @@ namespace RHCQS_Services.Implement
 
             foreach (var item in request)
             {
+                var isDuplicate = await _unitOfWork.GetRepository<WorkTemplate>()
+                 .GetList(
+                     selector: x => x,
+                     predicate: w => w.PackageId == item.PackageId && w.ContructionWorkId == item.ConstructionWorkId,
+                     orderBy: null,
+                     include: null
+                 );
+
+
+                if (isDuplicate.Items.Any())
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.No_New_Data);
+                }
+
                 var totalCost = (item.LaborCost ?? 0) + (item.MaterialCost ?? 0) + (item.MaterialFinishedCost ?? 0);
 
                 var workTemplateItem = new WorkTemplate
@@ -200,6 +227,11 @@ namespace RHCQS_Services.Implement
                 };
 
                 workTemplateItems.Add(workTemplateItem);
+            }
+
+            if (!workTemplateItems.Any())
+            {
+                return AppConstant.ErrMessage.No_New_Data; 
             }
 
             await _unitOfWork.GetRepository<WorkTemplate>().InsertRangeAsync(workTemplateItems);

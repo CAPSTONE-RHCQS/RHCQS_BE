@@ -213,11 +213,14 @@ public static class AppConstant
         public const string InvalidToken = "Token không hợp lệ!";
         public const string Not_Token_expired = "Token chưa hết hạn.";
         public const string Not_Reason = "Cần lý do từ chối!";
+        public const string No_New_Data = "Dữ liệu có thể đã tồn tại! Hãy kiểm tra lại dữ liệu!";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";
         public const string ConstructionNoExit = "Hạng mục xây dựng không tồn tại!";
         public const string ConstructionNameExit = "Tên hạng mục đã tồn tại! Hãy nhập tên khác!";
+        public const string ConstructionWorkExisting = "Mã công tác này đã tồn tại!";
+        public const string Duplicated_WorkName = "Tên công tác đã tồn tại!";
 
         //Login
         public const string EmailExists = "Email đã tồn tại!";
