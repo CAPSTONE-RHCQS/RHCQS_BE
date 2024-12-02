@@ -56,11 +56,11 @@ namespace RHCQS_BE.Controllers
         /// <returns>List of house design drawing in the system</returns>
         #endregion
         [Authorize(Roles = "DesignStaff")]
-        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingDesignStaffEndpont)]
+        [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingDesignStaffEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListHouseDesignDrawingsForDesignStaff(int page, int size)
         {
-            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            var accountId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var listHouseDesignDrawings = await _houseService.GetListHouseDesignDrawingsForDesignStaff(page, size, accountId);
             var result = JsonConvert.SerializeObject(listHouseDesignDrawings, Formatting.Indented);
             return new ContentResult()

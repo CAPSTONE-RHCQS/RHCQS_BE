@@ -129,7 +129,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to create the contract design due to invalid input</response>
         /// 
         #endregion
-        [Authorize(Roles = "SalesStaff")]
+        //[Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Contract.ContractDesignEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
