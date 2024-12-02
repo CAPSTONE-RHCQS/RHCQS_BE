@@ -25,7 +25,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class FinalQuotationResponse
     {
 
-        public FinalQuotationResponse(Guid id, string accountName, Guid projectId,double? area, Guid initailQuotationId,
+        public FinalQuotationResponse(Guid id, string accountName,string phone, string email, Guid projectId,double? area, Guid initailQuotationId,
             double? initailQuotationVersion, List<HouseDrawingVersionInf>? houseDrawingVersionInf, PackageQuotationList packageQuotationList,
             string? projectType,string? projectAddress,double? discount, double? totalPrice, string? note,
             string? othersAgreement, double? version, DateTime? insDate,
@@ -36,6 +36,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         {
             Id = id;
             AccountName = accountName;
+            PhoneNumber = phone;
+            Email = email;
             ProjectId = projectId;
             Area = area;
             InitailQuotationId = initailQuotationId;
@@ -67,6 +69,8 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
         public string AccountName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
         public Guid ProjectId { get; set; }
         public double? Area { get; set; }
         public Guid InitailQuotationId { get; set; }

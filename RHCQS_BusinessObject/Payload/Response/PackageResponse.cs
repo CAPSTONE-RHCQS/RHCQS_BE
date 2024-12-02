@@ -33,12 +33,11 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageResponse
     {
-        public PackageResponse(Guid id/*, Guid packageTypeId*/, string? packageName, string packageType, string? unit, double? price, string? status,
+        public PackageResponse(Guid id, string? packageName, string packageType, string? unit, double? price, string? status,
             DateTime? insDate, DateTime? upsDate, List<PackageLaborResponse> packageLabor, List<PackageMaterialResponse> packageMaterial,
             List<PackageHousesResponse> packageHouses, List<PackagePromotionResponse> packagePromotion)
         {
             Id = id;
-            //PackageTypeId = packageTypeId;
             PackageName = packageName;
             PackageType = packageType;
             Unit = unit;
@@ -54,8 +53,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
 
-        //public Guid PackageTypeId { get; set; }
-
         public string? PackageName { get; set; }
         public string PackageType { get; set; } = null!;
         public string? Unit { get; set; }
@@ -67,7 +64,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
-        //public List<PackageDetailsResponse> PackageDetails { get; set; }
         public List<PackageLaborResponse> PackageLabors { get; set; }
 
         public List<PackageMaterialResponse> PackageMaterials { get; set; }
@@ -76,28 +72,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public List<PackagePromotionResponse> PackageMapPromotions { get; set; }
 
     }
-
-    //public class PackageDetailsResponse
-    //{
-    //    public PackageDetailsResponse(Guid id, string? type, DateTime? insDate,
-    //        List<PackageLaborResponse> packageLabors, List<PackageMaterialResponse> packageMaterials)
-    //    {
-    //        Id = id;
-    //        Type = type;
-    //        InsDate = insDate;
-    //        PackageLabors = packageLabors;
-    //        PackageMaterials = packageMaterials;
-    //    }
-
-    //    public Guid Id { get; set; }
-
-    //    public string? Type { get; set; }
-
-    //    public DateTime? InsDate { get; set; }
-    //    public List<PackageLaborResponse> PackageLabors { get; set; }
-
-    //    public List<PackageMaterialResponse> PackageMaterials { get; set; }
-    //}
     public class PackagePromotionResponse
     {
         public PackagePromotionResponse(Guid id, Guid promotionId, string? promotionName, int? value, DateTime? startDate, DateTime? insDate)
@@ -204,13 +178,12 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageResponseForMoblie
     {
-        public PackageResponseForMoblie(Guid id,/* Guid packageTypeId,*/ string? packageType, string? packageName,
+        public PackageResponseForMoblie(Guid id, string? packageType, string? packageName,
             string? unit, double? price, string? status, DateTime? insDate, DateTime? upsDate,
             List<PackageLaborResponseForMoblie> packageLabor, List<PackageMaterialResponse> packagematerial,
             List<PackageHousesResponse> packageHouses)
         {
             Id = id;
-            //PackageTypeId = packageTypeId;
             PackageType = packageType;
             PackageName = packageName;
             Unit = unit;
@@ -225,8 +198,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public Guid Id { get; set; }
 
-        //public Guid PackageTypeId { get; set; }
-
         public string? PackageType { get; set; }
 
         public string? PackageName { get; set; }
@@ -240,7 +211,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
-        //public List<PackageDetailsResponseForMoblie> PackageDetails { get; set; }
         public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
 
         public List<PackageMaterialResponse> PackageMaterials { get; set; }
@@ -249,27 +219,6 @@ namespace RHCQS_BusinessObject.Payload.Response
 
 
     }
-    //public class PackageDetailsResponseForMoblie
-    //{
-    //    public PackageDetailsResponseForMoblie(Guid id, string? type, DateTime? insDate,
-    //        List<PackageLaborResponseForMoblie> packageLabors, List<PackageMaterialResponse> packageMaterials)
-    //    {
-    //        Id = id;
-    //        Type = type;
-    //        InsDate = insDate;
-    //        PackageLabors = packageLabors;
-    //        PackageMaterials = packageMaterials;
-    //    }
-
-    //    public Guid Id { get; set; }
-
-    //    public string? Type { get; set; }
-
-    //    public DateTime? InsDate { get; set; }
-    //    public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
-
-    //    public List<PackageMaterialResponse> PackageMaterials { get; set; }
-    //}
     public class PackageLaborResponseForMoblie
     {
         public PackageLaborResponseForMoblie(string? nameOfLabor, string? type)

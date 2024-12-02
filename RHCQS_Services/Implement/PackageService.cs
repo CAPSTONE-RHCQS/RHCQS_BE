@@ -42,12 +42,7 @@ namespace RHCQS_Services.Implement
             return new PackageResponse(
                 package.Id,
                 package.PackageName,
-                package?.Type?.ToLower() switch
-                {
-                    "rough" => "Phần thô",
-                    "finished" => "Phần hoàn thiện",
-                    _ => string.Empty
-                },
+                package?.Type,
                 package.Unit,
                 package.Price,
                 package.Status,
@@ -57,12 +52,7 @@ namespace RHCQS_Services.Implement
                     pl.Id,
                     pl.LaborId,
                     pl.Labor?.Name,
-                    pl.Labor?.Type?.ToLower() switch
-                    {
-                        "rough" => "Phần thô",
-                        "finished" => "Phần hoàn thiện",
-                        _ => string.Empty
-                    },
+                    pl.Labor?.Type,
                     pl.Labor?.Price ?? 0.0,
                     pl.InsDate
                 )).ToList() ?? new List<PackageLaborResponse>(),
@@ -72,12 +62,7 @@ namespace RHCQS_Services.Implement
                     pm.Material.MaterialSectionId,
                     pm.Material.MaterialSection?.Name,
                     pm.Material?.Name,
-                    pm.Material?.Type?.ToLower() switch
-                    {
-                        "rough" => "Phần thô",
-                        "finished" => "Phần hoàn thiện",
-                        _ => string.Empty
-                    },
+                    pm.Material?.Type,
                     pm.Material.Price ?? 0.0,
                     pm.Material.Unit,
                     pm.Material.Size,
@@ -120,12 +105,6 @@ namespace RHCQS_Services.Implement
         {
             var listPackage = await _unitOfWork.GetRepository<Package>().GetList(
                 selector: x => MapPackageListToResponse(x),
-                //include: x => x.Include(x => x.PackageHouses)
-                //           .Include(pd => pd.PackageLabors)
-                //           .ThenInclude(lb => lb.Labor)
-                //           .Include(pd => pd.PackageMaterials)
-                //           .ThenInclude(ms => ms.Material)
-                //           .ThenInclude(ms => ms.MaterialSection),
                 orderBy: x => x.OrderBy(x => x.InsDate),
                 predicate: x => x.Status == "Active",
                 page: page,
@@ -292,74 +271,7 @@ namespace RHCQS_Services.Implement
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageHouse>();
 
-            //ValidateWorkTemplateRequests(
-            //    packageRequest.WorkTemplate ?? new List<WorkTemplateRequest>(),
-            //    packageRequest.PackageLabors ?? new List<PackageLaborRequest>(),
-            //    packageRequest.PackageMaterials ?? new List<PackageMaterialRequest>()
-            //);
             await packageRepo.InsertAsync(package);
-
-            //foreach (var workTemplateRequest in packageRequest.WorkTemplate ?? new List<WorkTemplateRequest>())
-            //{
-            //    Labor? labor = null;
-            //    Material? material = null;
-            //    double laborCost = 0;
-            //    double materialCost = 0;
-
-            //    if (workTemplateRequest.LaborId != null)
-            //    {
-            //        labor = await _unitOfWork.GetRepository<Labor>().FirstOrDefaultAsync(l => l.Id == workTemplateRequest.LaborId);
-            //        if (labor == null)
-            //        {
-            //            throw new AppConstant.MessageError(
-            //                (int)AppConstant.ErrCode.Not_Found,
-            //                AppConstant.ErrMessage.LaborIdNotfound
-            //            );
-            //        }
-            //        laborCost = (double)(labor.Price * workTemplateRequest.LaborNorm);
-            //    }
-
-            //    if (workTemplateRequest.MaterialId != null)
-            //    {
-            //        material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(m => m.Id == workTemplateRequest.MaterialId);
-            //        if (material == null)
-            //        {
-            //            throw new AppConstant.MessageError(
-            //                (int)AppConstant.ErrCode.Not_Found,
-            //                AppConstant.ErrMessage.MaterialIdNotfound
-            //            );
-            //        }
-            //        materialCost = (double)(material.Price * workTemplateRequest.MaterialNorm);
-            //    }
-
-            //    var workTemplate = new WorkTemplate
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        PackageId = package.Id,
-            //        ContructionWorkId = workTemplateRequest.ConstructionWorKid,
-            //        LaborCost = laborCost,
-            //        MaterialCost = materialCost,
-            //        InsDate = LocalDateTime.VNDateTime(),
-            //        TotalCost = laborCost + materialCost
-            //    };
-
-            //    await workTemplateRepo.InsertAsync(workTemplate);
-
-            //    var constructionWorkResource = new ConstructionWorkResource
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        ConstructionWorkId = workTemplateRequest.ConstructionWorKid,
-            //        LaborId = workTemplateRequest.LaborId,
-            //        LaborNorm = workTemplateRequest.LaborNorm,
-            //        MaterialSectionId = material?.MaterialSectionId,
-            //        MaterialSectionNorm = workTemplateRequest.MaterialNorm,
-            //        InsDate = LocalDateTime.VNDateTime()
-            //    };
-
-            //    await constructionWorkResourceRepo.InsertAsync(constructionWorkResource);
-            //}
-
-
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
             {
@@ -440,85 +352,6 @@ namespace RHCQS_Services.Implement
                 PackageId = existingPackage.Id,
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageHouse>();
-
-            //var existingWorkTemplates = await workTemplateRepo.GetListAsync(
-            //    wt => wt.PackageId == packageid,
-            //    null,
-            //    wt => wt.Include(w => w.ContructionWork)
-            //);
-
-            //var existingConstructionWorkResources = await constructionWorkResourceRepo.GetListAsync(
-            //    cwr => existingWorkTemplates.Select(wt => wt.ContructionWorkId).Contains(cwr.ConstructionWorkId),
-            //    null,
-            //    null
-            //);
-
-            //foreach (var workTemplateRequest in packageRequest.WorkTemplate ?? new List<WorkTemplateRequest>())
-            //{
-            //    Labor? labor = null;
-            //    Material? material = null;
-            //    double laborCost = 0;
-            //    double materialCost = 0;
-
-            //    if (workTemplateRequest.LaborId != null)
-            //    {
-            //        labor = await _unitOfWork.GetRepository<Labor>().FirstOrDefaultAsync(l => l.Id == workTemplateRequest.LaborId);
-            //        if (labor == null)
-            //        {
-            //            throw new AppConstant.MessageError(
-            //                (int)AppConstant.ErrCode.Not_Found,
-            //                AppConstant.ErrMessage.LaborIdNotfound
-            //            );
-            //        }
-            //        laborCost = (double)(labor.Price * workTemplateRequest.LaborNorm);
-            //    }
-
-            //    if (workTemplateRequest.MaterialId != null)
-            //    {
-            //        material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(m => m.Id == workTemplateRequest.MaterialId);
-            //        if (material == null)
-            //        {
-            //            throw new AppConstant.MessageError(
-            //                (int)AppConstant.ErrCode.Not_Found,
-            //                AppConstant.ErrMessage.MaterialIdNotfound
-            //            );
-            //        }
-            //        materialCost = (double)(material.Price * workTemplateRequest.MaterialNorm);
-            //    }
-
-            //    var existingWorkTemplate = existingWorkTemplates.FirstOrDefault(wt => wt.ContructionWorkId == workTemplateRequest.ConstructionWorKid);
-            //    if (existingWorkTemplate != null)
-            //    {
-            //        // Cập nhật WorkTemplate
-            //        existingWorkTemplate.LaborCost = laborCost;
-            //        existingWorkTemplate.MaterialCost = materialCost;
-            //        existingWorkTemplate.TotalCost = laborCost + materialCost;
-            //        workTemplateRepo.UpdateAsync(existingWorkTemplate);
-            //    }
-            //    else
-            //    {
-            //        throw new AppConstant.MessageError(
-            //        (int)AppConstant.ErrCode.Not_Found,
-            //        $"WorkTemplate không tìm thấy");
-            //    }
-
-            //    var existingConstructionWorkResource = existingConstructionWorkResources.FirstOrDefault(cwr => cwr.ConstructionWorkId == workTemplateRequest.ConstructionWorKid);
-            //    if (existingConstructionWorkResource != null)
-            //    {
-            //        // Cập nhật ConstructionWorkResource
-            //        existingConstructionWorkResource.LaborId = workTemplateRequest.LaborId;
-            //        existingConstructionWorkResource.LaborNorm = workTemplateRequest.LaborNorm;
-            //        existingConstructionWorkResource.MaterialSectionId = material?.MaterialSectionId;
-            //        existingConstructionWorkResource.MaterialSectionNorm = workTemplateRequest.MaterialNorm;
-            //        constructionWorkResourceRepo.UpdateAsync(existingConstructionWorkResource);
-            //    }
-            //    else
-            //    {
-            //        throw new AppConstant.MessageError(
-            //        (int)AppConstant.ErrCode.Not_Found,
-            //        $"WorkResource không tìm thấy");
-            //    }
-            //}
 
             packageRepo.UpdateAsync(existingPackage);
 
@@ -773,29 +606,6 @@ namespace RHCQS_Services.Implement
 
             return sb.ToString();
         }
-    //    private void ValidateWorkTemplateRequests(
-    //List<WorkTemplateRequest> workTemplateRequests,
-    //List<PackageLaborRequest> packageLaborRequests,
-    //List<PackageMaterialRequest> packageMaterialRequests)
-    //    {
-    //        foreach (var workTemplateRequest in workTemplateRequests)
-    //        {
-    //            if (!packageLaborRequests.Any(pl => pl.LaborId == workTemplateRequest.LaborId))
-    //            {
-    //                throw new AppConstant.MessageError(
-    //                (int)AppConstant.ErrCode.Not_Found,
-    //                $"LaborId {workTemplateRequest.LaborId} không tồn tại trong PackageLaborRequest.");
-    //            }
-
-    //            if (!packageMaterialRequests.Any(pm => pm.MaterialId == workTemplateRequest.MaterialId))
-    //            {
-    //                throw new AppConstant.MessageError(
-    //                (int)AppConstant.ErrCode.Not_Found,
-    //                $"MaterialId {workTemplateRequest.MaterialId} không tồn tại trong PackageMaterialRequest.");
-    //            }
-    //        }
-    //    }
-
     }
 
 }
