@@ -235,6 +235,32 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
+        public async Task<List<MaterialResponse>> SearchMaterialByNameWithoutPackage(string name)
+        {
+            return (List<MaterialResponse>)await _unitOfWork.GetRepository<Material>().GetListAsync(
+                selector: x => new MaterialResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Price = x.Price,
+                    Unit = x.Unit,
+                    Size = x.Size,
+                    Shape = x.Shape,
+                    ImgUrl = x.ImgUrl,
+                    Description = x.Description,
+                    IsAvailable = x.IsAvailable,
+                    UnitPrice = x.UnitPrice,
+                    MaterialSectionId = x.MaterialSectionId,
+                    SupplierId = x.SupplierId,
+                    MaterialSectionName = x.MaterialSection.Name,
+                    SupplierName = x.Supplier.Name,
+                    Code = x.Code
+                },
+                predicate: m => m.Name.Contains(name),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            );
+        }
+
         public async Task<List<MaterialResponse>> FilterMaterialBySection(Guid materialSectionId)
         {
             return (List<MaterialResponse>)await _unitOfWork.GetRepository<Material>().GetListAsync(
