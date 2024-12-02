@@ -25,5 +25,6 @@ namespace RHCQS_Services.Interface
         Task<FinalToContractResponse> CloneFinalInfoToContract(Guid projectId);
         Task<string> UploadFileContract(IFormFile file);
         Task<bool> ManagerApproverBillFromCustomer(Guid paymentId, string type);
+        Task<bool> CreateContractAppendix(ContractAppendixRequest request);
     }
 }

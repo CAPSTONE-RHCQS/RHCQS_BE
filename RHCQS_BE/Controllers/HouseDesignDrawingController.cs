@@ -264,7 +264,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingListEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ViewDrawingByProjectId(Guid projectId)
@@ -280,7 +280,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
         [HttpPut(ApiEndPointConstant.HouseDesignDrawing.HouseDesignConfirmProjectHaveDrawing)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> ConfirmDrawingAvaliable(Guid versionId, AssignHouseDrawingRequest request)

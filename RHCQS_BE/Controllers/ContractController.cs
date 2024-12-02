@@ -384,5 +384,22 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region CreateContractAppendix
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpPost(ApiEndPointConstant.Contract.ContractAppendixEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> CreateContractAppendix(ContractAppendixRequest request)
+        {
+            var isCreate = await _contractService.CreateContractAppendix(request);
+            return isCreate ? Ok(isCreate) : BadRequest();
+        }
     }
 }

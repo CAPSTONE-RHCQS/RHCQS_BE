@@ -8,6 +8,7 @@ using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.Contract;
 using RHCQS_BusinessObject.Payload.Response.App;
 using RHCQS_BusinessObject.Payload.Response.Contract;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
@@ -761,7 +762,7 @@ namespace RHCQS_Services.Implement
                         PaymentPhase = batchPayment.Payment.PaymentPhase,
                         Percents = batchPayment.Payment.Percents ?? 0,
                         Description = batchPayment.Payment.Description
-                    }).OrderBy(x =>x.NumberOfBatches) 
+                    }).OrderBy(x => x.NumberOfBatches)
                     .ToList();
 
                 var result = new FinalToContractResponse()
@@ -819,6 +820,115 @@ namespace RHCQS_Services.Implement
                 result = false;
             }
             return result;
+        }
+
+
+        public async Task<bool> CreateContractAppendix(ContractAppendixRequest request)
+        {
+            try
+            {
+                #region Check contract
+                var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                    predicate: x => x.Id == request.ContractId,
+                                    include: x => x.Include(x => x.Project)
+                                                    .Include(x => x.BatchPayments!));
+
+                if (contractInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+                }
+                #endregion
+
+                #region Cancel BatchPayment
+                var cancelBatchPaymentIds = request.CancelBatchPaymnetContract.Select(x => x.BatchPaymentId).ToHashSet();
+                var batchPaymentsToCancel = contractInfo.BatchPayments
+                    .Where(bp => cancelBatchPaymentIds.Contains(bp.Id))
+                    .ToList();
+                Guid initialId = Guid.Empty;
+                foreach (var batchPayment in batchPaymentsToCancel)
+                {
+                    initialId = batchPayment.InitialQuotationId;
+                    batchPayment.Status = "Cancel";
+                }
+
+                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(batchPaymentsToCancel);
+                #endregion
+
+                #region Create contract appendix
+                var contractDrawing = new Contract
+                {
+                    Id = Guid.NewGuid(),
+                    ProjectId = contractInfo.ProjectId,
+                    Name = EnumExtensions.GetEnumDescription(AppConstant.ContractType.Appendix),
+                    CustomerName = contractInfo.CustomerName,
+                    ContractCode = GenerateRandom.GenerateRandomString(10),
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate,
+                    ValidityPeriod = request.ValidityPeriod,
+                    TaxCode = request.TaxCode,
+                    Area = contractInfo.Area,
+                    UnitPrice = AppConstant.Unit.UnitPrice,
+                    ContractValue = request.ContractValue,
+                    UrlFile = request.UrlFile,
+                    Note = request.Note,
+                    Deflag = true,
+                    RoughPackagePrice = contractInfo.RoughPackagePrice,
+                    FinishedPackagePrice = contractInfo.FinishedPackagePrice,
+                    Status = AppConstant.ContractStatus.PROCESSING,
+                    Type = AppConstant.ContractType.Appendix.ToString(),
+                    InsDate = LocalDateTime.VNDateTime(),
+                };
+
+                await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+                #endregion
+
+                #region Create Batch payment appendix
+
+                foreach (var pay in request.BatchPaymentRequests!)
+                {
+                    // Lấy PaymentType từ bảng PaymentType
+                    var paymentType = await _unitOfWork.GetRepository<PaymentType>()
+                                .FirstOrDefaultAsync(pt => pt.Name == EnumExtensions.GetEnumDescription(AppConstant.ContractType.Appendix));
+
+                    var payInfo = new Payment
+                    {
+                        Id = Guid.NewGuid(),
+                        PaymentTypeId = paymentType.Id,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
+                        TotalPrice = request.ContractValue,
+                        PaymentDate = pay.PaymentDate,
+                        PaymentPhase = pay.PaymentPhase,
+                        Unit = AppConstant.Unit.UnitPrice,
+                        Percents = pay.Percents,
+                        Description = pay.Description
+                    };
+
+                    await _unitOfWork.GetRepository<Payment>().InsertAsync(payInfo);
+
+                    var batchPay = new BatchPayment
+                    {
+                        Id = Guid.NewGuid(),
+                        ContractId = contractDrawing!.Id,
+                        InitialQuotationId = initialId,
+                        InsDate = LocalDateTime.VNDateTime(),
+                        FinalQuotationId = null,
+                        PaymentId = payInfo.Id,
+                        Status = AppConstant.PaymentStatus.PROGRESS,
+                        NumberOfBatch = pay.NumberOfBatches
+                    };
+
+                    await _unitOfWork.GetRepository<BatchPayment>().InsertAsync(batchPay);
+                }
+                #endregion
+
+                bool isSuccessful = _unitOfWork.Commit() > 0;
+                return isSuccessful;
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
+            }
         }
     }
 }

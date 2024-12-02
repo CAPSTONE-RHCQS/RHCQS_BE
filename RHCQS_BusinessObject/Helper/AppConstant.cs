@@ -139,7 +139,9 @@ public static class AppConstant
         [Description("Hợp đồng tư vấn và thiết kế bản vẽ nhà ở dân dụng")]
         Design,
         [Description("Hợp đồng thi công nhà ở dân dụng")]
-        Construction
+        Construction,
+        [Description("Hợp đồng phụ lục")]
+        Appendix
     }
 
     public enum DesignDrawing
