@@ -902,8 +902,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id)
         {
-            try
-            {
+            //try
+            //{
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
             x => x.Id.Equals(id)
             && (x.Deflag == true)
@@ -1158,7 +1158,7 @@ namespace RHCQS_Services.Implement
             //catch (Exception ex)
             //{
             //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            }
+            //}
         }
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationByProjectId(Guid projectid)
