@@ -171,7 +171,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string HouseDesignDrawingEndpoint = ApiEndpoint + "/housedesign";
             public const string HouseDesignDrawingListEndpoint = HouseDesignDrawingEndpoint + "/list";
-            public const string HouseDesignDrawingDesignStaffEndpont = HouseDesignDrawingEndpoint + "/design";
+            public const string HouseDesignDrawingDesignStaffEndpoint = HouseDesignDrawingEndpoint + "/design";
             public const string HouseDesignDrawingPreviousEndpoint = HouseDesignDrawingEndpoint + "/previous";
             public const string HouseDesignDrawingDetailEndpoint = HouseDesignDrawingEndpoint + "/id";
             public const string HouseDesignDrawingTypeEndpoint = HouseDesignDrawingEndpoint + "/type";
