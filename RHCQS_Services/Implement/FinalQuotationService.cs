@@ -670,8 +670,6 @@ namespace RHCQS_Services.Implement
         }
         public async Task DeleteFinalQuotation(Guid finalQuotationId)
         {
-            //try
-            //{
             var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
             var finalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(fq => fq.Id == finalQuotationId,
                 include: fq => fq
@@ -691,42 +689,90 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-
-            foreach (var finalQuotationItem in finalQuotation.FinalQuotationItems)
+            // Check if the version is 0
+            if (finalQuotation.Version == 0)
             {
-                foreach (var quotationItem in finalQuotationItem.QuotationItems)
+                // Update BatchPayments and QuotationUtilities to nullify FinalQuotationId
+                foreach (var batchPayment in finalQuotation.BatchPayments)
                 {
-                    var quotationItemRepo = _unitOfWork.GetRepository<QuotationItem>();
-                    quotationItemRepo.DeleteAsync(quotationItem);
+                    batchPayment.FinalQuotationId = null;
+                    var batchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
+                    batchPaymentRepo.Update(batchPayment); // Update instead of delete
                 }
 
-                var finalQuotationItemRepo = _unitOfWork.GetRepository<FinalQuotationItem>();
-                finalQuotationItemRepo.DeleteAsync(finalQuotationItem);
+                foreach (var quotationUtility in finalQuotation.QuotationUtilities)
+                {
+                    quotationUtility.FinalQuotationId = null;
+                    var quotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
+                    quotationUtilityRepo.Update(quotationUtility); // Update instead of delete
+                }
+
+                // Don't delete FinalQuotationItems, EquipmentItems, Media here for version 0
+                foreach (var finalQuotationItem in finalQuotation.FinalQuotationItems)
+                {
+                    foreach (var quotationItem in finalQuotationItem.QuotationItems)
+                    {
+                        var quotationItemRepo = _unitOfWork.GetRepository<QuotationItem>();
+                        quotationItemRepo.DeleteAsync(quotationItem);
+                    }
+
+                    var finalQuotationItemRepo = _unitOfWork.GetRepository<FinalQuotationItem>();
+                    finalQuotationItemRepo.DeleteAsync(finalQuotationItem);
+                }
+
+                foreach (var equipmentItem in finalQuotation.EquipmentItems)
+                {
+                    var equipmentItemRepo = _unitOfWork.GetRepository<EquipmentItem>();
+                    equipmentItemRepo.DeleteAsync(equipmentItem);
+                }
+
+                foreach (var media in finalQuotation.Media)
+                {
+                    var mediaRepo = _unitOfWork.GetRepository<Medium>();
+                    mediaRepo.DeleteAsync(media);
+                }
+            }
+            else
+            {
+                // Regular deletion logic if version is not 0
+                foreach (var finalQuotationItem in finalQuotation.FinalQuotationItems)
+                {
+                    foreach (var quotationItem in finalQuotationItem.QuotationItems)
+                    {
+                        var quotationItemRepo = _unitOfWork.GetRepository<QuotationItem>();
+                        quotationItemRepo.DeleteAsync(quotationItem);
+                    }
+
+                    var finalQuotationItemRepo = _unitOfWork.GetRepository<FinalQuotationItem>();
+                    finalQuotationItemRepo.DeleteAsync(finalQuotationItem);
+                }
+
+                foreach (var batchPayment in finalQuotation.BatchPayments)
+                {
+                    var batchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
+                    batchPaymentRepo.DeleteAsync(batchPayment);
+                }
+
+                foreach (var equipmentItem in finalQuotation.EquipmentItems)
+                {
+                    var equipmentItemRepo = _unitOfWork.GetRepository<EquipmentItem>();
+                    equipmentItemRepo.DeleteAsync(equipmentItem);
+                }
+
+                foreach (var quotationUtility in finalQuotation.QuotationUtilities)
+                {
+                    var quotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
+                    quotationUtilityRepo.DeleteAsync(quotationUtility);
+                }
+
+                foreach (var media in finalQuotation.Media)
+                {
+                    var mediaRepo = _unitOfWork.GetRepository<Medium>();
+                    mediaRepo.DeleteAsync(media);
+                }
             }
 
-
-            foreach (var batchPayment in finalQuotation.BatchPayments)
-            {
-                var batchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
-                batchPaymentRepo.DeleteAsync(batchPayment);
-            }
-
-            foreach (var equipmentItem in finalQuotation.EquipmentItems)
-            {
-                var equipmentItemRepo = _unitOfWork.GetRepository<EquipmentItem>();
-                equipmentItemRepo.DeleteAsync(equipmentItem);
-            }
-
-            foreach (var quotationUtility in finalQuotation.QuotationUtilities)
-            {
-                var quotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
-                quotationUtilityRepo.DeleteAsync(quotationUtility);
-            }
-            foreach (var media in finalQuotation.Media)
-            {
-                var mediaRepo = _unitOfWork.GetRepository<Medium>();
-                mediaRepo.DeleteAsync(media);
-            }
+            // Delete the final quotation itself
             finalQuotationRepo.DeleteAsync(finalQuotation);
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -737,9 +783,8 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.FinalQuotationUpdateFailed
                 );
             }
-            //}
-            //catch (Exception ex) { throw; }
         }
+
         public async Task<string> ApproveFinalFromManager(Guid finalId, ApproveQuotationRequest request)
         {
             var finalItem = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
