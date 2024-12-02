@@ -902,9 +902,9 @@ namespace RHCQS_Services.Implement
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationById(Guid id)
         {
-            //try
-            //{
-            var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+            try
+            {
+                var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
             x => x.Id.Equals(id)
             && (x.Deflag == true)
             && x.QuotationUtilities.Any()
@@ -920,6 +920,7 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(qu => qu.UtilitiesItems)
                            .Include(x => x.EquipmentItems)
                            .Include(x => x.FinalQuotationItems)
+                               .ThenInclude(qu => qu.QuotationItems)
                            .Include(x => x.BatchPayments!)
                                .ThenInclude(p => p.Payment!)
                                .ThenInclude(p => p.PaymentType!)
@@ -999,43 +1000,9 @@ namespace RHCQS_Services.Implement
             foreach (var fqi in finalQuotation.FinalQuotationItems)
             {
                 var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
-                //var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
-
-
-                //var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
                 Guid constructionId;
-                //Guid? subConstructionId;
-                //double? coefficient;
                 string constructionType;
                 string name;
-
-                //if (subConstructionItem != null)
-                //{
-                //    var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
-                //    subConstructionId = fqi.SubContructionId;
-                //    //coefficient = subConstructionItem.Coefficient;
-                //    constructionType = constructionItem?.Type?.ToLower() switch
-                //    {
-                //        "rough" => "Phần thô",
-                //        "finished" => "Phần hoàn thiện",
-                //        _ => string.Empty
-                //    };
-                //    name = constructionItem.Name ?? string.Empty;
-                //    var quotationItemsList = await QuotationItems(fqi.QuotationItems.ToList());
-                //    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
-                //        fqi.Id,
-                //        fqi.ConstructionItemId,
-                //        subConstructionId,
-                //        name,
-                //        fqi.Area ?? null,
-                //        constructionType,
-                //        //coefficient,
-                //        fqi.InsDate,
-                //        quotationItemsList
-                //    ));
-                //}
-                //else
-                //{
                     var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionItemId);
                     if (constructionItem == null)
                     {
@@ -1043,7 +1010,6 @@ namespace RHCQS_Services.Implement
                             AppConstant.ErrMessage.ConstructionIdNotfound);
                     }
                     constructionId = constructionItem.Id;
-                //coefficient = constructionItem.Coefficient;
                     constructionType = constructionItem?.Type ?? null;
                     name = constructionItem?.Name ?? string.Empty;
                     var quotationItemsList = await QuotationItems(fqi.QuotationItems.ToList());
@@ -1052,11 +1018,9 @@ namespace RHCQS_Services.Implement
                         constructionId,
                         name,
                         constructionType,
-                        //coefficient,
                         fqi.InsDate,
                         quotationItemsList
                     ));
-                //}
             }
 
             var batchPaymentsList = BatchPayments();
@@ -1191,10 +1155,10 @@ namespace RHCQS_Services.Implement
 
             return response;
             //}
-            //    catch (Exception ex)
-            //    {
-            //        throw new AppConstant.MessageError((int) AppConstant.ErrCode.Internal_Server_Error, ex.Message);
-            //    }
+            //catch (Exception ex)
+            //{
+            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
         }
 
         public async Task<FinalQuotationResponse> GetDetailFinalQuotationByProjectId(Guid projectid)
@@ -1222,6 +1186,7 @@ namespace RHCQS_Services.Implement
                                    .ThenInclude(qu => qu.UtilitiesItems)
                                .Include(x => x.EquipmentItems)
                                .Include(x => x.FinalQuotationItems)
+                               .ThenInclude(qu => qu.QuotationItems)
                                .Include(x => x.BatchPayments!)
                                    .ThenInclude(p => p.Payment!)
                                    .ThenInclude(p => p.PaymentType!)
@@ -1294,112 +1259,16 @@ namespace RHCQS_Services.Implement
                 }
                 return result.Where(response => response != null).ToList();
             };
-            //var QuotationItems = (List<QuotationItem> quotationItems) => quotationItems.Select(qi =>
-            //{
-            //    return new QuotationItemResponse(
-            //        qi.Id,
-            //        qi.Unit ?? null,
-            //        qi.Weight,
-            //        qi.UnitPriceLabor,
-            //        qi.UnitPriceRough,
-            //        qi.UnitPriceFinished,
-            //        qi.TotalPriceLabor,
-            //        qi.TotalPriceRough,
-            //        qi.TotalPriceFinished,
-            //        qi.InsDate,
-            //        qi.UpsDate,
-            //        qi.Note
-            //    );
-            //    //if (qi.QuotationLabors.Any())
-            //    //{
-            //    //    var labor = qi.QuotationLabors.FirstOrDefault()?.Labor;
-            //    //    var displayName = labor?.Name;
-            //    //    var laborId = labor?.Id ?? Guid.Empty;
-            //    //    var code = labor?.Code ?? string.Empty;
-            //    //    return new QuotationItemResponse(
-            //    //        qi.Id,
-            //    //        laborId,
-            //    //        displayName,
-            //    //        //code,
-            //    //        qi.Unit ?? "ca làm",
-            //    //        qi.Weight,
-            //    //        qi.UnitPriceLabor,
-            //    //        qi.TotalPriceLabor,
-            //    //        qi.InsDate,
-            //    //        qi.UpsDate,
-            //    //        qi.Note
-            //    //    );
-            //    //}
-            //    //else if (qi.QuotationMaterials.Any())
-            //    //{
-            //    //    var material = qi.QuotationMaterials.FirstOrDefault()?.Material;
-            //    //    var displayName = material?.Name;
-            //    //    var materialId = material?.Id ?? Guid.Empty;
-            //    //    var code = material?.Code ?? string.Empty;
-            //    //    return new QuotationItemResponse(
-            //    //        qi.Id,
-            //    //        materialId,
-            //    //        displayName,
-            //    //        //code,
-            //    //        qi.Unit,
-            //    //        qi.Weight,
-            //    //        qi.UnitPriceRough,
-            //    //        qi.UnitPriceFinished,
-            //    //        qi.TotalPriceRough,
-            //    //        qi.TotalPriceFinished,
-            //    //        qi.InsDate,
-            //    //        qi.UpsDate,
-            //    //        qi.Note
-            //    //    );
-            //    //}
-            //    //else
-            //    //{
-            //    //    return null;
-            //    //}
-            //}).Where(response => response != null).ToList();
 
             var finalQuotationItemsList = new List<FinalQuotationItemResponse>();
 
             foreach (var fqi in finalQuotation.FinalQuotationItems)
             {
                 var constructionItemRepo = _unitOfWork.GetRepository<ConstructionItem>();
-                //var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
-
-
-                //var subConstructionItem = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubContructionId);
                 Guid constructionId;
-                //Guid? subConstructionId;
-                //double? coefficient;
                 string constructionType;
                 string name;
 
-                //if (subConstructionItem != null)
-                //{
-                //    var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == subConstructionItem.ConstructionItemsId);
-                //    subConstructionId = fqi.SubContructionId;
-                //    //coefficient = subConstructionItem.Coefficient;
-                //    constructionType = constructionItem?.Type?.ToLower() switch
-                //    {
-                //        "rough" => "Phần thô",
-                //        "finished" => "Phần hoàn thiện",
-                //        _ => string.Empty
-                //    };
-                //    name = constructionItem?.Name ?? string.Empty;
-                //    var quotationItemsList = await QuotationItems(fqi.QuotationItems.ToList());
-                //    finalQuotationItemsList.Add(new FinalQuotationItemResponse(
-                //        fqi.Id,
-                //        fqi.ConstructionItemId,
-                //        subConstructionId,
-                //        name,
-                //        fqi.Area ?? null,
-                //        constructionType,
-                //        //coefficient,
-                //        fqi.InsDate,
-                //        quotationItemsList
-                //    ));
-                //}
-                //else
-                //{
                     var constructionItem = await constructionItemRepo.FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionItemId);
                     if (constructionItem == null)
                     {
@@ -1408,22 +1277,18 @@ namespace RHCQS_Services.Implement
                     }
 
                     constructionId = constructionItem.Id;
-                //coefficient = constructionItem.Coefficient;
                 constructionType = constructionItem?.Type ?? null;
                     name = constructionItem?.Name ?? string.Empty;
                     var quotationItemsList = await QuotationItems(fqi.QuotationItems.ToList());
                     finalQuotationItemsList.Add(new FinalQuotationItemResponse(
                         fqi.Id,
                         constructionId,
-                        //fqi.SubContructionId,
                         name,
-                        //fqi.Area ?? null,
                         constructionType,
-                        //coefficient,
+
                         fqi.InsDate,
                         quotationItemsList
                     ));
-                //}
             }
 
             var batchPaymentsList = BatchPayments();
