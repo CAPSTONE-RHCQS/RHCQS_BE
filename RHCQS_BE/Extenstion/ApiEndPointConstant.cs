@@ -274,6 +274,7 @@ namespace RHCQS_BE.Extenstion
             public const string MaterialEndpoint = ApiEndpoint + "/material";
             public const string MaterialListEndpoint = ApiEndpoint + "/allmaterials";
             public const string SearchMaterialEndpoint = MaterialEndpoint + "/name";
+            public const string SearchMaterialWithoutPackageEndpoint = MaterialEndpoint + "/allname";
             public const string FilterMaterialEndpoint = MaterialEndpoint + "/materialsectionid";
             public const string MaterialDetailEndpoint = MaterialEndpoint + "/id";
             public const string ImportExcel = MaterialEndpoint + "/import-excel";
