@@ -209,6 +209,27 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region SearchMaterialByNameWithoutPackage
+        /// <summary>
+        /// Searches materials by name without package.
+        /// </summary>
+        /// <param name="name">The name or partial name of the material.</param>
+        /// <param name="packageId"></param>
+        #endregion 
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Material.SearchMaterialWithoutPackageEndpoint)]
+        [ProducesResponseType(typeof(List<MaterialResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchMaterialByNameWithoutPackage(string name)
+        {
+            var listSearchMaterial = await _materialService.SearchMaterialByNameWithoutPackage(name);
+            var result = JsonConvert.SerializeObject(listSearchMaterial, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
 
         #region FilterMaterialBySection
         /// <summary>
