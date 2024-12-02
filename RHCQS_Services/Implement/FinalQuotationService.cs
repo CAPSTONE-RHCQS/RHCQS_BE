@@ -123,8 +123,8 @@ namespace RHCQS_Services.Implement
         }
         public async Task<FinalQuotationResponse> CreateFinalQuotation(Guid projectId)
         {
-            try
-            {
+            //try
+            //{
 
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
                 if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == projectId && p.Version == 0))
@@ -183,15 +183,6 @@ namespace RHCQS_Services.Implement
                     BatchPaymentRepo.UpdateAsync(batchPayment);
                 }
 
-                //finalQuotation.FinalQuotationItems = initialQuotation.InitialQuotationItems.Select(iqi => new FinalQuotationItem
-                //{
-                //    Id = Guid.NewGuid(),
-                //    ConstructionItemId = iqi.ConstructionItemId,
-                //    SubContructionId = iqi.SubConstructionId,
-                //    Area = iqi.Area,
-                //    InsDate = LocalDateTime.VNDateTime(),
-                //}).ToList();
-
                 var QuotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
                 foreach (var initialUtility in initialQuotation.QuotationUtilities)
                 {
@@ -211,8 +202,8 @@ namespace RHCQS_Services.Implement
                     );
                 }
                 return await GetDetailFinalQuotationByProjectId(projectId);
-            }
-            catch (Exception ex) { throw; }
+            //}
+            //catch (Exception ex) { throw; }
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {

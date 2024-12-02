@@ -21,39 +21,16 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Status { get; set; }
 
-        //public List<PackageDetailsRequest> PackageDetails { get; set; }
         public List<PackageLaborRequest> PackageLabors { get; set; }
 
         public List<PackageMaterialRequest> PackageMaterials { get; set; }
 
-        public List<PackageHousesRequest> PackageHouses { get; set; }
-        //public List<WorkTemplateRequest> WorkTemplate { get; set; }
+        public List<PackageHousesRequest>? PackageHouses { get; set; }
     }
-    //public class PackageDetailsRequest
-    //{
-
-    //    public string? Action { get; set; }
-
-    //    public string? Type { get; set; }
-    //    public List<PackageLaborRequest> PackageLabors { get; set; }
-
-    //    public List<PackageMaterialRequest> PackageMaterials { get; set; }
-    //}
-    //public class WorkTemplateRequest
-    //{
-    //    public Guid ConstructionWorKid { get; set; }
-    //    public Guid? LaborId { get; set; }
-    //    public double LaborNorm { get; set; }
-    //    public Guid? MaterialId { get; set; }
-    //    public double MaterialNorm { get; set; }
-
-    //}
     public class PackageLaborRequest
     {
         [Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid LaborId { get; set; }
-
-        //public double? TotalPrice { get; set; }
 
     }
     public class PackageMaterialRequest
