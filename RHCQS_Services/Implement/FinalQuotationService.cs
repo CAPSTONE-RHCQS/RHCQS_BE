@@ -123,9 +123,8 @@ namespace RHCQS_Services.Implement
         }
         public async Task<FinalQuotationResponse> CreateFinalQuotation(Guid projectId)
         {
-            //try
-            //{
-
+            try
+            {
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
                 if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == projectId && p.Version == 0))
                 {
@@ -164,7 +163,7 @@ namespace RHCQS_Services.Implement
                     Id = Guid.NewGuid(),
                     ProjectId = projectId,
                     PromotionId = initialQuotation.PromotionId,
-                    Discount = initialQuotation.Promotion.Value * projectExists.Area,
+                    Discount = (initialQuotation.Promotion?.Value ?? 0) * (projectExists.Area ?? 0),
                     TotalPrice = 0,
                     Note = null,
                     Version = 0,
@@ -202,8 +201,8 @@ namespace RHCQS_Services.Implement
                     );
                 }
                 return await GetDetailFinalQuotationByProjectId(projectId);
-            //}
-            //catch (Exception ex) { throw; }
+            }
+            catch (Exception ex) { throw; }
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
