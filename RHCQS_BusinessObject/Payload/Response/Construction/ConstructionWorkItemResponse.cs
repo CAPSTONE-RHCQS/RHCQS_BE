@@ -8,6 +8,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Construction
 {
     public class ConstructionWorkItemResponse
     {
+        public string ConstructionItemName { get; set; }
         public Guid Id { get; set; }
 
         public string? WorkName { get; set; }

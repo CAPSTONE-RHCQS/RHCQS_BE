@@ -50,13 +50,15 @@ namespace RHCQS_Services.Implement
                                     .Include(x => x.ConstructionWorkResources)
                                         .ThenInclude(x => x.Labor)
                                     .Include(x => x.WorkTemplates)
-                                      .ThenInclude(x => x.Package!));
+                                      .ThenInclude(x => x.Package!)
+                                      .Include(x => x.Construction!));
             if (workInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Construction_Work_Not_Found);
             }
             var response = new ConstructionWorkItemResponse
             {
+                ConstructionItemName = workInfo.Construction.Name!,
                 Id = workInfo.Id,
                 WorkName = workInfo.WorkName,
                 ConstructionId = workInfo.ConstructionId,
@@ -119,7 +121,7 @@ namespace RHCQS_Services.Implement
             return listConstruction.Items.ToList();
         }
 
-        public async Task<string> CreateConstructionWork(CreateConstructionWorkRequest request)
+        public async Task<Guid> CreateConstructionWork(CreateConstructionWorkRequest request)
         {
             try
             {
@@ -184,7 +186,7 @@ namespace RHCQS_Services.Implement
 
                 var result = await _unitOfWork.CommitAsync() > 0 ?
                     AppConstant.Message.SUCCESSFUL_CREATE : AppConstant.ErrMessage.Fail_Save;
-                return result;
+                return constructionWorkItem.Id;
             }
             catch (AppConstant.MessageError ex)
             {
