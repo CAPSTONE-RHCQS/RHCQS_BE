@@ -20,6 +20,6 @@ namespace RHCQS_Services.Interface
 
         Task<bool> CreateConstructionItem(ConstructionItemRequest item);
         Task<bool> UpdateConstruction(Guid id, UpdateConstructionRequest request);
-        Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work);
+        Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, Guid constructionItemId, string work);
     }
 }

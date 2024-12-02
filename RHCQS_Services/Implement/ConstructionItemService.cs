@@ -11,6 +11,7 @@ using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -208,7 +209,8 @@ namespace RHCQS_Services.Implement
                 var normalizedName = name.RemoveDiacritics().Trim().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
-                    .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
+                    .GetListAsync(predicate: con => con.Type.ToUpper() == AppConstant.Type.ROUGH,
+                                include: con => con.Include(c => c.SubConstructionItems));
 
                 var filteredItems = constructionItems
                   .Where(con =>
@@ -385,20 +387,23 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
-        public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work)
+        public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, Guid constructionItemId, string work)
         {
             try
             {
                 var normalizedName = work.RemoveDiacritics().Trim().ToLower();
 
                 var listConstruction = (await _unitOfWork.GetRepository<WorkTemplate>()
-                    .GetListAsync(predicate: w => w.PackageId == packageId, include: w => w.Include(w => w.ContructionWork)))
+                    .GetListAsync(predicate: w => w.PackageId == packageId, 
+                                  include: w => w.Include(w => w.ContructionWork)))
                     .ToList();
 
                 var filteredItems = listConstruction
                 .Where(w => w.ContructionWork != null &&
-                            !string.IsNullOrEmpty(w.ContructionWork.WorkName) &&
-                            w.ContructionWork.WorkName.RemoveDiacritics().ToLower().Contains(work.RemoveDiacritics().ToLower()))
+                        w.ContructionWork.ConstructionId == constructionItemId && 
+                        !string.IsNullOrEmpty(w.ContructionWork.WorkName) &&
+                        w.ContructionWork.WorkName.RemoveDiacritics().ToLower()
+                            .Contains(normalizedName))
                 .Select(w => new AutoConstructionWorkResponse(
                     w.Id,
                     w.ContructionWorkId ?? Guid.Empty, 
