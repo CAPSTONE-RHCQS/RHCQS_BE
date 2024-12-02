@@ -689,25 +689,22 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            // Check if the version is 0
             if (finalQuotation.Version == 0)
             {
-                // Update BatchPayments and QuotationUtilities to nullify FinalQuotationId
                 foreach (var batchPayment in finalQuotation.BatchPayments)
                 {
                     batchPayment.FinalQuotationId = null;
                     var batchPaymentRepo = _unitOfWork.GetRepository<BatchPayment>();
-                    batchPaymentRepo.Update(batchPayment); // Update instead of delete
+                    batchPaymentRepo.UpdateAsync(batchPayment);
                 }
 
                 foreach (var quotationUtility in finalQuotation.QuotationUtilities)
                 {
                     quotationUtility.FinalQuotationId = null;
                     var quotationUtilityRepo = _unitOfWork.GetRepository<QuotationUtility>();
-                    quotationUtilityRepo.Update(quotationUtility); // Update instead of delete
+                    quotationUtilityRepo.UpdateAsync(quotationUtility);
                 }
 
-                // Don't delete FinalQuotationItems, EquipmentItems, Media here for version 0
                 foreach (var finalQuotationItem in finalQuotation.FinalQuotationItems)
                 {
                     foreach (var quotationItem in finalQuotationItem.QuotationItems)
@@ -734,7 +731,6 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                // Regular deletion logic if version is not 0
                 foreach (var finalQuotationItem in finalQuotation.FinalQuotationItems)
                 {
                     foreach (var quotationItem in finalQuotationItem.QuotationItems)
