@@ -66,7 +66,7 @@ namespace RHCQS_BE.Controllers
 
         #region CreateMaterialSection
         /// <summary>
-        /// Creates a new labor in the system.
+        /// Creates a new material section in the system.
         /// </summary>
         /// <remarks>
         /// Sample request:
