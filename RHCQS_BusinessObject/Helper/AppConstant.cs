@@ -51,6 +51,8 @@ public static class AppConstant
         public const string ROUGH = "ROUGH";
         public const string FINISHED = "FINISHED";
         public const string ALL = "ALL";
+        public const string WORK_ROUGH = "WORK_ROUGH";
+        public const string WORK_FINISHED = "WORK_FINISHED";
         public const string TEMPLATE = "TEMPLATE";
         public const string PHOICANH = "PHOICANH";
         public const string KIENTRUC = "KIENTRUC";

@@ -13,10 +13,6 @@ public partial class FinalQuotationItem
 
     public Guid ConstructionItemId { get; set; }
 
-    public Guid? SubContructionId { get; set; }
-
-    public double? Area { get; set; }
-
     public virtual FinalQuotation FinalQuotation { get; set; } = null!;
 
     public virtual ICollection<QuotationItem> QuotationItems { get; set; } = new List<QuotationItem>();

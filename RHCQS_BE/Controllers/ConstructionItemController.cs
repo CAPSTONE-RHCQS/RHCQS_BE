@@ -51,20 +51,23 @@ namespace RHCQS_BE.Controllers
         /// This API returns a list of construction items based on the provided `type`. The possible values for `type` are:
         /// 
         /// - "ROUGH": Retrieves all rough construction items.
-        /// - "FINISHED": Retrieves all finished construction items.
+        /// - "WORK_ROUGH": Retrieves all finished construction items.
+        /// - "WORK_FINISHED": Retrieves all finished construction items.
         /// - "ALL": Retrieves all construction items.
         /// 
         /// Example request:
         /// 
         ///     GET /api/v1/construction/rough?type=ROUGH 
-        ///     GET /api/v1/construction/rough?type=FINISHED
+        ///     GET /api/v1/construction/rough?type=WORK_ROUGH
+        ///     GET /api/v1/construction/rough?type=WORK_FINISHED
         ///     GET /api/v1/construction/rough?type=ALL
         ///     
         /// </remarks>
         /// <param name="type">
         /// The type of construction items to retrieve. Must be one of the following values:
         /// - ROUGH: Retrieves rough construction items.
-        /// - FINISHED: Retrieves finished construction items.
+        /// - WORK_ROUGH: Retrieves finished construction items.
+        /// - WORK_FINISHED: Retrieves finished construction items.
         /// - ALL: Retrieves all construction items.
         /// </param>
         /// <returns>
@@ -82,9 +85,10 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> GetListConstructionRough(string type)
         {
             if (string.IsNullOrWhiteSpace(type) ||
-                (type != AppConstant.Type.ROUGH && type != AppConstant.Type.FINISHED && type != AppConstant.Type.ALL))
+                (type != AppConstant.Type.ROUGH && type != AppConstant.Type.WORK_ROUGH
+                && type != AppConstant.Type.WORK_FINISHED && type != AppConstant.Type.ALL))
             {
-                return BadRequest("Invalid type. Allowed values are ROUGH, FINISHED, or ALL.");
+                return BadRequest("Invalid type. Allowed values are ROUGH, WORK_ROUGH, WORK_FINISHED, or ALL.");
             }
 
             var listConstructions = await _constructionService.GetListConstructionRough(type.ToUpper());

@@ -75,7 +75,26 @@ namespace RHCQS_Services.Implement
 
                 return listConstruction;
             }
-            else if (type == AppConstant.Type.FINISHED)
+            else if (type == AppConstant.Type.WORK_FINISHED)
+            {
+                var listPaginate = await _unitOfWork.GetRepository<ConstructionItem>().GetListAsync(
+                    predicate: x => x.Type == type && x.IsFinalQuotation == true,
+                    selector: x => new ConstructionItemResponse(x.Id, x.Name, x.Coefficient, x.Unit,
+                                                                x.InsDate, x.UpsDate, x.Type,
+                                                                x.SubConstructionItems.Select(
+                                                                    sub => new SubConstructionItemResponse(
+                                                                        sub.Id,
+                                                                        sub.Name,
+                                                                        sub.Coefficient,
+                                                                        sub.Unit,
+                                                                        sub.InsDate)).ToList()),
+                    include: x => x.Include(x => x.InitialQuotationItems),
+                    orderBy: x => x.OrderBy(x => x.InsDate));
+
+                listConstruction = listPaginate.ToList();
+
+                return listConstruction;
+            }else if (type == AppConstant.Type.WORK_ROUGH)
             {
                 var listPaginate = await _unitOfWork.GetRepository<ConstructionItem>().GetListAsync(
                     predicate: x => x.Type == type && x.IsFinalQuotation == true,

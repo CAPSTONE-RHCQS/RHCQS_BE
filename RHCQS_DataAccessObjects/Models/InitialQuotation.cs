@@ -13,37 +13,39 @@ public partial class InitialQuotation
 
     public double? Area { get; set; }
 
+    public double Version { get; set; }
+
+    public string? Status { get; set; }
+
+    public bool? IsTemplate { get; set; }
+
+    public double? TotalRough { get; set; }
+
+    public double? TotalUtilities { get; set; }
+
+    public double? TotalFinished { get; set; }
+
+    public string? Unit { get; set; }
+
+    public double? Discount { get; set; }
+
+    public DateTime? InsDate { get; set; }
+
+    public string? OthersAgreement { get; set; }
+
     public int? TimeProcessing { get; set; }
 
     public int? TimeRough { get; set; }
 
     public int? TimeOthers { get; set; }
 
-    public string? OthersAgreement { get; set; }
-
-    public DateTime? InsDate { get; set; }
-
-    public string? Status { get; set; }
-
-    public double Version { get; set; }
-
-    public bool? IsTemplate { get; set; }
-
     public bool? Deflag { get; set; }
 
     public string? Note { get; set; }
 
-    public double? TotalRough { get; set; }
-
-    public double? TotalUtilities { get; set; }
-
-    public string? Unit { get; set; }
-
     public string? ReasonReject { get; set; }
 
     public bool? IsDraft { get; set; }
-
-    public double? Discount { get; set; }
 
     public virtual ICollection<BatchPayment> BatchPayments { get; set; } = new List<BatchPayment>();
 

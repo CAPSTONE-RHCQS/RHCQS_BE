@@ -29,7 +29,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             double? initailQuotationVersion, List<HouseDrawingVersionInf>? houseDrawingVersionInf, PackageQuotationList packageQuotationList,
             string? projectType,string? projectAddress,double? discount, double? totalPrice, string? note,
             string? othersAgreement, double? version, DateTime? insDate,
-            DateTime? upsDate, string? status, bool? deflag, string? reasonReject,
+            DateTime? upsDate, string? status, bool? deflag, string? reasonReject,List<InitQuotationInfo> initQuotationInfos,
             List<BatchPaymentResponse> batchPaymentInfos, List<EquipmentItemsResponse> equipmentItems,
             List<FinalQuotationItemResponse> finalQuotationItems, PromotionInfo? promotionInfo,
             List<UtilityInf>? utilityInfos, ConstructionSummary constructionRough, ConstructionSummary constructionFinished, ConstructionSummary equitment)
@@ -54,6 +54,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Status = status;
             Deflag = deflag;
             ReasonReject = reasonReject;
+            InitQuotationInfos = initQuotationInfos;
             BatchPaymentInfos = batchPaymentInfos;
             EquipmentItems = equipmentItems;
             FinalQuotationItems = finalQuotationItems;
@@ -94,6 +95,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public bool? Deflag { get; set; }
 
         public string? ReasonReject { get; set; }
+
+        public List<InitQuotationInfo> InitQuotationInfos { get; set; }
 
         public List<BatchPaymentResponse> BatchPaymentInfos { get; set; }
 
@@ -190,16 +193,28 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Note { get; set; }
         public string? Type { get; set; }
     }
+    public class InitQuotationInfo
+    {
+        public InitQuotationInfo( string? constructionName, double? area)
+        {
+            ConstructionName = constructionName;
+            Area = area;
+        }
+
+        public string? ConstructionName { get; set; }
+        public Double? Area { get; set; }
+
+    }
     public class FinalQuotationItemResponse
     {
-        public FinalQuotationItemResponse(Guid id, Guid contructionId, Guid? subcontructionId, string? contructionName,
-            double? area, string? type/*, double? coefficient*/,DateTime? insDate, List<QuotationItemResponse> quotationItems)
+        public FinalQuotationItemResponse(Guid id, Guid contructionId, string? contructionName,
+            string? type/*, double? coefficient*/,DateTime? insDate, List<QuotationItemResponse> quotationItems)
         {
             Id = id;
             ConstructionId = contructionId;
-            SubConstructionId = subcontructionId;
+            //SubConstructionId = subcontructionId;
             ContructionName = contructionName;
-            Area = area;
+            //Area = area;
             Type = type;
             //Coefficient = coefficient;
             InsDate = insDate;
@@ -209,9 +224,9 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
         public Guid ConstructionId { get; set; }
 
-        public Guid? SubConstructionId { get; set; }
+        //public Guid? SubConstructionId { get; set; }
         public string? ContructionName { get; set; }
-        public Double? Area { get; set; }
+        //public Double? Area { get; set; }
         public string? Type { get; set; }
 
         //public double? Coefficient { get; set; }

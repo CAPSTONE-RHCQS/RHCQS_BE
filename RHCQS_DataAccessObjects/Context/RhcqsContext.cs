@@ -82,10 +82,6 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<QuotationItem> QuotationItems { get; set; }
 
-    public virtual DbSet<QuotationLabor> QuotationLabors { get; set; }
-
-    public virtual DbSet<QuotationMaterial> QuotationMaterials { get; set; }
-
     public virtual DbSet<QuotationUtility> QuotationUtilities { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -107,7 +103,6 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
     public virtual DbSet<WorkTemplate> WorkTemplates { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
@@ -209,7 +204,7 @@ public partial class RhcqsContext : DbContext
             entity.Property(e => e.Code).HasMaxLength(10);
             entity.Property(e => e.InsDate).HasColumnType("datetime");
             entity.Property(e => e.Unit)
-                .HasMaxLength(10)
+                .HasMaxLength(5)
                 .IsFixedLength();
             entity.Property(e => e.WorkName).HasMaxLength(500);
 
@@ -694,41 +689,6 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.WorkTemplate).WithMany(p => p.QuotationItems)
                 .HasForeignKey(d => d.WorkTemplateId)
                 .HasConstraintName("FK_QuotationItem_WorkTemplate");
-        });
-
-        modelBuilder.Entity<QuotationLabor>(entity =>
-        {
-            entity.ToTable("QuotationLabor");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-
-            entity.HasOne(d => d.Labor).WithMany(p => p.QuotationLabors)
-                .HasForeignKey(d => d.LaborId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuotationLabor_Labor");
-
-            entity.HasOne(d => d.QuotationItem).WithMany(p => p.QuotationLabors)
-                .HasForeignKey(d => d.QuotationItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuotationLabor_QuotationItem");
-        });
-
-        modelBuilder.Entity<QuotationMaterial>(entity =>
-        {
-            entity.ToTable("QuotationMaterial");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.Unit).HasMaxLength(50);
-
-            entity.HasOne(d => d.Material).WithMany(p => p.QuotationMaterials)
-                .HasForeignKey(d => d.MaterialId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuotationMaterial_Material");
-
-            entity.HasOne(d => d.QuotationItem).WithMany(p => p.QuotationMaterials)
-                .HasForeignKey(d => d.QuotationItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_QuotationMaterial_QuotationItem");
         });
 
         modelBuilder.Entity<QuotationUtility>(entity =>

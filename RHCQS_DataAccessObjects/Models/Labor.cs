@@ -24,6 +24,4 @@ public partial class Labor
     public virtual ICollection<ConstructionWorkResource> ConstructionWorkResources { get; set; } = new List<ConstructionWorkResource>();
 
     public virtual ICollection<PackageLabor> PackageLabors { get; set; } = new List<PackageLabor>();
-
-    public virtual ICollection<QuotationLabor> QuotationLabors { get; set; } = new List<QuotationLabor>();
 }
