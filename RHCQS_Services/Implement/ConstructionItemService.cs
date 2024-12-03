@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using CloudinaryDotNet.Actions;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
@@ -12,6 +13,7 @@ using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO.Packaging;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -426,5 +428,25 @@ namespace RHCQS_Services.Implement
             }
         }
 
+        public async Task<List<AutoConstructionItemHaveWorkResponse>> SearchConstructionItemHaveWork(string name)
+        {
+            var normalizedName = name.RemoveDiacritics().Trim().ToLower();
+
+            var listConstruction = await _unitOfWork.GetRepository<ConstructionItem>()
+                .GetListAsync(predicate: w =>
+                    w.Type == AppConstant.Type.WORK_ROUGH ||
+                    w.Type == AppConstant.Type.WORK_FINISHED);
+
+            var filteredList = listConstruction
+             .Where(w => w.Name.RemoveDiacritics().Trim().ToLower().Contains(normalizedName))
+             .Select(w => new AutoConstructionItemHaveWorkResponse
+             {
+                 ConstructionId = w.Id,
+                 Name = w.Name
+             })
+             .ToList();
+
+            return filteredList;
+        }
     }
 }
