@@ -258,7 +258,7 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionSearchWorkEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchConstructionWorkByContain(Guid packageId, Guid constructionItemId, string name)
+        public async Task<IActionResult> SearchConstructionWorkByContain(Guid packageId, Guid constructionItemId, string? name)
         {
             var construction = await _constructionService.SearchConstructionWorkByContain(packageId,constructionItemId, name);
             var result = JsonConvert.SerializeObject(construction, Formatting.Indented);

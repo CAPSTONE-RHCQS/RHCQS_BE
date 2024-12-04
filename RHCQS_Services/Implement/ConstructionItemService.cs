@@ -393,12 +393,35 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-                var normalizedName = work.RemoveDiacritics().Trim().ToLower();
-
                 var listConstruction = (await _unitOfWork.GetRepository<WorkTemplate>()
-                    .GetListAsync(predicate: w => w.PackageId == packageId, 
+                    .GetListAsync(predicate: w => w.PackageId == packageId,
                                   include: w => w.Include(w => w.ContructionWork)))
                     .ToList();
+
+                if (string.IsNullOrWhiteSpace(work))
+                {
+                    var allItems = listConstruction
+                        .Where(w => w.ContructionWork != null &&
+                                w.ContructionWork.ConstructionId == constructionItemId)
+                        .Select(w => new AutoConstructionWorkResponse(
+                            w.Id,
+                            w.ContructionWorkId ?? Guid.Empty,
+                            w.ContructionWork.WorkName!,
+                            w.ContructionWork.Unit,
+                            (double)(w.LaborCost ?? 0),
+                            w.MaterialCost ?? 0,
+                            w.MaterialFinishedCost ?? 0
+                        ))
+                        .ToList();
+
+                    return allItems;
+                }
+                var normalizedName = work.RemoveDiacritics().Trim().ToLower();
+
+                //var listConstruction = (await _unitOfWork.GetRepository<WorkTemplate>()
+                //    .GetListAsync(predicate: w => w.PackageId == packageId, 
+                //                  include: w => w.Include(w => w.ContructionWork)))
+                //    .ToList();
 
                 var filteredItems = listConstruction
                 .Where(w => w.ContructionWork != null &&
