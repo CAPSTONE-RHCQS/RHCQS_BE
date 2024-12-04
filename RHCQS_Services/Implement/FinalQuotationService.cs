@@ -1434,16 +1434,36 @@ namespace RHCQS_Services.Implement
         }
     </style>
 </head>
+
 <body>
     <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
-    <p><strong>BẢNG BÁO GIÁ THI CÔNG PHẦN THÔ & NHÂN CÔNG HOÀN THIỆN</strong></p>
-    <p><strong>LOẠI CÔNG TRÌNH:</strong> NHÀ Ở DÂN DỤNG</p>
-    <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
-    <p><strong>DIỆN TÍCH XÂY DỰNG:</strong> " + request.Area + @"</p>
-    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
-    <h4>HẠNG MỤC THI CÔNG: " + request.ProjectType + @"</h4>
-    <h4>ĐỊA CHỈ XÂY DỰNG: " + request.ProjectAddress + @"</h4>
+    <p><strong>LOẠI CÔNG TRÌNH:</strong> ");
 
+            if (request.ProjectType.ToLower() == "all")
+            {
+                sb.Append("Phần Thô & Hoàn thiện");
+            }
+            else if (request.ProjectType.ToLower() == "rough")
+            {
+                sb.Append("Phần Thô");
+            }
+            else if (request.ProjectType.ToLower() == "finished")
+            {
+                sb.Append("Phần Hoàn Thiện");
+            }
+            else
+            {
+                sb.Append("Có Bản Vẽ");
+            }
+            sb.Append(@"</p>
+    < p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
+    <p><strong>SỐ ĐIỆN THOẠI:</strong> " + request.PhoneNumber + @"</p>
+    <p><strong>ĐỊA CHỈ EMAIL:</strong> " + request.Email + @"</p>
+    <p><strong>DIỆN TÍCH XÂY DỰNG:</strong> " + request.Area + @"</p>
+    <p><strong>ĐỊA CHỈ XÂY DỰNG:</strong> "+ request.ProjectAddress + @"</p>
+    <p><strong>ĐƠN GIÁ THI CÔNG:</strong> "+ request.PackageQuotationList.PackageRough + @",<br> "+ request.PackageQuotationList.PackageFinished + @"</p>
+    <p><strong>TỔNG GIÁ TRỊ HỢP ĐỒNG:</strong> " + request.TotalPrice + @"VND</p>
+    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
 <div class='table-container'>
     <table>
         <thead>
@@ -1456,7 +1476,7 @@ namespace RHCQS_Services.Implement
             </tr>
         </thead>
         <tbody>");
-
+            
             int noCount = 1;
             var rough = request.ConstructionRough;
             decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);

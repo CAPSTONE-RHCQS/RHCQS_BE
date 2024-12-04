@@ -100,6 +100,7 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
         #region GetListConstructionByPackage
         /// <summary>
         /// Retrieves the list of construction items based on the specified type and package.
@@ -110,10 +111,6 @@ namespace RHCQS_BE.Controllers
         /// - "WORK_ROUGH": Retrieves all finished construction items.
         /// - "WORK_FINISHED": Retrieves all finished construction items.
         /// 
-        /// Example request:
-        /// 
-        ///     GET api/v1/construction/construction-work/package?packageid=20F42D47-5EA5-469D-A064-FABFA2B2BC15&type=WORK_ROUGH
-        ///     GET api/v1/construction/construction-work/package?packageid=20F42D47-5EA5-469D-A064-FABFA2B2BC15&type=WORK_FINISHED
         ///     
         /// </remarks>
         /// <param name="type">
