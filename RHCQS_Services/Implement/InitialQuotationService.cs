@@ -1255,6 +1255,11 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
             }
 
+            if(initialItem.Status == AppConstant.QuotationStatus.ENDED)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_Quotation);
+            }
+
             initialItem.Note = comment.Note;
             initialItem.Status = AppConstant.QuotationStatus.PROCESSING;
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);

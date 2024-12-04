@@ -287,6 +287,7 @@ public static class AppConstant
         public const string DuplicatedLabor = "Nhân công bị trùng lặp!";
         public const string DuplicatedMaterial = "Vật tư bị trùng lặp!";
         public const string Scope_InitialQuotation = "Bạn không có quyền truy cập báo giá này!";
+        public const string Not_Comment_Quotation = "Báo giá đã đóng, bạn không được ghi chú!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
