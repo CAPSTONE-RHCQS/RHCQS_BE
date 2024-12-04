@@ -92,9 +92,9 @@ namespace RHCQS_Services.Implement
         {
             var finalquotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
 
-            if (finalquotation == null)
+            if (finalquotation == null && finalquotation.Status == AppConstant.QuotationStatus.ENDED)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalidate_Quotation);
             }
 
             finalquotation.Note = comment.Note;

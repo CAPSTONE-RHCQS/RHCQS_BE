@@ -360,7 +360,7 @@ public static class AppConstant
         public const string LaborIdNotfound = "Nhân công không tồn tại.";
         public const string MaterialIdNotfound = "Vật tư không tồn tại.";
         public const string FinalizedFinalUpdateFailed = " Báo giá chi tiết đang trạng thái hoàn thành không thể cập nhật nữa .";
-
+        public const string Invalidate_Quotation = "Báo giá không hợp lệ!";
         //InitalQuotation
         public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
 
