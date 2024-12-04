@@ -269,7 +269,28 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-
+        #region GetConstructionWorkByPackageAndConstruction
+        /// <summary>
+        /// Get construction work by packageid and constructionid
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <param name="constructionItemId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.GetConstructionEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult>GetConstructionWorkByPackageAndConstruction(Guid packageId, Guid constructionItemId)
+        {
+            var construction = await _constructionService.GetConstructionWorkByPacakgeAndConstruction(packageId, constructionItemId);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
         #region SearchConstructionItemHaveWork
         /// <summary>
         /// Search construction item ty WORK_ROUGH, WORK_FINISHED

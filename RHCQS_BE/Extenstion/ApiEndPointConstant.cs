@@ -143,6 +143,7 @@ namespace RHCQS_BE.Extenstion
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
             public const string ConstructionSearchWorkEndpoint = ConstructionEndpoint + "/construction-work/search";
             public const string ConstructionItemSearchTypeWorkEndpoint = ConstructionEndpoint + "/item-work/search";
+            public const string GetConstructionEndpoint = ConstructionEndpoint + "/construction-work";
         }
 
         public static class ConstructionWork
