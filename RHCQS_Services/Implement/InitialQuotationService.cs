@@ -1216,15 +1216,8 @@ namespace RHCQS_Services.Implement
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
                                     include: x => x.Include(x => x.Project)
                                                     .ThenInclude(x => x.Customer!));
-            //Check quotation Ended
-            if (initialItem.Status == AppConstant.QuotationStatus.ENDED)
-            {
-                throw new AppConstant.MessageError(
-                        (int)AppConstant.ErrCode.Conflict,
-                        AppConstant.ErrMessage.Ended_Quotation
-                    );
-            }
-            if (initialItem != null)
+
+            if (initialItem != null && initialItem.Status != AppConstant.QuotationStatus.ENDED)
             {
                 var projectQuotations = await _unitOfWork.GetRepository<InitialQuotation>()
                         .GetListAsync(predicate: x => x.ProjectId == initialItem.ProjectId);
@@ -1290,7 +1283,7 @@ namespace RHCQS_Services.Implement
             }
             else
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Quotation);
             }
         }
 
@@ -1300,7 +1293,7 @@ namespace RHCQS_Services.Implement
 
             if (initialItem == null)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Quotation);
             }
 
             if(initialItem.Status == AppConstant.QuotationStatus.ENDED)

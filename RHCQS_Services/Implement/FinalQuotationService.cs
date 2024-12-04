@@ -110,7 +110,7 @@ namespace RHCQS_Services.Implement
 
             if (finalquotation == null)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invail_Quotation);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Quotation);
             }
             var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
             project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
