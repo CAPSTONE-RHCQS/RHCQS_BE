@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request.ConstructionItem;
 using RHCQS_BusinessObject.Payload.Request.ConstructionWork;
 using RHCQS_BusinessObject.Payload.Response.Construction;
 using RHCQS_BusinessObjects;
@@ -18,5 +19,6 @@ namespace RHCQS_Services.Interface
         Task<WorkTemplateItem> GetConstructionWorkPrice(Guid workId);
         Task<Guid> CreateConstructionWork(CreateConstructionWorkRequest request);
         Task<string> CreateWorkTemplate(List<CreateWorkTemplateRequest> request);
+        Task<string> ImportFileConstructionWork(IFormFile excelFile);
     }
 }

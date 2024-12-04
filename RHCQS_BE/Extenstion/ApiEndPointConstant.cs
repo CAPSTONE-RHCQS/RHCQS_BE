@@ -152,6 +152,7 @@ namespace RHCQS_BE.Extenstion
             public const string ConstructionWorkByConIdEndpoint = ConstructionWorkEndpoint + "/consructionid";
             public const string ConstructionWorkPriceEndpoint = ConstructionWorkEndpoint + "/workid";
             public const string WorkTemplateEndpoint = ApiEndpoint + "/work-template";
+            public const string ConstructionWorkFileEndpoint = ConstructionWorkEndpoint + "/import-file";
         }
 
         public static class Utility

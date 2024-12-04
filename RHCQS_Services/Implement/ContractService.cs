@@ -62,6 +62,7 @@ namespace RHCQS_Services.Implement
                                                 .ThenInclude(c => c.Payment!)
                                                 .ThenInclude(c => c.Media)
 
+
                 );
 
             if (contractItem == null)
@@ -88,7 +89,7 @@ namespace RHCQS_Services.Implement
                     File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
-            else
+            else if (contractItem.Type == AppConstant.ContractType.Construction.ToString())
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                                 predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
@@ -106,6 +107,7 @@ namespace RHCQS_Services.Implement
                     File = finalQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == finalQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
+            
 
             var batchPayments = contractItem.BatchPayments
                 .Select(b => new BatchPaymentContract
@@ -117,6 +119,7 @@ namespace RHCQS_Services.Implement
                     PaymentPhase = b.Payment.PaymentPhase,
                     Percents = b.Payment.Percents ?? 0,
                     Description = b.Payment.Description,
+                    Status = b.Status,
                     InvoiceImage = b.Payment.Media
                     .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
                     ?? "Chưa có hóa đơn"
@@ -124,12 +127,39 @@ namespace RHCQS_Services.Implement
                 .OrderBy(b => b.NumberOfBatch)
                 .ToList();
 
+            List<BatchPaymentAppendix>? batchPaymentAppendices = null;
+            var contractAppendix = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                predicate: p => p.ProjectId == contractItem.ProjectId
+                        && p.Type == AppConstant.ContractType.Appendix.ToString(),
+                include: p => p.Include(p => p.BatchPayments)
+                                .ThenInclude(p => p.Payment));
+            if (contractAppendix != null)
+            {
+                batchPaymentAppendices = contractAppendix.BatchPayments
+                .Select(b => new BatchPaymentAppendix
+                {
+                    PaymentId = b.PaymentId,
+                    NumberOfBatch = b.NumberOfBatch,
+                    Price = b.Payment.TotalPrice,
+                    PaymentDate = b.Payment.PaymentDate,
+                    PaymentPhase = b.Payment.PaymentPhase,
+                    Percents = b.Payment.Percents ?? 0,
+                    Description = b.Payment.Description,
+                    Status = b.Status,
+                    InvoiceImage = b.Payment.Media
+                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                    ?? "Chưa có hóa đơn"
+                })
+                .OrderBy(b => b.NumberOfBatch)
+                .ToList();
+            }
+
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.Project.CustomerName, contractItem.ContractCode,
                                         contractItem.StartDate, contractItem.EndDate, contractItem.ValidityPeriod, contractItem.TaxCode,
                                         contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
                                         contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate,
-                                        dependOnQuotation, batchPayments);
+                                        dependOnQuotation, batchPayments, batchPaymentAppendices);
         }
 
         public async Task<ContractResponse> GetDetailContractByType(string type)
@@ -162,7 +192,7 @@ namespace RHCQS_Services.Implement
                     File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
-            else
+            else if(contractItem.Type == AppConstant.ContractType.Construction.ToString())
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                                 predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
@@ -191,17 +221,45 @@ namespace RHCQS_Services.Implement
                  PaymentPhase = b.Payment.PaymentPhase,
                  Percents = b.Payment.Percents ?? 0,
                  Description = b.Payment.Description,
+                 Status = b.Status,
                  InvoiceImage = b.Payment.Media
                     .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
                     ?? "Hình ảnh chuyển khoản chưa có"
              })
              .OrderBy(b => b.NumberOfBatch)
              .ToList();
+            List<BatchPaymentAppendix>? batchPaymentAppendices = null;
+            var contractAppendix = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                predicate: p => p.ProjectId == contractItem.ProjectId
+                        && p.Type == AppConstant.ContractType.Appendix.ToString(),
+                include: p => p.Include(p => p.BatchPayments)
+                                .ThenInclude(p => p.Payment));
+            if (contractAppendix != null)
+            {
+                batchPaymentAppendices = contractAppendix.BatchPayments
+                .Select(b => new BatchPaymentAppendix
+                {
+                    PaymentId = b.PaymentId,
+                    NumberOfBatch = b.NumberOfBatch,
+                    Price = b.Payment.TotalPrice,
+                    PaymentDate = b.Payment.PaymentDate,
+                    PaymentPhase = b.Payment.PaymentPhase,
+                    Percents = b.Payment.Percents ?? 0,
+                    Description = b.Payment.Description,
+                    Status = b.Status,
+                    InvoiceImage = b.Payment.Media
+                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                    ?? "Chưa có hóa đơn"
+                })
+                .OrderBy(b => b.NumberOfBatch)
+                .ToList();
+            }
 
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.CustomerName, contractItem.ContractCode, contractItem.StartDate, contractItem.EndDate,
                                         contractItem.ValidityPeriod, contractItem.TaxCode, contractItem.Area, contractItem.UnitPrice, contractItem.ContractValue,
                                         contractItem.UrlFile, contractItem.Note, contractItem.Deflag, contractItem.RoughPackagePrice,
-                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation, batchPayments);
+                                        contractItem.FinishedPackagePrice, contractItem.Status, contractItem.Type, contractItem.InsDate, dependOnQuotation,
+                                        batchPayments, batchPaymentAppendices);
         }
 
         public async Task<bool> CreateContractDesign(ContractDesignRequest request)

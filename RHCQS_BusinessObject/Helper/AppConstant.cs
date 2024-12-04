@@ -360,6 +360,7 @@ public static class AppConstant
         public const string LaborIdNotfound = "Nhân công không tồn tại.";
         public const string MaterialIdNotfound = "Vật tư không tồn tại.";
         public const string FinalizedFinalUpdateFailed = " Báo giá chi tiết đang trạng thái hoàn thành không thể cập nhật nữa .";
+
         //InitalQuotation
         public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
 
@@ -368,6 +369,12 @@ public static class AppConstant
 
         //ConstructionWork
         public const string Construction_Work_Not_Found = "Công tác không tìm thấy!";
+
+        //MaterialSection
+        public const string MaterialSection_Code_Not_Found = "Không tìm thấy mã vật tư!";
+
+        //Labor
+        public const string Labor_Code_Not_Found = "Không tìm thấy mã nhân công!";
     }
 }
 

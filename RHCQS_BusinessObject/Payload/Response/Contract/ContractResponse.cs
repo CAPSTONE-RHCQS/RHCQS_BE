@@ -29,7 +29,8 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
             string type,
             DateTime? insDate,
             DependOnQuotation quotation,
-            List<BatchPaymentContract> batchPayment)
+            List<BatchPaymentContract> batchPayment,
+            List<BatchPaymentAppendix> batchPaymentAppendices)
         {
             ProjectId = projectId;
             Name = name;
@@ -52,6 +53,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
             InsDate = insDate;
             Quotation = quotation;
             BatchPayment = batchPayment;
+            BatchPaymentAppendices = batchPaymentAppendices;
         }
 
         public Guid ProjectId { get; set; }
@@ -75,6 +77,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
         public DateTime? InsDate { get; set; }
         public DependOnQuotation Quotation { get; set; }
         public List<BatchPaymentContract> BatchPayment {  get; set; }
+        public List<BatchPaymentAppendix>? BatchPaymentAppendices { get; set; }
     }
 
     public class DependOnQuotation
@@ -96,6 +99,23 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
         public DateTime? PaymentPhase { get; set; }
         public int Percents { get; set; }
         public string? Description { get; set; }
+        public string Status { get; set; }
+        public string? InvoiceImage { get; set; }
+    }
+
+    public class BatchPaymentAppendix
+    {
+        public Guid PaymentId { get; set; }
+        public int NumberOfBatch { get; set; }
+
+        public double? Price { get; set; }
+
+        public DateTime? PaymentDate { get; set; }
+
+        public DateTime? PaymentPhase { get; set; }
+        public int Percents { get; set; }
+        public string? Description { get; set; }
+        public string Status { get; set; }
         public string? InvoiceImage { get; set; }
     }
 }

@@ -192,5 +192,21 @@ namespace RHCQS_BE.Controllers
             };
 
         }
+
+        [HttpPost(ApiEndPointConstant.ConstructionWork.ConstructionWorkFileEndpoint)]
+        [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ImportFileConstructionWork(IFormFile file)
+        {
+            var listConstructions = await _workService.ImportFileConstructionWork(file);
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+
+        }
     }
 }
