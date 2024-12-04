@@ -1216,11 +1216,37 @@ namespace RHCQS_Services.Implement
             var initialItem = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(x => x.Id == quotationId,
                                     include: x => x.Include(x => x.Project)
                                                     .ThenInclude(x => x.Customer!));
-
+            //Check quotation Ended
+            if (initialItem.Status == AppConstant.QuotationStatus.ENDED)
+            {
+                throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.Ended_Quotation
+                    );
+            }
             if (initialItem != null)
             {
+                var projectQuotations = await _unitOfWork.GetRepository<InitialQuotation>()
+                        .GetListAsync(predicate: x => x.ProjectId == initialItem.ProjectId);
+
+                if (projectQuotations.Any(x => x.Status == AppConstant.QuotationStatus.FINALIZED))
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.Already_Finalized_Quotation
+                    );
+                }
+
+                //Update status present quotation
                 initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
+                //Update all version quotation - version present
+                foreach (var quotation in projectQuotations.Where(x => x.Id != initialItem.Id))
+                {
+                    quotation.Status = AppConstant.QuotationStatus.ENDED;
+                    _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(quotation);
+                }
 
                 var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
                 return isSuccessful;
@@ -1234,8 +1260,30 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Not_Found_FinalQuotaion);
                 }
+
+                #region Check quotation FINALIZED
+                var projectQuotations = await _unitOfWork.GetRepository<FinalQuotation>()
+                        .GetListAsync(predicate: x => x.ProjectId == finalInfo.ProjectId);
+
+                if (projectQuotations.Any(x => x.Status == AppConstant.QuotationStatus.FINALIZED))
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.Already_Finalized_Quotation
+                    );
+                }
+                #endregion
+
+                //Update status present quotation
                 finalInfo.Status = AppConstant.QuotationStatus.FINALIZED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalInfo);
+
+                //Update all version quotation - version present
+                foreach (var quotation in projectQuotations.Where(x => x.Id != finalInfo.Id))
+                {
+                    quotation.Status = AppConstant.QuotationStatus.ENDED;
+                    _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(quotation);
+                }
 
                 var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
                 return isSuccessful;

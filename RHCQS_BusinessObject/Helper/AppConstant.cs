@@ -288,6 +288,8 @@ public static class AppConstant
         public const string DuplicatedMaterial = "Vật tư bị trùng lặp!";
         public const string Scope_InitialQuotation = "Bạn không có quyền truy cập báo giá này!";
         public const string Not_Comment_Quotation = "Báo giá đã đóng, bạn không được ghi chú!";
+        public const string Already_Finalized_Quotation = "Đã có báo giá hoàn thành!";
+        public const string Ended_Quotation = "Báo giá đã đóng!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
