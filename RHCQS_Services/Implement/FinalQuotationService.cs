@@ -16,6 +16,7 @@ using RHCQS_BusinessObject.Payload.Response.App;
 using System.Runtime.InteropServices;
 
 using RHCQS_BusinessObject.Helper;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 
 
 namespace RHCQS_Services.Implement
@@ -222,14 +223,6 @@ namespace RHCQS_Services.Implement
             }
 
             #region Check request duplicate
-            //Construction 
-            //var isValidContruction = ValidateDuplicateFinalQuotationItems(request.FinalQuotationItems, out var duplicateDetails);
-            //if (!isValidContruction)
-            //{
-            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedConstruction);
-            //}
-
-            //Utility
             var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
             if (!isValidUtility)
             {
@@ -377,36 +370,9 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var fqi in request.FinalQuotationItems)
                 {
-                    //var subConstructionRepo = _unitOfWork.GetRepository<SubConstructionItem>();
-                    //var subConstructionItemExists = await subConstructionRepo.FirstOrDefaultAsync(sb => sb.Id == fqi.SubconstructionId);
-
                     Guid constructionId;
-                    //Guid subConstructionId;
-                    //Double? coefficient;
-                    //string contructionType;
-                    //var finalArea = highestFinalQuotation.FinalQuotationItems.FirstOrDefault();
                     FinalQuotationItem finalQuotationItem;
-                    //if (subConstructionItemExists != null)
-                    //{
-                    //    var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
-                    //        .FirstOrDefaultAsync(ci => ci.Id == subConstructionItemExists.ConstructionItemsId);
-                    //    constructionId = fqi.ConstructionId;
-                    //    subConstructionId = subConstructionItemExists.Id;
-                    //    //coefficient = subConstructionItemExists.Coefficient;
-                    //    contructionType = constructionItemExists.Type ?? string.Empty;
 
-                    //    finalQuotationItem = new FinalQuotationItem
-                    //    {
-                    //        Id = Guid.NewGuid(),
-                    //        ConstructionItemId = constructionId,
-                    //        SubContructionId = subConstructionId,
-                    //        InsDate = LocalDateTime.VNDateTime(),
-                    //        Area = finalArea.Area,
-                    //        QuotationItems = new List<QuotationItem>()
-                    //    };
-                    //}
-                    //else
-                    //{
                         var constructionItemExists = await _unitOfWork.GetRepository<ConstructionItem>()
                             .FirstOrDefaultAsync(ci => ci.Id == fqi.ConstructionId);
 
@@ -416,8 +382,6 @@ namespace RHCQS_Services.Implement
                                 AppConstant.ErrMessage.ConstructionIdNotfound);
                         }
                         constructionId = constructionItemExists.Id;
-                        //coefficient = constructionItemExists.Coefficient;
-                        //contructionType = constructionItemExists.Type ?? string.Empty;
                         finalQuotationItem = new FinalQuotationItem
                         {
                             Id = Guid.NewGuid(),
@@ -425,7 +389,6 @@ namespace RHCQS_Services.Implement
                             InsDate = LocalDateTime.VNDateTime(),
                             QuotationItems = new List<QuotationItem>()
                         };
-                    //}
 
 
                     if (fqi.QuotationItems != null && fqi.QuotationItems.Count > 0)
@@ -450,99 +413,6 @@ namespace RHCQS_Services.Implement
                             quotationPrice = quotationItem.TotalPriceLabor + quotationItem.TotalPriceRough + quotationItem.TotalPriceFinished;
                             finalQuotationItem.QuotationItems.Add(quotationItem);
                             totalQuotationItems += quotationPrice;
-                            //if (qi.LaborId != null)
-                            //{
-                            //    var laborExists = await _unitOfWork.GetRepository<Labor>()
-                            //        .FirstOrDefaultAsync(l => l.Id == qi.LaborId);
-                            //    if (laborExists == null)
-                            //    {
-                            //        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                            //            AppConstant.ErrMessage.LaborIdNotfound);
-                            //    }
-                            //    double? quotationLaborPrice = 0;
-                            //    var quotationItemLabor = new QuotationItem
-                            //    {
-                            //        Id = Guid.NewGuid(),
-                            //        Unit = "ca làm",
-                            //        Weight = qi.Weight,
-                            //        UnitPriceLabor = laborExists.Price,
-                            //        UnitPriceRough = null,
-                            //        UnitPriceFinished = null,
-                            //        TotalPriceLabor =/* (coefficient != 0) ? (laborExists.Price) * (qi.Weight) * coefficient
-                            //        : */(laborExists.Price) * (qi.Weight),
-                            //        TotalPriceRough = null,
-                            //        TotalPriceFinished = null,
-                            //        Note = qi.Note
-                            //    };
-                            //    quotationLaborPrice = quotationItemLabor.TotalPriceLabor;
-                            //    quotationItemLabor.QuotationLabors = new List<QuotationLabor>
-                            //    {
-                            //        new QuotationLabor
-                            //        {
-                            //            Id = Guid.NewGuid(),
-                            //            LaborId = laborExists.Id,
-                            //            LaborPrice = laborExists.Price
-                            //        }
-                            //    };
-                            //    finalQuotationItem.QuotationItems.Add(quotationItemLabor);
-                            //    totalQuotationItems += quotationLaborPrice;
-                            //}
-
-                            //if (qi.MaterialId != null)
-                            //{
-                            //    var materialExists = await _unitOfWork.GetRepository<Material>()
-                            //        .FirstOrDefaultAsync(m => m.Id == qi.MaterialId);
-                            //    if (materialExists == null)
-                            //    {
-                            //        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                            //            AppConstant.ErrMessage.MaterialIdNotfound);
-                            //    }
-
-                            //    QuotationItem quotationItemMaterial = new QuotationItem
-                            //    {
-                            //        Id = Guid.NewGuid(),
-                            //        Unit = materialExists.Unit,
-                            //        Weight = qi.Weight,
-                            //        Note = qi.Note,
-                            //        UnitPriceLabor = null,
-                            //        TotalPriceLabor = null,
-                            //        TotalPriceFinished = null
-                            //    };
-                            //    double? quotationMaterialPrice = 0;
-                            //    switch (contructionType)
-                            //    {
-                            //        case "ROUGH":
-                            //            quotationItemMaterial.UnitPriceRough = materialExists.Price;
-                            //            quotationItemMaterial.TotalPriceRough =/* (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
-                            //                : */(materialExists.Price) * (qi.Weight);
-                            //            quotationMaterialPrice = quotationItemMaterial.TotalPriceRough ?? 0;
-                            //            break;
-
-                            //        case "FINISHED":
-                            //            quotationItemMaterial.UnitPriceFinished = materialExists.Price;
-                            //            quotationItemMaterial.TotalPriceFinished =/* (coefficient != 0) ? (materialExists.Price) * (qi.Weight) * coefficient
-                            //                : */(materialExists.Price) * (qi.Weight);
-                            //            quotationMaterialPrice = quotationItemMaterial.TotalPriceFinished ?? 0;
-                            //            break;
-
-                            //        default:
-                            //            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionTypeInvalidate);
-                            //    }
-
-                            //    quotationItemMaterial.QuotationMaterials = new List<QuotationMaterial>
-                            //    {
-                            //        new QuotationMaterial
-                            //        {
-                            //            Id = Guid.NewGuid(),
-                            //            MaterialId = materialExists.Id,
-                            //            Unit = materialExists.Unit,
-                            //            MaterialPrice = materialExists.Price
-                            //        }
-                            //    };
-
-                            //    finalQuotationItem.QuotationItems.Add(quotationItemMaterial);
-                            //    totalQuotationItems += quotationMaterialPrice;
-                            //}
                         }
                     }
 
@@ -911,9 +781,6 @@ namespace RHCQS_Services.Implement
             && x.BatchPayments.Any(),
             include: x => x.Include(x => x.Project)
                            .ThenInclude(x => x.Customer!)
-                           .Include(x => x.Project)
-                               .ThenInclude(x => x.HouseDesignDrawings)
-                               .ThenInclude(x => x.HouseDesignVersions)
                            .Include(x => x.Promotion)
                            .Include(x => x.QuotationUtilities)
                                .ThenInclude(qu => qu.UtilitiesSection)
@@ -1082,8 +949,13 @@ namespace RHCQS_Services.Implement
                             ci => ci.ProjectId == finalQuotation.ProjectId,
                             include: ci => ci.Include(x => x.PackageQuotations)
                                              .ThenInclude(x => x.Package)
+                                             .Include(x => x.Project)
+                                             .ThenInclude(x => x.HouseDesignDrawings)
+                                             .ThenInclude(x => x.HouseDesignVersions)
+                                             .ThenInclude(x => x.Media)
                                              .Include(x => x.InitialQuotationItems)
-                                             .ThenInclude(x => x.ConstructionItem),
+                                             .ThenInclude(x => x.ConstructionItem)
+                                             .ThenInclude(x => x.SubConstructionItems),
                             orderBy: query => query.OrderByDescending(x => x.Version));
 
             var roughPackage = initialQuotation.PackageQuotations
@@ -1104,19 +976,37 @@ namespace RHCQS_Services.Implement
             );
             var initInfoList = initialQuotation.InitialQuotationItems
                 .Where(item => item.ConstructionItem != null)
-                .Select(item => new InitQuotationInfo(
-                    item.ConstructionItem.Name,
-                    item.Area
-                ))
+                .Select(item =>
+                {
+                    var coefficient = item.ConstructionItem.SubConstructionItems != null && item.ConstructionItem.SubConstructionItems.Any()
+                        ? item.ConstructionItem.SubConstructionItems.Select(sub => sub.Coefficient).FirstOrDefault()
+                        : item.ConstructionItem.Coefficient;
+
+                    var calculatedArea = coefficient > 0 ? item.Area * coefficient : item.Area;
+
+                    return new InitQuotationInfo(
+                        item.ConstructionItem.Name,
+                        calculatedArea
+                    );
+                })
                 .ToList();
-            var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
+            var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
+                .OrderBy(hd => hd.Step)
                 .SelectMany(hd => hd.HouseDesignVersions)
-                .Select(hd => new HouseDrawingVersionInf(
-                    hd.Id,
-                    hd.Name ?? string.Empty,
-                    hd.Version
-                ))
+                .Select(hd =>
+                {
+                    var media = hd.Media.FirstOrDefault(m => m.HouseDesignVersionId == hd.Id);
+                    var url = media?.Url ?? string.Empty;
+
+                    return new HouseDrawingVersionInf(
+                        hd.HouseDesignDrawingId,
+                        hd.Name ?? string.Empty,
+                        url,
+                        hd.Version
+                    );
+                })
                 .ToList();
+
             var customerPhone = finalQuotation.Project.Customer.PhoneNumber;
             var email = finalQuotation.Project.Customer.Email;
             var response = new FinalQuotationResponse(
@@ -1174,9 +1064,6 @@ namespace RHCQS_Services.Implement
                 && x.BatchPayments.Any(),
                 include: x => x.Include(x => x.Project)
                                .ThenInclude(x => x.Customer!)
-                               .Include(x => x.Project)
-                                   .ThenInclude(x => x.HouseDesignDrawings)
-                                   .ThenInclude(x => x.HouseDesignVersions)
                                .Include(x => x.Promotion)
                                .Include(x => x.QuotationUtilities)
                                    .ThenInclude(qu => qu.UtilitiesItem)
@@ -1350,10 +1237,16 @@ namespace RHCQS_Services.Implement
                             ci => ci.ProjectId == finalQuotation.ProjectId,
                             include: ci => ci.Include(x => x.PackageQuotations)
                                              .ThenInclude(x => x.Package)
+                                             .Include(x => x.Media)
+                                             .Include(x => x.Project)
+                                             .ThenInclude(x => x.HouseDesignDrawings)
+                                             .ThenInclude(x => x.HouseDesignVersions)
+                                             .ThenInclude(x => x.Media)
                                              .Include(x => x.InitialQuotationItems)
-                                             .ThenInclude(x => x.ConstructionItem),
+                                             .ThenInclude(x => x.ConstructionItem)
+                                             .ThenInclude(x => x.SubConstructionItems),
                             orderBy: query => query.OrderByDescending(x => x.Version));
-
+            var mediaList = initialQuotation.Media;
             var roughPackage = initialQuotation.PackageQuotations
                     .FirstOrDefault(item => item.Type == AppConstant.Type.ROUGH);
 
@@ -1377,13 +1270,20 @@ namespace RHCQS_Services.Implement
                     item.Area
                 ))
                 .ToList();
-            var houseDesignDrawingsList = finalQuotation.Project.HouseDesignDrawings.OrderBy(hd => hd.Step)
+            var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
+                .OrderBy(hd => hd.Step)
                 .SelectMany(hd => hd.HouseDesignVersions)
-                .Select(hd => new HouseDrawingVersionInf(
-                    hd.Id,
-                    hd.Name ?? string.Empty,
-                    hd.Version
-                ))
+                .Select(hd =>
+                {
+                    var url = mediaList.FirstOrDefault(m => m.HouseDesignVersionId == hd.Id)?.Url ?? string.Empty;
+
+                    return new HouseDrawingVersionInf(
+                        hd.HouseDesignDrawingId,
+                        hd.Name ?? string.Empty,
+                        url,
+                        hd.Version
+                    );
+                })
                 .ToList();
             var customerPhone = finalQuotation.Project.Customer.PhoneNumber;
             var email = finalQuotation.Project.Customer.Email;
