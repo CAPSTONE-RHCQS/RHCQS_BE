@@ -100,7 +100,57 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+        #region GetListConstructionByPackage
+        /// <summary>
+        /// Retrieves the list of construction items based on the specified type and package.
+        /// </summary>
+        /// <remarks>
+        /// This API returns a list of construction items based on the provided `type`. The possible values for `type` are:
+        /// 
+        /// - "WORK_ROUGH": Retrieves all finished construction items.
+        /// - "WORK_FINISHED": Retrieves all finished construction items.
+        /// 
+        /// Example request:
+        /// 
+        ///     GET api/v1/construction/construction-work/package?packageid=20F42D47-5EA5-469D-A064-FABFA2B2BC15&type=WORK_ROUGH
+        ///     GET api/v1/construction/construction-work/package?packageid=20F42D47-5EA5-469D-A064-FABFA2B2BC15&type=WORK_FINISHED
+        ///     
+        /// </remarks>
+        /// <param name="type">
+        /// The type of construction items to retrieve. Must be one of the following values:
+        /// - WORK_ROUGH: Retrieves finished construction items.
+        /// - WORK_FINISHED: Retrieves finished construction items.
+        /// </param>
+        /// <returns>
+        /// A list of construction items of the specified type.
+        /// </returns>
+        /// <response code="200">Returns the list of construction items successfully.</response>
+        /// <response code="400">If the `type` is invalid or not provided.</response>
+        /// <response code="500">If there is an internal server error while processing the request.</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.GetConstructionByPackageAndTypeEndpoint)]
+        [ProducesResponseType(typeof(List<ConstructionItemResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetListConstructionByPackageAndType(Guid packageid,string type)
+        {
+            if (string.IsNullOrWhiteSpace(type) ||
+                (type != AppConstant.Type.WORK_ROUGH
+                && type != AppConstant.Type.WORK_FINISHED))
+            {
+                return BadRequest("Invalid type. Allowed values are WORK_ROUGH, WORK_FINISHED.");
+            }
 
+            var listConstructions = await _constructionService.GetListConstructionByPackageAndType(packageid, type.ToUpper());
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
 
         #region GetDetailConstructionItem
         /// <summary>

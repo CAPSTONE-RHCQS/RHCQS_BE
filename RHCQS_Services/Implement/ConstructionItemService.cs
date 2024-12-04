@@ -139,7 +139,37 @@ namespace RHCQS_Services.Implement
                 return listConstruction;
             }
         }
+        public async Task<List<ConstructionItemResponse>> GetListConstructionByPackageAndType(Guid packageId, string type)
+        {
+            var listConstruction = new List<ConstructionItemResponse>();
 
+            var listPaginate = await _unitOfWork.GetRepository<ConstructionItem>().GetListAsync(
+                predicate: x => x.Type == type &&
+                                x.ConstructionWorks.Any(cw => cw.WorkTemplates.Any(wt => wt.PackageId == packageId)),
+                selector: x => new ConstructionItemResponse(
+                    x.Id,
+                    x.Name,
+                    x.Coefficient,
+                    x.Unit,
+                    x.InsDate,
+                    x.UpsDate,
+                    x.Type,
+                    x.SubConstructionItems.Select(
+                        sub => new SubConstructionItemResponse(
+                            sub.Id,
+                            sub.Name,
+                            sub.Coefficient,
+                            sub.Unit,
+                            sub.InsDate)).ToList()),
+                include: x => x.Include(x => x.ConstructionWorks)
+                               .ThenInclude(cw => cw.WorkTemplates),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            );
+
+            listConstruction = listPaginate.ToList();
+
+            return listConstruction;
+        }
 
         public async Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id)
         {
