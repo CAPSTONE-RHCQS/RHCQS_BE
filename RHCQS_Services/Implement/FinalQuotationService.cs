@@ -975,11 +975,12 @@ namespace RHCQS_Services.Implement
                 finishedPackage?.Package.Unit ?? string.Empty
             );
             var initInfoList = initialQuotation.InitialQuotationItems
-                .Where(item => item.ConstructionItem != null)
+                .Where(item => item.ConstructionItemId != null)
                 .Select(item =>
                 {
-                    var coefficient = item.ConstructionItem.SubConstructionItems != null && item.ConstructionItem.SubConstructionItems.Any()
-                        ? item.ConstructionItem.SubConstructionItems.Select(sub => sub.Coefficient).FirstOrDefault()
+                    var coefficient = item.SubConstructionId != null
+                        ? item.ConstructionItem.SubConstructionItems?
+                            .FirstOrDefault(sub => sub.Id == item.SubConstructionId)?.Coefficient
                         : item.ConstructionItem.Coefficient;
 
                     var calculatedArea = coefficient > 0 ? item.Area * coefficient : item.Area;
@@ -990,6 +991,7 @@ namespace RHCQS_Services.Implement
                     );
                 })
                 .ToList();
+
             var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
                 .OrderBy(hd => hd.Step)
                 .SelectMany(hd => hd.HouseDesignVersions)
@@ -1264,12 +1266,23 @@ namespace RHCQS_Services.Implement
             );
 
             var initInfoList = initialQuotation.InitialQuotationItems
-                .Where(item => item.ConstructionItem != null)
-                .Select(item => new InitQuotationInfo(
-                    item.ConstructionItem.Name,
-                    item.Area
-                ))
+                .Where(item => item.ConstructionItemId != null)
+                .Select(item =>
+                {
+                    var coefficient = item.SubConstructionId != null
+                        ? item.ConstructionItem.SubConstructionItems?
+                            .FirstOrDefault(sub => sub.Id == item.SubConstructionId)?.Coefficient
+                        : item.ConstructionItem.Coefficient;
+
+                    var calculatedArea = coefficient > 0 ? item.Area * coefficient : item.Area;
+
+                    return new InitQuotationInfo(
+                        item.ConstructionItem.Name,
+                        calculatedArea
+                    );
+                })
                 .ToList();
+
             var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
                 .OrderBy(hd => hd.Step)
                 .SelectMany(hd => hd.HouseDesignVersions)
