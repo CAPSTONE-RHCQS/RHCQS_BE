@@ -126,7 +126,7 @@ namespace RHCQS_Services.Implement
                 );
 
                 // Lấy các phiên bản chấp nhận được của các bản vẽ trước
-                foreach (var previousDrawing in previousDrawings)
+                foreach (var previousDrawing in previousDrawings.OrderBy(d => d.Step))
                 {
                     var acceptedVersion = previousDrawing.HouseDesignVersions
                                                          .OrderByDescending(v => v.Version)
@@ -134,7 +134,9 @@ namespace RHCQS_Services.Implement
 
                     if (acceptedVersion != null)
                     {
-                        var previousFileUrl = acceptedVersion.Media?.FirstOrDefault(m => m.HouseDesignVersionId == acceptedVersion.Id)?.Url ?? "Chưa hoàn thành";
+                        var previousFileUrl = acceptedVersion.Media?.FirstOrDefault(m => m.HouseDesignVersionId == 
+                        acceptedVersion.Id)?.Url ?? "Chưa hoàn thành";
+
                         dependOnVersions.Add(new DependOnVersion
                         {
                             HouseDesginVersionId = acceptedVersion.Id,
