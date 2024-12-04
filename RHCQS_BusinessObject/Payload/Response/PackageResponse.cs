@@ -35,7 +35,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
         public PackageResponse(Guid id, string? packageName, string packageType, string? unit, double? price, string? status,
             DateTime? insDate, DateTime? upsDate, List<PackageLaborResponse> packageLabor, List<PackageMaterialResponse> packageMaterial,
-            List<PackageHousesResponse> packageHouses, List<PackagePromotionResponse> packagePromotion)
+            List<PackageHousesResponse> packageHouses, List<PackagePromotionResponse> packagePromotion, List<WorkTemplateResponse> workTemplates)
         {
             Id = id;
             PackageName = packageName;
@@ -49,10 +49,10 @@ namespace RHCQS_BusinessObject.Payload.Response
             PackageMaterials = packageMaterial;
             PackageHouses = packageHouses;
             PackageMapPromotions = packagePromotion;
+            WorkTemplates = workTemplates;
         }
 
         public Guid Id { get; set; }
-
         public string? PackageName { get; set; }
         public string PackageType { get; set; } = null!;
         public string? Unit { get; set; }
@@ -65,12 +65,30 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public DateTime? UpsDate { get; set; }
         public List<PackageLaborResponse> PackageLabors { get; set; }
-
         public List<PackageMaterialResponse> PackageMaterials { get; set; }
-
         public List<PackageHousesResponse> PackageHouses { get; set; }
         public List<PackagePromotionResponse> PackageMapPromotions { get; set; }
+        public List<WorkTemplateResponse> WorkTemplates { get; set; }
 
+    }
+    public class WorkTemplateResponse
+    {
+        public WorkTemplateResponse(Guid id, Guid? constructionWorkId, string? constructionWorkName, double? laborCost, double? materialCost, double? materialFinishedCost)
+        {
+            Id = id;
+            ConstructionWorkId = constructionWorkId;
+            ConstructionWorkName = constructionWorkName;
+            LaborCost = laborCost;
+            MaterialCost = materialCost;
+            MaterialFinishedCost = materialFinishedCost;
+        }
+
+        public Guid Id { get; set; }
+        public Guid? ConstructionWorkId { get; set; }
+        public string? ConstructionWorkName { get; set; }
+        public Double? LaborCost { get; set; }
+        public Double? MaterialCost { get; set; }
+        public Double? MaterialFinishedCost { get; set; }
     }
     public class PackagePromotionResponse
     {
@@ -120,7 +138,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     {
 
         public PackageMaterialResponse(Guid id, Guid? materialSectionId, string? materialSectionName, string? materialName, string? type
-            , double? price, string? unit, string? size, string? shape, string? imgUrl, string? description, DateTime? insDate)
+            , double? price, string? unit/*, string? size, string? shape, string? imgUrl, string? description, DateTime? insDate*/)
         {
             Id = id;
             MaterialSectionId = materialSectionId;
@@ -129,11 +147,11 @@ namespace RHCQS_BusinessObject.Payload.Response
             Type = type;
             Price = price;
             Unit = unit;
-            Size = size;
-            Shape = shape;
-            ImgUrl = imgUrl;
-            Description = description;
-            InsDate = insDate;
+            //Size = size;
+            //Shape = shape;
+            //ImgUrl = imgUrl;
+            //Description = description;
+            //InsDate = insDate;
         }
 
         public Guid Id { get; set; }
@@ -147,15 +165,15 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Unit { get; set; }
 
-        public string? Size { get; set; }
+        //public string? Size { get; set; }
 
-        public string? Shape { get; set; }
+        //public string? Shape { get; set; }
 
-        public string? ImgUrl { get; set; }
+        //public string? ImgUrl { get; set; }
 
-        public string? Description { get; set; }
+        //public string? Description { get; set; }
 
-        public DateTime? InsDate { get; set; }
+        //public DateTime? InsDate { get; set; }
     }
 
     public class PackageHousesResponse

@@ -64,12 +64,12 @@ namespace RHCQS_Services.Implement
                     pm.Material?.Name,
                     pm.Material?.Type,
                     pm.Material.Price ?? 0.0,
-                    pm.Material.Unit,
-                    pm.Material.Size,
-                    pm.Material.Shape,
-                    pm.Material.ImgUrl,
-                    pm.Material.Description,
-                    pm.InsDate
+                    pm.Material.Unit
+                    //pm.Material.Size,
+                    //pm.Material.Shape,
+                    //pm.Material.ImgUrl,
+                    //pm.Material.Description,
+                    //pm.InsDate
                 )).ToList() ?? new List<PackageMaterialResponse>(),
 
                 package.PackageHouses?.Select(ph => new PackageHousesResponse(
@@ -86,7 +86,17 @@ namespace RHCQS_Services.Implement
                     ph.Promotion.Value,
                     ph.Promotion.StartTime,
                     ph.Promotion.InsDate
-                )).ToList() ?? new List<PackagePromotionResponse>()
+                )).ToList() ?? new List<PackagePromotionResponse>(),
+
+                package.WorkTemplates?.Select(wt => new WorkTemplateResponse(
+                    wt.Id,
+                    wt.ContructionWorkId,
+                    wt.ContructionWork?.WorkName,
+                    wt.LaborCost ?? 0,
+                    wt.MaterialCost ?? 0,
+                    wt.MaterialFinishedCost ?? 0
+                )).ToList() ?? new List<WorkTemplateResponse>()
+
             );
         }
 
@@ -138,12 +148,12 @@ namespace RHCQS_Services.Implement
                             pm.Material.Name,
                             pm.Material.Type,
                             pm.Material.Price ?? 0.0,
-                            pm.Material.Unit,
-                            pm.Material.Size,
-                            pm.Material.Shape,
-                            pm.Material.ImgUrl,
-                            pm.Material.Description,
-                            pm.InsDate
+                            pm.Material.Unit
+                            //pm.Material.Size,
+                            //pm.Material.Shape,
+                            //pm.Material.ImgUrl,
+                            //pm.Material.Description,
+                            //pm.InsDate
                         )).ToList() ?? new List<PackageMaterialResponse>(),
                         x.PackageHouses.Select(ph => new PackageHousesResponse(
                             ph.Id,
@@ -182,6 +192,8 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(ms => ms.MaterialSection)
                                .Include(p => p.PackageMapPromotions)
                                .ThenInclude(p => p.Promotion)
+                               .Include(w => w.WorkTemplates)
+                               .ThenInclude(ct => ct.ContructionWork)
             );
 
             return package != null ? MapPackageToResponse(package) :
@@ -203,6 +215,8 @@ namespace RHCQS_Services.Implement
                                .ThenInclude(ms => ms.MaterialSection)
                                .Include(p => p.PackageMapPromotions)
                                .ThenInclude(p => p.Promotion)
+                               .Include(w => w.WorkTemplates)
+                               .ThenInclude(ct => ct.ContructionWork)
             );
 
             return package != null ? MapPackageToResponse(package) :
@@ -261,17 +275,40 @@ namespace RHCQS_Services.Implement
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageMaterial>();
 
-            package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+            if ( packageRequest.PackageHouses != null)
             {
-                Id = Guid.NewGuid(),
-                DesignTemplateId = ph.DesignTemplateId,
-                ImgUrl = ph.ImgUrl,
-                Description = ph.Description,
-                PackageId = package.Id,
-                InsDate = LocalDateTime.VNDateTime()
-            }).ToList() ?? new List<PackageHouse>();
+                package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+                {
+                    Id = Guid.NewGuid(),
+                    DesignTemplateId = ph.DesignTemplateId,
+                    ImgUrl = ph.ImgUrl,
+                    Description = ph.Description,
+                    PackageId = package.Id,
+                    InsDate = LocalDateTime.VNDateTime()
+                }).ToList() ?? new List<PackageHouse>();
+            }
 
             await packageRepo.InsertAsync(package);
+
+            if (packageRequest.WorkTemplate != null)
+            {
+                var workTemplates = packageRequest.WorkTemplate?.Select(wt => new WorkTemplate
+                {
+                    Id = Guid.NewGuid(),
+                    PackageId = package.Id,
+                    ContructionWorkId = wt.ConstructionWorKid,
+                    LaborCost = wt.LaborCost,
+                    MaterialCost = wt.MaterialCost,
+                    MaterialFinishedCost = wt.MaterialFinishedCost,
+                    InsDate = LocalDateTime.VNDateTime(),
+                }).ToList();
+
+                if (workTemplates != null && workTemplates.Any())
+                {
+                    await workTemplateRepo.InsertRangeAsync(workTemplates);
+                }
+            }
+
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
             {
@@ -284,7 +321,7 @@ namespace RHCQS_Services.Implement
             return isSuccessful;
         }
 
-        public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageid)
+        public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageId)
         {
             if (packageRequest == null)
             {
@@ -296,13 +333,13 @@ namespace RHCQS_Services.Implement
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
             var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
-            var constructionWorkResourceRepo = _unitOfWork.GetRepository<ConstructionWorkResource>();
 
             var existingPackage = await packageRepo.FirstOrDefaultAsync(
-                predicate: p => p.Id == packageid,
+                predicate: p => p.Id == packageId,
                 include: p => p.Include(pl => pl.PackageLabors)
-                              .Include(pm => pm.PackageMaterials)
-                              .Include(p => p.PackageHouses)
+                               .Include(pm => pm.PackageMaterials)
+                               .Include(ph => ph.PackageHouses)
+                               .Include(wt => wt.WorkTemplates)
             );
 
             if (existingPackage == null)
@@ -313,7 +350,6 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            // Cập nhật các trường cơ bản của Package
             existingPackage.Type = packageRequest.PackageType;
             existingPackage.PackageName = packageRequest.PackageName;
             existingPackage.Unit = packageRequest.Unit;
@@ -321,37 +357,49 @@ namespace RHCQS_Services.Implement
             existingPackage.Status = packageRequest.Status;
             existingPackage.UpsDate = LocalDateTime.VNDateTime();
 
-            // Cập nhật PackageLabors
-            existingPackage.PackageLabors.Clear();
             existingPackage.PackageLabors = packageRequest.PackageLabors?.Select(pl => new PackageLabor
             {
-                Id = Guid.NewGuid(),
                 LaborId = pl.LaborId,
                 PackageId = existingPackage.Id,
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageLabor>();
 
-            // Cập nhật PackageMaterials
-            existingPackage.PackageMaterials.Clear();
             existingPackage.PackageMaterials = packageRequest.PackageMaterials?.Select(pm => new PackageMaterial
             {
-                Id = Guid.NewGuid(),
                 MaterialId = pm.MaterialId,
                 PackageId = existingPackage.Id,
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageMaterial>();
-
-            // Cập nhật PackageHouses
-            existingPackage.PackageHouses.Clear();
-            existingPackage.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+            if (packageRequest.PackageHouses != null)
             {
-                Id = Guid.NewGuid(),
-                DesignTemplateId = ph.DesignTemplateId,
-                ImgUrl = ph.ImgUrl,
-                Description = ph.Description,
-                PackageId = existingPackage.Id,
-                InsDate = LocalDateTime.VNDateTime()
-            }).ToList() ?? new List<PackageHouse>();
+                existingPackage.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+                {
+                    DesignTemplateId = ph.DesignTemplateId,
+                    ImgUrl = ph.ImgUrl,
+                    Description = ph.Description,
+                    PackageId = existingPackage.Id,
+                    InsDate = LocalDateTime.VNDateTime()
+                }).ToList() ?? new List<PackageHouse>();
+            }
+
+            if (packageRequest.WorkTemplate!= null)
+            {
+                var existingWorkTemplates = existingPackage.WorkTemplates.ToList();
+
+                foreach (var workTemplateRequest in packageRequest.WorkTemplate)
+                {
+                    var existingWorkTemplate = existingWorkTemplates
+                        .FirstOrDefault(wt => wt.ContructionWorkId == workTemplateRequest.ConstructionWorKid);
+
+                    if (existingWorkTemplate != null)
+                    {
+                        existingWorkTemplate.LaborCost = workTemplateRequest.LaborCost;
+                        existingWorkTemplate.MaterialCost = workTemplateRequest.MaterialCost;
+                        existingWorkTemplate.MaterialFinishedCost = workTemplateRequest.MaterialFinishedCost;
+                    }
+                    workTemplateRepo.UpdateAsync(existingWorkTemplate);
+                }
+            }
 
             packageRepo.UpdateAsync(existingPackage);
 
@@ -366,6 +414,7 @@ namespace RHCQS_Services.Implement
 
             return existingPackage;
         }
+
 
         public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
         {
@@ -544,8 +593,6 @@ namespace RHCQS_Services.Implement
                     <th>Tên Vật Liệu</th>
                     <th>Đơn Vị</th>
                     <th>Giá</th>
-                    <th>Kích Thước</th>
-                    <th>Hình Dạng</th>
                 </tr>
             </thead>
             <tbody>");
@@ -558,8 +605,6 @@ namespace RHCQS_Services.Implement
                 <td>{material.MaterialName}</td>
                 <td>{material.Unit}</td>
                 <td>{material.Price:N0} VND</td>
-                <td>{material.Size}</td>
-                <td>{material.Shape}</td>
             </tr>");
                 }
 
