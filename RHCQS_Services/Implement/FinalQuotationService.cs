@@ -213,7 +213,7 @@ namespace RHCQS_Services.Implement
             double? totalEquipmentItems = 0;
             double? totalQuotationItems = 0;
             double? promotation = 0;
-
+            double newVersion = 1;
             if (request == null)
             {
                 throw new AppConstant.MessageError(
@@ -273,25 +273,21 @@ namespace RHCQS_Services.Implement
                     && p.BatchPayments.Any(),
                 orderBy: p => p.OrderByDescending(p => p.Version),
                 include: p => p.Include(x => x.Project)
-                               .Include(f => f.FinalQuotationItems)
-                               .Include(x => x.BatchPayments)
-                                    .ThenInclude(x => x.Payment)
-                               .Include(x => x.BatchPayments)
             );
             var finalQuotationItems = highestFinalQuotation.FinalQuotationItems;
 
             if (highestFinalQuotation != null)
             {
-                highestFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
-                highestFinalQuotation.UpsDate = LocalDateTime.VNDateTime();
-                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(highestFinalQuotation);
+                newVersion = highestFinalQuotation?.Version + 1 ?? 1;
 
-                highestFinalQuotation.Project.Address = string.IsNullOrEmpty(request.Address) ?
-                                  highestFinalQuotation.Project.Address : request.Address;
-                highestFinalQuotation.Project.CustomerName = string.IsNullOrEmpty(request.CustomerName) ?
-                                  highestFinalQuotation.Project.CustomerName : request.CustomerName;
-                highestFinalQuotation.Project.UpsDate = LocalDateTime.VNDateTime();
-                _unitOfWork.GetRepository<Project>().UpdateAsync(highestFinalQuotation.Project);
+                var duplicateVersion = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
+                    predicate: x => x.ProjectId == request.ProjectId && x.Version == newVersion
+                );
+
+                if (duplicateVersion != null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Conflict_Version);
+                }
             }
 
             if (highestFinalQuotation?.Version >= AppConstant.General.MaxVersion)
@@ -302,8 +298,33 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.MaxVersionQuotation);
             }
             #endregion
+
+            #region updatepresentversion
+            var presentFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
+                p => p.ProjectId == request.ProjectId && p.Version == request.VersionPresent
+                    && p.QuotationUtilities.Any()
+                    && p.BatchPayments.Any(),
+                orderBy: p => p.OrderByDescending(p => p.Version),
+                include: p => p.Include(x => x.Project)
+                               .Include(f => f.FinalQuotationItems)
+                               .Include(x => x.BatchPayments)
+                                    .ThenInclude(x => x.Payment)
+                               .Include(x => x.BatchPayments)
+            );
+
+            presentFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
+            presentFinalQuotation.UpsDate = LocalDateTime.VNDateTime();
+            _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(presentFinalQuotation);
+
+            presentFinalQuotation.Project.Address = string.IsNullOrEmpty(request.Address) ?
+                              presentFinalQuotation.Project.Address : request.Address;
+            presentFinalQuotation.Project.CustomerName = string.IsNullOrEmpty(request.CustomerName) ?
+                              presentFinalQuotation.Project.CustomerName : request.CustomerName;
+            presentFinalQuotation.Project.UpsDate = LocalDateTime.VNDateTime();
+            _unitOfWork.GetRepository<Project>().UpdateAsync(presentFinalQuotation.Project);
+            #endregion
+
             #region createfinal
-            double newVersion = highestFinalQuotation?.Version + 1 ?? 1;
             var finalQuotation = new FinalQuotation
             {
                 Id = Guid.NewGuid(),
@@ -327,8 +348,8 @@ namespace RHCQS_Services.Implement
             {
                 foreach (var bp in request.BatchPaymentInfos)
                 {
-                    highestFinalQuotation.BatchPayments = highestFinalQuotation.BatchPayments.ToList();
-                    var matchingBatchPayment = highestFinalQuotation.BatchPayments
+                    presentFinalQuotation.BatchPayments = presentFinalQuotation.BatchPayments.ToList();
+                    var matchingBatchPayment = presentFinalQuotation.BatchPayments
                         .FirstOrDefault(existingBatchPayment => existingBatchPayment.NumberOfBatch == bp.NumberOfBatch);
 
                     if (matchingBatchPayment != null)

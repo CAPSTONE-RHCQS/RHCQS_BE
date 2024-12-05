@@ -9,6 +9,9 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 {
     public class FinalRequest
     {
+        [Required(ErrorMessage = "VersionPresent là bắt buộc.")]
+        [Range(-1, double.MaxValue, ErrorMessage = "VersionPresent không phải số âm.")]
+        public double VersionPresent { get; set; }
         [Required(ErrorMessage = "CustomerName là bắt buộc.")]
         public string CustomerName { get; set; }
         [Required(ErrorMessage = "Address là bắt buộc.")]
