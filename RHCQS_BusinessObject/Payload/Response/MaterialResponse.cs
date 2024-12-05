@@ -23,5 +23,6 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string MaterialSectionName { get; set; }
         public string SupplierName { get; set; }
         public string? Code { get; set; }
+        public string? Type { get; set; }
     }
 }
