@@ -56,7 +56,8 @@ namespace RHCQS_Services.Implement
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
                                                                               v.Note,
-                                                                              v.Reason)).ToList()),
+                                                                              v.Reason,
+                                                                              v.Confirmed)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
                                                .ThenInclude(x => x.Media)
                                                .Include(x => x.Account!),
@@ -86,7 +87,8 @@ namespace RHCQS_Services.Implement
                                                                               v.InsDate,
                                                                               v.PreviousDrawingId,
                                                                               v.Note,
-                                                                              v.Reason)).ToList()),
+                                                                              v.Reason, 
+                                                                              v.Confirmed)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
                                             .ThenInclude(x => x.Media)
                                             .Include(x => x.Account!),
@@ -415,7 +417,8 @@ namespace RHCQS_Services.Implement
                                                                   v.InsDate,
                                                                   v.PreviousDrawingId,
                                                                   v.Note,
-                                                                  v.Reason)).ToList()),
+                                                                  v.Reason, 
+                                                                  v.Confirmed)).ToList()),
                 include: x => x.Include(x => x.Account!)
                                 .Include(x => x.HouseDesignVersions)
                                    .ThenInclude(x => x.Media)
@@ -453,7 +456,8 @@ namespace RHCQS_Services.Implement
                                                                   v.InsDate,
                                                                   v.PreviousDrawingId,
                                                                   v.Note,
-                                                                  v.Reason)).ToList()),
+                                                                  v.Reason, 
+                                                                  v.Confirmed)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
                                         .ThenInclude(x => x.Media)
                                         .Include(x => x.Account!),
@@ -475,8 +479,7 @@ namespace RHCQS_Services.Implement
                                                           x.Account.Username!,
                                                           x.Name, x.Step, x.Status,
                                                           x.Type, x.HaveDrawing, x.InsDate,
-                                                          x.HouseDesignVersions.
-                                                          Where(v => v.Confirmed == true)
+                                                          x.HouseDesignVersions
                                                           .Select(
                                                               v => new HouseDesignVersionResponseList(
                                                                   v.Id,
@@ -486,7 +489,8 @@ namespace RHCQS_Services.Implement
                                                                   v.InsDate,
                                                                   v.PreviousDrawingId,
                                                                   v.Note,
-                                                                  v.Reason)).ToList()),
+                                                                  v.Reason,
+                                                                  v.Confirmed)).ToList()),
                         include: x => x.Include(x => x.HouseDesignVersions)
                                         .ThenInclude(x => x.Media)
                                         .Include(x => x.Account!),

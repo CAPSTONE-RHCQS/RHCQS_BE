@@ -63,7 +63,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
         }
 
         public HouseDesignVersionResponseList(Guid id, string? name, double? version, string? fileUrl,
-            DateTime? insDate, Guid? previousDrawingId, string? note, string? reason)
+            DateTime? insDate, Guid? previousDrawingId, string? note, string? reason, bool? confirmed)
         {
             Id = id;
             Name = name;
@@ -73,6 +73,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             PreviousDrawingId = previousDrawingId;
             Note = note;
             Reason = reason;
+            Confirmed = confirmed;
         }
 
         public Guid Id { get; set; }
@@ -87,6 +88,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
 
         public string? Note { get; set; }
         public string? Reason { get; set; }
+        public bool? Confirmed { get; set; }
     }
 }
 
