@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using DinkToPdf;
 using DinkToPdf.Contracts;
+using DocumentFormat.OpenXml.Office2010.PowerPoint;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -563,7 +564,6 @@ namespace RHCQS_Services.Implement
                                    .Include(x => x.Media),
                     orderBy: x => x.OrderByDescending(x => x.Version)
                 );
-
 
             return paginatedList.Items.ToList();
         }

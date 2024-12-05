@@ -36,6 +36,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Percents = percents;
             Description = description;
         }
+
         public int? Priority { get; set; }
         public Guid Id { get; set; }
         public string Type { get; set; }
@@ -92,5 +93,29 @@ namespace RHCQS_BusinessObject.Payload.Response
         public string? Description { get; set; }
 
         public string? Unit { get; set; }
+    }
+
+    public class BatchAppendix
+    {
+        public int? Priority { get; set; }
+        public Guid Id { get; set; }
+        public string Type { get; set; }
+        public string Status { get; set; }
+
+        public DateTime? InsDate { get; set; }
+
+        public DateTime? UpsDate { get; set; }
+
+        public double? TotalPrice { get; set; }
+
+        public DateTime? PaymentDate { get; set; }
+
+        public DateTime? PaymentPhase { get; set; }
+
+        public string? Unit { get; set; }
+
+        public int Percents { get; set; }
+
+        public string? Description { get; set; }
     }
 }

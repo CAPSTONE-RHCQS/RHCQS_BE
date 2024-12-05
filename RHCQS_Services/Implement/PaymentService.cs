@@ -79,38 +79,40 @@ namespace RHCQS_Services.Implement
 
         public async Task<List<PaymentResponse>> GetListBatchResponse(Guid projectId)
         {
-            var listBatch = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
-                            predicate: x => x.Contract!.ProjectId == projectId,
-                            include: x => x.Include(x => x.Payment!)
-                                           .ThenInclude(x => x.PaymentType)
-                                           .Include(x => x.Contract!),
-                            orderBy: x => x.OrderBy(x => x.Payment.Priority)
-                            );
+            var allBatches = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                predicate: x => x.Contract!.ProjectId == projectId &&
+                                (x.Contract.Type == AppConstant.ContractType.Construction.ToString() ||
+                                 x.Contract.Type == AppConstant.ContractType.Appendix.ToString()),
+                include: x => x.Include(x => x.Payment!)
+                               .ThenInclude(x => x.PaymentType)
+                               .Include(x => x.Contract!),
+                orderBy: x => x.OrderBy(x => x.Payment.Priority)
+            );
 
-            if (listBatch == null || !listBatch.Any())
+            if (allBatches == null || !allBatches.Any())
             {
                 return new List<PaymentResponse>();
             }
 
-            var payments = listBatch.Select(batch => batch.Payment).Distinct();
-            var result = payments.Select(payment => new PaymentResponse(
-                priorty: payment.Priority,
-                id: payment!.Id,
-                type: payment.PaymentType.Name!,
-                status: payment.BatchPayments.FirstOrDefault(batch => batch.Contract!.ProjectId == projectId)?.Status ?? "",
-                insDate: payment.InsDate,
-                upsDate: payment.UpsDate,
-                totalprice: payment.TotalPrice,
-                paymentDate: payment.PaymentDate,
-                paymentPhase: payment.PaymentPhase,
-                unit: payment.Unit,
-                percents: payment.Percents ?? 0,
-                description: payment.Description
+            var result = allBatches.Select(batch => new PaymentResponse(
+                priorty: batch.Payment?.Priority,
+                id: batch.Payment!.Id,
+                type: batch.Payment.PaymentType.Name!,
+                status: batch.Status ?? "",
+                insDate: batch.Payment.InsDate,
+                upsDate: batch.Payment.UpsDate,
+                totalprice: batch.Payment.TotalPrice,
+                paymentDate: batch.Payment.PaymentDate,
+                paymentPhase: batch.Payment.PaymentPhase,
+                unit: batch.Payment.Unit,
+                percents: batch.Payment.Percents ?? 0,
+                description: batch.Payment.Description
             )).ToList();
-
 
             return result;
         }
+
+
 
         public async Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId, IFormFile TransferInvoice)
         {
