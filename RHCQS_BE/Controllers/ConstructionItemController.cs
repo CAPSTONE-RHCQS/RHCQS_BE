@@ -101,6 +101,53 @@ namespace RHCQS_BE.Controllers
             };
         }
 
+        #region GetListConstructionByPackage
+        /// <summary>
+        /// Retrieves the list of construction items based on the specified type and package.
+        /// </summary>
+        /// <remarks>
+        /// This API returns a list of construction items based on the provided `type`. The possible values for `type` are:
+        /// 
+        /// - "WORK_ROUGH": Retrieves all finished construction items.
+        /// - "WORK_FINISHED": Retrieves all finished construction items.
+        /// 
+        ///     
+        /// </remarks>
+        /// <param name="type">
+        /// The type of construction items to retrieve. Must be one of the following values:
+        /// - WORK_ROUGH: Retrieves finished construction items.
+        /// - WORK_FINISHED: Retrieves finished construction items.
+        /// </param>
+        /// <returns>
+        /// A list of construction items of the specified type.
+        /// </returns>
+        /// <response code="200">Returns the list of construction items successfully.</response>
+        /// <response code="400">If the `type` is invalid or not provided.</response>
+        /// <response code="500">If there is an internal server error while processing the request.</response>
+        #endregion
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.GetConstructionByPackageAndTypeEndpoint)]
+        [ProducesResponseType(typeof(List<ConstructionItemResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetListConstructionByPackageAndType(Guid packageid,string type)
+        {
+            if (string.IsNullOrWhiteSpace(type) ||
+                (type != AppConstant.Type.WORK_ROUGH
+                && type != AppConstant.Type.WORK_FINISHED))
+            {
+                return BadRequest("Invalid type. Allowed values are WORK_ROUGH, WORK_FINISHED.");
+            }
+
+            var listConstructions = await _constructionService.GetListConstructionByPackageAndType(packageid, type.ToUpper());
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
 
         #region GetDetailConstructionItem
         /// <summary>
@@ -150,7 +197,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item construction in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionContainNameEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItemByContainName(string name)
@@ -258,9 +305,52 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionSearchWorkEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SearchConstructionWorkByContain(Guid packageId, string name)
+        public async Task<IActionResult> SearchConstructionWorkByContain(Guid packageId, Guid constructionItemId, string? name)
         {
-            var construction = await _constructionService.SearchConstructionWorkByContain(packageId, name);
+            var construction = await _constructionService.SearchConstructionWorkByContain(packageId,constructionItemId, name);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+        #region GetConstructionWorkByPackageAndConstruction
+        /// <summary>
+        /// Get construction work by packageid and constructionid
+        /// </summary>
+        /// <param name="packageId"></param>
+        /// <param name="constructionItemId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.GetConstructionEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult>GetConstructionWorkByPackageAndConstruction(Guid packageId, Guid constructionItemId)
+        {
+            var construction = await _constructionService.GetConstructionWorkByPacakgeAndConstruction(packageId, constructionItemId);
+            var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
+        #region SearchConstructionItemHaveWork
+        /// <summary>
+        /// Search construction item ty WORK_ROUGH, WORK_FINISHED
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Construction.ConstructionItemSearchTypeWorkEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchConstructionItemHaveWork(string name)
+        {
+            var construction = await _constructionService.SearchConstructionItemHaveWork(name);
             var result = JsonConvert.SerializeObject(construction, Formatting.Indented);
             return new ContentResult()
             {

@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml.Wordprocessing;
+﻿using CloudinaryDotNet.Actions;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
@@ -11,6 +12,8 @@ using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO.Packaging;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -94,7 +97,8 @@ namespace RHCQS_Services.Implement
                 listConstruction = listPaginate.ToList();
 
                 return listConstruction;
-            }else if (type == AppConstant.Type.WORK_ROUGH)
+            }
+            else if (type == AppConstant.Type.WORK_ROUGH)
             {
                 var listPaginate = await _unitOfWork.GetRepository<ConstructionItem>().GetListAsync(
                     predicate: x => x.Type == type && x.IsFinalQuotation == true,
@@ -135,7 +139,37 @@ namespace RHCQS_Services.Implement
                 return listConstruction;
             }
         }
+        public async Task<List<ConstructionItemResponse>> GetListConstructionByPackageAndType(Guid packageId, string type)
+        {
+            var listConstruction = new List<ConstructionItemResponse>();
 
+            var listPaginate = await _unitOfWork.GetRepository<ConstructionItem>().GetListAsync(
+                predicate: x => x.Type == type &&
+                                x.ConstructionWorks.Any(cw => cw.WorkTemplates.Any(wt => wt.PackageId == packageId)),
+                selector: x => new ConstructionItemResponse(
+                    x.Id,
+                    x.Name,
+                    x.Coefficient,
+                    x.Unit,
+                    x.InsDate,
+                    x.UpsDate,
+                    x.Type,
+                    x.SubConstructionItems.Select(
+                        sub => new SubConstructionItemResponse(
+                            sub.Id,
+                            sub.Name,
+                            sub.Coefficient,
+                            sub.Unit,
+                            sub.InsDate)).ToList()),
+                include: x => x.Include(x => x.ConstructionWorks)
+                               .ThenInclude(cw => cw.WorkTemplates),
+                orderBy: x => x.OrderBy(x => x.InsDate)
+            );
+
+            listConstruction = listPaginate.ToList();
+
+            return listConstruction;
+        }
 
         public async Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id)
         {
@@ -208,7 +242,8 @@ namespace RHCQS_Services.Implement
                 var normalizedName = name.RemoveDiacritics().Trim().ToLower();
 
                 var constructionItems = await _unitOfWork.GetRepository<ConstructionItem>()
-                    .GetListAsync(include: con => con.Include(c => c.SubConstructionItems));
+                    .GetListAsync(predicate: con => con.Type.ToUpper() == AppConstant.Type.ROUGH,
+                                include: con => con.Include(c => c.SubConstructionItems));
 
                 var filteredItems = constructionItems
                   .Where(con =>
@@ -385,28 +420,48 @@ namespace RHCQS_Services.Implement
             return true;
         }
 
-        public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, string work)
+        public async Task<List<AutoConstructionWorkResponse>> SearchConstructionWorkByContain(Guid packageId, Guid constructionItemId, string work)
         {
             try
             {
-                var normalizedName = work.RemoveDiacritics().Trim().ToLower();
-
                 var listConstruction = (await _unitOfWork.GetRepository<WorkTemplate>()
-                    .GetListAsync(predicate: w => w.PackageId == packageId, include: w => w.Include(w => w.ContructionWork)))
+                    .GetListAsync(predicate: w => w.PackageId == packageId,
+                                  include: w => w.Include(w => w.ContructionWork)))
                     .ToList();
+                if (string.IsNullOrWhiteSpace(work))
+                {
+                    var allItems = listConstruction
+                        .Where(w => w.ContructionWork != null &&
+                                w.ContructionWork.ConstructionId == constructionItemId)
+                        .Select(w => new AutoConstructionWorkResponse(
+                            w.Id,
+                            w.ContructionWorkId ?? Guid.Empty,
+                            w.ContructionWork.WorkName!,
+                            w.ContructionWork.Unit,
+                            (double)(w.LaborCost ?? 0),
+                            w.MaterialCost ?? 0,
+                            w.MaterialFinishedCost ?? 0
+                        ))
+                        .ToList();
+
+                    return allItems;
+                }
+                var normalizedName = work.RemoveDiacritics().Trim().ToLower();
 
                 var filteredItems = listConstruction
                 .Where(w => w.ContructionWork != null &&
-                            !string.IsNullOrEmpty(w.ContructionWork.WorkName) &&
-                            w.ContructionWork.WorkName.RemoveDiacritics().ToLower().Contains(work.RemoveDiacritics().ToLower()))
+                        w.ContructionWork.ConstructionId == constructionItemId &&
+                        !string.IsNullOrEmpty(w.ContructionWork.WorkName) &&
+                        w.ContructionWork.WorkName.RemoveDiacritics().ToLower()
+                            .Contains(normalizedName))
                 .Select(w => new AutoConstructionWorkResponse(
                     w.Id,
-                    w.ContructionWorkId ?? Guid.Empty, 
+                    w.ContructionWorkId ?? Guid.Empty,
                     w.ContructionWork.WorkName!,
                     w.ContructionWork.Unit,
-                    (double)(w.LaborCost ?? 0), 
-                    w.MaterialCost ?? 0, 
-                    w.MaterialFinishedCost ?? 0 
+                    (double)(w.LaborCost ?? 0),
+                    w.MaterialCost ?? 0,
+                    w.MaterialFinishedCost ?? 0
                 ))
                 .ToList();
 
@@ -417,9 +472,60 @@ namespace RHCQS_Services.Implement
             {
                 Console.WriteLine($"Error: {ex.Message}");
                 Console.WriteLine($"StackTrace: {ex.StackTrace}");
-                throw; 
+                throw;
             }
         }
+        public async Task<List<AutoConstructionWorkResponse>> GetConstructionWorkByPacakgeAndConstruction(Guid packageId, Guid constructionItemId)
+        {
+            try
+            {
+                var listConstruction = (await _unitOfWork.GetRepository<WorkTemplate>()
+                    .GetListAsync(predicate: w => w.PackageId == packageId,
+                                  include: w => w.Include(w => w.ContructionWork)))
+                    .ToList();
 
+                var allItems = listConstruction
+                    .Where(w => w.ContructionWork != null &&
+                            w.ContructionWork.ConstructionId == constructionItemId)
+                    .Select(w => new AutoConstructionWorkResponse(
+                        w.Id,
+                        w.ContructionWorkId ?? Guid.Empty,
+                        w.ContructionWork.WorkName!,
+                        w.ContructionWork.Unit,
+                        (double)(w.LaborCost ?? 0),
+                        w.MaterialCost ?? 0,
+                        w.MaterialFinishedCost ?? 0
+                    ))
+                    .ToList();
+
+                return allItems;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                throw;
+            }
+        }
+        public async Task<List<AutoConstructionItemHaveWorkResponse>> SearchConstructionItemHaveWork(string name)
+        {
+            var normalizedName = name.RemoveDiacritics().Trim().ToLower();
+
+            var listConstruction = await _unitOfWork.GetRepository<ConstructionItem>()
+                .GetListAsync(predicate: w =>
+                    w.Type == AppConstant.Type.WORK_ROUGH ||
+                    w.Type == AppConstant.Type.WORK_FINISHED);
+
+            var filteredList = listConstruction
+             .Where(w => w.Name.RemoveDiacritics().Trim().ToLower().Contains(normalizedName))
+             .Select(w => new AutoConstructionItemHaveWorkResponse
+             {
+                 ConstructionId = w.Id,
+                 Name = w.Name
+             })
+             .ToList();
+
+            return filteredList;
+        }
     }
 }

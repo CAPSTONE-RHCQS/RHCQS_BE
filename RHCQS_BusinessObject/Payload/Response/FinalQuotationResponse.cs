@@ -313,15 +313,17 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class HouseDrawingVersionInf
     {
-        public HouseDrawingVersionInf(Guid versionid, string versionname, double? version)
+        public HouseDrawingVersionInf(Guid designId, string versionName, string url, double? version)
         {
-            VersionId = versionid;
-            VersionName = versionname;
+            DesignId = designId;
+            VersionName = versionName;
+            Url = url;
             Version = version;
         }
 
-        public Guid VersionId { get; set; }
+        public Guid DesignId { get; set; }
         public string VersionName { get; set; }
+        public string Url { get; set; }
         public double? Version { get; set; }
 
     }

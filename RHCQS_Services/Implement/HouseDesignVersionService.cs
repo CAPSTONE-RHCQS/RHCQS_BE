@@ -158,8 +158,8 @@ namespace RHCQS_Services.Implement
                         PreviousDrawingId = availableDrawing?.PreviousDrawingId,
                     };
 
-                    //Update status in house desgin draw previous
-                    availableDrawing!.HouseDesignDrawing.Status = AppConstant.Status.UPDATED;
+                    //Update status in house design draw previous
+                    availableDrawing!.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ENDED;
 
                     //Update project status Processing -> Designed
                     if (availableDrawing.HouseDesignDrawing.Step == 4)

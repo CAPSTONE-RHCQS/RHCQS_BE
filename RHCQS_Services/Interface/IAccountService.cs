@@ -13,6 +13,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IAccountService
     {
+        Task<Account> RegisterForStaffAsync(RegisterRequest registerRequest, UserRoleForManagerRegister selectedrole);
         Task<string> GetEmailByQuotationIdAsync(Guid quotationId);
         Task<string> GetEmailByProjectIdAsync(Guid projectId);
         Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id);

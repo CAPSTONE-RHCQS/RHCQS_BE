@@ -9,12 +9,15 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 {
     public class FinalRequest
     {
-        [Required(ErrorMessage = "CustomerName là bắt buộc.")]
+        [Required(ErrorMessage = "VersionPresent là bắt buộc.")]
+        [Range(-1, double.MaxValue, ErrorMessage = "VersionPresent không phải số âm.")]
+        public double VersionPresent { get; set; }
+        [Required(ErrorMessage = "Chủ đầu tư là bắt buộc.")]
         public string CustomerName { get; set; }
-        [Required(ErrorMessage = "Address là bắt buộc.")]
+        [Required(ErrorMessage = "Địa chỉ là bắt buộc.")]
         public string Address { get; set; }
 
-        [Required(ErrorMessage = "ProjectId là bắt buộc.")]
+        [Required(ErrorMessage = "Mã dự án là bắt buộc.")]
         public Guid ProjectId { get; set; }
 
         public Guid? PromotionId { get; set; }
@@ -94,7 +97,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
     public class FinalQuotationItemRequest
     {
-        [Required(ErrorMessage = "ConstructionId là bắt buộc.")]
+        [Required(ErrorMessage = "Mã hạng mục là bắt buộc.")]
         public Guid ConstructionId { get; set; }
         //public Guid? SubconstructionId { get; set; }
         public List<QuotationItemRequest>? QuotationItems { get; set; }
@@ -121,9 +124,10 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
         //public Guid? MaterialId { get; set; }
 
         public string? Unit { get; set; }
+        [Required(ErrorMessage = "Mã công việc là bắt buộc.")]
         public Guid WorkTemplateId { get; set; }
 
-        [Range(1, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
+        //[Range(1, double.MaxValue, ErrorMessage = "Khối lượng phải là số dương.")]
         public double? Weight { get; set; }
 
         public double? UnitPriceLabor { get; set; }

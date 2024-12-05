@@ -46,6 +46,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public InitialQuotationResponse() { }
         public Guid Id { get; set; }
         public string AccountName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string Email { get; set; }
         public string Address { get; set; }
         public Guid ProjectId { get; set; }
         public double? Area { get; set; }

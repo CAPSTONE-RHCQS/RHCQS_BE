@@ -10,5 +10,6 @@ namespace RHCQS_Services.Interface
     public interface IExcelImportService
     {
         Task<List<EquiqmentExcelResponse>> ImportExcelAsync(Stream excelStream);
+        Task<List<GroupedConstructionResponse>> ProcessWorkTemplateFileAsync(Stream excelStream, Guid packageId);
     }
 }

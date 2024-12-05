@@ -76,6 +76,7 @@ public static class AppConstant
         public const string PENDING = "Pending";
         public const string PROCESSING = "Processing";
         public const string REJECTED = "Rejected";
+        public const string UPDATING = "Updating";
         public const string REVIEWING = "Reviewing";
         public const string APPROVED = "Approved";
         public const string FINALIZED = "Finalized";
@@ -93,6 +94,7 @@ public static class AppConstant
         public const string FINALIZED = "Finalized";
         public const string CANCELED = "Canceled";
         public const string ACCEPTED = "Accepted";
+        public const string ENDED = "Ended";
     }
 
     public class ContractStatus
@@ -287,6 +289,9 @@ public static class AppConstant
         public const string DuplicatedLabor = "Nhân công bị trùng lặp!";
         public const string DuplicatedMaterial = "Vật tư bị trùng lặp!";
         public const string Scope_InitialQuotation = "Bạn không có quyền truy cập báo giá này!";
+        public const string Not_Comment_Quotation = "Báo giá đã đóng, bạn không được ghi chú!";
+        public const string Already_Finalized_Quotation = "Đã có báo giá hoàn thành!";
+        public const string Ended_Quotation = "Báo giá đã đóng!";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
@@ -324,7 +329,7 @@ public static class AppConstant
         public const string Not_Found_Media = "Không tìm thấy Media!";
 
         //Contract
-        public const string Invail_Quotation = "Báo giá chưa chốt!";
+        public const string Invalid_Quotation = "Báo giá chưa chốt!";
         public const string Contract_Not_Found = "Không tìm thấy báo giá!";
         public const string Contract_Waiting = "Hợp đồng đang chờ duyệt";
         public const string Not_Completed_Design = "Cần hoàn thành các bản thiết kế để thanh toán hoàn tất hợp đồng thiết kế!";
@@ -360,6 +365,7 @@ public static class AppConstant
         public const string LaborIdNotfound = "Nhân công không tồn tại.";
         public const string MaterialIdNotfound = "Vật tư không tồn tại.";
         public const string FinalizedFinalUpdateFailed = " Báo giá chi tiết đang trạng thái hoàn thành không thể cập nhật nữa .";
+        public const string Invalidate_Quotation = "Báo giá không hợp lệ!";
         //InitalQuotation
         public const string InitialQuotationUpdateFailed = " InitialQuotation cập nhật thất bại.";
 
@@ -368,6 +374,12 @@ public static class AppConstant
 
         //ConstructionWork
         public const string Construction_Work_Not_Found = "Công tác không tìm thấy!";
+
+        //MaterialSection
+        public const string MaterialSection_Code_Not_Found = "Không tìm thấy mã vật tư!";
+
+        //Labor
+        public const string Labor_Code_Not_Found = "Không tìm thấy mã nhân công!";
     }
 }
 

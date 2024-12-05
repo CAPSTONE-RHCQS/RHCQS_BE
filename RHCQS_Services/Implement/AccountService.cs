@@ -531,7 +531,81 @@ namespace RHCQS_Services.Implement
                 AppConstant.ErrMessage.Not_Found_Account
             );
         }
+        public async Task<Account> RegisterForStaffAsync(RegisterRequest registerRequest, UserRoleForManagerRegister selectedrole)
+        {
+            if (registerRequest == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
 
+            var existingAccount = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
+                x => x.Email.Equals(registerRequest.Email));
+
+            if (existingAccount != null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.EmailExists
+                );
+            }
+
+            var existingPhoneNumber = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(
+                x => x.PhoneNumber.Equals(registerRequest.PhoneNumber)
+            );
+
+            if (existingPhoneNumber != null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.PhoneNumberExists
+                );
+            }
+
+            if (registerRequest.Password != registerRequest.ConfirmPassword)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.PasswordMismatch
+                );
+            }
+
+            var roleName = selectedrole.ToString();
+            var role = await _unitOfWork.GetRepository<Role>().FirstOrDefaultAsync(r => r.RoleName == roleName);
+            if (role == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.RoleNotFound
+                );
+            }
+            var newAccount = new Account
+            {
+                Id = Guid.NewGuid(),
+                Email = registerRequest.Email,
+                PhoneNumber = registerRequest.PhoneNumber,
+                PasswordHash = PasswordHash.HashPassword(registerRequest.Password),
+                Username = registerRequest.Email,
+                InsDate = LocalDateTime.VNDateTime(),
+                UpsDate = LocalDateTime.VNDateTime(),
+                RoleId = role.Id,
+                Deflag = true
+            };
+
+            await _unitOfWork.GetRepository<Account>().InsertAsync(newAccount);
+            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.CreateAccountError
+                );
+            }
+
+            return newAccount;
+        }
         private string SanitizeEmail(string email)
         {
             if (string.IsNullOrEmpty(email)) return string.Empty;

@@ -67,6 +67,7 @@ namespace RHCQS_BE.Extenstion
         {
             public const string AccountEndpoint = ApiEndpoint + "/account";
             public const string ProfileEndpoint = AccountEndpoint + "/profile";
+            public const string CreateStaffEndpoint = AccountEndpoint + "/create-staff";
             public const string UpdatePasswordEndpoint = AccountEndpoint + "/password";
             public const string AccountByIdEndpoint = AccountEndpoint + "/id";
             public const string AccountByRoleIdEndpoint = AccountEndpoint + "/roleid";
@@ -85,7 +86,7 @@ namespace RHCQS_BE.Extenstion
         public static class EquiqmentExcel
         {
             public const string EquimentExcelEndpoint = ApiEndpoint + "/equiqment/excel";
-
+            public const string WorkTemplateExcelEndpoint = ApiEndpoint + "/worktemplate/excel";
         }
 
         public static class AssignTask
@@ -142,6 +143,9 @@ namespace RHCQS_BE.Extenstion
             public const string ConstructionContainNameEndpoint = ConstructionEndpoint + "/contain/name";
             public const string ConstructionRoughEndpoint = ConstructionEndpoint + "/type";
             public const string ConstructionSearchWorkEndpoint = ConstructionEndpoint + "/construction-work/search";
+            public const string ConstructionItemSearchTypeWorkEndpoint = ConstructionEndpoint + "/item-work/search";
+            public const string GetConstructionEndpoint = ConstructionEndpoint + "/construction-work";
+            public const string GetConstructionByPackageAndTypeEndpoint = ConstructionEndpoint + "/construction-work/package";
         }
 
         public static class ConstructionWork
@@ -151,6 +155,7 @@ namespace RHCQS_BE.Extenstion
             public const string ConstructionWorkByConIdEndpoint = ConstructionWorkEndpoint + "/consructionid";
             public const string ConstructionWorkPriceEndpoint = ConstructionWorkEndpoint + "/workid";
             public const string WorkTemplateEndpoint = ApiEndpoint + "/work-template";
+            public const string ConstructionWorkFileEndpoint = ConstructionWorkEndpoint + "/import-file";
         }
 
         public static class Utility

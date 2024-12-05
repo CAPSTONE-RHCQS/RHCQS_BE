@@ -13,7 +13,9 @@ using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using static RHCQS_BusinessObjects.AppConstant;
 using Account = RHCQS_DataAccessObjects.Models.Account;
 
 namespace RHCQS_BE.Controllers
@@ -30,6 +32,33 @@ namespace RHCQS_BE.Controllers
             _accountService = accountService;
             _roleService = roleService;
             _uploadImgService = uploadImgService;
+        }
+        #region Register Staff API
+        /// <summary>
+        /// Manager create staff account.
+        /// </summary>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Account.CreateStaffEndpoint)]
+        public async Task<IActionResult> RegisterStaff([FromBody] RegisterRequest registerRequest,
+            [FromQuery][Required(ErrorMessage = "Role là cần thiết.")] UserRoleForManagerRegister role)
+        {
+            if (!Enum.IsDefined(typeof(UserRoleForManagerRegister), role))
+            {
+                return BadRequest(new
+                {
+                    message = $"Role '{role}' không hợp lệ. Vai trò hợp lệ là: {string.Join(", ", Enum.GetNames(typeof(UserRoleForManagerRegister)))}"
+                });
+            }
+            var result = await _accountService.RegisterForStaffAsync(registerRequest, role);
+            var response = JsonConvert.SerializeObject(new { message = "Đăng kí thành công!" }, Formatting.Indented);
+
+            return new ContentResult
+            {
+                Content = response,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region GetAccount
         /// <summary>
