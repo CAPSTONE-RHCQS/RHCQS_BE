@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
@@ -188,7 +189,9 @@ namespace RHCQS_Services.Implement
             {
                 ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.CustomerName,
+                AccountName = initialQuotation.Project!.CustomerName!,
+                PhoneNumber = initialQuotation.Project.Customer!.PhoneNumber!,
+                Email = initialQuotation.Project.Customer.Email!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -398,6 +401,8 @@ namespace RHCQS_Services.Implement
                 ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
                 AccountName = initialQuotation.Project!.CustomerName!,
+                PhoneNumber = initialQuotation.Project.Customer!.PhoneNumber!,
+                Email = initialQuotation.Project.Customer.Email!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -666,112 +671,95 @@ namespace RHCQS_Services.Implement
         {
             var sb = new StringBuilder();
             sb.Append(@"
-<html>
-<head>
-    <meta charset='UTF-8'>
-    <style>
-        @page {
-            margin: 30px;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-            padding-left: 30px;
-            font-family: 'Arial', sans-serif;
-            font-size: 14px;
-            color: black;
-        }
-        h1 {
-            font-size: 24px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h2 {
-            font-size: 18px;
-            font-weight: bold;
-            text-align: left;
-            margin-top: 30px;
-        }
-        h3 {
-            font-size: 16px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-        p {
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 0;
-            text-align: left;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th,
-        td {
-            border: 1px solid black;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f0f0f0;
-        }
-        .center {
-            text-align: right;
-        }
-        .signature {
-            margin-top: 50px;
-            width: 100%;
-        }
-        .signature-row {
-            width: 100%;
-            display: table;
-            margin-top: 20px;
-        }
-        .signature-column {
-            display: table-cell;
-            text-align: center;
-        }
-        .signature-column strong {
-            display: block;
-            margin-top: 50px;
-        }
-        .total {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            color: red;
-        }
-        .left {
-            text-align: left; 
-        }
-
-        .right {
-            text-align: right; 
-        }
-    </style>
-</head>
-<body>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            @page {
+                margin: 30px;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                padding-left: 30px;
+                font-family: 'Arial', sans-serif;
+                font-size: 14px;
+                color: black;
+            }
+            h1 {
+                font-size: 24px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            h2 {
+                font-size: 18px;
+                font-weight: bold;
+                text-align: left;
+                margin-top: 30px;
+            }
+            h3 {
+                font-size: 16px;
+                font-weight: bold;
+                margin-top: 20px;
+            }
+            p {
+                font-size: 14px;
+                line-height: 1.5;
+                margin: 0;
+                text-align: left;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+            td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f0f0f0;
+            }
+            .center {
+                text-align: right;
+            }
+            .total {
+                background-color: #f2f2f2;
+                font-weight: bold;
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
     <h1><strong>BẢNG BÁO GIÁ SƠ BỘ NHÀ Ở DÂN DỤNG</strong></h1>
     <p><strong>CÔNG TRÌNH:</strong> NHÀ Ở RIÊNG LẺ</p>
-    <p><strong>ĐỊA ĐIỂM:</strong> " + request.AccountName + @"</p>
+    <p><strong>ĐỊA ĐIỂM:</strong> " + request.Address + @"</p>
     <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
+    <p><strong>SỐ ĐIỆN THOẠI:</strong> " + request.Version + @"</p>
 
     <h2>ĐIỀU 1. QUY MÔ CÔNG TRÌNH</h2>
     <p>Nhà ở dân dụng</p>
+    <p>Xây dựng tại " + request.Address + @"</p>
+    <p>Diện tích đất xây dựng: " + request.Area + @"</p>
+    <p></p>
 
     <h2>ĐIỀU 2. GIÁ TRỊ HỢP ĐỒNG</h2>
     <h3>2.1. Đơn giá thi công phần thô trước thuế: " + request.PackageQuotationList.PackageRough + @" đồng/m²</h3>
 
-    <h3>2.2. Diện tích xây dựng theo phương án thiết kế:</h3>
+    <h3>2.2. DIỆN TÍCH XÂY DỰNG THEO PHƯƠNG ÁN THIẾT KẾ:</h3>
     <table>
+        <tr>
+            <th colspan='6' style='text-align:left; font-weight:bold;'>Phần thô</th>
+        </tr>
         <tr>
             <th>STT</th>
             <th>Hạng mục</th>
             <th>Diện tích (m²)</th>
             <th>Hệ số</th>
-            <th>Diện tích tổng (m²)</th>
+            <th>Diện tích</th>
+            <th>Đơn vị</th>
         </tr>");
 
             int noCount = 1;
@@ -784,6 +772,7 @@ namespace RHCQS_Services.Implement
             <td>{request.Area}</td>
             <td>{item.Coefficient}</td>
             <td>{item.Area}</td>
+            <td>m²</td>
         </tr>");
                 noCount++;
             }
@@ -792,35 +781,76 @@ namespace RHCQS_Services.Implement
         <tr>
             <td colspan='4' style='text-align:right;'><strong>Tổng diện tích xây dựng theo thiết kế:</strong></td>
             <td>{request.Area}</td>
+            <td>m²</td>
         </tr>
     </table>
 
-    <h3>2.3. Giá trị thi công phần thô trước thuế:</h3>
     <table>
         <tr>
+            <th colspan=""4"" style=""text-align: left; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 5px;"">
+            Phần hoàn thiện
+        </th>
+        </tr>
+        <tr>
+            <th>STT</th>
+            <th>Hạng mục</th>
+            <th>Diện tích</th>
+            <th>Đơn vị</th>
+        </tr>");
+
+            int noCountFinished = 1;
+                sb.Append($@"
+        <tr>
+            <td>{noCountFinished}</td>
+            <td>Phần hoàn thiện</td>
+            <td>{request.Area}</td>
+            <td>m²</td>
+        </tr>");
+                noCountFinished++;
+
+            sb.Append($@"
+    </table>
+
+    <h3>2.3.GIÁ TRỊ BÁO GIÁ SƠ BỘ XÂY DỰNG TRƯỚC THUẾ:</h3>
+    <table>
+        <tr>
+            <th></th>
             <th>Tổng diện tích xây dựng</th>
             <th>x</th>
             <th>Đơn giá</th>
             <th>=</th>
             <th>Thành tiền</th>
+            <th>Đơn vị</th>
         </tr>
         <tr>
+            <td>Phần thô</td>
             <td>" + request.Area + @" m²</td>
             <td>x</td>
             <td>" + request.PackageQuotationList.UnitPackageRough.ToString("N0") + @"</td>
             <td>=</td>
             <td>" + (request.TotalRough?.ToString("N0") ?? "0") + @"</td>
+            <td>VNĐ</td>
+        </tr>
+        <tr>
+            <td>Phần hoàn thiện</td>
+            <td>" + request.Area + @" m²</td>
+            <td>x</td>
+            <td>" + request.PackageQuotationList.UnitPackageFinished.ToString("N0") + @"</td>
+            <td>=</td>
+            <td>" + (request.TotalFinished?.ToString("N0") ?? "0") + @"</td>
+            <td>VNĐ</td>
         </tr>
     </table>
 
-    <h3>2.4. Các chi phí khác:</h3>
+    <h3>2.4. TÙY CHỌN & TIỆN ÍCH:</h3>
         <table>
             <tr>
                 <th>Hạng mục</th>
                 <th>Hệ số</th>
-                <th>Đơn giá (VND)</th>
-                <th>=</th>
-                <th>Thành tiền (VND)</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Giá trị thanh toán</th>
+                <th>Đơn vị</th>
             </tr>");
 
             foreach (var utility in request.UtilityInfos!)
@@ -829,34 +859,53 @@ namespace RHCQS_Services.Implement
             <tr>
                 <td>{utility.Description}</td>
                 <td>{utility.Coefficient}</td>
+                <td>{utility.Quantity}</td>
                 <td>{utility.Price:N0}</td>
-                <td>=</td>
                 <td>{(utility.Coefficient * utility.Price):N0}</td>
+                <td>VNĐ</td>
             </tr>");
             }
 
             sb.Append("</table>");
+            sb.Append($@"
+    <h3>2.5. KHUYẾN MÃI:</h3>
+    <table>
+        <tr>
+            <th>Tên khuyến mãi</th>
+            <th>Giá trị</th>
+            <th>Tổng giảm</th>
+        </tr>
+        <tr>
+            <td>{request.PromotionInfo.Name}</td>
+            <td>{request.PromotionInfo.Value}</td>
+            <td>{request.Discount}</td>
+        </tr>
+    </table>");
 
             sb.Append($@"
-    <h3>2.5. Tổng hợp giá trị hợp đồng:</h3>
+    <h3>2.6. TỔNG GIÁ TRỊ HỢP ĐỒNG:</h3>
         <table>
             <tr>
-                <th>Hạng mục</th>
-                <th>x</th>
-                <th>Thành tiền</th>
-                <th>Đơn giá</th>
+                <th>Mô tả</th>
+                <th>Giá trị</th>
+                <th>Đơn vị</th>
             </tr>
             <tr>
-                <td>Phần thô</td>
-                <td>x</td>
+                <td>Giá trị báo giá sơ bộ xây dựng trước thuế</td>
                 <td>{request.TotalRough:N0}</td>
-                <td>{request.Unit}</td>
+                <td>VNĐ</td>
+            </tr>
+            <tr>
+                <td>Tùy chọn & Tiện ích</td>
+                <td>{request.TotalUtilities:N0}</td>
+                <td>VNĐ</td>
+            </tr>
+            <tr>
+                <td>{request.PromotionInfo.Name}</td>
+                <td>{request.Discount:N0}</td>
+                <td>VNĐ</td>
             </tr>
         </table>
-
-    <h3>2.6. Tổng giá trị hợp đồng:</h3>
-    <p>Giá trị hợp đồng trước thuế: " + (request.TotalRough?.ToString("N0") ?? "0") + "VNĐ" + @"</p>
-    <p>Giá trị hợp đồng sau khuyến mãi: " + (request.PromotionInfo?.Value?.ToString("N0") ?? "0") + "VNĐ" + @" </p>
     
     <h2>ĐIỀU 3. PHƯƠNG THỨC THANH TOÁN</h2>
     <p>Tổng giá trị hợp đồng sẽ được thanh toán theo các đợt sau:</p>
@@ -886,7 +935,9 @@ namespace RHCQS_Services.Implement
 
     <h2>ĐIỀU 4. THỜI GIAN THI CÔNG</h2>
     <p>Thời gian hoàn thành công trình là: <strong>" + request.TimeProcessing + @"</strong> ngày</p>
-    <p>Thời gian thi công phần thô: <strong>" + request.TimeOthers + @"</strong> ngày</p>");
+    <p>Thời gian thi công phần thô: <strong>" + request.TimeRough + @"</strong> ngày</p>
+    <p>Thời gian thi công phần hoàn thiện: <strong>" + request.TimeOthers + @" </strong></p>
+            ");
 
             sb.Append(@"
     <h2>ĐIỀU 5. CÁC THỎA THUẬN KHÁC</h2>
