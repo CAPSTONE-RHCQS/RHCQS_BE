@@ -78,6 +78,7 @@ namespace RHCQS_Services.Implement
                     predicate: wt => wt.PackageId == packageId,
                     selector: wt => new
                     {
+                        wt.Id,
                         wt.InsDate,
                         wt.LaborCost,
                         wt.MaterialCost,
@@ -85,6 +86,7 @@ namespace RHCQS_Services.Implement
                         wt.TotalCost,
                         ConstructionWorkName = wt.ContructionWork.WorkName,
                         Unit = wt.ContructionWork.Unit,
+                        ConstructionItemId = wt.ContructionWork.Construction.Id,
                         ConstructionItemName = wt.ContructionWork.Construction.Name
                     }
                 );
@@ -132,9 +134,18 @@ namespace RHCQS_Services.Implement
                         MaterialFinishedCost = row.Cell(6).GetValue<double>(),
                         Unit = row.Cell(7).GetValue<string>()
                     };
+                var dbTemplate = workTemplatesDb.FirstOrDefault(dbTemplate =>
+                    string.Equals(dbTemplate.ConstructionItemName, constructionName, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(dbTemplate.ConstructionWorkName, constructionWorkName, StringComparison.OrdinalIgnoreCase));
 
-                    //seenIds.Add(workTemplateId);
-                    workTemplateListFromFile.Add(workTemplate);
+                if (dbTemplate != null)
+                {
+                    // Gán ConstructionItemId và WorkTemplateId
+                    workTemplate.ConstructionId = dbTemplate.ConstructionItemId;
+                    workTemplate.WorkTemplateId = dbTemplate.Id; // Đây là WorkTemplateId từ cơ sở dữ liệu
+                }
+                //seenIds.Add(workTemplateId);
+                workTemplateListFromFile.Add(workTemplate);
                 //}
             }
 
@@ -162,8 +173,6 @@ $"Không tìm thấy mẫu công việc trong file: {difference.ConstructionWork
                     }
                 }
             }
-
-
             // Nếu có lỗi, ném exception
             if (errorMessages.Any())
             {
@@ -173,12 +182,14 @@ $"Không tìm thấy mẫu công việc trong file: {difference.ConstructionWork
 
             // Group lại các WorkTemplate theo ConstructionId và ConstructionName
             var groupedResult = workTemplateListFromFile
-                .GroupBy(wt => new { wt.ConstructionName })
+                .GroupBy(wt => new { wt.ConstructionId, wt.ConstructionName })
                 .Select(group => new GroupedConstructionResponse
                 {
+                    ConstructionId = group.Key.ConstructionId,
                     ConstructionName = group.Key.ConstructionName,
                     WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
                     {
+                        WorkTemplateId = wt.WorkTemplateId,
                         ConstructionWorkName = wt.ConstructionWorkName,
                         Weight = wt.Weight,
                         LaborCost = wt.LaborCost,
