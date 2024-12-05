@@ -1272,13 +1272,13 @@ namespace RHCQS_Services.Implement
 
             if (initialItem != null)
             {
-                if (initialItem.Status == AppConstant.QuotationStatus.ENDED)
-                {
-                    throw new AppConstant.MessageError(
-                       (int)AppConstant.ErrCode.Conflict,
-                       AppConstant.ErrMessage.Ended_Quotation
-                   );
-                }
+                //if (initialItem.Status == AppConstant.QuotationStatus.ENDED)
+                //{
+                //    throw new AppConstant.MessageError(
+                //       (int)AppConstant.ErrCode.Conflict,
+                //       AppConstant.ErrMessage.Ended_Quotation
+                //   );
+                //}
                 var projectQuotations = await _unitOfWork.GetRepository<InitialQuotation>()
                         .GetListAsync(predicate: x => x.ProjectId == initialItem.ProjectId);
 
