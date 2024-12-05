@@ -25,6 +25,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Mate
         public string? UnitPrice { get; set; }
         [MaxLength(50, ErrorMessage = "Mã Code không được vượt quá 10 ký tự.")]
         public string? Code { get; set; }
+        public string? Type { get; set; }
         [JsonIgnore]
         public IFormFile? Image { get; set; }
     }
