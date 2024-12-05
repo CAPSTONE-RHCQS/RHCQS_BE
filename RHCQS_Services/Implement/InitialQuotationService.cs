@@ -547,9 +547,10 @@ namespace RHCQS_Services.Implement
         {
             var paginatedList = await _unitOfWork.GetRepository<InitialQuotation>()
                 .GetList(
-                    predicate: x => x.ProjectId == projectId &&
+                    predicate: x => x.ProjectId == projectId && x.Version != 0 &&
                                (x.Status == AppConstant.QuotationStatus.APPROVED ||
                                 x.Status == AppConstant.QuotationStatus.FINALIZED ||
+                                x.Status == AppConstant.QuotationStatus.UPDATING ||
                                 x.Status == AppConstant.QuotationStatus.ENDED),
                     selector: x => new InitialQuotationAppResponse(
                         x.Id,
@@ -1268,8 +1269,15 @@ namespace RHCQS_Services.Implement
                                     include: x => x.Include(x => x.Project)
                                                     .ThenInclude(x => x.Customer!));
 
-            if (initialItem != null && initialItem.Status != AppConstant.QuotationStatus.ENDED)
+            if (initialItem != null)
             {
+                if (initialItem.Status == AppConstant.QuotationStatus.ENDED)
+                {
+                    throw new AppConstant.MessageError(
+                       (int)AppConstant.ErrCode.Conflict,
+                       AppConstant.ErrMessage.Ended_Quotation
+                   );
+                }
                 var projectQuotations = await _unitOfWork.GetRepository<InitialQuotation>()
                         .GetListAsync(predicate: x => x.ProjectId == initialItem.ProjectId);
 
@@ -1353,7 +1361,7 @@ namespace RHCQS_Services.Implement
             }
 
             initialItem.Note = comment.Note;
-            initialItem.Status = AppConstant.QuotationStatus.PROCESSING;
+            initialItem.Status = AppConstant.QuotationStatus.UPDATING;
             _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;

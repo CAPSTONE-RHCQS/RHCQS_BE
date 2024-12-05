@@ -76,6 +76,7 @@ public static class AppConstant
         public const string PENDING = "Pending";
         public const string PROCESSING = "Processing";
         public const string REJECTED = "Rejected";
+        public const string UPDATING = "Updating";
         public const string REVIEWING = "Reviewing";
         public const string APPROVED = "Approved";
         public const string FINALIZED = "Finalized";
@@ -93,6 +94,7 @@ public static class AppConstant
         public const string FINALIZED = "Finalized";
         public const string CANCELED = "Canceled";
         public const string ACCEPTED = "Accepted";
+        public const string ENDED = "Ended";
     }
 
     public class ContractStatus
