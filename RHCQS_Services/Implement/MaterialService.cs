@@ -50,7 +50,8 @@ namespace RHCQS_Services.Implement
                     SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name,
-                    Code = x.Code
+                    Code = x.Code,
+                    Type = x.Type
                 },
                 include: m => m.Include(m => m.MaterialSection).Include(m => m.Supplier),
                 orderBy: x => x.OrderBy(x => x.InsDate),
@@ -83,7 +84,8 @@ namespace RHCQS_Services.Implement
                 SupplierId = material.SupplierId,
                 MaterialSectionName = material.MaterialSection.Name,
                 SupplierName = material.Supplier.Name,
-                Code = material.Code
+                Code = material.Code,
+                Type = material.Type
             };
         }
 
@@ -129,7 +131,8 @@ namespace RHCQS_Services.Implement
                     UpsDate = LocalDateTime.VNDateTime(),
                     UnitPrice = request.UnitPrice,
                     IsAvailable = request.IsAvailable,
-                    Code = request.Code
+                    Code = request.Code,
+                    Type = request.Type
                 };
                 await _unitOfWork.GetRepository<Material>().InsertAsync(newMaterial);
                 return await _unitOfWork.CommitAsync() > 0;
@@ -190,6 +193,7 @@ namespace RHCQS_Services.Implement
                 material.UnitPrice = request.UnitPrice ?? material.UnitPrice;
                 material.IsAvailable = request.IsAvailable ?? material.IsAvailable;
                 material.Code = request.Code ?? material.Code;
+                material.Type = request.Type ?? material.Type;
 
                 material.UpsDate = LocalDateTime.VNDateTime();
 
@@ -225,7 +229,8 @@ namespace RHCQS_Services.Implement
                         SupplierId = x.Material.SupplierId,
                         MaterialSectionName = x.Material.MaterialSection.Name,
                         SupplierName = x.Material.Supplier.Name,
-                        Code = x.Material.Code
+                        Code = x.Material.Code,
+                        Type = x.Material.Type
                     },
                 predicate: m => m.Package.Id == packageId && m.Material.Name.Contains(name),
                 include: m => m.Include(m => m.Material.MaterialSection)
@@ -254,7 +259,8 @@ namespace RHCQS_Services.Implement
                     SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name,
-                    Code = x.Code
+                    Code = x.Code,
+                    Type = x.Type
                 },
                 predicate: m => m.Name.Contains(name),
                 orderBy: x => x.OrderBy(x => x.InsDate)
@@ -280,7 +286,8 @@ namespace RHCQS_Services.Implement
                     SupplierId = x.SupplierId,
                     MaterialSectionName = x.MaterialSection.Name,
                     SupplierName = x.Supplier.Name,
-                    Code = x.Code
+                    Code = x.Code,
+                    Type = x.Type
                 },
                 predicate: m => m.MaterialSectionId == materialSectionId,
                 include: m => m.Include(m => m.MaterialSection).Include(m => m.Supplier),
