@@ -715,6 +715,7 @@ namespace RHCQS_Services.Implement
                 border-collapse: collapse;
                 margin-top: 10px;
             }
+            th,
             td {
                 border: 1px solid black;
                 padding: 8px;
@@ -1355,7 +1356,8 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Quotation);
             }
 
-            if(initialItem.Status == AppConstant.QuotationStatus.ENDED)
+            if(initialItem.Status == AppConstant.QuotationStatus.ENDED || 
+                initialItem.Status == AppConstant.QuotationStatus.UPDATING)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_Quotation);
             }

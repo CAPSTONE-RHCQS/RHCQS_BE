@@ -468,13 +468,16 @@ namespace RHCQS_Services.Implement
             var listDrawingPrevious = await _unitOfWork.GetRepository<HouseDesignDrawing>()
                                                 .GetList(predicate: x => x.ProjectId == projectId &&
                                                          (x.Status == AppConstant.HouseDesignStatus.APPROVED ||
+                                                         x.Status == AppConstant.HouseDesignStatus.UPDATING ||
                                                          x.Status == AppConstant.HouseDesignStatus.ACCEPTED ||
                                                          x.Status == AppConstant.HouseDesignStatus.FINALIZED),
                                                  selector: x => new ListHouseDesginResponse(x.Id, x.ProjectId,
                                                           x.Account.Username!,
                                                           x.Name, x.Step, x.Status,
                                                           x.Type, x.HaveDrawing, x.InsDate,
-                                                          x.HouseDesignVersions.Select(
+                                                          x.HouseDesignVersions.
+                                                          Where(v => v.Confirmed == true)
+                                                          .Select(
                                                               v => new HouseDesignVersionResponseList(
                                                                   v.Id,
                                                                   v.Name,

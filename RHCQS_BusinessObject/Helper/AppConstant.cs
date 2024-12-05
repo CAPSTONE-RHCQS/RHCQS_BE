@@ -268,6 +268,8 @@ public static class AppConstant
         public const string Invalid_Architecture = "Cần cung cấp đủ bản vẽ kiến trúc";
         public const string Invalid_Structure = "Cần cung cấp đủ bản vẽ kết cấu";
         public const string Invalid_ElectricityWater = "Cần cung cấp đủ bản vẽ điện & nước";
+        public const string Not_Comment_House_Design_Drawing = "Bạn đã chốt bản vẽ! Vui lòng không thực hiện xác nhận bản vẽ này!";
+        public const string Not_Comment_House_Design_Drawing_Updating = "Bản vẽ đang trong quá trình chỉnh sửa!";
 
         //Quotation
         public const string Not_Found_InitialQuotaion = "Không tìm thấy báo giá sơ bộ phù hợp(trạng thái hoàn thành)!";
