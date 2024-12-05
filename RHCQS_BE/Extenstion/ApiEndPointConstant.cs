@@ -85,7 +85,7 @@ namespace RHCQS_BE.Extenstion
         public static class EquiqmentExcel
         {
             public const string EquimentExcelEndpoint = ApiEndpoint + "/equiqment/excel";
-
+            public const string WorkTemplateExcelEndpoint = ApiEndpoint + "/worktemplate/excel";
         }
 
         public static class AssignTask

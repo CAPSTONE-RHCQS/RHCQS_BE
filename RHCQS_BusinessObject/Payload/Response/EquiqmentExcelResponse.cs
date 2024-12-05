@@ -26,4 +26,32 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public string? Type { get; set; }
     }
+    public class WorkTemplateExcelResponse
+    {
+        public Guid WorkTemplateId { get; set; }
+        public string ConstructionWorkName { get; set; }
+        public Guid ConstructionId { get; set; }
+        public string ConstructionName { get; set; }
+        public double Weight { get; set; }
+        public double LaborCost { get; set; }
+        public double MaterialCost { get; set; }
+        public double MaterialFinishedCost { get; set; }
+        public string Unit { get; set; }
+    }
+    public class GroupedConstructionResponse
+    {
+        public Guid ConstructionId { get; set; }
+        public string ConstructionName { get; set; }
+        public List<WorkTemplateExcelShow> WorkTemplates { get; set; } = new List<WorkTemplateExcelShow>();
+    }
+    public class WorkTemplateExcelShow
+    {
+        public Guid WorkTemplateId { get; set; }
+        public string ConstructionWorkName { get; set; }
+        public double Weight { get; set; }
+        public double LaborCost { get; set; }
+        public double MaterialCost { get; set; }
+        public double MaterialFinishedCost { get; set; }
+        public string Unit { get; set; }
+    }
 }

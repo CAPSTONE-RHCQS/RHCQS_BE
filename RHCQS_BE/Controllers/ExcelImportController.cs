@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_DataAccessObjects.Models;
 using RHCQS_Services.Interface;
 
 namespace RHCQS_BE.Controllers
@@ -30,6 +32,22 @@ namespace RHCQS_BE.Controllers
             var data = await _excelImportService.ImportExcelAsync(stream);
 
             var dataList = JsonConvert.SerializeObject(data, Formatting.Indented);
+            return new ContentResult
+            {
+                Content = dataList,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        [Authorize(Roles = "SalesStaff")]
+        [HttpPost(ApiEndPointConstant.EquiqmentExcel.WorkTemplateExcelEndpoint)]
+        [ProducesResponseType(typeof(EquiqmentExcelResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> WorkTemplateExcel(Guid packageid,IFormFile file)
+        {
+            using var stream = file.OpenReadStream();
+            var workTemplates = await _excelImportService.ProcessWorkTemplateFileAsync(stream, packageid);
+
+            var dataList = JsonConvert.SerializeObject(workTemplates, Formatting.Indented);
             return new ContentResult
             {
                 Content = dataList,

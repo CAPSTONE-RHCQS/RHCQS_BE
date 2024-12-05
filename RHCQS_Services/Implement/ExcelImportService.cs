@@ -1,5 +1,10 @@
 ﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Response;
+using RHCQS_BusinessObjects;
+using RHCQS_DataAccessObjects.Models;
+using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -11,6 +16,11 @@ namespace RHCQS_Services.Implement
 {
     public class ExcelImportService : IExcelImportService
     {
+        private readonly IUnitOfWork _unitOfWork;
+        public ExcelImportService(IUnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
         public async Task<List<EquiqmentExcelResponse>> ImportExcelAsync(Stream excelStream)
         {
             var result = new List<EquiqmentExcelResponse>();
@@ -55,6 +65,138 @@ namespace RHCQS_Services.Implement
             }
 
             return result;
+        }
+        public async Task<List<GroupedConstructionResponse>> ProcessWorkTemplateFileAsync(Stream excelStream, Guid packageId)
+        {
+            var result = new List<GroupedConstructionResponse>();
+            var seenIds = new HashSet<Guid>();
+            var errorMessages = new List<string>();
+
+            // Lấy danh sách từ cơ sở dữ liệu
+            var workTemplatesDb = await _unitOfWork.GetRepository<WorkTemplate>()
+                .GetListAsync(
+                    predicate: wt => wt.PackageId == packageId,
+                    selector: wt => new
+                    {
+                        wt.Id,
+                        wt.InsDate,
+                        wt.LaborCost,
+                        wt.MaterialCost,
+                        wt.MaterialFinishedCost,
+                        wt.TotalCost,
+                        ConstructionWorkName = wt.ContructionWork.WorkName,
+                        Unit = wt.ContructionWork.Unit,
+                        ConstructionId = wt.ContructionWork.ConstructionId,
+                        ConstructionItemName = wt.ContructionWork.Construction.Name
+                    }
+                );
+
+            // Lấy danh sách từ file Excel
+            using var workbook = new XLWorkbook(excelStream);
+            var worksheet = workbook.Worksheet(1);
+            var workTemplateListFromFile = new List<WorkTemplateExcelResponse>();
+
+            foreach (var row in worksheet.RowsUsed().Skip(1))
+            {
+                var workTemplateIdValue = row.Cell(1).Value.ToString();
+                if (!Guid.TryParse(workTemplateIdValue, out Guid workTemplateId))
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Dòng {row.RowNumber()} có giá trị WorkTemplateId không hợp lệ: {workTemplateIdValue}");
+                    continue;
+                }
+
+                var constructionWorkName = row.Cell(2).GetValue<string>();
+                var constructionIdValue = row.Cell(3).Value.ToString();
+                if (!Guid.TryParse(constructionIdValue, out Guid constructionId))
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Dòng {row.RowNumber()} có giá trị ConstructionId không hợp lệ: {constructionIdValue}");
+                    continue;
+                }
+
+                var constructionName = row.Cell(4).GetValue<string>();
+
+                if (seenIds.Contains(workTemplateId))
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Dòng {row.RowNumber()} trùng WorkTemplateId: {workTemplateId}");
+                }
+                else
+                {
+                    var workTemplate = new WorkTemplateExcelResponse
+                    {
+                        WorkTemplateId = workTemplateId,
+                        ConstructionWorkName = constructionWorkName,
+                        ConstructionId = constructionId,
+                        ConstructionName = constructionName,
+                        Weight = row.Cell(5).GetValue<double>(),
+                        LaborCost = row.Cell(6).GetValue<double>(),
+                        MaterialCost = row.Cell(7).GetValue<double>(),
+                        MaterialFinishedCost = row.Cell(8).GetValue<double>(),
+                        Unit = row.Cell(9).GetValue<string>()
+                    };
+
+                    seenIds.Add(workTemplateId);
+                    workTemplateListFromFile.Add(workTemplate);
+                }
+            }
+
+            var differences = workTemplatesDb
+                .Where(dbTemplate => !workTemplateListFromFile.Any(fileTemplate =>
+                    fileTemplate.WorkTemplateId == dbTemplate.Id))
+                .ToList();
+
+            if (differences.Any())
+            {
+                foreach (var difference in differences)
+                {
+                    var fileTemplate = workTemplateListFromFile.FirstOrDefault(fileTemplate =>
+                        fileTemplate.WorkTemplateId == difference.Id);
+
+                    if (fileTemplate != null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Mẫu công việc ID {difference.Id} không khớp với WorktemplateId: {difference.Id} (File: {fileTemplate.WorkTemplateId})");
+                    }
+                    else
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Không tìm thấy mẫu công việc trong file với ID: {difference.Id}");
+                    }
+                }
+            }
+
+
+            // Nếu có lỗi, ném exception
+            if (errorMessages.Any())
+            {
+                var errorMessage = string.Join(Environment.NewLine, errorMessages);
+                throw new Exception($"Có lỗi với các dòng:\n{errorMessage}");
+            }
+
+            // Group lại các WorkTemplate theo ConstructionId và ConstructionName
+            var groupedResult = workTemplateListFromFile
+                .GroupBy(wt => new { wt.ConstructionId, wt.ConstructionName })
+                .Select(group => new GroupedConstructionResponse
+                {
+                    ConstructionId = group.Key.ConstructionId,
+                    ConstructionName = group.Key.ConstructionName,
+                    WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
+                    {
+                        WorkTemplateId = wt.WorkTemplateId,
+                        ConstructionWorkName = wt.ConstructionWorkName,
+                        Weight = wt.Weight,
+                        LaborCost = wt.LaborCost,
+                        MaterialCost = wt.MaterialCost,
+                        MaterialFinishedCost = wt.MaterialFinishedCost,
+                        Unit = wt.Unit
+
+                    }).ToList()
+                })
+                .ToList();
+
+            return groupedResult;
         }
 
 
