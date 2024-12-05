@@ -135,8 +135,13 @@ namespace RHCQS_Services.Implement
                         Unit = row.Cell(7).GetValue<string>()
                     };
                 var dbTemplate = workTemplatesDb.FirstOrDefault(dbTemplate =>
-                    string.Equals(dbTemplate.ConstructionItemName, constructionName, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(dbTemplate.ConstructionWorkName, constructionWorkName, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(CleanString(dbTemplate.ConstructionItemName), CleanString(constructionName), StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(CleanString(dbTemplate.ConstructionWorkName), CleanString(constructionWorkName), StringComparison.OrdinalIgnoreCase));
+
+                string CleanString(string input)
+                {
+                    return input.Replace("\n", "").Replace("\r", "").Trim(); // Loại bỏ ký tự xuống dòng
+                }
 
                 if (dbTemplate != null)
                 {
