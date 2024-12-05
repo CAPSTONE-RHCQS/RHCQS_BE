@@ -380,7 +380,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="request">The request body containing the reason for approval or rejection.</param>
         /// <returns>Returns a success or error message based on the approval result.</returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.InitialQuotation.ApproveInitialEndpoint)]
         [ProducesResponseType(typeof(ApproveQuotationRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -401,12 +401,12 @@ namespace RHCQS_BE.Controllers
                     Title = "Báo giá sơ bộ",
                     Body = $"Báo giá sơ bộ có cập nhật mới bạn cần xem."
                 };
-                Task.Run(() => _firebaseService.SendNotificationAsync(
-                    notificationRequest.Email,
-                    notificationRequest.DeviceToken,
-                    notificationRequest.Title,
-                    notificationRequest.Body
-                ));
+                //Task.Run(() => _firebaseService.SendNotificationAsync(
+                //    notificationRequest.Email,
+                //    notificationRequest.DeviceToken,
+                //    notificationRequest.Title,
+                //    notificationRequest.Body
+                //));
                 return new ContentResult()
                 {
                     Content = result,
