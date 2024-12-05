@@ -78,7 +78,6 @@ namespace RHCQS_Services.Implement
                     predicate: wt => wt.PackageId == packageId,
                     selector: wt => new
                     {
-                        wt.Id,
                         wt.InsDate,
                         wt.LaborCost,
                         wt.MaterialCost,
@@ -86,7 +85,6 @@ namespace RHCQS_Services.Implement
                         wt.TotalCost,
                         ConstructionWorkName = wt.ContructionWork.WorkName,
                         Unit = wt.ContructionWork.Unit,
-                        ConstructionId = wt.ContructionWork.ConstructionId,
                         ConstructionItemName = wt.ContructionWork.Construction.Name
                     }
                 );
@@ -98,53 +96,51 @@ namespace RHCQS_Services.Implement
 
             foreach (var row in worksheet.RowsUsed().Skip(1))
             {
-                var workTemplateIdValue = row.Cell(1).Value.ToString();
-                if (!Guid.TryParse(workTemplateIdValue, out Guid workTemplateId))
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Dòng {row.RowNumber()} có giá trị WorkTemplateId không hợp lệ: {workTemplateIdValue}");
-                    continue;
-                }
+//                var workTemplateIdValue = row.Cell(1).Value.ToString();
+//                if (!Guid.TryParse(workTemplateIdValue, out Guid workTemplateId))
+//                {
+//                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+//$"Dòng {row.RowNumber()} có giá trị WorkTemplateId không hợp lệ: {workTemplateIdValue}");
+//                    continue;
+//                }
 
-                var constructionWorkName = row.Cell(2).GetValue<string>();
-                var constructionIdValue = row.Cell(3).Value.ToString();
-                if (!Guid.TryParse(constructionIdValue, out Guid constructionId))
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Dòng {row.RowNumber()} có giá trị ConstructionId không hợp lệ: {constructionIdValue}");
-                    continue;
-                }
+                var constructionWorkName = row.Cell(1).GetValue<string>();
+//                var constructionIdValue = row.Cell(3).Value.ToString();
+//                if (!Guid.TryParse(constructionIdValue, out Guid constructionId))
+//                {
+//                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+//$"Dòng {row.RowNumber()} có giá trị ConstructionId không hợp lệ: {constructionIdValue}");
+//                    continue;
+//                }
 
-                var constructionName = row.Cell(4).GetValue<string>();
+                var constructionName = row.Cell(2).GetValue<string>();
 
-                if (seenIds.Contains(workTemplateId))
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Dòng {row.RowNumber()} trùng WorkTemplateId: {workTemplateId}");
-                }
-                else
-                {
+//                if (seenIds.Contains(workTemplateId))
+//                {
+//                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+//$"Dòng {row.RowNumber()} trùng WorkTemplateId: {workTemplateId}");
+//                }
+                //else
+                //{
                     var workTemplate = new WorkTemplateExcelResponse
                     {
-                        WorkTemplateId = workTemplateId,
                         ConstructionWorkName = constructionWorkName,
-                        ConstructionId = constructionId,
                         ConstructionName = constructionName,
-                        Weight = row.Cell(5).GetValue<double>(),
-                        LaborCost = row.Cell(6).GetValue<double>(),
-                        MaterialCost = row.Cell(7).GetValue<double>(),
-                        MaterialFinishedCost = row.Cell(8).GetValue<double>(),
-                        Unit = row.Cell(9).GetValue<string>()
+                        Weight = row.Cell(3).GetValue<double>(),
+                        LaborCost = row.Cell(4).GetValue<double>(),
+                        MaterialCost = row.Cell(5).GetValue<double>(),
+                        MaterialFinishedCost = row.Cell(6).GetValue<double>(),
+                        Unit = row.Cell(7).GetValue<string>()
                     };
 
-                    seenIds.Add(workTemplateId);
+                    //seenIds.Add(workTemplateId);
                     workTemplateListFromFile.Add(workTemplate);
-                }
+                //}
             }
 
             var differences = workTemplatesDb
                 .Where(dbTemplate => !workTemplateListFromFile.Any(fileTemplate =>
-                    fileTemplate.WorkTemplateId == dbTemplate.Id))
+                    fileTemplate.ConstructionName == dbTemplate.ConstructionItemName))
                 .ToList();
 
             if (differences.Any())
@@ -152,17 +148,17 @@ $"Dòng {row.RowNumber()} trùng WorkTemplateId: {workTemplateId}");
                 foreach (var difference in differences)
                 {
                     var fileTemplate = workTemplateListFromFile.FirstOrDefault(fileTemplate =>
-                        fileTemplate.WorkTemplateId == difference.Id);
+                        fileTemplate.ConstructionName == difference.ConstructionItemName);
 
                     if (fileTemplate != null)
                     {
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Mẫu công việc ID {difference.Id} không khớp với WorktemplateId: {difference.Id} (File: {fileTemplate.WorkTemplateId})");
+$"Mẫu công việc {difference.ConstructionItemName} không khớp với tên: {difference.ConstructionItemName} (File: {fileTemplate.ConstructionName})");
                     }
                     else
                     {
                         throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Không tìm thấy mẫu công việc trong file với ID: {difference.Id}");
+$"Không tìm thấy mẫu công việc trong file: {difference.ConstructionWorkName}");
                     }
                 }
             }
@@ -177,14 +173,12 @@ $"Không tìm thấy mẫu công việc trong file với ID: {difference.Id}");
 
             // Group lại các WorkTemplate theo ConstructionId và ConstructionName
             var groupedResult = workTemplateListFromFile
-                .GroupBy(wt => new { wt.ConstructionId, wt.ConstructionName })
+                .GroupBy(wt => new { wt.ConstructionName })
                 .Select(group => new GroupedConstructionResponse
                 {
-                    ConstructionId = group.Key.ConstructionId,
                     ConstructionName = group.Key.ConstructionName,
                     WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
                     {
-                        WorkTemplateId = wt.WorkTemplateId,
                         ConstructionWorkName = wt.ConstructionWorkName,
                         Weight = wt.Weight,
                         LaborCost = wt.LaborCost,
