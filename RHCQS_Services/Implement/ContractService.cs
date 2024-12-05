@@ -857,6 +857,8 @@ namespace RHCQS_Services.Implement
             {
                 batchPaymentInfo.Status = AppConstant.PaymentStatus.PAID;
 
+                _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(batchPaymentInfo);
+
                 var contractUpdate = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
                              predicate: c => c.Id == batchPaymentInfo.ContractId,
                              include: c => c.Include(c => c.BatchPayments)

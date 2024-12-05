@@ -129,7 +129,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to create the contract design due to invalid input</response>
         /// 
         #endregion
-        //[Authorize(Roles = "SalesStaff")]
+        [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Contract.ContractDesignEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -276,7 +276,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to approve contract due to invalid input</response>
         /// 
         #endregion
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.Contract.PaymentBatchDesignConfirmEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -366,9 +366,10 @@ namespace RHCQS_BE.Controllers
         /// Else display upload bill from Manager
         /// </summary>
         /// <param name="paymentId"></param>
-        /// <param name="type"></param>
+        /// <param name="type">Approved</param>
         /// <returns></returns>
         #endregion
+        [Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.Contract.ManagerApproveBillFromCustomerEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
