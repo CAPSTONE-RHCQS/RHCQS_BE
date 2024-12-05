@@ -99,6 +99,7 @@ namespace RHCQS_Services.Implement
                         RelatedDrawingId = request.RelatedDrawingId ?? null,
                         UpsDate = LocalDateTime.VNDateTime(),
                         Deflag = false,
+                        Confirmed = false
                     };
 
                     await _unitOfWork.GetRepository<HouseDesignVersion>().InsertAsync(itemDesign);
@@ -338,6 +339,26 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
+            //Check house design drawing UPDATING (Customer rejected this version in App)
+            if (designVersionInfo.HouseDesignDrawing.Status == AppConstant.HouseDesignStatus.UPDATING)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_House_Design_Drawing_Updating);
+            }
+
+            #region Check house design version accepted
+            bool hasAcceptedVersion = await _unitOfWork.GetRepository<HouseDesignVersion>()
+                .AnyAsync(x => x.HouseDesignDrawingId == designVersionInfo.HouseDesignDrawingId
+                       && x.HouseDesignDrawing.Status == AppConstant.HouseDesignStatus.ACCEPTED);
+
+            if (hasAcceptedVersion)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_House_Design_Drawing);
+            }
+            #endregion
+
+            //Update field Confirmed (House design version)
+            designVersionInfo.Confirmed = true;
+            //Update status REVIEWING -> ACCEPTED (House design drawing)
             designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ACCEPTED;
 
             var nextStep = designVersionInfo.HouseDesignDrawing.Step + 1;
@@ -384,6 +405,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
+            designVersionInfo.Confirmed = false;
             designVersionInfo.Note = comment.Note;
             designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.UPDATING;
             _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);

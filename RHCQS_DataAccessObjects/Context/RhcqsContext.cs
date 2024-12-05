@@ -103,6 +103,7 @@ public partial class RhcqsContext : DbContext
     public virtual DbSet<UtilityOption> UtilityOptions { get; set; }
 
     public virtual DbSet<WorkTemplate> WorkTemplates { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
