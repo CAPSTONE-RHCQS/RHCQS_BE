@@ -74,6 +74,13 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest,
             [FromQuery][Required(ErrorMessage = "Role là cần thiết.")] UserRoleForRegister role)
         {
+            if (!Enum.IsDefined(typeof(UserRoleForRegister), role))
+            {
+                return BadRequest(new
+                {
+                    message = $"Role '{role}' không hợp lệ. Vai trò hợp lệ là: {string.Join(", ", Enum.GetNames(typeof(UserRoleForRegister)))}"
+                });
+            }
             var result = await _authService.RegisterAsync(registerRequest, role);
             var response = JsonConvert.SerializeObject(new { message = "Đăng kí thành công!" }, Formatting.Indented);
 
