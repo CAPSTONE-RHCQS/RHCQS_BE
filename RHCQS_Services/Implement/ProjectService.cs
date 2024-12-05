@@ -700,7 +700,7 @@ namespace RHCQS_Services.Implement
         {
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>()
                 .FirstOrDefaultAsync(
-                    predicate: q => q.ProjectId == projectId,
+                    predicate: q => q.ProjectId == projectId && q.Status != AppConstant.QuotationStatus.ENDED,
                     orderBy: q => q.OrderByDescending(q => q.Version)
                 );
 
