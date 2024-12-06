@@ -276,7 +276,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="400">Failed to approve contract due to invalid input</response>
         /// 
         #endregion
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPut(ApiEndPointConstant.Contract.PaymentBatchDesignConfirmEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

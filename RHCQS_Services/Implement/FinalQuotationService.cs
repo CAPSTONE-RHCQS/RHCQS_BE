@@ -98,7 +98,7 @@ namespace RHCQS_Services.Implement
             }
 
             finalquotation.Note = comment.Note;
-            finalquotation.Status = AppConstant.QuotationStatus.PROCESSING;
+            finalquotation.Status = AppConstant.QuotationStatus.UPDATING;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
 
             var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
