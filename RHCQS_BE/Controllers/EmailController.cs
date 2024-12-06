@@ -18,7 +18,7 @@ namespace RHCQS_BE.Controllers
         }
 
         [HttpPost(ApiEndPointConstant.Email.SendEmailEndpoint)]
-        public async Task<IActionResult> SendEmail([FromBody] EmailRequest emailRequest)
+        public async Task<IActionResult> SendEmail([FromForm] EmailRequest emailRequest, IFormFile pdfFile)
         {
             if (emailRequest == null)
             {
@@ -27,7 +27,7 @@ namespace RHCQS_BE.Controllers
 
             try
             {
-                await _gmailSenderService.SendEmailAsync(emailRequest.ToEmail, emailRequest.Subject, emailRequest.Body);
+                await _gmailSenderService.SendEmailAsync(emailRequest.ToEmail, emailRequest.Subject, emailRequest.Body, pdfFile);
                 return Ok("Email sent successfully.");
             }
             catch (Exception e)
