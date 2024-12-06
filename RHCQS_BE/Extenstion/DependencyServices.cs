@@ -19,6 +19,7 @@ using RHCQS_DataAccessObjects.Context;
 using System.Runtime.InteropServices;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using RHCQS_BusinessObject.Payload.Response;
 
 
 namespace RHCQS_BE.Extenstion
@@ -106,12 +107,18 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<IConstructionWorkService, ConstructionWorkService>();
+            services.AddScoped<IGmailSenderService, GmailSenderService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
             return services;
         }
-
+        public static IServiceCollection AddEmailSettings(this IServiceCollection services, IConfiguration configuration)
+        {
+            var emailSettingsSection = configuration.GetSection("EmailSettings");
+            services.Configure<EmailSettings>(emailSettingsSection);
+            return services;
+        }
         public static IServiceCollection AddJwtValidation(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddAuthentication(options =>

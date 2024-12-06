@@ -13,6 +13,7 @@
 		<PackageReference Include="EPPlus" Version="7.5.0" />
 		<PackageReference Include="FirebaseAdmin" Version="3.1.0" />
 		<PackageReference Include="FirebaseDatabase.net" Version="4.2.0" />
+		<PackageReference Include="MailKit" Version="4.8.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="6.0.0-preview.4.21253.5" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
 		<None Update="ExternalLibraries/libwkhtmltox.dll">

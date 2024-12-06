@@ -58,7 +58,7 @@ namespace RHCQS_BE
             builder.Services.AddJwtValidation(configuration);
             builder.Services.AddSignalRServices();
             builder.Services.AddFirebase(builder.Configuration);
-
+            builder.Services.AddEmailSettings(builder.Configuration);
             var app = builder.Build();
 
             // Enable Swagger

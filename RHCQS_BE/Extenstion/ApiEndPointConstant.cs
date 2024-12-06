@@ -228,7 +228,12 @@ namespace RHCQS_BE.Extenstion
             public const string FinalQuotationCustomerComment = FinalQuotationEndpoint + "/comment";
             public const string FianlQuotationStatusEndpoint = FinalQuotationEndpoint + "/status/id";
         }
+        public static class Email
+        {
 
+            public const string SendEmailEndpoint = ApiEndpoint + "/email" + "/send";
+
+        }
         public static class Contract
         {
             public const string ContractEndpoint = ApiEndpoint + "/contract";
