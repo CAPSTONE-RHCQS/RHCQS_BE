@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RHCQS_BusinessObject.Helper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace RHCQS_BusinessObject.Payload.Request.Project
 {
     public class TemplateHouseProjectRequest
     {
+        [Required(ErrorMessage = "Tên chủ đầu tư là bắt buộc.")]
+        [NotEmptyOrWhitespace(ErrorMessage = "Tên chủ đầu tư không được để trống hoặc chỉ chứa khoảng trắng.")]
+        public string CustomerName { get; set; }
+
         [Required(ErrorMessage = "Mẫu diện tích nhà là bắt buộc.")]
         public Guid SubTemplateId { get; set; }
 

@@ -80,9 +80,10 @@ namespace RHCQS_Services.Implement
         public async Task<List<PaymentResponse>> GetListBatchResponse(Guid projectId)
         {
             var allBatches = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
-                predicate: x => x.Contract!.ProjectId == projectId &&
-                                (x.Contract.Type == AppConstant.ContractType.Construction.ToString() ||
-                                 x.Contract.Type == AppConstant.ContractType.Appendix.ToString()),
+                predicate: x => x.Contract!.ProjectId == projectId, 
+                //&&
+                //                (x.Contract.Type == AppConstant.ContractType.Construction.ToString() ||
+                //                 x.Contract.Type == AppConstant.ContractType.Appendix.ToString()),
                 include: x => x.Include(x => x.Payment!)
                                .ThenInclude(x => x.PaymentType)
                                .Include(x => x.Contract!),
@@ -111,7 +112,6 @@ namespace RHCQS_Services.Implement
 
             return result;
         }
-
 
 
         public async Task<string> ConfirmBatchPaymentFromCustomer(Guid paymentId, IFormFile TransferInvoice)

@@ -506,16 +506,6 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-
-        //[HttpDelete(ApiEndPointConstant.Project.ProjectDeleteEndpoint)]
-        //[ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<IActionResult> DeleteProjectAsync(Guid projectId)
-        //{
-        //    var isCreate = await _projectService.DeleteProjectAsync(projectId);
-        //    return Ok(isCreate);
-        //}
-
         #region GetTotalProject
         /// <summary>
         /// Get total projects.

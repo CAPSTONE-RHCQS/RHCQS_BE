@@ -20,5 +20,11 @@ namespace RHCQS_Services.Interface
         Task<Guid> CreateConstructionWork(CreateConstructionWorkRequest request);
         Task<string> CreateWorkTemplate(List<CreateWorkTemplateRequest> request);
         Task<string> ImportFileConstructionWork(IFormFile excelFile);
+        Task<IPaginate<ListConstructionWorkResponse>> FilterConstructionWorkMultiParams(
+        int page,
+        int size,
+        string? code,
+        string? name,
+        string? unit);
     }
 }

@@ -6,7 +6,13 @@ using RHCQS_BE.Extenstion;
 using RHCQS_BusinessObject.Payload.Request.ConstructionWork;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.Construction;
+using RHCQS_BusinessObject.Payload.Response.Project;
+using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
+using static RHCQS_BusinessObjects.AppConstant;
+using System.ComponentModel.DataAnnotations;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace RHCQS_BE.Controllers
 {
@@ -207,6 +213,40 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
 
+        }
+
+        #region FilterConstructionWorkMultiParams
+        /// <summary>
+        /// Search multi params construction work in website 
+        /// 
+        /// Role: SALE STAFF - MANAGER
+        /// </summary>
+        /// <param name="page"></param>
+        /// <param name="size"></param>
+        /// <param name="code"></param>
+        /// <param name="name"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.ConstructionWork.FilterConstructionWorkMultiParamsEndpoint)]
+        [ProducesResponseType(typeof(IPaginate<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> FilterConstructionWorkMultiParams(
+            [FromQuery, Required(ErrorMessage = "Page is required")] int page,
+            [FromQuery, Required(ErrorMessage = "Size is required")] int size,
+            [FromQuery] string? code,
+            [FromQuery] string? name,
+            [FromQuery] string? unit)
+        {
+            var listConstructionWorks = await _workService.FilterConstructionWorkMultiParams(page, size,  code, name, unit);
+            var result = JsonConvert.SerializeObject(listConstructionWorks, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
     }
 }

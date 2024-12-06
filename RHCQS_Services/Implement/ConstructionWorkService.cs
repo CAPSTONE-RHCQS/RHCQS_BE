@@ -7,10 +7,12 @@ using OfficeOpenXml;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.ConstructionWork;
 using RHCQS_BusinessObject.Payload.Response.Construction;
+using RHCQS_BusinessObject.Payload.Response.Project;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
+using System.Linq.Expressions;
 
 
 namespace RHCQS_Services.Implement
@@ -412,7 +414,7 @@ namespace RHCQS_Services.Implement
                                                     x.MaterialSectionId == materialSectionId);
                                         }
 
-                                        if (!isDuplicateInDatabase && laborId.HasValue) 
+                                        if (!isDuplicateInDatabase && laborId.HasValue)
                                         {
                                             isDuplicateInDatabase = constructionWorkResources
                                                 .Any(x =>
@@ -423,7 +425,7 @@ namespace RHCQS_Services.Implement
 
                                     if (isDuplicateInDatabase)
                                     {
-                                        continue; 
+                                        continue;
                                     }
 
                                     var constructionResource = new ConstructionWorkResource
@@ -456,6 +458,48 @@ namespace RHCQS_Services.Implement
             {
 
                 throw new AppConstant.MessageError((int)ex.Code, ex.Message);
+            }
+        }
+
+        public async Task<IPaginate<ListConstructionWorkResponse>> FilterConstructionWorkMultiParams(
+        int page,
+        int size,
+        string? code,
+        string? name,
+        string? unit)
+        {
+            try
+            {
+                Expression<Func<ConstructionWork, bool>> predicate = x => true;
+
+                if (!string.IsNullOrEmpty(code))
+                {
+                    predicate = predicate.And(x => x.Code != null && x.Code.ToLower().Contains(code.ToLower()));
+                }
+
+                if (!string.IsNullOrEmpty(name))
+                {
+                    predicate = predicate.And(x => x.WorkName != null && x.WorkName.ToUpper().Contains(name.ToUpper()));
+                }
+
+                if (!string.IsNullOrEmpty(unit))
+                {
+                    predicate = predicate.And(x => x.Unit != null && x.Unit.ToLower().Contains(unit.ToLower()));
+                }
+
+                var listConstructionWork = await _unitOfWork.GetRepository<ConstructionWork>().GetList(
+                    predicate: predicate,
+                    selector: x => new ListConstructionWorkResponse(x.Id, x.WorkName, x.ConstructionId, x.InsDate, x.Unit, x.Code),
+                    orderBy: x => x.OrderByDescending(w => w.InsDate),
+                    page: page,
+                    size: size
+                );
+
+                return listConstructionWork;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
             }
         }
     }

@@ -42,7 +42,7 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<ProjectResponse> listProjects =
             await _unitOfWork.GetRepository<Project>().GetList(
-                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.CustomerName!, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Customer!),
                 orderBy: x => x.OrderByDescending(w => w.InsDate),
@@ -386,7 +386,7 @@ namespace RHCQS_Services.Implement
                         Address = projectRequest.Address,
                         Area = projectRequest.Area,
                         IsDrawing = true,
-                        CustomerName = customerInfo.Username
+                        CustomerName = projectRequest.CustomerName ?? customerInfo.Username
                     };
                 } else
                 {
@@ -779,7 +779,7 @@ namespace RHCQS_Services.Implement
                     Address = request.Address,
                     Area = templateHouseInfo.BuildingArea,
                     IsDrawing = false,
-                    CustomerName = customerInfo.Username
+                    CustomerName = request.CustomerName ??  customerInfo.Username
                 };
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
                 #endregion
@@ -938,182 +938,6 @@ namespace RHCQS_Services.Implement
                 throw new Exception(ex.Message, ex);
             }
 
-        }
-
-        public async Task<bool> DeleteProjectAsync(Guid intitialId)
-        {
-            try
-            {
-                //// Retrieve the project
-                //var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(p => p.Id == projectId);
-                //if (project == null)
-                //{
-                //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
-                //}
-
-                // Retrieve and delete InitialQuotations and their related entities
-                var initialQuotations = await _unitOfWork.GetRepository<InitialQuotation>()
-                    .GetListAsync(predicate: iq => iq.ProjectId == intitialId);
-
-                if (initialQuotations.Any())
-                {
-                    var initialQuotationIds = initialQuotations.Select(iq => iq.Id).ToList();
-
-                    //// Delete Media associated with InitialQuotations
-                    //var initialQuotationMediaItems = await _unitOfWork.GetRepository<Medium>()
-                    //    .GetListAsync(predicate: m => m.InitialQuotationId.HasValue && initialQuotationIds.Contains(m.InitialQuotationId.Value));
-                    //foreach (var mediaItem in initialQuotationMediaItems)
-                    //{
-                    //    _unitOfWork.GetRepository<Medium>().DeleteAsync(mediaItem);
-                    //}
-
-                    // Delete QuotationUtilities
-                    var quotationUtilities = await _unitOfWork.GetRepository<QuotationUtility>()
-                        .GetListAsync(predicate: qu => qu.InitialQuotationId.HasValue && initialQuotationIds.Contains(qu.InitialQuotationId.Value));
-                    foreach (var utility in quotationUtilities)
-                    {
-                        _unitOfWork.GetRepository<QuotationUtility>().DeleteAsync(utility);
-                    }
-
-                    // Delete InitialQuotationItems
-                    var initialQuotationItems = await _unitOfWork.GetRepository<InitialQuotationItem>()
-                        .GetListAsync(predicate: iqi => initialQuotationIds.Contains(iqi.InitialQuotationId));
-                    foreach (var item in initialQuotationItems)
-                    {
-                        _unitOfWork.GetRepository<InitialQuotationItem>().DeleteAsync(item);
-                    }
-
-                    // Delete PackageQuotations
-                    var packageQuotations = await _unitOfWork.GetRepository<PackageQuotation>()
-                        .GetListAsync(predicate: pq => initialQuotationIds.Contains(pq.InitialQuotationId));
-                    foreach (var package in packageQuotations)
-                    {
-                        _unitOfWork.GetRepository<PackageQuotation>().DeleteAsync(package);
-                    }
-
-                    // Delete InitialQuotations
-                    foreach (var initialQuotation in initialQuotations)
-                    {
-                        _unitOfWork.GetRepository<InitialQuotation>().DeleteAsync(initialQuotation);
-                    }
-
-                    // Delete BatchPayments related to InitialQuotations
-                    var batchPayments = await _unitOfWork.GetRepository<BatchPayment>()
-                        .GetListAsync(predicate: bp => initialQuotationIds.Contains(bp.InitialQuotationId));
-                    foreach (var batchPayment in batchPayments)
-                    {
-                        _unitOfWork.GetRepository<BatchPayment>().DeleteAsync(batchPayment);
-                    }
-                }
-
-                //// Retrieve and delete Assign Task
-                //var taskInfo = await _unitOfWork.GetRepository<AssignTask>().FirstOrDefaultAsync(x => x.ProjectId == projectId);
-                //if (taskInfo != null)
-                //{
-                //    _unitOfWork.GetRepository<AssignTask>().DeleteAsync(taskInfo);
-                //}
-
-    //            // Retrieve and delete HouseDesignVersions and HouseDesignDrawings
-    //            var houseVersionRange = await _unitOfWork.GetRepository<HouseDesignVersion>()
-    //                .GetListAsync(predicate: x => x.HouseDesignDrawing.ProjectId == projectId);
-    //            _unitOfWork.GetRepository<HouseDesignVersion>().DeleteRangeAsync(houseVersionRange);
-
-    //            var houseDesignDrawings = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-    //                .GetListAsync(predicate: x => x.ProjectId == projectId);
-    //            _unitOfWork.GetRepository<HouseDesignDrawing>().DeleteRangeAsync(houseDesignDrawings);
-
-    //            // Retrieve and delete FinalQuotation and related entities
-    //            var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>()
-    //.FirstOrDefaultAsync(predicate: fq => fq.ProjectId == projectId,
-    //                    include: fq => fq.Include(fq => fq.EquipmentItems)
-    //                                      .Include(fq => fq.FinalQuotationItems)
-    //                                      .ThenInclude(fq => fq.QuotationItems));
-
-    //            if (finalQuotation != null)
-    //            {
-    //                // Delete Media related to FinalQuotation
-    //                var finalQuotationMediaItems = await _unitOfWork.GetRepository<Medium>()
-    //                    .GetListAsync(predicate: m => m.FinalQuotationId.HasValue && m.FinalQuotationId == finalQuotation.Id);
-    //                foreach (var mediaItem in finalQuotationMediaItems)
-    //                {
-    //                    _unitOfWork.GetRepository<Medium>().DeleteAsync(mediaItem);
-    //                }
-
-    //                // Delete EquipmentItems
-    //                foreach (var equipmentItem in finalQuotation.EquipmentItems)
-    //                {
-    //                    _unitOfWork.GetRepository<EquipmentItem>().DeleteAsync(equipmentItem);
-    //                }
-
-    //                // Delete FinalQuotationItems and their related QuotationItems
-    //                foreach (var finalItem in finalQuotation.FinalQuotationItems)
-    //                {
-    //                    foreach (var quotationItem in finalItem.QuotationItems)
-    //                    {
-    //                        var quotationLabors = await _unitOfWork.GetRepository<QuotationLabor>()
-    //                            .GetListAsync(predicate: ql => ql.QuotationItemId == quotationItem.Id);
-    //                        foreach (var labor in quotationLabors)
-    //                        {
-    //                            _unitOfWork.GetRepository<QuotationLabor>().DeleteAsync(labor);
-    //                        }
-
-    //                        var quotationMaterials = await _unitOfWork.GetRepository<QuotationMaterial>()
-    //                            .GetListAsync(predicate: qm => qm.QuotationItemId == quotationItem.Id);
-    //                        foreach (var material in quotationMaterials)
-    //                        {
-    //                            _unitOfWork.GetRepository<QuotationMaterial>().DeleteAsync(material);
-    //                        }
-
-    //                        // Delete the QuotationItem
-    //                        _unitOfWork.GetRepository<QuotationItem>().DeleteAsync(quotationItem);
-    //                    }
-
-    //                    // Delete the FinalQuotationItem
-    //                    _unitOfWork.GetRepository<FinalQuotationItem>().DeleteAsync(finalItem);
-    //                }
-
-    //                // Delete the FinalQuotation
-    //                _unitOfWork.GetRepository<FinalQuotation>().DeleteAsync(finalQuotation);
-    //            }
-
-    //            // Retrieve and delete Contract and related BatchPayments
-    //            var contractInfo = await _unitOfWork.GetRepository<Contract>()
-    //                .FirstOrDefaultAsync(x => x.ProjectId == projectId,
-    //                                     include: x => x.Include(x => x.BatchPayments).ThenInclude(bp => bp.Payment));
-    //            if (contractInfo != null)
-    //            {
-    //                foreach (var batchPayment in contractInfo.BatchPayments)
-    //                {
-    //                    var paymentId = batchPayment.PaymentId;
-
-    //                    // Retrieve and delete Media entries associated with Payment
-    //                    var paymentMediaItems = await _unitOfWork.GetRepository<Medium>()
-    //                        .GetListAsync(predicate: m => m.PaymentId.HasValue && m.PaymentId == paymentId);
-    //                    foreach (var mediaItem in paymentMediaItems)
-    //                    {
-    //                        _unitOfWork.GetRepository<Medium>().DeleteAsync(mediaItem);
-    //                    }
-
-    //                    // Delete BatchPayment and Payment
-    //                    _unitOfWork.GetRepository<BatchPayment>().DeleteAsync(batchPayment);
-    //                    _unitOfWork.GetRepository<Payment>().DeleteAsync(batchPayment.Payment);
-    //                }
-
-    //                // Delete the Contract
-    //                _unitOfWork.GetRepository<Contract>().DeleteAsync(contractInfo);
-    //            }
-
-    //            // Delete the Project
-    //            _unitOfWork.GetRepository<Project>().DeleteAsync(project);
-
-                // Commit changes
-                var result = await _unitOfWork.CommitAsync() > 0;
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message, ex);
-            }
         }
 
         public async Task<string> ProjectHaveDrawing(ProjectHaveDrawingRequest request)

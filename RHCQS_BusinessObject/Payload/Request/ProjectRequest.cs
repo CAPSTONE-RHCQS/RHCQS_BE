@@ -7,11 +7,17 @@ using System.Threading.Tasks;
 namespace RHCQS_BusinessObject.Payload.Request
 {
     using System.ComponentModel.DataAnnotations;
+    using RHCQS_BusinessObject.Helper;
     using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 
     public class ProjectRequest
     {
         public Guid? CustomerId { get; set; }
+
+
+        [Required(ErrorMessage = "Tên chủ đầu tư là bắt buộc.")]
+        [NotEmptyOrWhitespace(ErrorMessage = "Tên chủ đầu tư không được để trống hoặc chỉ chứa khoảng trắng.")]
+        public string CustomerName { get; set; }
 
         [Required(ErrorMessage = "Tên dự án là bắt buộc.")]
         [MaxLength(100, ErrorMessage = "Tên dự án không được vượt quá 100 ký tự.")]
