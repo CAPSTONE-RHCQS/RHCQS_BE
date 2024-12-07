@@ -388,7 +388,7 @@ namespace RHCQS_BE.Controllers
 
         #region CreateContractAppendix
         /// <summary>
-        /// 
+        /// Create contract appendix (web)
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>

@@ -112,6 +112,7 @@ namespace RHCQS_Services.Implement
             var batchPayments = contractItem.BatchPayments
                 .Select(b => new BatchPaymentContract
                 {
+                    BatchPaymentId = b.Id,
                     PaymentId = b.PaymentId,
                     NumberOfBatch = b.NumberOfBatch,
                     Price = b.Payment.TotalPrice,
@@ -214,6 +215,7 @@ namespace RHCQS_Services.Implement
             var batchPayments = contractItem.BatchPayments
              .Select(b => new BatchPaymentContract
              {
+                 BatchPaymentId = b.Id,
                  PaymentId = b.PaymentId,
                  NumberOfBatch = b.NumberOfBatch,
                  Price = b.Payment.TotalPrice,
@@ -882,7 +884,6 @@ namespace RHCQS_Services.Implement
             return result;
         }
 
-
         public async Task<bool> CreateContractAppendix(ContractAppendixRequest request)
         {
             try
@@ -905,6 +906,12 @@ namespace RHCQS_Services.Implement
                     .Where(bp => cancelBatchPaymentIds.Contains(bp.Id))
                     .ToList();
                 Guid initialId = Guid.Empty;
+                if (batchPaymentsToCancel.Count < 1)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, 
+                        AppConstant.ErrMessage.BatchPayment_Non_Coincidence);
+                }
+
                 foreach (var batchPayment in batchPaymentsToCancel)
                 {
                     initialId = batchPayment.InitialQuotationId;

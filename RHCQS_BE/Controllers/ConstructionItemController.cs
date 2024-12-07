@@ -197,7 +197,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item construction in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Construction.ConstructionContainNameEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailConstructionItemByContainName(string name)
@@ -256,7 +256,7 @@ namespace RHCQS_BE.Controllers
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
-        #region
+        #region UpdateConstruction
         /// <summary>
         /// Updates an existing construction item along with its sub-construction items.
         /// Requires Manager role for authorization.

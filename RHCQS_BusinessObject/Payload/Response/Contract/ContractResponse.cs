@@ -89,6 +89,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Contract
 
     public class BatchPaymentContract
     {
+        public Guid BatchPaymentId { get; set; }
         public Guid PaymentId { get; set; }
         public int NumberOfBatch { get; set; }
 
