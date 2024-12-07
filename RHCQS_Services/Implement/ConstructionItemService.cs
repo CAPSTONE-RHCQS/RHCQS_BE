@@ -16,6 +16,7 @@ using System.Drawing;
 using System.IO.Packaging;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -314,10 +315,13 @@ namespace RHCQS_Services.Implement
         {
             try
             {
+                // Check duplicate name construction item in database
                 var isCheckConstruction = await _unitOfWork.GetRepository<ConstructionItem>()
                                                 .FirstOrDefaultAsync(i => i.Name!.Equals(item.Name));
                 if (isCheckConstruction != null) throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
                     AppConstant.ErrMessage.ConstructionExit);
+
+                //Create construction item
                 var constructionItem = new ConstructionItem()
                 {
                     Id = Guid.NewGuid(),
@@ -330,10 +334,18 @@ namespace RHCQS_Services.Implement
                     IsFinalQuotation = item.IsFinalQuotation
                 };
                 await _unitOfWork.GetRepository<ConstructionItem>().InsertAsync(constructionItem);
+
+                //Create sub construction
                 if (item.subConstructionRequests != null)
                 {
                     foreach (var sub in item.subConstructionRequests)
                     {
+                        if (sub.Coefficient == 0)
+                        {
+                            throw new AppConstant.MessageError(
+                                           (int)AppConstant.ErrCode.Bad_Request,
+                                           $"Hệ số của {sub.Name} không được bằng 0!");
+                        }
                         var subContructionItem = new SubConstructionItem()
                         {
                             Id = Guid.NewGuid(),
