@@ -250,6 +250,7 @@ namespace RHCQS_BE.Extenstion
             public const string ContractFileEndpoint = ContractEndpoint + "/file";
             public const string PaymentBatchDesignConfirmEndpoint = ContractEndpoint + "/design/confirm";
             public const string PaymentBatchConstructionConfirmEndpoint = ContractEndpoint + "/construction/confirm";
+            public const string PaymentBatchAppendixConfirmEndpoint = ContractEndpoint + "/appendix/confirm/bill";
             public const string FinalToContract = ContractEndpoint + "/final-to-contract/construction";
             public const string UploadFileContractEndpoint = ContractEndpoint + "/upload/file";
             public const string ManagerApproveBillFromCustomerEndpoint = ContractEndpoint + "/approve/bill";
