@@ -237,7 +237,7 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
-            var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
+            //var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
             var constructionWorkResourceRepo = _unitOfWork.GetRepository<ConstructionWorkResource>();
 
             if (await packageRepo.AnyAsync(p => p.PackageName.Contains(packageRequest.PackageName)))
@@ -290,24 +290,24 @@ namespace RHCQS_Services.Implement
 
             await packageRepo.InsertAsync(package);
 
-            if (packageRequest.WorkTemplate != null)
-            {
-                var workTemplates = packageRequest.WorkTemplate?.Select(wt => new WorkTemplate
-                {
-                    Id = Guid.NewGuid(),
-                    PackageId = package.Id,
-                    ContructionWorkId = wt.ConstructionWorKid,
-                    LaborCost = wt.LaborCost,
-                    MaterialCost = wt.MaterialCost,
-                    MaterialFinishedCost = wt.MaterialFinishedCost,
-                    InsDate = LocalDateTime.VNDateTime(),
-                }).ToList();
+            //if (packageRequest.WorkTemplate != null)
+            //{
+            //    var workTemplates = packageRequest.WorkTemplate?.Select(wt => new WorkTemplate
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        PackageId = package.Id,
+            //        ContructionWorkId = wt.ConstructionWorKid,
+            //        LaborCost = wt.LaborCost,
+            //        MaterialCost = wt.MaterialCost,
+            //        MaterialFinishedCost = wt.MaterialFinishedCost,
+            //        InsDate = LocalDateTime.VNDateTime(),
+            //    }).ToList();
 
-                if (workTemplates != null && workTemplates.Any())
-                {
-                    await workTemplateRepo.InsertRangeAsync(workTemplates);
-                }
-            }
+            //    if (workTemplates != null && workTemplates.Any())
+            //    {
+            //        await workTemplateRepo.InsertRangeAsync(workTemplates);
+            //    }
+            //}
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
@@ -332,7 +332,7 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
-            var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
+            //var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
 
             var existingPackage = await packageRepo.FirstOrDefaultAsync(
                 predicate: p => p.Id == packageId,
@@ -382,24 +382,24 @@ namespace RHCQS_Services.Implement
                 }).ToList() ?? new List<PackageHouse>();
             }
 
-            if (packageRequest.WorkTemplate!= null)
-            {
-                var existingWorkTemplates = existingPackage.WorkTemplates.ToList();
+            //if (packageRequest.WorkTemplate!= null)
+            //{
+            //    var existingWorkTemplates = existingPackage.WorkTemplates.ToList();
 
-                foreach (var workTemplateRequest in packageRequest.WorkTemplate)
-                {
-                    var existingWorkTemplate = existingWorkTemplates
-                        .FirstOrDefault(wt => wt.ContructionWorkId == workTemplateRequest.ConstructionWorKid);
+            //    foreach (var workTemplateRequest in packageRequest.WorkTemplate)
+            //    {
+            //        var existingWorkTemplate = existingWorkTemplates
+            //            .FirstOrDefault(wt => wt.ContructionWorkId == workTemplateRequest.ConstructionWorKid);
 
-                    if (existingWorkTemplate != null)
-                    {
-                        existingWorkTemplate.LaborCost = workTemplateRequest.LaborCost;
-                        existingWorkTemplate.MaterialCost = workTemplateRequest.MaterialCost;
-                        existingWorkTemplate.MaterialFinishedCost = workTemplateRequest.MaterialFinishedCost;
-                    }
-                    workTemplateRepo.UpdateAsync(existingWorkTemplate);
-                }
-            }
+            //        if (existingWorkTemplate != null)
+            //        {
+            //            existingWorkTemplate.LaborCost = workTemplateRequest.LaborCost;
+            //            existingWorkTemplate.MaterialCost = workTemplateRequest.MaterialCost;
+            //            existingWorkTemplate.MaterialFinishedCost = workTemplateRequest.MaterialFinishedCost;
+            //        }
+            //        workTemplateRepo.UpdateAsync(existingWorkTemplate);
+            //    }
+            //}
 
             packageRepo.UpdateAsync(existingPackage);
 

@@ -27,16 +27,16 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public List<PackageHousesRequest>? PackageHouses { get; set; }
 
-        public List<WorkTemplateRequest>? WorkTemplate { get; set; }
+        //public List<WorkTemplateRequest>? WorkTemplate { get; set; }
     }
-    public class WorkTemplateRequest
-    {
-        public Guid ConstructionWorKid { get; set; }
-        public double LaborCost { get; set; }
-        public double MaterialCost { get; set; }
-        public double MaterialFinishedCost { get; set; }
+    //public class WorkTemplateRequest
+    //{
+    //    public Guid ConstructionWorKid { get; set; }
+    //    public double LaborCost { get; set; }
+    //    public double MaterialCost { get; set; }
+    //    public double MaterialFinishedCost { get; set; }
 
-    }
+    //}
     public class PackageLaborRequest
     {
         [Required(ErrorMessage = "Id là bắt buộc phải có.")]
