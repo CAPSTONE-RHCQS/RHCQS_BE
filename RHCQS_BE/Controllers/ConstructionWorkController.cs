@@ -248,5 +248,77 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region PutConstructionWorkAvailable
+        /// <summary>
+        /// Update deflag construction work (for web)
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <remarks>
+        /// Deflag true -> false
+        /// </remarks>
+        /// <param name="constructionWorkId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPatch(ApiEndPointConstant.ConstructionWork.ConstructionWorkDetailEndpoint)]
+        [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> PutConstructionWorkAvailable(Guid constructionWorkId)
+        {
+            var listConstructions = await _workService.PutConstructionWorkAvailable(constructionWorkId);
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+
+        }
+
+        #region UpdateConstructionWorkAndResource
+        /// <summary>
+        /// Updates the construction work details and adds additional resources.
+        /// </summary>
+        /// <remarks>
+        /// Example Request:
+        /// {
+        ///     "nameConstructionWork": "Cầu thang sắt tầng 3 lên mái",
+        ///     "resources": [
+        ///         {
+        ///             "materialSectionId": "082DFE19-5250-43DD-AE01-02A34D37FE13",
+        ///             "materialSectionNorm": 1.23,
+        ///             "laborId": null,
+        ///             "laborNorm": 0,
+        ///             "insDate": "2024-12-07T10:32:15.264Z"
+        ///         }
+        ///     ]
+        /// }
+        /// </remarks>
+        /// <param name="constructionWorkId">The unique identifier of the construction work to update.</param>
+        /// <param name="request">An object containing the construction work's updated details and resources to be added.</param>
+        /// <returns>Returns a success message or an error if the operation fails.</returns>
+        /// <response code="200">Successfully updated the construction work and resources.</response>
+        /// <response code="400">Validation errors, such as duplicate MaterialSectionId or LaborId in the request or database.</response>
+        /// <response code="404">Construction work not found.</response>
+        /// <response code="500">An unexpected error occurred on the server.</response>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.ConstructionWork.ConstructionWorkDetailEndpoint)]
+        [ProducesResponseType(typeof(List<ListConstructionWorkResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateConstructionWorkAndResource(Guid constructionWorkId, UpdateConstructionWorkRequest request)
+        {
+            var listConstructions = await _workService.UpdateConstructionWorkAndResource(constructionWorkId, request);
+            var result = JsonConvert.SerializeObject(listConstructions, Formatting.Indented);
+
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

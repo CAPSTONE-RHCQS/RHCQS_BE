@@ -225,6 +225,7 @@ public static class AppConstant
         public const string ConstructionNameExit = "Tên hạng mục đã tồn tại! Hãy nhập tên khác!";
         public const string ConstructionWorkExisting = "Mã công tác này đã tồn tại!";
         public const string Duplicated_WorkName = "Tên công tác đã tồn tại!";
+        public const string ConstructionWork_Not_Found = "Công tác xây dựng không tồn tại!";
 
         //Login
         public const string EmailExists = "Email đã tồn tại!";

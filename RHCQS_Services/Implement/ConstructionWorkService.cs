@@ -33,7 +33,7 @@ namespace RHCQS_Services.Implement
             var listConstruction = await _unitOfWork.GetRepository<ConstructionWork>().GetList(
                 selector: x => new ListConstructionWorkResponse(x.Id, x.WorkName, x.ConstructionId, x.InsDate, x.Unit,
                                                             x.Code),
-                orderBy: x => x.OrderBy(x => x.InsDate),
+                orderBy: x => x.OrderBy(x => x.WorkName),
                 page: page,
                 size: size);
             return listConstruction;
@@ -144,6 +144,7 @@ namespace RHCQS_Services.Implement
                     InsDate = LocalDateTime.VNDateTime(),
                     Unit = request.Unit,
                     Code = request.Code ?? GenerateRandom.GenerateRandomString(5),
+                    Deflag = true
                 };
 
                 await _unitOfWork.GetRepository<ConstructionWork>().InsertAsync(constructionWorkItem);
@@ -295,6 +296,7 @@ namespace RHCQS_Services.Implement
                                     existingWork.WorkName = workName;
                                     existingWork.Unit = unit;
                                     existingWork.InsDate = LocalDateTime.VNDateTime();
+                                    existingWork.Deflag = true;
                                     _unitOfWork.GetRepository<ConstructionWork>().UpdateAsync(existingWork);
 
 
@@ -324,7 +326,8 @@ namespace RHCQS_Services.Implement
                                         ConstructionId = constructionId,
                                         Unit = unit,
                                         Code = workCode,
-                                        InsDate = LocalDateTime.VNDateTime()
+                                        InsDate = LocalDateTime.VNDateTime(),
+                                        Deflag = true
                                     };
                                     constructionWorkItems.Add(constructionWorkItem);
                                     constructionWorkId = constructionWorkItem.Id;
@@ -500,6 +503,117 @@ namespace RHCQS_Services.Implement
             catch (Exception ex)
             {
                 throw new Exception(ex.Message, ex);
+            }
+        }
+
+        public async Task<string> PutConstructionWorkAvailable(Guid constructionWorkId)
+        {
+            var constructionWork = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
+                            predicate: work => work.Id == constructionWorkId);
+
+            if (constructionWork == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ConstructionWork_Not_Found);
+            }
+
+            constructionWork.Deflag = false;
+            _unitOfWork.GetRepository<ConstructionWork>().UpdateAsync(constructionWork);
+
+            var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Fail_Save;
+
+            return result;
+        }
+
+        public async Task<string> UpdateConstructionWorkAndResource(Guid constructionWorkId, UpdateConstructionWorkRequest request)
+        {
+            try
+            {
+                var constructionWork = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
+                               predicate: work => work.Id == constructionWorkId,
+                               include: work => work.Include(work => work.ConstructionWorkResources));
+
+                if (constructionWork == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.ConstructionWork_Not_Found);
+                }
+
+                if (request.NameConstructionWork != null)
+                {
+                    //Check duplicated work name
+                    var isDuplicate = await _unitOfWork.GetRepository<ConstructionWork>().AnyAsync(
+                            predicate: work => work.WorkName!.ToLower().Contains(request.NameConstructionWork.ToLower()));
+
+                    if (isDuplicate)
+                    {
+                        throw new AppConstant.MessageError(
+                            (int)AppConstant.ErrCode.Conflict,
+                            $"Construction work với tên '{request.NameConstructionWork}' đã tồn tại trong hệ thống.");
+                    }
+
+                    constructionWork.WorkName = request.NameConstructionWork;
+                    _unitOfWork.GetRepository<ConstructionWork>().UpdateAsync(constructionWork);
+                }
+
+
+                //Add more resource 
+                foreach (var item in request.Resources)
+                {
+                    ConstructionWorkResource resourceItem;
+
+                    if (item.MaterialSectionId != null)
+                    {
+                        var existsMaterial = await _unitOfWork.GetRepository<ConstructionWorkResource>().AnyAsync(
+                            r => r.MaterialSectionId == item.MaterialSectionId && r.ConstructionWorkId == constructionWorkId);
+                        if (existsMaterial)
+                        {
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Bad_Request,
+                                $"MaterialSectionId '{item.MaterialSectionId}' đã tồn tại.");
+                        }
+
+                        resourceItem = new ConstructionWorkResource
+                        {
+                            Id = Guid.NewGuid(),
+                            ConstructionWorkId = constructionWorkId,
+                            MaterialSectionId = item.MaterialSectionId,
+                            MaterialSectionNorm = item.MaterialSectionNorm,
+                            LaborId = null,
+                            LaborNorm = null,
+                            InsDate = item.InsDate
+                        };
+                    }
+                    else
+                    {
+                        var existsLabor = await _unitOfWork.GetRepository<ConstructionWorkResource>().AnyAsync(
+                            r => r.LaborId == item.LaborId && r.ConstructionWorkId == constructionWorkId);
+                        if (existsLabor)
+                        {
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.Bad_Request,
+                                $"LaborId '{item.LaborId}' đã tồn tại.");
+                        }
+
+                        resourceItem = new ConstructionWorkResource
+                        {
+                            Id = Guid.NewGuid(),
+                            ConstructionWorkId = constructionWorkId,
+                            MaterialSectionId = null,
+                            MaterialSectionNorm = null,
+                            LaborId = item.LaborId,
+                            LaborNorm = item.LaborNorm,
+                            InsDate = item.InsDate
+                        };
+                    }
+
+                    await _unitOfWork.GetRepository<ConstructionWorkResource>().InsertAsync(resourceItem);
+                }
+
+                var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+                return result;
+            }
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
             }
         }
     }

@@ -26,5 +26,7 @@ namespace RHCQS_Services.Interface
         string? code,
         string? name,
         string? unit);
+        Task<string> PutConstructionWorkAvailable(Guid constructionWorkId);
+        Task<string> UpdateConstructionWorkAndResource(Guid constructionWorkId, UpdateConstructionWorkRequest request);
     }
 }
