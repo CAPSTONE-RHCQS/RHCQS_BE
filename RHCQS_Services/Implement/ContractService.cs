@@ -60,10 +60,7 @@ namespace RHCQS_Services.Implement
                                 include: c => c.Include(c => c.Project)
                                                 .Include(c => c.BatchPayments)
                                                 .ThenInclude(c => c.Payment!)
-                                                .ThenInclude(c => c.Media)
-
-
-                );
+                                                .ThenInclude(c => c.Media));
 
             if (contractItem == null)
             {
@@ -129,30 +126,33 @@ namespace RHCQS_Services.Implement
                 .ToList();
 
             List<BatchPaymentAppendix>? batchPaymentAppendices = null;
-            var contractAppendix = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
-                predicate: p => p.ProjectId == contractItem.ProjectId
-                        && p.Type == AppConstant.ContractType.Appendix.ToString(),
-                include: p => p.Include(p => p.BatchPayments)
-                                .ThenInclude(p => p.Payment));
-            if (contractAppendix != null)
+            if (contractItem.Type != AppConstant.ContractType.Appendix.ToString())
             {
-                batchPaymentAppendices = contractAppendix.BatchPayments
-                .Select(b => new BatchPaymentAppendix
+                var contractAppendix = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                    predicate: p => p.ProjectId == contractItem.ProjectId
+                            && p.Type == AppConstant.ContractType.Appendix.ToString(),
+                    include: p => p.Include(p => p.BatchPayments)
+                                    .ThenInclude(p => p.Payment));
+                if (contractAppendix != null)
                 {
-                    PaymentId = b.PaymentId,
-                    NumberOfBatch = b.NumberOfBatch,
-                    Price = b.Payment.TotalPrice,
-                    PaymentDate = b.Payment.PaymentDate,
-                    PaymentPhase = b.Payment.PaymentPhase,
-                    Percents = b.Payment.Percents ?? 0,
-                    Description = b.Payment.Description,
-                    Status = b.Status,
-                    InvoiceImage = b.Payment.Media
-                    .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
-                    ?? "Chưa có hóa đơn"
-                })
-                .OrderBy(b => b.NumberOfBatch)
-                .ToList();
+                    batchPaymentAppendices = contractAppendix.BatchPayments
+                    .Select(b => new BatchPaymentAppendix
+                    {
+                        PaymentId = b.PaymentId,
+                        NumberOfBatch = b.NumberOfBatch,
+                        Price = b.Payment.TotalPrice,
+                        PaymentDate = b.Payment.PaymentDate,
+                        PaymentPhase = b.Payment.PaymentPhase,
+                        Percents = b.Payment.Percents ?? 0,
+                        Description = b.Payment.Description,
+                        Status = b.Status,
+                        InvoiceImage = b.Payment.Media
+                        .FirstOrDefault(m => m.PaymentId == b.PaymentId)?.Url
+                        ?? "Chưa có hóa đơn"
+                    })
+                    .OrderBy(b => b.NumberOfBatch)
+                    .ToList();
+                }
             }
 
             return new ContractResponse(contractItem.ProjectId, contractItem.Name, contractItem.Project.CustomerName, contractItem.ContractCode,
@@ -590,7 +590,8 @@ namespace RHCQS_Services.Implement
             return resutl;
         }
 
-        public async Task<string> BillContractDesign(Guid paymentId, List<IFormFile> bills)
+        //Manager update bill contract design
+        public async Task<string> UploadBillContractDesign(Guid paymentId, List<IFormFile> bills)
         {
             try
             {
@@ -698,9 +699,9 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
         }
-
-        //Manager update bill 
-        public async Task<string> BillContractContruction(Guid paymentId, List<IFormFile> bills)
+         
+        //Manager update bill contract construction
+        public async Task<string> UploadBillContractConstruction(Guid paymentId, List<IFormFile> bills)
         {
             try
             {
@@ -781,6 +782,104 @@ namespace RHCQS_Services.Implement
                         contract.Status = AppConstant.ContractStatus.FINISHED;
                         contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                    }
+                }
+
+                string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+            }
+        }
+
+        public async Task<string> UploadBillContractAppendix(Guid paymentId, List<IFormFile> bills)
+        {
+            try
+            {
+                BatchPayment currentBatch = null;
+                var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                    predicate: p => p.PaymentId == paymentId,
+                                    include: p => p.Include(p => p.Contract!)
+                                                    .ThenInclude(p => p.Project));
+
+                if (payBatchInfo == null || !payBatchInfo.Any())
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
+                }
+                int imageCount = Math.Min(bills.Count, payBatchInfo.Count());
+
+                for (int i = 0; i < imageCount; i++)
+                {
+                    var file = bills[i];
+
+                    if (file == null || file.Length == 0)
+                    {
+                        continue;
+                    }
+
+                    var uploadParams = new ImageUploadParams()
+                    {
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = $"Hop_dong_{paymentId}_{i}",
+                        Folder = "Contract",
+                        UseFilename = true,
+                        UniqueFilename = false,
+                        Overwrite = true
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.StatusCode != System.Net.HttpStatusCode.OK)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.FailUploadDrawing);
+                    }
+
+                    // Tạo mới Media cho mỗi hình ảnh và gán PaymentId tương ứng
+                    var mediaInfo = new Medium
+                    {
+                        Id = Guid.NewGuid(),
+                        HouseDesignVersionId = null,
+                        Name = AppConstant.General.Bill,
+                        Url = uploadResult.Url.ToString(),
+                        InsDate = LocalDateTime.VNDateTime(),
+                        UpsDate = LocalDateTime.VNDateTime(),
+                        SubTemplateId = null,
+                        PaymentId = payBatchInfo.ElementAt(i).PaymentId
+                    };
+
+                    await _unitOfWork.GetRepository<Medium>().InsertAsync(mediaInfo);
+
+                    currentBatch = payBatchInfo.ElementAt(i);
+                    if (currentBatch.Status == AppConstant.PaymentStatus.PROGRESS)
+                    {
+                        currentBatch.Status = AppConstant.PaymentStatus.PAID;
+                    }
+                }
+
+                _unitOfWork.GetRepository<BatchPayment>().UpdateRange(payBatchInfo);
+
+                var contractId = payBatchInfo.First().ContractId;
+                var allPaid = payBatchInfo.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+                var finalBatch = await _unitOfWork.GetRepository<BatchPayment>()
+                     .FirstOrDefaultAsync(predicate: x => x.ContractId == contractId,
+                                          orderBy: q => q.OrderByDescending(x => x.NumberOfBatch));
+
+
+                if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
+                {
+                    var contract = payBatchInfo.First().Contract;
+                    if (contract != null)
+                    {
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+
+                        var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                            predicate: x => x.ContractAppendix == contract.Id);
+                        contractMain.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
                     }
                 }
 
@@ -908,7 +1007,7 @@ namespace RHCQS_Services.Implement
                 Guid initialId = Guid.Empty;
                 if (batchPaymentsToCancel.Count < 1)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, 
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
                         AppConstant.ErrMessage.BatchPayment_Non_Coincidence);
                 }
 
@@ -947,6 +1046,11 @@ namespace RHCQS_Services.Implement
                 };
 
                 await _unitOfWork.GetRepository<Contract>().InsertAsync(contractDrawing);
+                #endregion
+
+                #region Update contract appendix in contract main
+                contractInfo.ContractAppendix = contractDrawing.Id;
+                _unitOfWork.GetRepository<Contract>().UpdateAsync(contractInfo);
                 #endregion
 
                 #region Create Batch payment appendix
@@ -989,7 +1093,7 @@ namespace RHCQS_Services.Implement
                 }
                 #endregion
 
-                bool isSuccessful = _unitOfWork.Commit() > 0;
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 return isSuccessful;
             }
             catch (AppConstant.MessageError ex)

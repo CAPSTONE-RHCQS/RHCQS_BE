@@ -282,7 +282,7 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> BillContractDesign(Guid paymentId, List<IFormFile> files)
         {
-            var result = await _contractService.BillContractDesign(paymentId, files);
+            var result = await _contractService.UploadBillContractDesign(paymentId, files);
             return Ok(result);
         }
 
@@ -305,10 +305,36 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Contract.PaymentBatchConstructionConfirmEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> BillContractContruction(Guid paymentId, List<IFormFile> files)
+        public async Task<IActionResult> BillContractConstruction(Guid paymentId, List<IFormFile> files)
         {
-            var result = await _contractService.BillContractContruction(paymentId, files);
+            var result = await _contractService.UploadBillContractConstruction(paymentId, files);
             return Ok(result);
+        }
+
+        #region UploadContractAppendix
+        /// <summary>
+        /// Upload bill for contract appendix
+        /// 
+        /// Role: MANAGER
+        /// </summary>
+        /// <param name="paymentId"></param>
+        /// <param name="files"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpPost(ApiEndPointConstant.Contract.PaymentBatchAppendixConfirmEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UploadContractAppendix(Guid paymentId, List<IFormFile> files)
+        {
+            var contractItem = await _contractService.UploadBillContractAppendix(paymentId, files);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
         }
 
         #region CloneInitialInfoToContract

@@ -9,6 +9,8 @@ public partial class Contract
 
     public Guid ProjectId { get; set; }
 
+    public Guid? ContractAppendix { get; set; }
+
     public string? Name { get; set; }
 
     public string? CustomerName { get; set; }
