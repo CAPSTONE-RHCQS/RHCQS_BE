@@ -17,6 +17,8 @@ public partial class ConstructionWork
 
     public string? Code { get; set; }
 
+    public bool? Deflag { get; set; }
+
     public virtual ConstructionItem? Construction { get; set; }
 
     public virtual ICollection<ConstructionWorkResource> ConstructionWorkResources { get; set; } = new List<ConstructionWorkResource>();

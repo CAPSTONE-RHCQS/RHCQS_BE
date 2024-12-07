@@ -335,6 +335,21 @@ namespace RHCQS_Services.Implement
                 };
                 await _unitOfWork.GetRepository<ConstructionItem>().InsertAsync(constructionItem);
 
+                //Check duplicate name in request
+                var duplicateNames = item.subConstructionRequests
+                    .GroupBy(sub => sub.Name)
+                    .Where(group => group.Count() > 1)
+                    .Select(group => group.Key)
+                    .ToList();
+
+                if (duplicateNames.Any())
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        $"Các tên sau bị trùng lặp: {string.Join(", ", duplicateNames)}");
+                }
+
+
                 //Create sub construction
                 if (item.subConstructionRequests != null)
                 {
@@ -365,9 +380,9 @@ namespace RHCQS_Services.Implement
                 }
                 return true;
             }
-            catch (Exception)
+            catch (AppConstant.MessageError ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionExit);
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
             }
         }
 
@@ -383,6 +398,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionNoExit);
             }
 
+            //Check existing construction item
             var existingItems = await _unitOfWork.GetRepository<ConstructionItem>()
                 .GetList(x => new { x.Id, x.Name }, x => x.Name == request.Name);
 
@@ -393,7 +409,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.ConstructionNameExit);
             }
 
-            // Update 
+            // Update construction item
             constructionItem.Name = !string.IsNullOrEmpty(request.Name) ? request.Name : constructionItem.Name;
 
             if (constructionItem.SubConstructionItems == null || !constructionItem.SubConstructionItems.Any())
@@ -403,6 +419,7 @@ namespace RHCQS_Services.Implement
 
             _unitOfWork.GetRepository<ConstructionItem>().UpdateAsync(constructionItem);
 
+            //Update sub-construction
             if (request.SubRequests != null && request.SubRequests.Any())
             {
                 foreach (var subRequest in request.SubRequests)
