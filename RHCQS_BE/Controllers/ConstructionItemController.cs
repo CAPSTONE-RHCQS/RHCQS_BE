@@ -193,7 +193,7 @@ namespace RHCQS_BE.Controllers
 
         #region GetDetailConstructionItemByContainName
         /// <summary>
-        /// Retrieves the construction item by name.
+        /// Retrieves the construction item by name (web) - Sales staff search construction for initial quotation.
         /// </summary>
         /// <returns>Item construction in the system</returns>
         #endregion

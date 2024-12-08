@@ -401,12 +401,12 @@ namespace RHCQS_BE.Controllers
                     Title = "Báo giá sơ bộ",
                     Body = $"Báo giá sơ bộ có cập nhật mới bạn cần xem."
                 };
-                //Task.Run(() => _firebaseService.SendNotificationAsync(
-                //    notificationRequest.Email,
-                //    notificationRequest.DeviceToken,
-                //    notificationRequest.Title,
-                //    notificationRequest.Body
-                //));
+                Task.Run(() => _firebaseService.SendNotificationAsync(
+                    notificationRequest.Email,
+                    notificationRequest.DeviceToken,
+                    notificationRequest.Title,
+                    notificationRequest.Body
+                ));
                 return new ContentResult()
                 {
                     Content = result,

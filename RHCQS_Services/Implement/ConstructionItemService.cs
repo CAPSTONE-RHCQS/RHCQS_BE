@@ -257,32 +257,6 @@ namespace RHCQS_Services.Implement
                       con.SubConstructionItems.Any(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName)))
                   .ToList();
 
-                //return filteredItems.SelectMany(constructionItem =>
-                //{
-
-                //    var matchingSubConstructions = constructionItem.SubConstructionItems
-                //        .Where(sub => sub.Name.RemoveDiacritics().ToLower().Contains(normalizedName))
-                //        .Select(subConstruction => new AutoConstructionResponse(
-                //            constructionItem.Id,
-                //            subConstructionId: subConstruction.Id,
-                //            name: subConstruction.Name,
-                //            coefficient: subConstruction.Coefficient,
-                //            type: subConstruction.ConstructionItems.Type!
-                //        )).ToList();
-
-                //    if (!matchingSubConstructions.Any() && constructionItem.Name!.RemoveDiacritics().Contains(normalizedName))
-                //    {
-                //        matchingSubConstructions.Add(new AutoConstructionResponse(
-                //            constructionItem.Id,
-                //            subConstructionId: null,
-                //            name: constructionItem.Name,
-                //            coefficient: constructionItem.Coefficient,
-                //            type: constructionItem.Type!
-                //        ));
-                //    }
-
-                //    return matchingSubConstructions;
-                //}).ToList();
                 return filteredItems.SelectMany(constructionItem =>
                 {
                     var matchingSubConstructions = constructionItem.SubConstructionItems
@@ -290,7 +264,7 @@ namespace RHCQS_Services.Implement
                         .Select(subConstruction => new AutoConstructionResponse(
                             constructionItem.Id,
                             subConstructionId: subConstruction.Id,
-                            name: subConstruction.Name,
+                             name: $"{subConstruction.Name} ({constructionItem.Name})",
                             coefficient: subConstruction.Coefficient,
                             type: subConstruction.ConstructionItems.Type!
                         )).ToList();

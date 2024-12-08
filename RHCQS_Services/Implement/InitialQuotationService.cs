@@ -1222,8 +1222,23 @@ namespace RHCQS_Services.Implement
                 }
 
                 //Create a batch payments
+                DateTime? previousPaymentDate = null;
                 foreach (var item in request.BatchPayments)
                 {
+                    if (item.PaymentDate >= item.PaymentPhase)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request,
+                                    $"Ngày bắt đầu hoặc ngày đáo hạn không hợp lệ {item.PaymentDate}!");
+                    }
+
+                    if (previousPaymentDate != null && item.PaymentDate < previousPaymentDate)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request,
+                            $"Thời gian thanh toán {item.PaymentPhase} ({item.PaymentDate}) không nhỏ hơn thời gian ({previousPaymentDate}).");
+                    }
+
+                    previousPaymentDate = item.PaymentDate;
+
                     int batch = 0;
                     var payment = new Payment
                     {
