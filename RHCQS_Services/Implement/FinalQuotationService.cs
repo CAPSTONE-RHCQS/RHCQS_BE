@@ -124,8 +124,8 @@ namespace RHCQS_Services.Implement
         }
         public async Task<FinalQuotationResponse> CreateFinalQuotation(Guid projectId)
         {
-            try
-            {
+            //try
+            //{
                 var finalQuotationRepo = _unitOfWork.GetRepository<FinalQuotation>();
                 if (await finalQuotationRepo.AnyAsync(p => p.ProjectId == projectId && p.Version == 0))
                 {
@@ -202,8 +202,8 @@ namespace RHCQS_Services.Implement
                     );
                 }
                 return await GetDetailFinalQuotationByProjectId(projectId);
-            }
-            catch (Exception ex) { throw; }
+            //}
+            //catch (Exception ex) { throw; }
         }
         public async Task<Guid?> UpdateFinalQuotation(FinalRequest request)
         {
@@ -798,7 +798,6 @@ namespace RHCQS_Services.Implement
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
             x => x.Id.Equals(id)
             && (x.Deflag == true)
-            && x.QuotationUtilities.Any()
             && x.BatchPayments.Any(),
             include: x => x.Include(x => x.Project)
                            .ThenInclude(x => x.Customer!)
@@ -1083,7 +1082,6 @@ namespace RHCQS_Services.Implement
                 x => x.ProjectId.Equals(projectid)
                 && x.Version == 0
                 && (x.Deflag == true)
-                && x.QuotationUtilities.Any()
                 && x.BatchPayments.Any(),
                 include: x => x.Include(x => x.Project)
                                .ThenInclude(x => x.Customer!)
