@@ -204,36 +204,41 @@ namespace RHCQS_Services.Implement
             return new ConstructionItemResponse();
         }
 
-        public async Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name)
+        public async Task<IPaginate<ConstructionItemResponse>> GetDetailConstructionItemByName(string name, int page, int size)
         {
-            var constructionItem = await _unitOfWork.GetRepository<ConstructionItem>().FirstOrDefaultAsync(
-                predicate: con => con.Name!.Equals(name),
-                include: con => con.Include(con => con.SubConstructionItems)
-            );
-
-            if (constructionItem != null)
+            try
             {
-                return new ConstructionItemResponse(
-                    constructionItem.Id,
-                    constructionItem.Name,
-                    constructionItem.Coefficient,
-                    constructionItem.Unit,
-                    constructionItem.InsDate,
-                    constructionItem.UpsDate,
-                    constructionItem.Type,
-                    constructionItem.SubConstructionItems.Select(
-                        sub => new SubConstructionItemResponse(
-                            sub.Id,
-                            sub.Name,
-                            sub.Coefficient,
-                            sub.Unit,
-                            sub.InsDate
-                        )
-                    ).ToList()
-                );
-            }
+                var list = await _unitOfWork.GetRepository<ConstructionItem>()
+                      .GetList(
+                          predicate: con => con.Name.ToLower().Contains(name.ToLower()), 
+                          selector: x => new ConstructionItemResponse(
+                              x.Id,
+                              x.Name,
+                              x.Coefficient,
+                              x.Unit,
+                              x.InsDate,
+                              x.UpsDate,
+                              x.Type,
+                              x.SubConstructionItems.Select(sub => new SubConstructionItemResponse(
+                                  sub.Id,
+                                  sub.Name,
+                                  sub.Coefficient,
+                                  sub.Unit,
+                                  sub.InsDate
+                              )).ToList()
+                          ), 
+                          include: con => con.Include(con => con.SubConstructionItems), 
+                          orderBy: x => x.OrderByDescending(item => item.InsDate), 
+                          page: page, 
+                          size: size  
+                      );
 
-            return new ConstructionItemResponse();
+                return list;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message, ex);
+            }
         }
 
         public async Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string name)
