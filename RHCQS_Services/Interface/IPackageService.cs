@@ -14,7 +14,7 @@ namespace RHCQS_Services.Interface
     public interface IPackageService
     {
         public Task<IPaginate<PackageListResponse>> GetListPackageAsync(int page, int size);
-        public Task<List<PackageResponseForMoblie>> GetListPackage();
+        public Task<List<PackageResponseForMobile>> GetListPackage();
         Task<PackageResponse> GetPackageDetail(Guid id);
         Task<PackageResponse> GetPackageByName(string name);
         Task<bool> CreatePackage(PackageRequest package);

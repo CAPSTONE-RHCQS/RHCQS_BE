@@ -55,7 +55,7 @@ namespace RHCQS_BE.Controllers
         [HttpGet(ApiEndPointConstant.Package.PackageListEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<Package>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<PackageResponseForMoblie>>> GetListPackage()
+        public async Task<ActionResult<IEnumerable<PackageResponseForMobile>>> GetListPackage()
         {
             var package = await _packageService.GetListPackage();
             var response = JsonConvert.SerializeObject(package, Formatting.Indented);

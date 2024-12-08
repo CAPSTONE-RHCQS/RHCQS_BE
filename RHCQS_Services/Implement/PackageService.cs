@@ -123,12 +123,12 @@ namespace RHCQS_Services.Implement
 
             return listPackage;
         }
-        public async Task<List<PackageResponseForMoblie>> GetListPackage()
+        public async Task<List<PackageResponseForMobile>> GetListPackage()
         {
             try
             {
                 var listPackage = await _unitOfWork.GetRepository<Package>().GetListAsync(
-                    selector: x => new PackageResponseForMoblie(
+                    selector: x => new PackageResponseForMobile(
                         x.Id,
                         x.Type,
                         x.PackageName,
@@ -136,7 +136,7 @@ namespace RHCQS_Services.Implement
                         x.Price,
                         x.Status,
                         x.InsDate,
-                        x.UpsDate,
+                        x.UpsDate/*,
                         x.PackageLabors.Select(pl => new PackageLaborResponseForMoblie(
                             pl.Labor.Name,
                             pl.Labor.Type
@@ -160,14 +160,14 @@ namespace RHCQS_Services.Implement
                             ph.DesignTemplateId,
                             ph.ImgUrl,
                             ph.InsDate
-                        )).ToList() ?? new List<PackageHousesResponse>()
+                        )).ToList() ?? new List<PackageHousesResponse>()*/
                     ),
-                    include: x => x.Include(pd => pd.PackageLabors)
-                                   .ThenInclude(lb => lb.Labor)
-                                .Include(pd => pd.PackageMaterials)
-                                   .ThenInclude(ms => ms.Material)
-                                   .ThenInclude(ms => ms.MaterialSection)
-                                .Include(x => x.PackageHouses),
+                    //include: x => x.Include(pd => pd.PackageLabors)
+                    //               .ThenInclude(lb => lb.Labor)
+                    //            .Include(pd => pd.PackageMaterials)
+                    //               .ThenInclude(ms => ms.Material)
+                    //               .ThenInclude(ms => ms.MaterialSection)
+                    //            .Include(x => x.PackageHouses),
                     orderBy: x => x.OrderBy(x => x.InsDate),
                     predicate: x => x.Status == "Active"
                 );

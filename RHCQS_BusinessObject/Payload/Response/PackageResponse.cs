@@ -194,12 +194,12 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public DateTime? InsDate { get; set; }
     }
-    public class PackageResponseForMoblie
+    public class PackageResponseForMobile
     {
-        public PackageResponseForMoblie(Guid id, string? packageType, string? packageName,
-            string? unit, double? price, string? status, DateTime? insDate, DateTime? upsDate,
+        public PackageResponseForMobile(Guid id, string? packageType, string? packageName,
+            string? unit, double? price, string? status, DateTime? insDate, DateTime? upsDate/*,
             List<PackageLaborResponseForMoblie> packageLabor, List<PackageMaterialResponse> packagematerial,
-            List<PackageHousesResponse> packageHouses)
+            List<PackageHousesResponse> packageHouses*/)
         {
             Id = id;
             PackageType = packageType;
@@ -209,9 +209,9 @@ namespace RHCQS_BusinessObject.Payload.Response
             Status = status;
             InsDate = insDate;
             UpsDate = upsDate;
-            PackageLabors = packageLabor;
-            PackageMaterials = packagematerial;
-            PackageHouses = packageHouses;
+            //PackageLabors = packageLabor;
+            //PackageMaterials = packagematerial;
+            //PackageHouses = packageHouses;
         }
 
         public Guid Id { get; set; }
@@ -229,24 +229,24 @@ namespace RHCQS_BusinessObject.Payload.Response
         public DateTime? InsDate { get; set; }
 
         public DateTime? UpsDate { get; set; }
-        public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
+        //public List<PackageLaborResponseForMoblie> PackageLabors { get; set; }
 
-        public List<PackageMaterialResponse> PackageMaterials { get; set; }
+        //public List<PackageMaterialResponse> PackageMaterials { get; set; }
 
-        public List<PackageHousesResponse> PackageHouses { get; set; }
+        //public List<PackageHousesResponse> PackageHouses { get; set; }
 
-
-    }
-    public class PackageLaborResponseForMoblie
-    {
-        public PackageLaborResponseForMoblie(string? nameOfLabor, string? type)
-        {
-            NameOfLabor = nameOfLabor;
-            Type = type;
-        }
-
-        public string? NameOfLabor { get; set; }
-        public string? Type { get; set; }
 
     }
+    //public class PackageLaborResponseForMoblie
+    //{
+    //    public PackageLaborResponseForMoblie(string? nameOfLabor, string? type)
+    //    {
+    //        NameOfLabor = nameOfLabor;
+    //        Type = type;
+    //    }
+
+    //    public string? NameOfLabor { get; set; }
+    //    public string? Type { get; set; }
+
+    //}
 }
