@@ -15,7 +15,7 @@ namespace RHCQS_Services.Interface
         Task<IPaginate<ConstructionItemResponse>> GetListConstruction(int page, int size);
         Task<List<ConstructionItemResponse>> GetListConstructionRough(string type);
         Task<ConstructionItemResponse> GetDetailConstructionItem(Guid id);
-        Task<ConstructionItemResponse> GetDetailConstructionItemByName(string name);
+        Task<IPaginate<ConstructionItemResponse>> GetDetailConstructionItemByName(string name, int page, int size);
         Task<List<AutoConstructionResponse>> GetDetailConstructionItemByContainName(string name);
         Task<List<ConstructionItemResponse>> GetListConstructionByPackageAndType(Guid packageId, string type);
         Task<bool> CreateConstructionItem(ConstructionItemRequest item);
