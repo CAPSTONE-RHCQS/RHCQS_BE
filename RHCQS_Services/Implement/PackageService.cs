@@ -20,6 +20,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using ClosedXML;
+using RHCQS_BusinessObject.Payload.Request.DesignTemplate;
 
 namespace RHCQS_Services.Implement
 {
@@ -323,96 +324,173 @@ namespace RHCQS_Services.Implement
 
         public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageId)
         {
-            if (packageRequest == null)
+            try
             {
-                throw new AppConstant.MessageError(
-                    (int)AppConstant.ErrCode.Bad_Request,
-                    AppConstant.ErrMessage.NullValue
-                );
-            }
-
-            var packageRepo = _unitOfWork.GetRepository<Package>();
-            //var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
-
-            var existingPackage = await packageRepo.FirstOrDefaultAsync(
-                predicate: p => p.Id == packageId,
-                include: p => p.Include(pl => pl.PackageLabors)
-                               .Include(pm => pm.PackageMaterials)
-                               .Include(ph => ph.PackageHouses)
-                               .Include(wt => wt.WorkTemplates)
-            );
-
-            if (existingPackage == null)
-            {
-                throw new AppConstant.MessageError(
-                    (int)AppConstant.ErrCode.Not_Found,
-                    AppConstant.ErrMessage.PackageNotFound
-                );
-            }
-
-            existingPackage.Type = packageRequest.PackageType;
-            existingPackage.PackageName = packageRequest.PackageName;
-            existingPackage.Unit = packageRequest.Unit;
-            existingPackage.Price = packageRequest.Price;
-            existingPackage.Status = packageRequest.Status;
-            existingPackage.UpsDate = LocalDateTime.VNDateTime();
-
-            existingPackage.PackageLabors = packageRequest.PackageLabors?.Select(pl => new PackageLabor
-            {
-                LaborId = pl.LaborId,
-                PackageId = existingPackage.Id,
-                InsDate = LocalDateTime.VNDateTime()
-            }).ToList() ?? new List<PackageLabor>();
-
-            existingPackage.PackageMaterials = packageRequest.PackageMaterials?.Select(pm => new PackageMaterial
-            {
-                MaterialId = pm.MaterialId,
-                PackageId = existingPackage.Id,
-                InsDate = LocalDateTime.VNDateTime()
-            }).ToList() ?? new List<PackageMaterial>();
-            if (packageRequest.PackageHouses != null)
-            {
-                existingPackage.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+                if (packageRequest == null)
                 {
-                    DesignTemplateId = ph.DesignTemplateId,
-                    ImgUrl = ph.ImgUrl,
-                    Description = ph.Description,
-                    PackageId = existingPackage.Id,
-                    InsDate = LocalDateTime.VNDateTime()
-                }).ToList() ?? new List<PackageHouse>();
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        AppConstant.ErrMessage.NullValue
+                    );
+                }
+
+                var packageRepo = _unitOfWork.GetRepository<Package>();
+
+                // Tải thực thể Package chính mà không dùng Include
+                var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId);
+
+                if (existingPackage == null)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Not_Found,
+                        AppConstant.ErrMessage.PackageNotFound
+                    );
+                }
+
+                // Cập nhật các thuộc tính cơ bản của Package
+                existingPackage.Type = packageRequest.PackageType;
+                existingPackage.PackageName = packageRequest.PackageName;
+                existingPackage.Unit = packageRequest.Unit;
+                existingPackage.Price = packageRequest.Price;
+                existingPackage.Status = packageRequest.Status;
+                existingPackage.UpsDate = LocalDateTime.VNDateTime();
+
+                // Cập nhật Package trước
+                packageRepo.UpdateAsync(existingPackage);
+
+                // Cập nhật các bảng con
+
+                // 1. Cập nhật PackageLabors
+                var laborRepo = _unitOfWork.GetRepository<PackageLabor>();
+                var existingLabors = await laborRepo.GetListAsync(predicate: pl => pl.PackageId == packageId);
+
+                // Xóa những thực thể không còn trong request
+                var laborIdsInRequest = packageRequest.PackageLabors?.Select(pl => pl.LaborId).ToList() ?? new List<Guid>();
+                var duplicateLaborIds = CheckDuplicateIds(laborIdsInRequest);
+                if (duplicateLaborIds.Any())
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        $"Có mã nhân công bị trùng"
+                    );
+                }
+                var invalidLaborIds = await ValidateLaborIdsAsync(laborIdsInRequest);
+
+                if (invalidLaborIds.Any())
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+        $"Các mã nhân công sau không hợp lệ: {string.Join(", ", invalidLaborIds)}"
+                    );
+                }
+                var laborsToRemove = existingLabors.Where(pl => !laborIdsInRequest.Contains(pl.LaborId)).ToList();
+                foreach (var labor in laborsToRemove)
+                {
+                    laborRepo.DeleteAsync(labor);
+                }
+
+                // Thêm hoặc cập nhật những thực thể từ request
+                foreach (var laborRequest in packageRequest.PackageLabors ?? new List<PackageLaborRequest>())
+                {
+                    var existingLabor = existingLabors.FirstOrDefault(pl => pl.LaborId == laborRequest.LaborId);
+                    if (existingLabor == null)
+                    {
+                        laborRepo.InsertAsync(new PackageLabor
+                        {
+                            LaborId = laborRequest.LaborId,
+                            PackageId = packageId,
+                            InsDate = LocalDateTime.VNDateTime()
+                        });
+                    }
+                }
+
+                // 2. Cập nhật PackageMaterials
+                var materialRepo = _unitOfWork.GetRepository<PackageMaterial>();
+                var existingMaterials = await materialRepo.GetListAsync(predicate: pm => pm.PackageId == packageId);
+
+                var materialIdsInRequest = packageRequest.PackageMaterials?.Select(pm => pm.MaterialId).ToList() ?? new List<Guid>();
+                var duplicateMaterialIds = CheckDuplicateIds(materialIdsInRequest);
+                if (duplicateMaterialIds.Any())
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+                        $"Có mã vật tư bị trùng"
+                    );
+                }
+                var invalidMaterialIds = await ValidateMaterialIdsAsync(laborIdsInRequest);
+
+                if (invalidMaterialIds.Any())
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+        $"Các mã vật tư sau không hợp lệ: {string.Join(", ", invalidMaterialIds)}"
+                    );
+                }
+                var materialsToRemove = existingMaterials.Where(pm => !materialIdsInRequest.Contains((Guid)pm.MaterialId)).ToList();
+                foreach (var material in materialsToRemove)
+                {
+                    materialRepo.DeleteAsync(material);
+                }
+
+                foreach (var materialRequest in packageRequest.PackageMaterials ?? new List<PackageMaterialRequest>())
+                {
+                    var existingMaterial = existingMaterials.FirstOrDefault(pm => pm.MaterialId == materialRequest.MaterialId);
+                    if (existingMaterial == null)
+                    {
+                        materialRepo.InsertAsync(new PackageMaterial
+                        {
+                            MaterialId = materialRequest.MaterialId,
+                            PackageId = packageId,
+                            InsDate = LocalDateTime.VNDateTime()
+                        });
+                    }
+                }
+
+                // 3. Cập nhật PackageHouses
+                var houseRepo = _unitOfWork.GetRepository<PackageHouse>();
+                if (packageRequest.PackageHouses != null)
+                {
+                    var existingHouses = await houseRepo.GetListAsync(predicate: ph => ph.PackageId == packageId);
+
+                    var houseIdsInRequest = packageRequest.PackageHouses?.Select(ph => ph.DesignTemplateId).ToList() ?? new List<Guid>();
+                    var housesToRemove = existingHouses.Where(ph => !houseIdsInRequest.Contains(ph.DesignTemplateId)).ToList();
+                    foreach (var house in housesToRemove)
+                    {
+                        houseRepo.DeleteAsync(house);
+                    }
+
+                    foreach (var houseRequest in packageRequest.PackageHouses)
+                    {
+                        var existingHouse = existingHouses.FirstOrDefault(ph => ph.DesignTemplateId == houseRequest.DesignTemplateId);
+                        if (existingHouse == null)
+                        {
+                            houseRepo.InsertAsync(new PackageHouse
+                            {
+                                DesignTemplateId = houseRequest.DesignTemplateId,
+                                ImgUrl = houseRequest.ImgUrl,
+                                Description = houseRequest.Description,
+                                PackageId = packageId,
+                                InsDate = LocalDateTime.VNDateTime()
+                            });
+                        }
+                    }
+                }
+
+                await _unitOfWork.CommitAsync();
+                bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
+                if (!isSuccessful)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.UpdatePackage
+                    );
+                }
+                return existingPackage;
             }
-
-            //if (packageRequest.WorkTemplate!= null)
-            //{
-            //    var existingWorkTemplates = existingPackage.WorkTemplates.ToList();
-
-            //    foreach (var workTemplateRequest in packageRequest.WorkTemplate)
-            //    {
-            //        var existingWorkTemplate = existingWorkTemplates
-            //            .FirstOrDefault(wt => wt.ContructionWorkId == workTemplateRequest.ConstructionWorKid);
-
-            //        if (existingWorkTemplate != null)
-            //        {
-            //            existingWorkTemplate.LaborCost = workTemplateRequest.LaborCost;
-            //            existingWorkTemplate.MaterialCost = workTemplateRequest.MaterialCost;
-            //            existingWorkTemplate.MaterialFinishedCost = workTemplateRequest.MaterialFinishedCost;
-            //        }
-            //        workTemplateRepo.UpdateAsync(existingWorkTemplate);
-            //    }
-            //}
-
-            packageRepo.UpdateAsync(existingPackage);
-
-            bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            if (!isSuccessful)
+            catch (Exception ex)
             {
-                throw new AppConstant.MessageError(
-                    (int)AppConstant.ErrCode.Conflict,
-                    AppConstant.ErrMessage.UpdatePackage
-                );
+                throw;
             }
-
-            return existingPackage;
         }
 
 
@@ -651,6 +729,39 @@ namespace RHCQS_Services.Implement
 
             return sb.ToString();
         }
+        private async Task<List<Guid>> ValidateLaborIdsAsync(List<Guid> laborIds)
+        {
+            if (laborIds == null || !laborIds.Any())
+                return new List<Guid>();
+
+            var laborRepo = _unitOfWork.GetRepository<Labor>();
+
+            var validLaborIds = await laborRepo.GetListAsync(selector: l => l.Id);
+
+            return laborIds.Except(validLaborIds).ToList();
+        }
+        private async Task<List<Guid>> ValidateMaterialIdsAsync(List<Guid> mateialIds)
+        {
+            if (mateialIds == null || !mateialIds.Any())
+                return new List<Guid>();
+
+            var materialrepo = _unitOfWork.GetRepository<Material>();
+
+            var validMaterialIds = await materialrepo.GetListAsync(selector: l => l.Id);
+
+            return mateialIds.Except(validMaterialIds).ToList();
+        }
+        public List<Guid> CheckDuplicateIds(List<Guid> ids)
+        {
+            var duplicateIds = ids
+                .GroupBy(id => id)            
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
+                .ToList();
+
+            return duplicateIds;
+        }
+
     }
 
 }
