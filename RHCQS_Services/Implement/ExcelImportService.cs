@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Response;
@@ -69,16 +70,14 @@ namespace RHCQS_Services.Implement
         public async Task<List<GroupedConstructionResponse>> ProcessWorkTemplateFileAsync(Stream excelStream, Guid packageId)
         {
             var result = new List<GroupedConstructionResponse>();
-            var seenIds = new HashSet<Guid>();
             var errorMessages = new List<string>();
 
-            // Lấy danh sách từ cơ sở dữ liệu
             var workTemplatesDb = await _unitOfWork.GetRepository<WorkTemplate>()
                 .GetListAsync(
                     predicate: wt => wt.PackageId == packageId,
                     selector: wt => new
                     {
-                        wt.Id,
+                        wt.ContructionWork.Code,
                         wt.InsDate,
                         wt.LaborCost,
                         wt.MaterialCost,
@@ -91,101 +90,47 @@ namespace RHCQS_Services.Implement
                     }
                 );
 
-            // Lấy danh sách từ file Excel
             using var workbook = new XLWorkbook(excelStream);
             var worksheet = workbook.Worksheet(1);
             var workTemplateListFromFile = new List<WorkTemplateExcelResponse>();
 
             foreach (var row in worksheet.RowsUsed().Skip(1))
             {
-//                var workTemplateIdValue = row.Cell(1).Value.ToString();
-//                if (!Guid.TryParse(workTemplateIdValue, out Guid workTemplateId))
-//                {
-//                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-//$"Dòng {row.RowNumber()} có giá trị WorkTemplateId không hợp lệ: {workTemplateIdValue}");
-//                    continue;
-//                }
+                var constructionWorkName = row.Cell(1).GetValue<string>().Trim();
+                var code = row.Cell(2).GetValue<string>().Trim();
+                var constructionName = row.Cell(3).GetValue<string>().Trim();
 
-                var constructionWorkName = row.Cell(1).GetValue<string>();
-//                var constructionIdValue = row.Cell(3).Value.ToString();
-//                if (!Guid.TryParse(constructionIdValue, out Guid constructionId))
-//                {
-//                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-//$"Dòng {row.RowNumber()} có giá trị ConstructionId không hợp lệ: {constructionIdValue}");
-//                    continue;
-//                }
-
-                var constructionName = row.Cell(2).GetValue<string>();
-
-//                if (seenIds.Contains(workTemplateId))
-//                {
-//                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-//$"Dòng {row.RowNumber()} trùng WorkTemplateId: {workTemplateId}");
-//                }
-                //else
-                //{
-                    var workTemplate = new WorkTemplateExcelResponse
-                    {
-                        ConstructionWorkName = constructionWorkName,
-                        ConstructionName = constructionName,
-                        Weight = row.Cell(3).GetValue<double>(),
-                        LaborCost = row.Cell(4).GetValue<double>(),
-                        MaterialCost = row.Cell(5).GetValue<double>(),
-                        MaterialFinishedCost = row.Cell(6).GetValue<double>(),
-                        Unit = row.Cell(7).GetValue<string>()
-                    };
                 var dbTemplate = workTemplatesDb.FirstOrDefault(dbTemplate =>
-                    string.Equals(CleanString(dbTemplate.ConstructionItemName), CleanString(constructionName), StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(CleanString(dbTemplate.ConstructionWorkName), CleanString(constructionWorkName), StringComparison.OrdinalIgnoreCase));
+                    string.Equals(dbTemplate.Code, code, StringComparison.OrdinalIgnoreCase));
 
-                string CleanString(string input)
+                if (dbTemplate == null)
                 {
-                    return input.Replace("\n", "").Replace("\r", "").Trim(); // Loại bỏ ký tự xuống dòng
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Dòng {row.RowNumber()}: Không tìm thấy WorkTemplate với Code '{code}' trong cơ sở dữ liệu.");
                 }
 
-                if (dbTemplate != null)
+                var workTemplate = new WorkTemplateExcelResponse
                 {
-                    // Gán ConstructionItemId và WorkTemplateId
-                    workTemplate.ConstructionId = dbTemplate.ConstructionItemId;
-                    workTemplate.WorkTemplateId = dbTemplate.Id; // Đây là WorkTemplateId từ cơ sở dữ liệu
-                }
-                //seenIds.Add(workTemplateId);
+                    Code = code,
+                    ConstructionId = dbTemplate.ConstructionItemId,
+                    ConstructionName = constructionName,
+                    ConstructionWorkName = constructionWorkName,
+                    Weight = row.Cell(4).GetValue<double>(),
+                    LaborCost = row.Cell(5).GetValue<double>(),
+                    MaterialCost = row.Cell(6).GetValue<double>(),
+                    MaterialFinishedCost = row.Cell(7).GetValue<double>(),
+                    Unit = row.Cell(8).GetValue<string>()
+                };
+
                 workTemplateListFromFile.Add(workTemplate);
-                //}
             }
 
-            var differences = workTemplatesDb
-                .Where(dbTemplate => !workTemplateListFromFile.Any(fileTemplate =>
-                    fileTemplate.ConstructionName == dbTemplate.ConstructionItemName))
-                .ToList();
-
-            if (differences.Any())
-            {
-                foreach (var difference in differences)
-                {
-                    var fileTemplate = workTemplateListFromFile.FirstOrDefault(fileTemplate =>
-                        fileTemplate.ConstructionName == difference.ConstructionItemName);
-
-                    if (fileTemplate != null)
-                    {
-                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Mẫu công việc {difference.ConstructionItemName} không khớp với tên: {difference.ConstructionItemName} (File: {fileTemplate.ConstructionName})");
-                    }
-                    else
-                    {
-                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Không tìm thấy mẫu công việc trong file: {difference.ConstructionWorkName}");
-                    }
-                }
-            }
-            // Nếu có lỗi, ném exception
             if (errorMessages.Any())
             {
-                var errorMessage = string.Join(Environment.NewLine, errorMessages);
-                throw new Exception($"Có lỗi với các dòng:\n{errorMessage}");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"Có lỗi với các dòng:\n{errorMessages}");
             }
 
-            // Group lại các WorkTemplate theo ConstructionId và ConstructionName
             var groupedResult = workTemplateListFromFile
                 .GroupBy(wt => new { wt.ConstructionId, wt.ConstructionName })
                 .Select(group => new GroupedConstructionResponse
@@ -194,7 +139,7 @@ $"Không tìm thấy mẫu công việc trong file: {difference.ConstructionWork
                     ConstructionName = group.Key.ConstructionName,
                     WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
                     {
-                        WorkTemplateId = wt.WorkTemplateId,
+                        Code = wt.Code,
                         ConstructionWorkName = wt.ConstructionWorkName,
                         Weight = wt.Weight,
                         LaborCost = wt.LaborCost,
@@ -208,7 +153,6 @@ $"Không tìm thấy mẫu công việc trong file: {difference.ConstructionWork
 
             return groupedResult;
         }
-
 
     }
 }

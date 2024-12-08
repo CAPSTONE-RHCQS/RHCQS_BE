@@ -28,7 +28,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class WorkTemplateExcelResponse
     {
-        public Guid WorkTemplateId { get; set; }
+        public string Code { get; set; }
         public string ConstructionWorkName { get; set; }
         public Guid ConstructionId { get; set; }
         public string ConstructionName { get; set; }
@@ -46,7 +46,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class WorkTemplateExcelShow
     {
-        public Guid WorkTemplateId { get; set; }
+        public string Code { get; set; }
         public string ConstructionWorkName { get; set; }
         public double Weight { get; set; }
         public double LaborCost { get; set; }
