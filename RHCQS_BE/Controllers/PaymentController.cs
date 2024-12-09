@@ -109,5 +109,29 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region GetBillImage
+        /// <summary>
+        /// Get bill url for app 
+        /// 
+        /// Role: CUSTOMER
+        /// </summary>
+        /// <param name="paymentId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpGet(ApiEndPointConstant.Payment.PaymentBillUrlEndpoint)]
+        [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetBillImage(Guid paymentId)
+        {
+            var listPayment = await _paymentService.GetBillImage(paymentId);
+            var result = JsonConvert.SerializeObject(listPayment, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }
