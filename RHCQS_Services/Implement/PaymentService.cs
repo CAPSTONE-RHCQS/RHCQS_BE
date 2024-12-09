@@ -151,5 +151,25 @@ namespace RHCQS_Services.Implement
             return saveResutl;
         }
 
+        public async Task<string> GetBillImage(Guid paymentId)
+        {
+            var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(
+                            predicate: p => p.Id == paymentId,
+                            include: p => p.Include(p => p.Media));
+
+            if (paymentInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Invalid_Payment);
+            }
+
+            if (paymentInfo.Media.Count == 0)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_Bill);
+            }
+
+            string urlImage = paymentInfo.Media.First().Url!;
+            return urlImage;
+        }
+
     }
 }
