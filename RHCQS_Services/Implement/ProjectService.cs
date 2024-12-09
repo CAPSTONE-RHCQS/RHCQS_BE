@@ -57,7 +57,7 @@ namespace RHCQS_Services.Implement
             IPaginate<ProjectResponse> listProjects =
             await _unitOfWork.GetRepository<Project>().GetList(
                 predicate: x => x.Status!.ToUpper() == type.ToUpper(),
-                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.CustomerName!, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Customer!),
                 orderBy: x => x.OrderBy(w => w.InsDate),
@@ -71,7 +71,7 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<ProjectResponse> paginatedProjects = await _unitOfWork.GetRepository<AssignTask>().GetList(
                 predicate: x => x.AccountId == accountId,
-                selector: x => new ProjectResponse(x.Project!.Id, x.Project!.Customer!.Username!, x.Project.Name, x.Project.Type,
+                selector: x => new ProjectResponse(x.Project!.Id, x.Project.CustomerName!, x.Project.Name, x.Project.Type,
                                                     x.Project.Status, x.Project.InsDate, x.Project.UpsDate, x.Project.ProjectCode),
                 include: x => x.Include(x => x.Project!)
                                 .ThenInclude(x => x.Customer!),
@@ -94,7 +94,7 @@ namespace RHCQS_Services.Implement
             await _unitOfWork.GetRepository<Project>().GetList(
                 //predicate: x => x.Name.ToUpper() == name.ToUpper(),
                 predicate: x => x.Name.ToUpper().StartsWith(normalizedName),
-                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.CustomerName!, x.Name, x.Type,
                                                     x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Customer!),
                 orderBy: x => x.OrderBy(w => w.InsDate),

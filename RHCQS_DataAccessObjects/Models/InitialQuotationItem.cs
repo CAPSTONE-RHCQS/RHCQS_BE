@@ -25,6 +25,8 @@ public partial class InitialQuotationItem
 
     public Guid InitialQuotationId { get; set; }
 
+    public double? AreaConstruction { get; set; }
+
     public virtual ConstructionItem ConstructionItem { get; set; } = null!;
 
     public virtual InitialQuotation InitialQuotation { get; set; } = null!;
