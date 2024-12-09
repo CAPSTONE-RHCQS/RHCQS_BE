@@ -213,7 +213,7 @@ public static class AppConstant
         public const string Send_Fail = "Gửi thất bại!";
         public const string InvalidData = "Dữ liệu không hợp lệ!";
         public const string InvalidFile = "Không có file";
-        
+        public const string Fail_Delete = "Xóa thất bại!";
         public const string InvalidToken = "Token không hợp lệ!";
         public const string Not_Token_expired = "Token chưa hết hạn.";
         public const string Not_Reason = "Cần lý do từ chối!";
@@ -336,6 +336,7 @@ public static class AppConstant
         public const string Contract_Not_Found = "Không tìm thấy báo giá!";
         public const string Contract_Waiting = "Hợp đồng đang chờ duyệt";
         public const string Not_Completed_Design = "Cần hoàn thành các bản thiết kế để thanh toán hoàn tất hợp đồng thiết kế!";
+        public const string Conflict_Contract_Appendix = "Hợp đồng đã có hợp đồng phụ lục";
 
         //Promotion
         public const string Invalid_Start_Time = "Thời gian bắt đầu ở quá khứ hoặc trùng với thời gian hiện tại!";

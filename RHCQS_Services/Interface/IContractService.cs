@@ -27,5 +27,6 @@ namespace RHCQS_Services.Interface
         Task<bool> ManagerApproverBillFromCustomer(Guid paymentId, string type);
         Task<bool> CreateContractAppendix(ContractAppendixRequest request);
         Task<string> UploadBillContractAppendix(Guid paymentId, List<IFormFile> bills);
+        Task<string> DeleteCustomerBillPayment(Guid paymentId);
     }
 }
