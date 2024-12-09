@@ -25,7 +25,7 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public List<PackageMaterialRequest> PackageMaterials { get; set; }
 
-        public List<PackageHousesRequest>? PackageHouses { get; set; }
+        //public List<PackageHousesRequest>? PackageHouses { get; set; }
 
         //public List<WorkTemplateRequest>? WorkTemplate { get; set; }
     }
@@ -50,14 +50,14 @@ namespace RHCQS_BusinessObject.Payload.Request
 
 
     }
-    public class PackageHousesRequest
-    {
-        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
-        public Guid DesignTemplateId { get; set; }
+    //public class PackageHousesRequest
+    //{
+    //    [Required(ErrorMessage = "Id là bắt buộc phải có.")]
+    //    public Guid DesignTemplateId { get; set; }
 
-        public string? ImgUrl { get; set; }
+    //    public string? ImgUrl { get; set; }
 
-        public string? Description { get; set; }
+    //    public string? Description { get; set; }
 
-    }
+    //}
 }
