@@ -83,6 +83,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Guid constructionItemId,
             string? subConstruction, Guid? subConstructionId, 
             double? area,
+            double? areaConstruction,
             double? price,
             string? unitPrice, double? subCoefficient, double? coefficient)
         {
@@ -92,6 +93,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             SubConstruction = subConstruction;
             SubConstructionId = subConstructionId;
             Area = area;
+            AreaConstruction = areaConstruction;
             Price = price;
             UnitPrice = unitPrice;
             SubCoefficient = subCoefficient;
@@ -107,6 +109,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public double? Area { get; set; }
 
+        public double? AreaConstruction { get; set; }
         public double? Price { get; set; }
 
         public string? UnitPrice { get; set; }

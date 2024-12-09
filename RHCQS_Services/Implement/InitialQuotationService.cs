@@ -102,6 +102,7 @@ namespace RHCQS_Services.Implement
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
                             item.SubConstructionId,
                             item.Area,
+                            item.AreaConstruction,
                             item.Price,
                             item.UnitPrice,
                                 item.ConstructionItem?.SubConstructionItems
@@ -351,6 +352,7 @@ namespace RHCQS_Services.Implement
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
                             item.SubConstructionId,
                             item.Area,
+                            item.AreaConstruction,
                             item.Price,
                             item.UnitPrice,
                                 item.ConstructionItem?.SubConstructionItems
@@ -473,6 +475,7 @@ namespace RHCQS_Services.Implement
                                 .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
                             item.SubConstructionId,
                             item.Area,
+                            item.AreaConstruction,
                             item.Price,
                             item.UnitPrice,
                                 item.ConstructionItem?.SubConstructionItems
@@ -758,7 +761,7 @@ namespace RHCQS_Services.Implement
         <tr>
             <th>STT</th>
             <th>Hạng mục</th>
-            <th>Diện tích (m²)</th>
+            <th>Diện tích thực tế</th>
             <th>Hệ số</th>
             <th>Diện tích</th>
             <th>Đơn vị</th>
@@ -771,9 +774,9 @@ namespace RHCQS_Services.Implement
         <tr>
             <td>{noCount}</td>
             <td>{item.Name}</td>
-            <td>{request.Area}</td>
-            <td>{item.Coefficient}</td>
             <td>{item.Area}</td>
+            <td>{item.Coefficient}</td>
+            <td>{item.AreaConstruction}</td>
             <td>m²</td>
         </tr>");
                 noCount++;
