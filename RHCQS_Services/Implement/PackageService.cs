@@ -60,6 +60,7 @@ namespace RHCQS_Services.Implement
 
                 package.PackageMaterials?.Select(pm => new PackageMaterialResponse(
                     pm.Id,
+                    pm.Material.Id,
                     pm.Material.MaterialSectionId,
                     pm.Material.MaterialSection?.Name,
                     pm.Material?.Name,
