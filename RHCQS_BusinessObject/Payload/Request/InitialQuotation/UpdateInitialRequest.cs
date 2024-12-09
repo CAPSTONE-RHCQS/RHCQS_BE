@@ -63,7 +63,11 @@ namespace RHCQS_BusinessObject.Payload.Request.InitialQuotation
         [Range(0, double.MaxValue, ErrorMessage = "Diện tích phải là một số dương.")]
         public double? Area { get; set; }
 
+        [Range(0, double.MaxValue, ErrorMessage = "Diện tích thi công phải là một số dương.")]
+        public double? AreaConstruction { get; set; }
+
         [Range(0, double.MaxValue, ErrorMessage = "Giá phải là một số dương.")]
+
         public double? Price { get; set; }
     }
 
