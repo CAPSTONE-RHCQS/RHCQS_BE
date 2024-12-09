@@ -869,20 +869,24 @@ namespace RHCQS_Services.Implement
             }
 
             sb.Append("</table>");
-            sb.Append($@"
-    <h3>2.5. KHUYẾN MÃI:</h3>
-    <table>
-        <tr>
-            <th>Tên khuyến mãi</th>
-            <th>Giá trị</th>
-            <th>Tổng giảm</th>
-        </tr>
-        <tr>
-            <td>{request.PromotionInfo.Name}</td>
-            <td>{request.PromotionInfo.Value}</td>
-            <td>{request.Discount}</td>
-        </tr>
-    </table>");
+
+            if (request.PromotionInfo != null && !string.IsNullOrEmpty(request.PromotionInfo.Name))
+            {
+                sb.Append($@"
+                    <h3>2.5. KHUYẾN MÃI:</h3>
+                    <table>
+                        <tr>
+                            <th>Tên khuyến mãi</th>
+                            <th>Giá trị</th>
+                            <th>Tổng giảm</th>
+                        </tr>
+                        <tr>
+                            <td>{request.PromotionInfo.Name}</td>
+                            <td>{request.PromotionInfo.Value}</td>
+                            <td>{request.Discount}</td>
+                        </tr>
+                    </table>");
+            }
 
             sb.Append($@"
     <h3>2.6. TỔNG GIÁ TRỊ HỢP ĐỒNG:</h3>

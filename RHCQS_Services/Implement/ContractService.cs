@@ -13,8 +13,6 @@ using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection.Metadata.Ecma335;
@@ -951,38 +949,53 @@ namespace RHCQS_Services.Implement
         public async Task<bool> ManagerApproverBillFromCustomer(Guid paymentId, string type)
         {
             bool result = false;
-            var batchPaymentInfo = await _unitOfWork.GetRepository<BatchPayment>().FirstOrDefaultAsync(
+
+            // Lấy thông tin đợt thanh toán hiện tại
+            var currentBatch = await _unitOfWork.GetRepository<BatchPayment>().FirstOrDefaultAsync(
                                 predicate: b => b.PaymentId == paymentId);
+
+            if (currentBatch == null)
+                return false;
 
             if (type == "Approved")
             {
-                batchPaymentInfo.Status = AppConstant.PaymentStatus.PAID;
+                // Cập nhật trạng thái của đợt thanh toán hiện tại
+                currentBatch.Status = AppConstant.PaymentStatus.PAID;
+                _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(currentBatch);
 
-                _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(batchPaymentInfo);
-
-                var contractUpdate = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
-                             predicate: c => c.Id == batchPaymentInfo.ContractId,
+                // Lấy thông tin hợp đồng và các đợt thanh toán liên quan
+                var contract = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Contract>().FirstOrDefaultAsync(
+                             predicate: c => c.Id == currentBatch.ContractId,
                              include: c => c.Include(c => c.BatchPayments)
-                                             .Include(c => c.Project));
-                var allPaid = contractUpdate.BatchPayments.All(x => x.Status == AppConstant.PaymentStatus.PAID);
-                if (allPaid)
+                                            .Include(c => c.Project));
+
+                if (contract == null)
+                    return false;
+
+                // Kiểm tra nếu tất cả các đợt thanh toán đã được thanh toán
+                bool allPaid = contract.BatchPayments.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+
+                // Lấy đợt thanh toán cuối cùng
+                var finalBatch = contract.BatchPayments
+                                        .OrderByDescending(x => x.NumberOfBatch)
+                                        .FirstOrDefault();
+
+                // Kiểm tra nếu đợt hiện tại là đợt cuối cùng
+                if (finalBatch != null && finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                 {
-                    if (contractUpdate != null)
+                    // Cập nhật trạng thái hợp đồng và dự án
+                    contract.Status = AppConstant.ContractStatus.FINISHED;
+                    if (contract.Project != null)
                     {
-                        contractUpdate.Status = AppConstant.ContractStatus.FINISHED;
-                        contractUpdate.Project.Status = AppConstant.ProjectStatus.FINALIZED;
-                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contractUpdate);
+                        contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                     }
+                    _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Contract>().UpdateAsync(contract);
                 }
+
                 result = await _unitOfWork.CommitAsync() > 0;
-            }
-            else
-            {
-                result = false;
             }
             return result;
         }
-
         public async Task<bool> CreateContractAppendix(ContractAppendixRequest request)
         {
             try
