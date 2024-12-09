@@ -428,5 +428,30 @@ namespace RHCQS_BE.Controllers
             var isCreate = await _contractService.CreateContractAppendix(request);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
+
+        #region DeleteCustomerBillPayment
+        /// <summary>
+        /// Customer delete bill when mistake bill
+        /// 
+        /// Role: CUSTOMER
+        /// </summary>
+        /// <param name="paymentId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "Customer")]
+        [HttpDelete(ApiEndPointConstant.Contract.CustomerDeleteBillEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteCustomerBillPayment(Guid paymentId)
+        {
+            var contractItem = await _contractService.DeleteCustomerBillPayment(paymentId);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

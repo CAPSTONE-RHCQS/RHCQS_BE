@@ -1010,6 +1010,11 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Not_Found);
                 }
+
+                if (contractInfo.ContractAppendix != null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Conflict_Contract_Appendix);
+                }
                 #endregion
 
                 #region Cancel BatchPayment
@@ -1080,7 +1085,7 @@ namespace RHCQS_Services.Implement
                         PaymentTypeId = paymentType.Id,
                         InsDate = LocalDateTime.VNDateTime(),
                         UpsDate = LocalDateTime.VNDateTime(),
-                        TotalPrice = request.ContractValue,
+                        TotalPrice = pay.Price,
                         PaymentDate = pay.PaymentDate,
                         PaymentPhase = pay.PaymentPhase,
                         Unit = AppConstant.Unit.UnitPrice,
@@ -1113,6 +1118,24 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(ex.Code, ex.Message);
             }
+        }
+
+        public async Task<string> DeleteCustomerBillPayment(Guid paymentId)
+        {
+            var paymentInfo = await _unitOfWork.GetRepository<Payment>().FirstOrDefaultAsync(
+                            predicate: pay => pay.Id == paymentId,
+                            include: pay => pay.Include(pay => pay.Media));
+            if (paymentInfo == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Invalid_Payment);
+            }
+
+            Medium itemMedia = (Medium)paymentInfo.Media;
+
+            _unitOfWork.GetRepository<Medium>().DeleteAsync(itemMedia);
+
+            var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_DELETE : AppConstant.ErrMessage.Fail_Delete;
+            return result;
         }
     }
 }
