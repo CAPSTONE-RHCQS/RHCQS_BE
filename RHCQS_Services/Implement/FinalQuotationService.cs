@@ -707,8 +707,8 @@ namespace RHCQS_Services.Implement
                             }
                     };
 
-                    string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
-                    NativeLibrary.Load(dllPath);
+                    //string dllPath = Path.Combine(AppContext.BaseDirectory, "ExternalLibraries", "libwkhtmltox.dll");
+                    //NativeLibrary.Load(dllPath);
 
                     var pdf = _converter.Convert(doc);
                     //Upload cloudinary
@@ -939,9 +939,9 @@ namespace RHCQS_Services.Implement
             )).ToList() ?? new List<UtilityInf>();
 
             var constructionRough = finalQuotationItemsList
-                    .Where(item => item.Type == AppConstant.Type.ROUGH)
+                    .Where(item => item.Type == AppConstant.Type.WORK_ROUGH)
                     .SelectMany(item => item.QuotationItems)
-                    .GroupBy(qi => AppConstant.Type.ROUGH)
+                    .GroupBy(qi => AppConstant.Type.WORK_ROUGH)
                     .Select(group => new ConstructionSummary(
                         group.Key,
                         group.Sum(qi => qi.TotalPriceRough ?? 0),
@@ -949,9 +949,9 @@ namespace RHCQS_Services.Implement
                     )).FirstOrDefault();
 
             var constructionFinished = finalQuotationItemsList
-                .Where(item => item.Type == AppConstant.Type.FINISHED)
+                .Where(item => item.Type == AppConstant.Type.WORK_FINISHED)
                 .SelectMany(item => item.QuotationItems)
-                .GroupBy(qi => AppConstant.Type.FINISHED)
+                .GroupBy(qi => AppConstant.Type.WORK_FINISHED)
                 .Select(group => new ConstructionSummary(
                     group.Key,
                     group.Sum(qi => qi.TotalPriceRough ?? 0),
@@ -1228,9 +1228,9 @@ namespace RHCQS_Services.Implement
             )).ToList() ?? new List<UtilityInf>();
 
             var constructionRough = finalQuotationItemsList
-                    .Where(item => item.Type == AppConstant.Type.ROUGH)
+                    .Where(item => item.Type == AppConstant.Type.WORK_ROUGH)
                     .SelectMany(item => item.QuotationItems)
-                    .GroupBy(qi => AppConstant.Type.ROUGH)
+                    .GroupBy(qi => AppConstant.Type.WORK_ROUGH)
                     .Select(group => new ConstructionSummary(
                         group.Key,
                         group.Sum(qi => qi.TotalPriceRough ?? 0),
@@ -1238,9 +1238,9 @@ namespace RHCQS_Services.Implement
                     )).FirstOrDefault();
 
             var constructionFinished = finalQuotationItemsList
-                .Where(item => item.Type == AppConstant.Type.FINISHED)
+                .Where(item => item.Type == AppConstant.Type.WORK_FINISHED)
                 .SelectMany(item => item.QuotationItems)
-                .GroupBy(qi => AppConstant.Type.FINISHED)
+                .GroupBy(qi => AppConstant.Type.WORK_FINISHED)
                 .Select(group => new ConstructionSummary(
                     group.Key,
                     group.Sum(qi => qi.TotalPriceRough ?? 0),
@@ -1470,11 +1470,29 @@ namespace RHCQS_Services.Implement
             white-space: pre-wrap;
             text-align: left;
         }
+.two-columns {
+    overflow: hidden; /* Để chứa các phần tử float */
+}
+
+.column {
+    float: left; /* Đưa mỗi cột sang trái */
+    width: 48%; /* Mỗi cột chiếm 48% chiều rộng */
+    text-align: justify; /* Căn đều chữ trong mỗi cột */
+    box-sizing: border-box; /* Đảm bảo padding không ảnh hưởng đến chiều rộng */
+    margin-right: 4%; /* Khoảng cách giữa các cột */
+}
+
+.column:last-child {
+    margin-right: 0; /* Loại bỏ margin cho cột cuối cùng */
+}
+
     </style>
 </head>
 
 <body>
     <h1>BÁO GIÁ CHI TIẾT NHÀ Ở DÂN DỤNG</h1>
+<div class='two-columns'>
+   <div class='column'>
     <p><strong>LOẠI CÔNG TRÌNH:</strong> ");
 
             if (request.ProjectType.ToLower() == "all")
@@ -1493,15 +1511,19 @@ namespace RHCQS_Services.Implement
             {
                 sb.Append("Có Bản Vẽ");
             }
-            sb.Append(@"</p>
-    < p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
-    <p><strong>SỐ ĐIỆN THOẠI:</strong> " + request.PhoneNumber + @"</p>
-    <p><strong>ĐỊA CHỈ EMAIL:</strong> " + request.Email + @"</p>
-    <p><strong>DIỆN TÍCH XÂY DỰNG:</strong> " + request.Area + @"</p>
-    <p><strong>ĐỊA CHỈ XÂY DỰNG:</strong> "+ request.ProjectAddress + @"</p>
-    <p><strong>ĐƠN GIÁ THI CÔNG:</strong> "+ request.PackageQuotationList.PackageRough + @",<br> "+ request.PackageQuotationList.PackageFinished + @"</p>
-    <p><strong>TỔNG GIÁ TRỊ HỢP ĐỒNG:</strong> " + request.TotalPrice + @"VND</p>
-    <h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
+            sb.Append(@"
+        <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
+        <p><strong>SỐ ĐIỆN THOẠI:</strong> " + request.PhoneNumber + @"</p>
+        <p><strong>ĐỊA CHỈ EMAIL:</strong> " + request.Email + @"</p>
+    </div>
+    <div class='column'>
+        <p><strong>DIỆN TÍCH XÂY DỰNG:</strong> " + request.Area + @"</p>
+        <p><strong>ĐỊA CHỈ XÂY DỰNG:</strong> " + request.ProjectAddress + @"</p>
+        <p><strong>ĐƠN GIÁ THI CÔNG:</strong> " + request.PackageQuotationList.PackageRough + @"," + request.PackageQuotationList.PackageFinished + @"</p>
+        <p><strong>TỔNG GIÁ TRỊ HỢP ĐỒNG:</strong> " + $"{request.TotalPrice:N0}" + @" VND</p>
+    </div>
+</div>
+<h2>BẢNG TỔNG HỢP CHI PHÍ XÂY DỰNG</h2>
 <div class='table-container'>
     <table>
         <thead>
@@ -1514,7 +1536,7 @@ namespace RHCQS_Services.Implement
             </tr>
         </thead>
         <tbody>");
-            
+
             int noCount = 1;
             var rough = request.ConstructionRough;
             decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
@@ -1580,10 +1602,8 @@ namespace RHCQS_Services.Implement
             decimal roundedTotal = Math.Round(total);
             sb.Append($@"
     <tr class='total'>
+        <td colspan='4'>Tổng giá trị hợp đồng </td>
         <td class='highlight'>{total:N0}</td>
-    </tr>
-    <tr class='total'>
-        <td class='highlight'>{roundedTotal:N0}</td>
     </tr>
 </tbody>
 </table>
@@ -1609,15 +1629,15 @@ namespace RHCQS_Services.Implement
     <thead>
         <tr>
             <th>STT</th>
-            <th>NỘI DUNG CÔNG VIỆC</th>
+            <th>NỘI DUNG<br /> CÔNG VIỆC</th>
             <th>DVT</th>
             <th>KHỐI LƯỢNG</th>
-            <th>ĐƠN GIÁ NHÂN CÔNG</th>
-            <th>ĐƠN GIÁ VẬT TƯ THÔ</th>
-            <th>ĐƠN GIÁ VẬT TƯ H.T</th>
-            <th>THÀNH TIỀN NHÂN CÔNG</th>
-            <th>THÀNH TIỀN VẬT TƯ THÔ</th>
-            <th>THÀNH TIỀN VẬT TƯ H.T</th>
+            <th>ĐƠN GIÁ<br /> NHÂN CÔNG</th>
+            <th>ĐƠN GIÁ<br /> VẬT TƯ THÔ</th>
+            <th>ĐƠN GIÁ<br /> VẬT TƯ H.T</th>
+            <th>THÀNH TIỀN<br /> NHÂN CÔNG</th>
+            <th>THÀNH TIỀN<br /> VẬT TƯ THÔ</th>
+            <th>THÀNH TIỀN<br /> VẬT TƯ H.T</th>
             <th>GHI CHÚ</th>
         </tr>
     </thead>
@@ -1626,7 +1646,7 @@ namespace RHCQS_Services.Implement
             int noCons = 0;
 
             // Handling "ROUGH" items
-            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "ROUGH").ToList();
+            var roughItems = request.FinalQuotationItems.Where(x => x.Type == "WORK_ROUGH").ToList();
             if (roughItems.Any())
             {
                 sb.Append($@"
@@ -1674,7 +1694,7 @@ namespace RHCQS_Services.Implement
             }
 
             // Handling "FINISHED" items
-            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "FINISHED").ToList();
+            var finishedItems = request.FinalQuotationItems.Where(x => x.Type == "WORK_FINISHED").ToList();
             if (finishedItems.Any())
             {
                 sb.Append($@"
