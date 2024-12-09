@@ -116,14 +116,14 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> CreatePackage([FromBody] PackageRequest package)
         {
-            foreach (var packageHouse in package.PackageHouses)
-            {
-                if (!string.IsNullOrEmpty(packageHouse.ImgUrl))
-                {
-                    string packageURL = await _uploadImgService.UploadImageAsync(packageHouse.ImgUrl, "PackageHouse");
-                    packageHouse.ImgUrl = packageURL;
-                }
-            }
+            //foreach (var packageHouse in package.PackageHouses)
+            //{
+            //    if (!string.IsNullOrEmpty(packageHouse.ImgUrl))
+            //    {
+            //        string packageURL = await _uploadImgService.UploadImageAsync(packageHouse.ImgUrl, "PackageHouse");
+            //        packageHouse.ImgUrl = packageURL;
+            //    }
+            //}
             var isCreate = await _packageService.CreatePackage(package);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
@@ -137,14 +137,14 @@ namespace RHCQS_BE.Controllers
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         public async Task<IActionResult> UpdateHouseTemplate([FromBody] PackageRequest package, Guid packageid)
         {
-            foreach (var packageHouse in package.PackageHouses)
-            {
-                if (!string.IsNullOrEmpty(packageHouse.ImgUrl))
-                {
-                    string packageURL = await _uploadImgService.UploadImageAsync(packageHouse.ImgUrl, "PackageHouse");
-                    packageHouse.ImgUrl = packageURL;
-                }
-            }
+            //foreach (var packageHouse in package.PackageHouses)
+            //{
+            //    if (!string.IsNullOrEmpty(packageHouse.ImgUrl))
+            //    {
+            //        string packageURL = await _uploadImgService.UploadImageAsync(packageHouse.ImgUrl, "PackageHouse");
+            //        packageHouse.ImgUrl = packageURL;
+            //    }
+            //}
             var update = await _packageService.UpdatePackage(package, packageid);
             return Ok(update);
         }

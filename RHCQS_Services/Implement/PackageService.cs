@@ -277,18 +277,18 @@ namespace RHCQS_Services.Implement
                 InsDate = LocalDateTime.VNDateTime()
             }).ToList() ?? new List<PackageMaterial>();
 
-            if ( packageRequest.PackageHouses != null)
-            {
-                package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
-                {
-                    Id = Guid.NewGuid(),
-                    DesignTemplateId = ph.DesignTemplateId,
-                    ImgUrl = ph.ImgUrl,
-                    Description = ph.Description,
-                    PackageId = package.Id,
-                    InsDate = LocalDateTime.VNDateTime()
-                }).ToList() ?? new List<PackageHouse>();
-            }
+            //if ( packageRequest.PackageHouses != null)
+            //{
+            //    package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
+            //    {
+            //        Id = Guid.NewGuid(),
+            //        DesignTemplateId = ph.DesignTemplateId,
+            //        ImgUrl = ph.ImgUrl,
+            //        Description = ph.Description,
+            //        PackageId = package.Id,
+            //        InsDate = LocalDateTime.VNDateTime()
+            //    }).ToList() ?? new List<PackageHouse>();
+            //}
 
             await packageRepo.InsertAsync(package);
 
@@ -325,8 +325,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageId)
         {
-            try
-            {
+            //try
+            //{
                 if (packageRequest == null)
                 {
                     throw new AppConstant.MessageError(
@@ -447,35 +447,35 @@ namespace RHCQS_Services.Implement
                     }
                 }
 
-                // 3. Cập nhật PackageHouses
-                var houseRepo = _unitOfWork.GetRepository<PackageHouse>();
-                if (packageRequest.PackageHouses != null)
-                {
-                    var existingHouses = await houseRepo.GetListAsync(predicate: ph => ph.PackageId == packageId);
+                //// 3. Cập nhật PackageHouses
+                //var houseRepo = _unitOfWork.GetRepository<PackageHouse>();
+                //if (packageRequest.PackageHouses != null)
+                //{
+                //    var existingHouses = await houseRepo.GetListAsync(predicate: ph => ph.PackageId == packageId);
 
-                    var houseIdsInRequest = packageRequest.PackageHouses?.Select(ph => ph.DesignTemplateId).ToList() ?? new List<Guid>();
-                    var housesToRemove = existingHouses.Where(ph => !houseIdsInRequest.Contains(ph.DesignTemplateId)).ToList();
-                    foreach (var house in housesToRemove)
-                    {
-                        houseRepo.DeleteAsync(house);
-                    }
+                //    var houseIdsInRequest = packageRequest.PackageHouses?.Select(ph => ph.DesignTemplateId).ToList() ?? new List<Guid>();
+                //    var housesToRemove = existingHouses.Where(ph => !houseIdsInRequest.Contains(ph.DesignTemplateId)).ToList();
+                //    foreach (var house in housesToRemove)
+                //    {
+                //        houseRepo.DeleteAsync(house);
+                //    }
 
-                    foreach (var houseRequest in packageRequest.PackageHouses)
-                    {
-                        var existingHouse = existingHouses.FirstOrDefault(ph => ph.DesignTemplateId == houseRequest.DesignTemplateId);
-                        if (existingHouse == null)
-                        {
-                            houseRepo.InsertAsync(new PackageHouse
-                            {
-                                DesignTemplateId = houseRequest.DesignTemplateId,
-                                ImgUrl = houseRequest.ImgUrl,
-                                Description = houseRequest.Description,
-                                PackageId = packageId,
-                                InsDate = LocalDateTime.VNDateTime()
-                            });
-                        }
-                    }
-                }
+                //    foreach (var houseRequest in packageRequest.PackageHouses)
+                //    {
+                //        var existingHouse = existingHouses.FirstOrDefault(ph => ph.DesignTemplateId == houseRequest.DesignTemplateId);
+                //        if (existingHouse == null)
+                //        {
+                //            houseRepo.InsertAsync(new PackageHouse
+                //            {
+                //                DesignTemplateId = houseRequest.DesignTemplateId,
+                //                ImgUrl = houseRequest.ImgUrl,
+                //                Description = houseRequest.Description,
+                //                PackageId = packageId,
+                //                InsDate = LocalDateTime.VNDateTime()
+                //            });
+                //        }
+                //    }
+                //}
 
                 await _unitOfWork.CommitAsync();
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
@@ -487,13 +487,12 @@ namespace RHCQS_Services.Implement
                     );
                 }
                 return existingPackage;
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw;
+            //}
         }
-
 
         public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
         {

@@ -1464,6 +1464,12 @@ namespace RHCQS_Services.Implement
             font-weight: bold;
             color: red;
         }
+        .work-name {
+            max-width: 200px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            text-align: left;
+        }
     </style>
 </head>
 
@@ -1574,11 +1580,9 @@ namespace RHCQS_Services.Implement
             decimal roundedTotal = Math.Round(total);
             sb.Append($@"
     <tr class='total'>
-        <td colspan='4'>Cộng (chưa VAT)</td>
         <td class='highlight'>{total:N0}</td>
     </tr>
     <tr class='total'>
-        <td colspan='4'>Làm tròn (chưa VAT)</td>
         <td class='highlight'>{roundedTotal:N0}</td>
     </tr>
 </tbody>
@@ -1654,7 +1658,7 @@ namespace RHCQS_Services.Implement
                         sb.Append($@"
                 <tr>
                     <td>{++noCons}</td>
-                    <td>{item.WorkName}</td>
+                    <td class='work-name'>{item.WorkName}</th>
                     <td>{item.Unit}</td>
                     <td>{item.Weight:N0}</td>
                     <td>{item.UnitPriceLabor:N0}</td>
@@ -1702,7 +1706,7 @@ namespace RHCQS_Services.Implement
                         sb.Append($@"
                 <tr>
                     <td>{++noCons}</td>
-                    <td>{item.WorkName}</td>
+                    <td class='work-name'>{item.WorkName}</th>
                     <td>{item.Unit}</td>
                     <td>{item.Weight:N0}</td>
                     <td>{item.UnitPriceLabor:N0}</td>
