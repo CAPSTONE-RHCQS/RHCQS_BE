@@ -577,8 +577,9 @@ namespace RHCQS_Services.Implement
             {
                 typeQuery = AppConstant.ContractType.Construction.ToString();
             }
+
             var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(x => x.ProjectId == projectId
-            && type == typeQuery);
+                            && x.Type.ToLower() == typeQuery.ToLower());
             if (contractInfo == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Contract_Waiting);

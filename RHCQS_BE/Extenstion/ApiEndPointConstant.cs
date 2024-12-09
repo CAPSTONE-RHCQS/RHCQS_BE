@@ -272,7 +272,7 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentEndpoint = ApiEndpoint + "/payment";
             public const string PaymentDetailEndpoint = PaymentEndpoint + "/id";
             public const string PaymentTypeEndpoint = PaymentEndpoint + "/type";
-            public const string PaymnetBatchEndpoint = PaymentEndpoint + "/batch/id";
+            public const string PaymentBatchEndpoint = PaymentEndpoint + "/batch/id";
             public const string PaymentBatchForCustomerEndpoint = PaymentEndpoint + "/list/app";
             public const string PaymentConfirmEndpoint = PaymentEndpoint + "/confirm";
         }

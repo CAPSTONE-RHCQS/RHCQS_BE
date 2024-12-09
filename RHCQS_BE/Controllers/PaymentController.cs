@@ -50,7 +50,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>List of payment in the system</returns>
         #endregion
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Payment.PaymnetBatchEndpoint)]
+        [HttpGet(ApiEndPointConstant.Payment.PaymentBatchEndpoint)]
         [ProducesResponseType(typeof(ConstructionItemResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailPayment(Guid projectId)
         {
