@@ -41,7 +41,7 @@ namespace RHCQS_Services.Implement
             var listPaymet = await _unitOfWork.GetRepository<Payment>().GetList(
                             selector: p => new PaymentResponse(p.Priority, p.Id, p.PaymentType.Name!, p.BatchPayments.FirstOrDefault(b => b.Id == p.Id)!.Status!, p.InsDate,
                                                                p.UpsDate, p.TotalPrice, p.PaymentDate, p.PaymentPhase,
-                                                               p.Unit, (int)p.Percents, p.Description),
+                                                               p.Unit, (int)p.Percents, p.Description, p.IsConfirm),
                             include: p => p.Include(p => p.PaymentType),
                             page: page,
                             size: size
@@ -71,7 +71,8 @@ namespace RHCQS_Services.Implement
                 bp.Payment.PaymentPhase,
                 bp.Payment.Unit,
                 bp.Payment.Percents ?? 0,
-                bp.Payment.Description
+                bp.Payment.Description,
+                bp.Payment.IsConfirm
             )).ToList();
 
             return paymentResponses;
@@ -107,7 +108,8 @@ namespace RHCQS_Services.Implement
                 paymentPhase: batch.Payment.PaymentPhase,
                 unit: batch.Payment.Unit,
                 percents: batch.Payment.Percents ?? 0,
-                description: batch.Payment.Description
+                description: batch.Payment.Description,
+                isConfirm: batch.Payment.IsConfirm
             )).ToList();
 
             return result;
@@ -139,25 +141,6 @@ namespace RHCQS_Services.Implement
             await _unitOfWork.GetRepository<Medium>().InsertAsync(invoiceMedia);
 
             paymentInfo.IsConfirm = true;
-
-            //var contractIds = paymentInfo.BatchPayments
-            //                    .Select(b => b.ContractId)
-            //                    .Distinct()
-            //                    .ToList();
-
-            //var listBatch = await _unitOfWork.GetRepository<BatchPayment>()
-            //                                 .GetListAsync(predicate: p => contractIds.Contains(p.ContractId));
-
-            //bool allPaid = listBatch.All(b => b.Status == AppConstant.PaymentStatus.PAID);
-
-            //if (allPaid)
-            //{
-            //    var contracts = await _unitOfWork.GetRepository<Contract>()
-            //                                     .FirstOrDefaultAsync(predicate: c => contractIds.Contains(c.Id));
-
-            //    contracts.Status = AppConstant.ContractStatus.FINISHED;
-            //    _unitOfWork.GetRepository<Contract>().UpdateAsync(contracts);
-            //}
 
             _unitOfWork.GetRepository<Payment>().UpdateAsync(paymentInfo);
 

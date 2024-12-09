@@ -179,6 +179,8 @@ namespace RHCQS_BE.Controllers
         #region GetListContractApp
         /// <summary>
         /// Get file contract for App mobile 
+        /// 
+        /// Role: CUSTOMER
         /// </summary>
         /// <remarks>
         /// Sample request:

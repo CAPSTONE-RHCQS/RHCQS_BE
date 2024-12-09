@@ -21,7 +21,7 @@ namespace RHCQS_BusinessObject.Payload.Response
 
         public PaymentResponse(int? priorty, Guid id, string type, string status, DateTime? insDate, DateTime? upsDate, 
             double? totalprice, DateTime? paymentDate, DateTime? paymentPhase, string? unit,
-            int percents, string? description)
+            int percents, string? description, bool? isConfirm)
         {
             Priority = priorty;
             Id = id;
@@ -35,6 +35,7 @@ namespace RHCQS_BusinessObject.Payload.Response
             Unit = unit;
             Percents = percents;
             Description = description;
+            IsConfirm = isConfirm;
         }
 
         public int? Priority { get; set; }
@@ -57,6 +58,8 @@ namespace RHCQS_BusinessObject.Payload.Response
         public int Percents { get; set; }
 
         public string? Description { get; set; }
+
+        public bool? IsConfirm { get; set; }
 
     }
 
