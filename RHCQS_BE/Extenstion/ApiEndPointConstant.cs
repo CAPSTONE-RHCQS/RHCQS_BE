@@ -276,6 +276,9 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentBatchForCustomerEndpoint = PaymentEndpoint + "/list/app";
             public const string PaymentConfirmEndpoint = PaymentEndpoint + "/confirm";
             public const string PaymentBillUrlEndpoint = PaymentEndpoint + "/customer/bill";
+            public const string TotalPriceEndpoint = PaymentEndpoint + "/totalprice";
+            public const string TotalProgressPriceEndpoint = PaymentEndpoint + "/totalprogressprice";
+            public const string TotalPaidPriceEndpoint = PaymentEndpoint + "/totalpaidprice";
         }
 
         public static class General
