@@ -172,6 +172,8 @@ namespace RHCQS_Services.Implement
             })
             .ToList() ?? new List<ContractInfo>();
 
+            var finalizedInitial = projectItem.InitialQuotations?.FirstOrDefault(i => i.Status == AppConstant.ProjectStatus.FINALIZED);
+            var area = finalizedInitial?.Area ?? 0;
 
             var projectDetailItem = new ProjectDetail
             {
@@ -182,7 +184,7 @@ namespace RHCQS_Services.Implement
                 AccountName = projectItem.CustomerName!,
                 Address = projectItem.Address,
                 Mail = projectItem.Customer!.Email!,
-                Area = projectItem.Area,
+                Area = area == 0 ? projectItem.Area : area,
                 Type = projectItem.Type,
                 Status = projectItem.Status,
                 InsDate = projectItem.InsDate,

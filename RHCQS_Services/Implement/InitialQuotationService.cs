@@ -1135,6 +1135,7 @@ namespace RHCQS_Services.Implement
                         InsDate = LocalDateTime.VNDateTime(),
                         UpsDate = LocalDateTime.VNDateTime(),
                         InitialQuotationId = initialItem.Id,
+                        AreaConstruction =  item.AreaConstruction
                     };
                     await _unitOfWork.GetRepository<InitialQuotationItem>().InsertAsync(itemInitial);
                 }
