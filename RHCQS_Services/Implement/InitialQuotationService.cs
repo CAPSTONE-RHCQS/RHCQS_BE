@@ -211,6 +211,7 @@ namespace RHCQS_Services.Implement
                 TotalFinished = initialQuotation.TotalFinished,
                 Discount = initialQuotation.Discount ?? 0.0,
                 Unit = initialQuotation.Unit,
+                ReasonReject = initialQuotation.ReasonReject,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
                 UtilityInfos = utiResponse,
@@ -423,6 +424,7 @@ namespace RHCQS_Services.Implement
                 TotalFinished = initialQuotation.TotalFinished,
                 Discount = initialQuotation.Discount ?? 0.0,
                 Unit = initialQuotation.Unit,
+                ReasonReject = initialQuotation.ReasonReject,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
                 UtilityInfos = utiResponse,
@@ -537,6 +539,7 @@ namespace RHCQS_Services.Implement
                 TotalFinished = initialQuotation.TotalFinished,
                 Discount = initialQuotation.Discount ?? 0.0,
                 Unit = initialQuotation.Unit,
+                ReasonReject = initialQuotation.ReasonReject,
                 PackageQuotationList = packageInfo,
                 ItemInitial = itemInitialResponses,
                 UtilityInfos = utiResponse,
@@ -665,6 +668,7 @@ namespace RHCQS_Services.Implement
                 initialItem.Status = AppConstant.QuotationStatus.REJECTED;
                 initialItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
+
                 var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
                 return isSuccessful;
             }
