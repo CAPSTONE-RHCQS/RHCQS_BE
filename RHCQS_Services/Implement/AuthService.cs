@@ -58,15 +58,20 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.NullValue
                 );
             }
-            var isEmailVerified = await IsEmailVerifiedAsync(email);
-            if (!isEmailVerified)
-            {
-                throw new AppConstant.MessageError(
-                    (int)AppConstant.ErrCode.Unauthorized,
-                    AppConstant.ErrMessage.EmailNotVerified
-                );
-            }
+
             var account = await GetAccountByEmail(email, password);
+            if (account!= null)
+            {
+                var isEmailVerified = await IsEmailVerifiedAsync(email);
+                if (!isEmailVerified)
+                {
+                    await SendVerificationEmailAsync(email);
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Unauthorized,
+                        AppConstant.ErrMessage.EmailNotVerified
+                    );
+                }
+            }
 
             if ((bool)!account.Deflag)
             {
