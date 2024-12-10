@@ -218,6 +218,7 @@ public static class AppConstant
         public const string Not_Token_expired = "Token chưa hết hạn.";
         public const string Not_Reason = "Cần lý do từ chối!";
         public const string No_New_Data = "Dữ liệu có thể đã tồn tại! Hãy kiểm tra lại dữ liệu!";
+        public const string EmailNotVerified = "Email này chưa được xác nhận qua gmail!";
 
         //Construction
         public const string ConstructionExit = "Hạng mục xây dựng đã tồn tại!";

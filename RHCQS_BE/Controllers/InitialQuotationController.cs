@@ -23,11 +23,13 @@ namespace RHCQS_BE.Controllers
         private readonly IInitialQuotationService _initialService;
         private readonly IAccountService _accountService;
         private readonly IFirebaseService _firebaseService;
-        public InitialQuotationController(IInitialQuotationService initialService, IAccountService accountService, IFirebaseService firebaseService)
+        private readonly IGmailSenderService _gmailSenderService;
+        public InitialQuotationController(IInitialQuotationService initialService, IAccountService accountService, IFirebaseService firebaseService, IGmailSenderService gmailSenderService)
         {
             _initialService = initialService;
             _accountService = accountService;
             _firebaseService = firebaseService;
+            _gmailSenderService = gmailSenderService;
         }
 
         #region GetListInitialQuotation
@@ -407,6 +409,23 @@ namespace RHCQS_BE.Controllers
                     notificationRequest.Title,
                     notificationRequest.Body
                 ));
+                var emailBody = $@"
+            <p>Hello {customerEmail},</p>
+            <p>Bạn có cập nhật mới về báo giá chi tiết:</p>
+            <p><a href='{pdfUrl}'></a></p>
+            <p>Thanks,<br>Your RHCQS team</p>";
+                var sendemail = new EmailRequest
+                {
+                    ToEmail = customerEmail,
+                    Subject = "Cập nhật báo giá chi tiết",
+                    Body = emailBody
+                };
+                Task.Run(() => _gmailSenderService.SendEmailAsync(
+                    sendemail.ToEmail,
+                    sendemail.Subject,
+                    sendemail.Body,
+                    null
+                ));
                 return new ContentResult()
                 {
                     Content = result,
@@ -417,6 +436,21 @@ namespace RHCQS_BE.Controllers
             if (pdfUrl == AppConstant.Message.SUCCESSFUL_UPDATE)
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+                var customerEmail = await _accountService.GetEmailByQuotationIdAsync(initialId);
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
+                var notificationRequest = new NotificationRequest
+                {
+                    Email = customerEmail,
+                    DeviceToken = deviceToken,
+                    Title = "Báo giá sơ bộ",
+                    Body = $"Báo giá sơ bộ có cập nhật mới bạn cần xem."
+                };
+                Task.Run(() => _firebaseService.SendNotificationAsync(
+                    notificationRequest.Email,
+                    notificationRequest.DeviceToken,
+                    notificationRequest.Title,
+                    notificationRequest.Body
+                ));
                 return new ContentResult()
                 {
                     Content = result,

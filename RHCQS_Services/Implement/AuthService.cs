@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FirebaseAdmin.Auth;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RHCQS_BusinessObject.Helper;
@@ -8,25 +9,23 @@ using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Numerics;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace RHCQS_Services.Implement
 {
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _configuration;
+        private readonly IGmailSenderService _gmail;
         private readonly IUnitOfWork _unitOfWork;
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration, IGmailSenderService gmail)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _gmail = gmail;
         }
         public async Task<Account> GetAccountByEmail(string email, string password)
         {
@@ -50,7 +49,6 @@ namespace RHCQS_Services.Implement
             }
             return account;
         }
-
         public async Task<string> LoginAsync(string email, string password)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -58,6 +56,14 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError(
                     (int)AppConstant.ErrCode.Bad_Request,
                     AppConstant.ErrMessage.NullValue
+                );
+            }
+            var isEmailVerified = await IsEmailVerifiedAsync(email);
+            if (!isEmailVerified)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Unauthorized,
+                    AppConstant.ErrMessage.EmailNotVerified
                 );
             }
             var account = await GetAccountByEmail(email, password);
@@ -160,7 +166,7 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.CreateAccountError
                 );
             }
-
+            await SendVerificationEmailAsync(registerRequest.Email);
             return newAccount;
         }
         public async Task<string> RefreshTokenAsync(string expiredToken)
@@ -256,7 +262,6 @@ namespace RHCQS_Services.Implement
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         public TokenResponse DecodeToken(string token)
         {
             var handler = new JwtSecurityTokenHandler();
@@ -278,6 +283,67 @@ namespace RHCQS_Services.Implement
             }
 
             return null;
+        }
+        private async Task SendVerificationEmailAsync(string email)
+        {
+            //try
+            //{
+                var auth = FirebaseAuth.DefaultInstance;
+
+                var user = await auth.GetUserByEmailAsync(email);
+
+                if (user == null)
+                {
+                    var userRecordArgs = new UserRecordArgs
+                    {
+                        Email = email,
+                        EmailVerified = false,
+                        Disabled = false,
+                    };
+                    var userRecord = await auth.CreateUserAsync(userRecordArgs);
+                    Console.WriteLine($"User created with UID: {userRecord.Uid}");
+                }
+
+                var link = await auth.GenerateEmailVerificationLinkAsync(email);
+
+                var emailBody = $@"
+            <p>Hello {email},</p>
+            <p>Follow this link to verify your email address:</p>
+            <p><a href='{link}'>Verify Email</a></p>
+            <p>If you didn’t ask to verify this address, you can ignore this email.</p>
+            <p>Thanks,<br>Your RHCQS team</p>";
+
+                await _gmail.SendEmailAsync(
+                    email,
+                    "Xác thực email",
+                    emailBody,
+                    null
+                );
+
+                Console.WriteLine($"Verification email sent to: {email}");
+            //}
+            //catch (FirebaseAuthException ex)
+            //{
+            //    throw new AppConstant.MessageError(
+            //        (int)AppConstant.ErrCode.Conflict,
+            //        $"Failed to send verification email: {ex.Message}"
+            //    );
+            //}
+        }
+
+        public async Task<bool> IsEmailVerifiedAsync(string email)
+        {
+            //try
+            //{
+                var userRecord = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(email);
+
+                return userRecord.EmailVerified;
+            //}
+            //catch (FirebaseAuthException ex)
+            //{
+            //    Console.WriteLine($"Error: {ex.Message}");
+            //    return false;
+            //}
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using DocumentFormat.OpenXml.Spreadsheet;
+using iText.Layout.Element;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -13,6 +14,7 @@ using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObjects;
 using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
+using static RHCQS_BE.Extenstion.ApiEndPointConstant;
 
 namespace RHCQS_BE.Controllers
 {
@@ -23,11 +25,13 @@ namespace RHCQS_BE.Controllers
         private readonly IFinalQuotationService _finalQuotationService;
         private readonly IFirebaseService _firebaseService;
         private readonly IAccountService _accountService;
-        public FinalQuotationController(IFinalQuotationService finalQuotationService, IFirebaseService firebaseService, IAccountService accountService)
+        private readonly IGmailSenderService _gmailSenderService;
+        public FinalQuotationController(IFinalQuotationService finalQuotationService, IFirebaseService firebaseService, IAccountService accountService, IGmailSenderService gmailSenderService)
         {
             _finalQuotationService = finalQuotationService;
             _firebaseService = firebaseService;
             _accountService = accountService;
+            _gmailSenderService = gmailSenderService;
         }
 
         #region GetListFinalQuotation
@@ -141,6 +145,24 @@ namespace RHCQS_BE.Controllers
                     notificationRequest.Title,
                     notificationRequest.Body
                 ));
+
+                var emailBody = $@"
+            <p>Hello {customerEmail},</p>
+            <p>Bạn có cập nhật mới về báo giá chi tiết:</p>
+            <p><a href='{pdfUrl}'></a></p>
+            <p>Thanks,<br>Your RHCQS team</p>";
+                var sendemail = new EmailRequest
+                {
+                    ToEmail = customerEmail,
+                    Subject = "Cập nhật báo giá chi tiết",
+                    Body = emailBody
+                };
+                Task.Run(() => _gmailSenderService.SendEmailAsync(
+                    sendemail.ToEmail,
+                    sendemail.Subject,
+                    sendemail.Body,
+                    null
+                ));
                 return new ContentResult()
                 {
                     Content = result,
@@ -151,6 +173,21 @@ namespace RHCQS_BE.Controllers
             if (pdfUrl == AppConstant.Message.REJECTED)
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+                var customerEmail = await _accountService.GetEmailByQuotationIdAsync(finalId);
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
+                var notificationRequest = new NotificationRequest
+                {
+                    Email = customerEmail,
+                    DeviceToken = deviceToken,
+                    Title = "Báo giá chi tiết",
+                    Body = $"Báo giá chi tiết có cập nhật mới bạn cần xem."
+                };
+                Task.Run(() => _firebaseService.SendNotificationAsync(
+                    notificationRequest.Email,
+                    notificationRequest.DeviceToken,
+                    notificationRequest.Title,
+                    notificationRequest.Body
+                ));
                 return new ContentResult()
                 {
                     Content = result,
@@ -171,101 +208,101 @@ namespace RHCQS_BE.Controllers
             }
         }
         #region GetDetailFinalQuotationById
-            /// <summary>
-            /// Retrieves the details of a specific final quotation by id.
-            /// </summary>
-            /// <remarks>
-            /// Sample request:
-            /// 
-            ///     GET /api/v1/quotation/final/id
-            ///
-            /// Request Example:
-            /// ```json
-            /// {
-            ///   "Id": "6d31c4e5-e549-42ea-aec7-0f08446f089d",
-            ///   "AccountName": "Nguyễn Văn A",
-            ///   "ProjectId": "b12345a8-4482-43f5-ad68-558abde58d58",
-            ///   "PromotionId": "50b828b2-7b06-4389-9003-daac937158dd",
-            ///   "PackageId": "11111111-1111-1111-1111-111111111111",
-            ///   "Area": 150.0,
-            ///   "InsDate": "2024-10-04T12:40:31.853",
-            ///   "Status": "Completed",
-            ///   "Version": 1.0,
-            ///   "TotalRough": 2000000000.0,           // Tổng tiền phần hoàn thiện
-            ///   "TotalUtilities": 25000000.0,         // Tổng tiền phần tiện ích - giấy phép nằm luôn trong tiện ích
-            ///   "Unit": "VNĐ",
-            ///   "PackageQuotationList": {
-            ///   "IdPackageRough": "59f5fd78-b895-4d60-934a-4727c219b2d9",
-            ///   "PackageRough": "Gói tiêu chuẩn",
-            ///   "UnitPackageRough": 4500000.0,                                // Giá thi công phần thô
-            ///   "IdPackageFinished": "0bfb83dd-04af-4f8c-a6d0-2cd8ee1ff0f5",
-            ///   "PackageFinished": "Gói cao cấp",
-            ///   "UnitPackageFinished": 4500000.0,                             // Giá thi công phần hoàn thiện
-            ///   "Unit": "m2"
-            ///   },
-            ///   "ItemFinal": [
-            ///     {
-            ///       "Id": "5b792ed1-a726-44ce-9820-9629d459ed8b",
-            ///       "Name": "Mái che",
-            ///       "SubConstruction": "Mái BTCT",
-            ///       "Area": 49.5,
-            ///       "Price": 76330000.0,
-            ///       "UnitPrice": "đ",
-            ///       "SubCoefficient": 0.5,            // Hệ số của mục con - Mái BTCT
-            ///       "Coefficient": 0.0                // Hệ số mục cha - Không có hệ số
-            ///     },
-            ///     {
-            ///       "Id": "1bf45d93-ddb9-40ff-b1a4-b01180bc5955",
-            ///       "Name": "Trệt",
-            ///       "SubConstruction": null,
-            ///       "Area": 99.0,
-            ///       "Price": 431650000.0,
-            ///       "UnitPrice": "đ",
-            ///       "SubCoefficient": null,           // Hệ số mục con - Trệt không có
-            ///       "Coefficient": 1.0                // Hệ số mục cha 
-            ///     },
-            ///     {
-            ///       "Id": "3c414d7a-58d0-488c-9e48-ccef30093ea1",
-            ///       "Name": "Móng",
-            ///       "SubConstruction": "Móng đơn",
-            ///       "Area": 49.5,
-            ///       "Price": 76330000.0,
-            ///       "UnitPrice": "đ",
-            ///       "SubCoefficient": 0.2,            // Hệ số mục con - Móng đơn có hệ số 0.2
-            ///       "Coefficient": 0.0                // Hạng mục cha có nhiều hạng mục con => Hạng mục cha không có hệ số như Móng, Mái che, Hầm,...
-            ///     }
-            ///   ],
-            ///   "PromotionInfo": {
-            ///     "Id": "50b828b2-7b06-4389-9003-daac937158dd",
-            ///     "Name": "Giảm 15% cho khách hàng VIP",
-            ///     "Value": 15                                     // Phần trăm khuyến mãi
-            ///   },
-            ///   "BatchPaymentInfos": [
-            ///     {
-            ///       "Id": "e165e833-2e68-45ad-a657-a222d01e205c",
-            ///       "Description": "Đợt 1 thanh toán 50% trước khi thi công",
-            ///       "Percents": "50",                             // Phần trăm thanh toán
-            ///       "Price": 20000000.0,
-            ///       "Unit": "VNĐ"
-            ///     },
-            ///     {
-            ///       "Id": "8f29dc1f-c94d-4078-94ad-b3ebf48a6f8a",
-            ///       "Description": "Đợt 2 thanh toán 50% nghiệm thu hoàn công",
-            ///       "Percents": "50",                             // Phần trăm thanh toán
-            ///       "Price": 20000000.0,
-            ///       "Unit": "VNĐ"
-            ///     }
-            ///   ]
-            /// }
-            /// ```
-            /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of a final quotation, 
-            /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
-            /// </remarks>
-            /// <param name="id">The unique identifier of the final quotation.</param>
-            /// <returns>Returns the details of the final quotation, or a 404 Not Found response if the ID does not exist.</returns>
-            /// <response code="200">Final quotation details retrieved successfully</response>
-            /// <response code="404">Final quotation not found</response>
-            #endregion
+        /// <summary>
+        /// Retrieves the details of a specific final quotation by id.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        ///     GET /api/v1/quotation/final/id
+        ///
+        /// Request Example:
+        /// ```json
+        /// {
+        ///   "Id": "6d31c4e5-e549-42ea-aec7-0f08446f089d",
+        ///   "AccountName": "Nguyễn Văn A",
+        ///   "ProjectId": "b12345a8-4482-43f5-ad68-558abde58d58",
+        ///   "PromotionId": "50b828b2-7b06-4389-9003-daac937158dd",
+        ///   "PackageId": "11111111-1111-1111-1111-111111111111",
+        ///   "Area": 150.0,
+        ///   "InsDate": "2024-10-04T12:40:31.853",
+        ///   "Status": "Completed",
+        ///   "Version": 1.0,
+        ///   "TotalRough": 2000000000.0,           // Tổng tiền phần hoàn thiện
+        ///   "TotalUtilities": 25000000.0,         // Tổng tiền phần tiện ích - giấy phép nằm luôn trong tiện ích
+        ///   "Unit": "VNĐ",
+        ///   "PackageQuotationList": {
+        ///   "IdPackageRough": "59f5fd78-b895-4d60-934a-4727c219b2d9",
+        ///   "PackageRough": "Gói tiêu chuẩn",
+        ///   "UnitPackageRough": 4500000.0,                                // Giá thi công phần thô
+        ///   "IdPackageFinished": "0bfb83dd-04af-4f8c-a6d0-2cd8ee1ff0f5",
+        ///   "PackageFinished": "Gói cao cấp",
+        ///   "UnitPackageFinished": 4500000.0,                             // Giá thi công phần hoàn thiện
+        ///   "Unit": "m2"
+        ///   },
+        ///   "ItemFinal": [
+        ///     {
+        ///       "Id": "5b792ed1-a726-44ce-9820-9629d459ed8b",
+        ///       "Name": "Mái che",
+        ///       "SubConstruction": "Mái BTCT",
+        ///       "Area": 49.5,
+        ///       "Price": 76330000.0,
+        ///       "UnitPrice": "đ",
+        ///       "SubCoefficient": 0.5,            // Hệ số của mục con - Mái BTCT
+        ///       "Coefficient": 0.0                // Hệ số mục cha - Không có hệ số
+        ///     },
+        ///     {
+        ///       "Id": "1bf45d93-ddb9-40ff-b1a4-b01180bc5955",
+        ///       "Name": "Trệt",
+        ///       "SubConstruction": null,
+        ///       "Area": 99.0,
+        ///       "Price": 431650000.0,
+        ///       "UnitPrice": "đ",
+        ///       "SubCoefficient": null,           // Hệ số mục con - Trệt không có
+        ///       "Coefficient": 1.0                // Hệ số mục cha 
+        ///     },
+        ///     {
+        ///       "Id": "3c414d7a-58d0-488c-9e48-ccef30093ea1",
+        ///       "Name": "Móng",
+        ///       "SubConstruction": "Móng đơn",
+        ///       "Area": 49.5,
+        ///       "Price": 76330000.0,
+        ///       "UnitPrice": "đ",
+        ///       "SubCoefficient": 0.2,            // Hệ số mục con - Móng đơn có hệ số 0.2
+        ///       "Coefficient": 0.0                // Hạng mục cha có nhiều hạng mục con => Hạng mục cha không có hệ số như Móng, Mái che, Hầm,...
+        ///     }
+        ///   ],
+        ///   "PromotionInfo": {
+        ///     "Id": "50b828b2-7b06-4389-9003-daac937158dd",
+        ///     "Name": "Giảm 15% cho khách hàng VIP",
+        ///     "Value": 15                                     // Phần trăm khuyến mãi
+        ///   },
+        ///   "BatchPaymentInfos": [
+        ///     {
+        ///       "Id": "e165e833-2e68-45ad-a657-a222d01e205c",
+        ///       "Description": "Đợt 1 thanh toán 50% trước khi thi công",
+        ///       "Percents": "50",                             // Phần trăm thanh toán
+        ///       "Price": 20000000.0,
+        ///       "Unit": "VNĐ"
+        ///     },
+        ///     {
+        ///       "Id": "8f29dc1f-c94d-4078-94ad-b3ebf48a6f8a",
+        ///       "Description": "Đợt 2 thanh toán 50% nghiệm thu hoàn công",
+        ///       "Percents": "50",                             // Phần trăm thanh toán
+        ///       "Price": 20000000.0,
+        ///       "Unit": "VNĐ"
+        ///     }
+        ///   ]
+        /// }
+        /// ```
+        /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of a final quotation, 
+        /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
+        /// </remarks>
+        /// <param name="id">The unique identifier of the final quotation.</param>
+        /// <returns>Returns the details of the final quotation, or a 404 Not Found response if the ID does not exist.</returns>
+        /// <response code="200">Final quotation details retrieved successfully</response>
+        /// <response code="404">Final quotation not found</response>
+        #endregion
         [Authorize(Roles = "Customer, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.FinalQuotation.FinalQuotationDetailEndpoint)]
         [ProducesResponseType(typeof(FinalQuotationResponse), StatusCodes.Status200OK)]
@@ -394,117 +431,117 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-/*        #region GetDetailFinalQuotationByCustomerName
-        /// <summary>
-        /// Retrieves the details of a specific final quotation by customer name.
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        /// 
-        ///     GET /api/v1/quotation/final/customer/name
-        ///
-        /// Request Example:
-        /// ```json
-        /// {
-        ///   "Id": "6d31c4e5-e549-42ea-aec7-0f08446f089d",
-        ///   "AccountName": "Nguyễn Văn A",
-        ///   "ProjectId": "b12345a8-4482-43f5-ad68-558abde58d58",
-        ///   "PromotionId": "50b828b2-7b06-4389-9003-daac937158dd",
-        ///   "PackageId": "11111111-1111-1111-1111-111111111111",
-        ///   "Area": 150.0,
-        ///   "InsDate": "2024-10-04T12:40:31.853",
-        ///   "Status": "Completed",
-        ///   "Version": 1.0,
-        ///   "TotalRough": 2000000000.0,           // Tổng tiền phần hoàn thiện
-        ///   "TotalUtilities": 25000000.0,         // Tổng tiền phần tiện ích - giấy phép nằm luôn trong tiện ích
-        ///   "Unit": "VNĐ",
-        ///   "PackageQuotationList": {
-        ///   "IdPackageRough": "59f5fd78-b895-4d60-934a-4727c219b2d9",
-        ///   "PackageRough": "Gói tiêu chuẩn",
-        ///   "UnitPackageRough": 4500000.0,                                // Giá thi công phần thô
-        ///   "IdPackageFinished": "0bfb83dd-04af-4f8c-a6d0-2cd8ee1ff0f5",
-        ///   "PackageFinished": "Gói cao cấp",
-        ///   "UnitPackageFinished": 4500000.0,                             // Giá thi công phần hoàn thiện
-        ///   "Unit": "m2"
-        ///   },
-        ///   "ItemFinal": [
-        ///     {
-        ///       "Id": "5b792ed1-a726-44ce-9820-9629d459ed8b",
-        ///       "Name": "Mái che",
-        ///       "SubConstruction": "Mái BTCT",
-        ///       "Area": 49.5,
-        ///       "Price": 76330000.0,
-        ///       "UnitPrice": "đ",
-        ///       "SubCoefficient": 0.5,            // Hệ số của mục con - Mái BTCT
-        ///       "Coefficient": 0.0                // Hệ số mục cha - Không có hệ số
-        ///     },
-        ///     {
-        ///       "Id": "1bf45d93-ddb9-40ff-b1a4-b01180bc5955",
-        ///       "Name": "Trệt",
-        ///       "SubConstruction": null,
-        ///       "Area": 99.0,
-        ///       "Price": 431650000.0,
-        ///       "UnitPrice": "đ",
-        ///       "SubCoefficient": null,           // Hệ số mục con - Trệt không có
-        ///       "Coefficient": 1.0                // Hệ số mục cha 
-        ///     },
-        ///     {
-        ///       "Id": "3c414d7a-58d0-488c-9e48-ccef30093ea1",
-        ///       "Name": "Móng",
-        ///       "SubConstruction": "Móng đơn",
-        ///       "Area": 49.5,
-        ///       "Price": 76330000.0,
-        ///       "UnitPrice": "đ",
-        ///       "SubCoefficient": 0.2,            // Hệ số mục con - Móng đơn có hệ số 0.2
-        ///       "Coefficient": 0.0                // Hạng mục cha có nhiều hạng mục con => Hạng mục cha không có hệ số như Móng, Mái che, Hầm,...
-        ///     }
-        ///   ],
-        ///   "PromotionInfo": {
-        ///     "Id": "50b828b2-7b06-4389-9003-daac937158dd",
-        ///     "Name": "Giảm 15% cho khách hàng VIP",
-        ///     "Value": 15                                     // Phần trăm khuyến mãi
-        ///   },
-        ///   "BatchPaymentInfos": [
-        ///     {
-        ///       "Id": "e165e833-2e68-45ad-a657-a222d01e205c",
-        ///       "Description": "Đợt 1 thanh toán 50% trước khi thi công",
-        ///       "Percents": "50",                             // Phần trăm thanh toán
-        ///       "Price": 20000000.0,
-        ///       "Unit": "VNĐ"
-        ///     },
-        ///     {
-        ///       "Id": "8f29dc1f-c94d-4078-94ad-b3ebf48a6f8a",
-        ///       "Description": "Đợt 2 thanh toán 50% nghiệm thu hoàn công",
-        ///       "Percents": "50",                             // Phần trăm thanh toán
-        ///       "Price": 20000000.0,
-        ///       "Unit": "VNĐ"
-        ///     }
-        ///   ]
-        /// }
-        /// ```
-        /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of a final quotation, 
-        /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
-        /// </remarks>
-        /// <param name="customerName">The unique identifier of the final quotation.</param>
-        /// <returns>Returns the details of the final quotation, or a 404 Not Found response if the ID does not exist.</returns>
-        /// <response code="200">Final quotation details retrieved successfully</response>
-        /// <response code="404">Final quotation not found</response>
-        #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.FinalQuotation.FinalQuotationDetailByCustomerEndpoint)]
-        [ProducesResponseType(typeof(FinalQuotationResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetDetailFinalQuotationByCustomerName(string customerName)
-        {
-            var quotation = await _finalQuotationService.GetDetailFinalQuotationByCustomerName(customerName);
-            if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_FinalQuotaion });
-            var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
-            return new ContentResult()
-            {
-                Content = result,
-                StatusCode = StatusCodes.Status200OK,
-                ContentType = "application/json"
-            };
-        }*/
+        /*        #region GetDetailFinalQuotationByCustomerName
+                /// <summary>
+                /// Retrieves the details of a specific final quotation by customer name.
+                /// </summary>
+                /// <remarks>
+                /// Sample request:
+                /// 
+                ///     GET /api/v1/quotation/final/customer/name
+                ///
+                /// Request Example:
+                /// ```json
+                /// {
+                ///   "Id": "6d31c4e5-e549-42ea-aec7-0f08446f089d",
+                ///   "AccountName": "Nguyễn Văn A",
+                ///   "ProjectId": "b12345a8-4482-43f5-ad68-558abde58d58",
+                ///   "PromotionId": "50b828b2-7b06-4389-9003-daac937158dd",
+                ///   "PackageId": "11111111-1111-1111-1111-111111111111",
+                ///   "Area": 150.0,
+                ///   "InsDate": "2024-10-04T12:40:31.853",
+                ///   "Status": "Completed",
+                ///   "Version": 1.0,
+                ///   "TotalRough": 2000000000.0,           // Tổng tiền phần hoàn thiện
+                ///   "TotalUtilities": 25000000.0,         // Tổng tiền phần tiện ích - giấy phép nằm luôn trong tiện ích
+                ///   "Unit": "VNĐ",
+                ///   "PackageQuotationList": {
+                ///   "IdPackageRough": "59f5fd78-b895-4d60-934a-4727c219b2d9",
+                ///   "PackageRough": "Gói tiêu chuẩn",
+                ///   "UnitPackageRough": 4500000.0,                                // Giá thi công phần thô
+                ///   "IdPackageFinished": "0bfb83dd-04af-4f8c-a6d0-2cd8ee1ff0f5",
+                ///   "PackageFinished": "Gói cao cấp",
+                ///   "UnitPackageFinished": 4500000.0,                             // Giá thi công phần hoàn thiện
+                ///   "Unit": "m2"
+                ///   },
+                ///   "ItemFinal": [
+                ///     {
+                ///       "Id": "5b792ed1-a726-44ce-9820-9629d459ed8b",
+                ///       "Name": "Mái che",
+                ///       "SubConstruction": "Mái BTCT",
+                ///       "Area": 49.5,
+                ///       "Price": 76330000.0,
+                ///       "UnitPrice": "đ",
+                ///       "SubCoefficient": 0.5,            // Hệ số của mục con - Mái BTCT
+                ///       "Coefficient": 0.0                // Hệ số mục cha - Không có hệ số
+                ///     },
+                ///     {
+                ///       "Id": "1bf45d93-ddb9-40ff-b1a4-b01180bc5955",
+                ///       "Name": "Trệt",
+                ///       "SubConstruction": null,
+                ///       "Area": 99.0,
+                ///       "Price": 431650000.0,
+                ///       "UnitPrice": "đ",
+                ///       "SubCoefficient": null,           // Hệ số mục con - Trệt không có
+                ///       "Coefficient": 1.0                // Hệ số mục cha 
+                ///     },
+                ///     {
+                ///       "Id": "3c414d7a-58d0-488c-9e48-ccef30093ea1",
+                ///       "Name": "Móng",
+                ///       "SubConstruction": "Móng đơn",
+                ///       "Area": 49.5,
+                ///       "Price": 76330000.0,
+                ///       "UnitPrice": "đ",
+                ///       "SubCoefficient": 0.2,            // Hệ số mục con - Móng đơn có hệ số 0.2
+                ///       "Coefficient": 0.0                // Hạng mục cha có nhiều hạng mục con => Hạng mục cha không có hệ số như Móng, Mái che, Hầm,...
+                ///     }
+                ///   ],
+                ///   "PromotionInfo": {
+                ///     "Id": "50b828b2-7b06-4389-9003-daac937158dd",
+                ///     "Name": "Giảm 15% cho khách hàng VIP",
+                ///     "Value": 15                                     // Phần trăm khuyến mãi
+                ///   },
+                ///   "BatchPaymentInfos": [
+                ///     {
+                ///       "Id": "e165e833-2e68-45ad-a657-a222d01e205c",
+                ///       "Description": "Đợt 1 thanh toán 50% trước khi thi công",
+                ///       "Percents": "50",                             // Phần trăm thanh toán
+                ///       "Price": 20000000.0,
+                ///       "Unit": "VNĐ"
+                ///     },
+                ///     {
+                ///       "Id": "8f29dc1f-c94d-4078-94ad-b3ebf48a6f8a",
+                ///       "Description": "Đợt 2 thanh toán 50% nghiệm thu hoàn công",
+                ///       "Percents": "50",                             // Phần trăm thanh toán
+                ///       "Price": 20000000.0,
+                ///       "Unit": "VNĐ"
+                ///     }
+                ///   ]
+                /// }
+                /// ```
+                /// This endpoint allows users with roles 'Customer', 'SalesStaff', or 'Manager' to retrieve the details of a final quotation, 
+                /// including information about the construction items and related data. The ID of the quotation is passed as a parameter in the URL.
+                /// </remarks>
+                /// <param name="customerName">The unique identifier of the final quotation.</param>
+                /// <returns>Returns the details of the final quotation, or a 404 Not Found response if the ID does not exist.</returns>
+                /// <response code="200">Final quotation details retrieved successfully</response>
+                /// <response code="404">Final quotation not found</response>
+                #endregion
+                [Authorize(Roles = "Customer, SalesStaff, Manager")]
+                [HttpGet(ApiEndPointConstant.FinalQuotation.FinalQuotationDetailByCustomerEndpoint)]
+                [ProducesResponseType(typeof(FinalQuotationResponse), StatusCodes.Status200OK)]
+                public async Task<IActionResult> GetDetailFinalQuotationByCustomerName(string customerName)
+                {
+                    var quotation = await _finalQuotationService.GetDetailFinalQuotationByCustomerName(customerName);
+                    if (quotation == null) return NotFound(new { message = AppConstant.ErrMessage.Not_Found_FinalQuotaion });
+                    var result = JsonConvert.SerializeObject(quotation, Formatting.Indented);
+                    return new ContentResult()
+                    {
+                        Content = result,
+                        StatusCode = StatusCodes.Status200OK,
+                        ContentType = "application/json"
+                    };
+                }*/
 
         #region UpdateFinalQuotation
         /// <summary>
@@ -636,7 +673,7 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.FinalQuotation.CancelFinalQuotationEndpoint)]
         [ProducesResponseType(typeof(FinalRequest), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> CancelFinalQuotationFromManager([FromQuery] Guid finalQuotationId,[FromBody] CancelQuotation reason)
+        public async Task<IActionResult> CancelFinalQuotationFromManager([FromQuery] Guid finalQuotationId, [FromBody] CancelQuotation reason)
         {
             bool quotation = await _finalQuotationService.CancelFinalQuotation(finalQuotationId, reason);
             return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CANCELFINAL : AppConstant.Message.ERROR);
@@ -698,7 +735,7 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK,
                 ContentType = "application/json"
             };
-/*            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);*/
+            /*            return Ok(quotation ? AppConstant.Message.SUCCESSFUL_CREATEFINAL : AppConstant.Message.ERROR);*/
         }
 
         #region GetListFinalQuotationByProjectId
@@ -730,8 +767,8 @@ namespace RHCQS_BE.Controllers
         [HttpDelete(ApiEndPointConstant.FinalQuotation.FinalQuotationEndpoint)]
         public async Task<IActionResult> DeleteFinalQuotation(Guid id)
         {
-                await _finalQuotationService.DeleteFinalQuotation(id);
-                return NoContent(); // 204 No Content on successful deletion
+            await _finalQuotationService.DeleteFinalQuotation(id);
+            return NoContent(); // 204 No Content on successful deletion
         }
 
         #region GetStatusFinalQuotation

@@ -1,7 +1,7 @@
-﻿using Azure;
-using CloudinaryDotNet;
+﻿using FirebaseAdmin.Auth;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
@@ -11,13 +11,6 @@ using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static RHCQS_BusinessObjects.AppConstant;
 using Account = RHCQS_DataAccessObjects.Models.Account;
 using Role = RHCQS_DataAccessObjects.Models.Role;
 
@@ -29,16 +22,22 @@ namespace RHCQS_Services.Implement
         private readonly ILogger<AccountService> _logger;
         private readonly IUploadImgService _uploadImgService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IGmailSenderService _gmail;
+        private readonly IConfiguration _configuration;
 
         public AccountService(IUnitOfWork unitOfWork, 
             ILogger<AccountService> logger, 
             IUploadImgService uploadImgService, 
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IGmailSenderService gmailSenderService,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _uploadImgService = uploadImgService;
             _httpContextAccessor = httpContextAccessor;
+            _gmail = gmailSenderService;
+            _configuration = configuration;
         }
 
         public async Task<Account> GetAccountByIdAsync(Guid id)
@@ -603,7 +602,7 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.CreateAccountError
                 );
             }
-
+            await SendVerificationEmailAsync(registerRequest.Email);
             return newAccount;
         }
         private string SanitizeEmail(string email)
@@ -649,6 +648,39 @@ namespace RHCQS_Services.Implement
                      x.InsDate.Value.Date == today
             );
             return count;
+        }
+        private async Task SendVerificationEmailAsync(string email)
+        {
+            //try
+            //{
+            var auth = FirebaseAuth.DefaultInstance;
+            var userRecordArgs = new UserRecordArgs
+            {
+                Email = email,
+                EmailVerified = false,
+                Password = _configuration["EmailSettings:Password"],
+                Disabled = false,
+            };
+
+            var userRecord = await auth.CreateUserAsync(userRecordArgs);
+
+            var link = await auth.GenerateEmailVerificationLinkAsync(email);
+            await _gmail.SendEmailAsync(
+                email,
+                "Xác thực email",
+                $"Nhấn vào link để xác thực email của bạn:<br>{link}<br>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
+                null
+            );
+
+            Console.WriteLine($"Verification email sent to: {email}");
+            //}
+            //catch (FirebaseAuthException ex)
+            //{
+            //    throw new AppConstant.MessageError(
+            //        (int)AppConstant.ErrCode.Conflict,
+            //        $"Failed to send verification email: {ex.Message}"
+            //    );
+            //}
         }
     }
 }
