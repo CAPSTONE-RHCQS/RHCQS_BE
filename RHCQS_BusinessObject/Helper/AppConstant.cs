@@ -351,7 +351,7 @@ public static class AppConstant
         public const string Invalid_Payment = "Thanh toán này không tìm thấy!";
         public const string Type_Not_Found = "Không tìm thấy kiểu hợp đồng!";
         public const string BatchPayment_Non_Coincidence = "Các đợt thanh toán không trùng khớp với các đợt trong hợp đồng";
-        public const string Not_Found_Bill = "Chưa có hóa đơn thanh toán!";
+        public const string Not_Found_Bill = "Chưa có hình ảnh thanh toán!";
 
         //Blog
         public const string Not_Found_Blog = "Bài đăng này không tìm thấy!";
