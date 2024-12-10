@@ -92,11 +92,15 @@ namespace RHCQS_Services.Implement
         {
             var finalquotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
 
-            if (finalquotation == null && finalquotation.Status == AppConstant.QuotationStatus.ENDED)
+            if (finalquotation == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalidate_Quotation);
             }
-
+            if (finalquotation.Status == AppConstant.QuotationStatus.ENDED ||
+    finalquotation.Status == AppConstant.QuotationStatus.UPDATING)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_Quotation);
+            }
             finalquotation.Note = comment.Note;
             finalquotation.Status = AppConstant.QuotationStatus.UPDATING;
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
@@ -106,21 +110,41 @@ namespace RHCQS_Services.Implement
         }
         public async Task<string> ConfirmArgeeFinalFromCustomer(Guid finalId)
         {
-            var finalquotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId);
+            var finalquotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(x => x.Id == finalId,
+                                                    include: x => x.Include(x => x.Project)
+                                                    .ThenInclude(x => x.Customer!));
 
-            if (finalquotation == null)
+            if (finalquotation != null)
+            {
+                var projectQuotations = await _unitOfWork.GetRepository<FinalQuotation>()
+                        .GetListAsync(predicate: x => x.ProjectId == finalquotation.ProjectId);
+
+                if (projectQuotations.Any(x => x.Status == AppConstant.QuotationStatus.FINALIZED))
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Conflict,
+                        AppConstant.ErrMessage.Already_Finalized_Quotation
+                    );
+                }
+
+                //Update status present quotation
+                finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
+                _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
+
+                //Update all version quotation - version present
+                foreach (var quotation in projectQuotations.Where(x => x.Id != finalquotation.Id))
+                {
+                    quotation.Status = AppConstant.QuotationStatus.ENDED;
+                    _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(quotation);
+                }
+
+                var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+                return isSuccessful;
+            }
+            else
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Invalid_Quotation);
             }
-            var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(x => x.Id == finalquotation.ProjectId);
-            project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
-            _unitOfWork.GetRepository<Project>().UpdateAsync(project);
-
-            finalquotation.Status = AppConstant.QuotationStatus.FINALIZED;
-            _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalquotation);
-
-            var isSuccessful = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
-            return isSuccessful;
         }
         public async Task<FinalQuotationResponse> CreateFinalQuotation(Guid projectId)
         {
@@ -312,7 +336,7 @@ namespace RHCQS_Services.Implement
                                .Include(x => x.BatchPayments)
             );
 
-            presentFinalQuotation.Status = AppConstant.QuotationStatus.PROCESSING;
+            presentFinalQuotation.Status = AppConstant.QuotationStatus.ENDED;
             presentFinalQuotation.UpsDate = LocalDateTime.VNDateTime();
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(presentFinalQuotation);
 

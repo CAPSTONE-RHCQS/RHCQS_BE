@@ -323,28 +323,34 @@ namespace RHCQS_Services.Implement
 
             if (request.Items != null)
             {
-                var item = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == request.Items.Id);
-                if (item == null)
+                foreach (var utility in request.Items)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
-                }
-                var listNameItem = await _unitOfWork.GetRepository<UtilitiesItem>()
-                                    .GetList(predicate: u => u.Name!.ToLower() == request.Items.Name!.ToLower(),
-                                              selector: u => new UpdateUtilityOptionRequest
-                                              {
-                                                  Id = u.Id,
-                                                  Name = u.Name
-                                              });
-                if (listNameItem.Items.Count > 0)
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Duplicate);
-                }
+                    var item = await _unitOfWork.GetRepository<UtilitiesItem>().FirstOrDefaultAsync(u => u.Id == utility.Id);
+                    if (item == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.Utility_Not_Found);
+                    }
 
-                item.Name = request.Items.Name ?? item.Name;
-                item.Coefficient = request.Items.Coefficient ?? item.Coefficient;
-                item.UpsDate = LocalDateTime.VNDateTime();
+                    var listNameItem = await _unitOfWork.GetRepository<UtilitiesItem>()
+                        .GetList(
+                            predicate: u => u.Id != utility.Id && u.Name != null && u.Name.ToLower() == utility.Name!.ToLower(),
+                            selector: u => new UpdateUtilityOptionRequest
+                            {
+                                Id = u.Id,
+                                Name = u.Name
+                            });
 
-                _unitOfWork.GetRepository<UtilitiesItem>().UpdateAsync(item);
+                    if (listNameItem.Items.Count > 0)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Utility_Duplicate);
+                    }
+
+                    item.Name = utility.Name ?? item.Name;
+                    item.Coefficient = utility.Coefficient ?? item.Coefficient;
+                    item.UpsDate = LocalDateTime.VNDateTime();
+
+                     _unitOfWork.GetRepository<UtilitiesItem>().UpdateAsync(item);
+                }
             }
 
             bool isUpdate = await _unitOfWork.CommitAsync() > 0;

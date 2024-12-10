@@ -159,12 +159,12 @@ namespace RHCQS_Services.Implement
 
             if (paymentInfo == null)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Invalid_Payment);
+                return null;
             }
 
             if (paymentInfo.Media.Count == 0)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Not_Found_Bill);
+                return null;
             }
 
             string urlImage = paymentInfo.Media.First().Url!;

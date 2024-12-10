@@ -332,68 +332,89 @@ namespace RHCQS_Services.Implement
 
         public async Task<string> ConfirmDesignDrawingFromCustomer(Guid versionId)
         {
-            var designVersionInfo = await _unitOfWork.GetRepository<HouseDesignVersion>()
-                                           .FirstOrDefaultAsync(predicate: x => x.Id == versionId,
-                                                                include: x => x.Include(x => x.HouseDesignDrawing));
-            if (designVersionInfo == null)
+            try
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
-            }
-
-            //Check house design drawing UPDATING (Customer rejected this version in App)
-            if (designVersionInfo.HouseDesignDrawing.Status == AppConstant.HouseDesignStatus.UPDATING)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_House_Design_Drawing_Updating);
-            }
-
-            #region Check house design version accepted
-            bool hasAcceptedVersion = await _unitOfWork.GetRepository<HouseDesignVersion>()
-                .AnyAsync(x => x.HouseDesignDrawingId == designVersionInfo.HouseDesignDrawingId
-                       && x.HouseDesignDrawing.Status == AppConstant.HouseDesignStatus.ACCEPTED);
-
-            if (hasAcceptedVersion)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_House_Design_Drawing);
-            }
-            #endregion
-
-            //Update field Confirmed (House design version)
-            designVersionInfo.Confirmed = true;
-            //Update status REVIEWING -> ACCEPTED (House design drawing)
-            designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ACCEPTED;
-
-            var nextStep = designVersionInfo.HouseDesignDrawing.Step + 1;
-
-            if (nextStep == 2 || nextStep == 3 || nextStep == 4)
-            {
-                var nextStepDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>()
-                    .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId && x.Step == nextStep);
-
-                if (nextStepDrawing != null && nextStepDrawing.Status != AppConstant.HouseDesignStatus.ACCEPTED)
+                var designVersionInfo = await _unitOfWork.GetRepository<HouseDesignVersion>()
+                                               .FirstOrDefaultAsync(predicate: x => x.Id == versionId,
+                                                                    include: x => x.Include(x => x.HouseDesignDrawing));
+                if (designVersionInfo == null)
                 {
-                    nextStepDrawing.Status = AppConstant.HouseDesignStatus.PROCESSING;
-                    _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(nextStepDrawing);
-                }
-            }
-
-            if (designVersionInfo.HouseDesignDrawing.Step == 4)
-            {
-                var contract = await _unitOfWork.GetRepository<Contract>()
-                    .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId);
-
-                if (contract == null)
-                {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Contract_Not_Found);
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.House_Design_Not_Found);
                 }
 
-                contract.Status = AppConstant.ContractStatus.COMPLETED;
-                _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                //Check house design drawing UPDATING (Customer rejected this version in App)
+                if (designVersionInfo.HouseDesignDrawing.Status == AppConstant.HouseDesignStatus.UPDATING)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_House_Design_Drawing_Updating);
+                }
+
+                #region Check house design version accepted
+                bool hasAcceptedVersion = await _unitOfWork.GetRepository<HouseDesignVersion>()
+                    .AnyAsync(x => x.HouseDesignDrawingId == designVersionInfo.HouseDesignDrawingId
+                           && x.HouseDesignDrawing.Status == AppConstant.HouseDesignStatus.ACCEPTED);
+
+                if (hasAcceptedVersion)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Comment_House_Design_Drawing);
+                }
+                #endregion
+
+                //Update field Confirmed (House design version)
+                designVersionInfo.Confirmed = true;
+
+
+                var nextStep = designVersionInfo.HouseDesignDrawing.Step + 1;
+
+                if (nextStep == 2 || nextStep == 3 || nextStep == 4)
+                {
+                    //Update status REVIEWING -> ACCEPTED (House design drawing)
+                    designVersionInfo.HouseDesignDrawing.Status = AppConstant.HouseDesignStatus.ACCEPTED;
+
+                    _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);
+
+                    var nextStepDrawing = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                        .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId && x.Step == nextStep);
+
+                    if (nextStepDrawing != null && nextStepDrawing.Status != AppConstant.HouseDesignStatus.ACCEPTED)
+                    {
+                        nextStepDrawing.Status = AppConstant.HouseDesignStatus.PROCESSING;
+                        _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(nextStepDrawing);
+                    }
+                }
+
+                if (designVersionInfo.HouseDesignDrawing.Step == 4)
+                {
+                    var allSteps = await _unitOfWork.GetRepository<HouseDesignDrawing>()
+                    .GetListAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId &&
+                                         (x.Step == 1 || x.Step == 2 || x.Step == 3 || x.Step == 4));
+
+                    //Update house design drawing ACCPETED -> FINALIZED
+                    foreach (var step in allSteps)
+                    {
+                        step.Status = AppConstant.HouseDesignStatus.FINALIZED;
+                        _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(step);
+                    }
+
+                    //Update contract PROCESSING -> COMPLETED
+                    var contract = await _unitOfWork.GetRepository<Contract>()
+                        .FirstOrDefaultAsync(predicate: x => x.ProjectId == designVersionInfo.HouseDesignDrawing.ProjectId);
+
+                    if (contract == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Contract_Not_Found);
+                    }
+
+                    contract.Status = AppConstant.ContractStatus.COMPLETED;
+                    _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                }
+
+                string saveResult = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
+                return saveResult;
             }
-
-            _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(designVersionInfo);
-
-            string saveResult = _unitOfWork.Commit() > 0 ? AppConstant.Message.SEND_SUCESSFUL : AppConstant.ErrMessage.Send_Fail;
-            return saveResult;
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
+            }
         }
 
         public async Task<string> CommentDesignDrawingFromCustomer(Guid versionId, FeedbackHouseDesignDrawingRequest comment)

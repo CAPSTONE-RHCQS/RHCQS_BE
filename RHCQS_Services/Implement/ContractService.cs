@@ -960,11 +960,9 @@ namespace RHCQS_Services.Implement
 
             if (type == "Approved")
             {
-                // Cập nhật trạng thái của đợt thanh toán hiện tại
                 currentBatch.Status = AppConstant.PaymentStatus.PAID;
                 _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(currentBatch);
 
-                // Lấy thông tin hợp đồng và các đợt thanh toán liên quan
                 var contract = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Contract>().FirstOrDefaultAsync(
                              predicate: c => c.Id == currentBatch.ContractId,
                              include: c => c.Include(c => c.BatchPayments)
@@ -973,24 +971,26 @@ namespace RHCQS_Services.Implement
                 if (contract == null)
                     return false;
 
-                // Kiểm tra nếu tất cả các đợt thanh toán đã được thanh toán
                 bool allPaid = contract.BatchPayments.All(x => x.Status == AppConstant.PaymentStatus.PAID);
 
-                // Lấy đợt thanh toán cuối cùng
+
                 var finalBatch = contract.BatchPayments
                                         .OrderByDescending(x => x.NumberOfBatch)
                                         .FirstOrDefault();
 
-                // Kiểm tra nếu đợt hiện tại là đợt cuối cùng
                 if (finalBatch != null && finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                 {
-                    // Cập nhật trạng thái hợp đồng và dự án
                     contract.Status = AppConstant.ContractStatus.FINISHED;
                     if (contract.Project != null)
                     {
                         contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                     }
-                    _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Contract>().UpdateAsync(contract);
+                    _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+
+                    var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                          predicate: x => x.ContractAppendix == contract.Id);
+                    contractMain.Status = AppConstant.ContractStatus.FINISHED;
+                    _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
                 }
 
                 result = await _unitOfWork.CommitAsync() > 0;
@@ -1131,7 +1131,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Invalid_Payment);
             }
 
-            Medium itemMedia = (Medium)paymentInfo.Media;
+            Medium itemMedia = (Medium)paymentInfo.Media.First();
 
             _unitOfWork.GetRepository<Medium>().DeleteAsync(itemMedia);
 
