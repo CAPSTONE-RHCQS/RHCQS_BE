@@ -1016,7 +1016,7 @@ namespace RHCQS_Services.Implement
             // Thực hiện query
             var listProjects = await _unitOfWork.GetRepository<Project>().GetList(
                 predicate: predicate,
-                selector: x => new ProjectResponse(x.Id, x.Customer!.Username!, x.Name, x.Type,
+                selector: x => new ProjectResponse(x.Id, x.Customer.Username!, x.Name, x.Type,
                                                    x.Status, x.InsDate, x.UpsDate, x.ProjectCode),
                 include: x => x.Include(w => w.Customer!),
                 orderBy: x => x.OrderByDescending(w => w.InsDate),

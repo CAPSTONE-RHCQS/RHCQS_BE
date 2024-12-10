@@ -130,10 +130,10 @@ namespace RHCQS_Services.Implement
 
             List<BatchPaymentInfo> batchPaymentResponse = null;
             var contractInfo = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
-                                predicate: c => c.BatchPayments.Any(c => c.Contract.Type == AppConstant.ContractType.Construction.ToString()));
+                                predicate: c => c.BatchPayments.Any(c => c.Contract!.Type == AppConstant.ContractType.Construction.ToString()));
 
             //Case: Initial quotation version 0
-            if (initialQuotation.BatchPayments.Count == 0)
+            if (initialQuotation!.BatchPayments.Count == 0)
             {
                 batchPaymentResponse = new List<BatchPaymentInfo>();
             }
@@ -171,7 +171,7 @@ namespace RHCQS_Services.Implement
 
                 batchPaymentResponse = (await _unitOfWork.GetRepository<BatchPayment>()
                     .GetListAsync(
-                        predicate: bp => bp.ContractId == firstBatchPayment.ContractId,
+                        predicate: bp => bp.ContractId == firstBatchPayment!.ContractId,
                         include: bp => bp.Include(bp => bp.Payment),
                         selector: item => new BatchPaymentInfo(
                             item.PaymentId,
@@ -287,7 +287,7 @@ namespace RHCQS_Services.Implement
             {
                 ProjectType = initialQuotation.Project.Type!,
                 Id = initialQuotation.Id,
-                AccountName = initialQuotation.Project!.CustomerName,
+                AccountName = initialQuotation.Project!.CustomerName!,
                 Address = initialQuotation.Project.Address!,
                 ProjectId = initialQuotation.Project.Id,
                 Area = initialQuotation.Area,
@@ -1317,8 +1317,12 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+
+
                 //Update status present quotation
                 initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
+                //Update area project following finalized initial quotation
+                initialItem.Project.Area = initialItem.Area;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
 
                 //Update all version quotation - version present
