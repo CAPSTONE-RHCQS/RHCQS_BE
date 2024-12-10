@@ -12,8 +12,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Utility
     {
         public UpdateUtilityOptionRequest? Utility {  get; set; }
         public UpdateUtilitySectionRequest? Sections { get; set; }
-
-        public UpdateUtilityItemRequest? Items { get; set; }
+        public List<UpdateUtilityItemRequest>? Items { get; set; }
     }
     public class UpdateUtilityOptionRequest
     {
