@@ -25,8 +25,8 @@ namespace RHCQS_Services.Implement
         private readonly Cloudinary _cloudinary;
         private readonly IMediaService _mediaService;
 
-        public PaymentService(IUnitOfWork unitOfWork, 
-            ILogger<IPaymentService> logger, 
+        public PaymentService(IUnitOfWork unitOfWork,
+            ILogger<IPaymentService> logger,
             Cloudinary cloudinary,
             IMediaService mediaService)
         {
@@ -81,7 +81,7 @@ namespace RHCQS_Services.Implement
         public async Task<List<PaymentResponse>> GetListBatchResponse(Guid projectId)
         {
             var allBatches = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
-                predicate: x => x.Contract!.ProjectId == projectId, 
+                predicate: x => x.Contract!.ProjectId == projectId,
                 //&&
                 //                (x.Contract.Type == AppConstant.ContractType.Construction.ToString() ||
                 //                 x.Contract.Type == AppConstant.ContractType.Appendix.ToString()),
@@ -171,5 +171,56 @@ namespace RHCQS_Services.Implement
             return urlImage;
         }
 
+        public async Task<double> GetTotalPriceOfBatchPayments()
+        {
+            var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
+                .GetListAsync(
+                    predicate: x => x.Status == "Progress" || x.Status == "Paid",
+                    include: x => x.Include(x => x.Payment!)
+                );
+
+            if (totalPrice == null || !totalPrice.Any())
+            {
+                return 0; 
+            }
+
+            var total = totalPrice.Sum(batch => batch.Payment?.TotalPrice ?? 0);
+            return total;
+        }
+
+        public async Task<double> GetTotalPriceProgressOfBatchPayments()
+        {
+            var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
+                .GetListAsync(
+                    predicate: x => x.Status == "Progress",
+                    include: x => x.Include(x => x.Payment!)
+                );
+
+            if (totalPrice == null || !totalPrice.Any())
+            {
+                return 0;
+            }
+
+            var total = totalPrice.Sum(batch => batch.Payment?.TotalPrice ?? 0);
+            return total;
+        }
+
+        public async Task<double> GetTotalPricePaidOfBatchPayments()
+        {
+            var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
+                .GetListAsync(
+                    predicate: x => x.Status == "Paid",
+                    include: x => x.Include(x => x.Payment!)
+                );
+
+            if (totalPrice == null || !totalPrice.Any())
+            {
+                return 0;
+            }
+
+            var total = totalPrice.Sum(batch => batch.Payment?.TotalPrice ?? 0);
+            return total;
+        }
     }
+
 }
