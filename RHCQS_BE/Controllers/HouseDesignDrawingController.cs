@@ -110,7 +110,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Item constructhouse design drawing in the system</returns>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
+        //[Authorize(Roles = "Customer, SalesStaff, DesignStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseDesignDrawing.HouseDesignDrawingDetailEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailHouseDesignDrawing(Guid id)
