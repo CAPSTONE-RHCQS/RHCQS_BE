@@ -102,7 +102,7 @@ namespace RHCQS_Services.Implement
                     File = finalQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == finalQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
-            
+
 
             var batchPayments = contractItem.BatchPayments
                 .Select(b => new BatchPaymentContract
@@ -191,7 +191,7 @@ namespace RHCQS_Services.Implement
                     File = initialQuotation.Media?.FirstOrDefault(f => f.InitialQuotationId == initialQuotation.Id)?.Url ?? ErrMessage.InvalidFile
                 };
             }
-            else if(contractItem.Type == AppConstant.ContractType.Construction.ToString())
+            else if (contractItem.Type == AppConstant.ContractType.Construction.ToString())
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                                 predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
@@ -698,7 +698,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
         }
-         
+
         //Manager update bill contract construction
         public async Task<string> UploadBillContractConstruction(Guid paymentId, List<IFormFile> bills)
         {
@@ -951,51 +951,69 @@ namespace RHCQS_Services.Implement
         {
             bool result = false;
 
-            // Lấy thông tin đợt thanh toán hiện tại
-            var currentBatch = await _unitOfWork.GetRepository<BatchPayment>().FirstOrDefaultAsync(
-                                predicate: b => b.PaymentId == paymentId);
-
-            if (currentBatch == null)
-                return false;
-
-            if (type == "Approved")
+            try
             {
-                currentBatch.Status = AppConstant.PaymentStatus.PAID;
-                _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(currentBatch);
+                // Lấy thông tin đợt thanh toán hiện tại
+                var currentBatch = await _unitOfWork.GetRepository<BatchPayment>().FirstOrDefaultAsync(
+                                    predicate: b => b.PaymentId == paymentId);
 
-                var contract = await _unitOfWork.GetRepository<RHCQS_DataAccessObjects.Models.Contract>().FirstOrDefaultAsync(
-                             predicate: c => c.Id == currentBatch.ContractId,
-                             include: c => c.Include(c => c.BatchPayments)
-                                            .Include(c => c.Project));
-
-                if (contract == null)
+                if (currentBatch == null)
                     return false;
 
-                bool allPaid = contract.BatchPayments.All(x => x.Status == AppConstant.PaymentStatus.PAID);
-
-
-                var finalBatch = contract.BatchPayments
-                                        .OrderByDescending(x => x.NumberOfBatch)
-                                        .FirstOrDefault();
-
-                if (finalBatch != null && finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
+                if (type == "Approved")
                 {
-                    contract.Status = AppConstant.ContractStatus.FINISHED;
-                    if (contract.Project != null)
+
+                    currentBatch.Status = AppConstant.PaymentStatus.PAID;
+                    _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(currentBatch);
+
+                    var contract = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                 predicate: c => c.Id == currentBatch.ContractId,
+                                 include: c => c.Include(c => c.Project));
+
+                    if (contract == null)
+                        return false;
+
+                    #region Check batch payment
+                    var batchPayments = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                        predicate: b => b.ContractId == currentBatch.ContractId
+                    );
+
+
+                    bool allPaid = batchPayments.All(x => x.Status == AppConstant.PaymentStatus.PAID);
+
+                    // Final last batch payment in contract
+                    var finalBatch = batchPayments
+                        .OrderByDescending(x => x.NumberOfBatch)
+                        .FirstOrDefault();
+                    #endregion
+
+                    #region Update status in contract
+                    if (finalBatch != null && finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                     {
-                        contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
+                        //Update status in contract appendix
+                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        if (contract.Project != null && contract.Type == AppConstant.ContractType.Construction.ToString())
+                        {
+                            contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
+                        }
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                        
+                        //Update status in contract main
+                        var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                              predicate: x => x.ContractAppendix == contract.Id);
+                        contractMain.Status = AppConstant.ContractStatus.FINISHED;
+                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
                     }
-                    _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
+                    #endregion
 
-                    var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
-                          predicate: x => x.ContractAppendix == contract.Id);
-                    contractMain.Status = AppConstant.ContractStatus.FINISHED;
-                    _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
+                    result = await _unitOfWork.CommitAsync() > 0;
                 }
-
-                result = await _unitOfWork.CommitAsync() > 0;
+                return result;
             }
-            return result;
+            catch (AppConstant.MessageError ex)
+            {
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
+            }
         }
         public async Task<bool> CreateContractAppendix(ContractAppendixRequest request)
         {
