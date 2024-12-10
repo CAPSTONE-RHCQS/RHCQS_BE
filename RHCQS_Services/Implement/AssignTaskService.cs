@@ -56,8 +56,6 @@ namespace RHCQS_Services.Implement
             }
         }
 
-
-
         public async Task<IPaginate<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable(int page, int size)
         {
             IPaginate<DesignStaffWorkResponse> listDesign = await _unitOfWork.GetRepository<Account>().GetList(

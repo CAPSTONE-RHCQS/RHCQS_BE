@@ -131,8 +131,8 @@ namespace RHCQS_Services.Implement
                 foreach (var previousDrawing in previousDrawings.OrderBy(d => d.Step))
                 {
                     var acceptedVersion = previousDrawing.HouseDesignVersions
-                                                         .OrderByDescending(v => v.Version)
-                                                         .FirstOrDefault();
+                                                         .Where(d => d.Confirmed == true)         
+                                                         .OrderByDescending(v => v.Version!).FirstOrDefault();
 
                     if (acceptedVersion != null)
                     {
