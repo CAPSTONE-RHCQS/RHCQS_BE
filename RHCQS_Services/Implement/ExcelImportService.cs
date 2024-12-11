@@ -77,6 +77,7 @@ namespace RHCQS_Services.Implement
                     predicate: wt => wt.PackageId == packageId,
                     selector: wt => new
                     {
+                        wt.Id,
                         wt.ContructionWork.Code,
                         wt.InsDate,
                         wt.LaborCost,
@@ -111,6 +112,7 @@ $"Dòng {row.RowNumber()}: Không tìm thấy WorkTemplate với Code '{code}' t
 
                 var workTemplate = new WorkTemplateExcelResponse
                 {
+                    WorkTemplateId = dbTemplate.Id,
                     Code = code,
                     ConstructionId = dbTemplate.ConstructionItemId,
                     ConstructionName = constructionName,
@@ -139,6 +141,7 @@ $"Có lỗi với các dòng:\n{errorMessages}");
                     ConstructionName = group.Key.ConstructionName,
                     WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
                     {
+                        WorkTemplateId = wt.WorkTemplateId,
                         Code = wt.Code,
                         ConstructionWorkName = wt.ConstructionWorkName,
                         Weight = wt.Weight,
