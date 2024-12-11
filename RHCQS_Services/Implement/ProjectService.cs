@@ -178,7 +178,7 @@ namespace RHCQS_Services.Implement
             var projectDetailItem = new ProjectDetail
             {
                 Id = projectItem.Id,
-                CustomerId = (Guid)projectItem.CustomerId!,
+                CustomerId = (Guid)projectItem.Customer.AccountId!,
                 Name = projectItem.Name,
                 Phone = projectItem.Customer.PhoneNumber ?? "Không có",
                 Avatar = projectItem.Customer.ImgUrl,
