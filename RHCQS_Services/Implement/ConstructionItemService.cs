@@ -68,7 +68,7 @@ namespace RHCQS_Services.Implement
                                                                 x.SubConstructionItems.Select(
                                                                     sub => new SubConstructionItemResponse(
                                                                         sub.Id,
-                                                                        sub.Name,
+                                                                        $"{sub.Name} ({x.Name})",
                                                                         sub.Coefficient,
                                                                         sub.Unit,
                                                                         sub.InsDate)).ToList()),
@@ -88,7 +88,7 @@ namespace RHCQS_Services.Implement
                                                                 x.SubConstructionItems.Select(
                                                                     sub => new SubConstructionItemResponse(
                                                                         sub.Id,
-                                                                        sub.Name,
+                                                                        $"{sub.Name} ({x.Name})",
                                                                         sub.Coefficient,
                                                                         sub.Unit,
                                                                         sub.InsDate)).ToList()),
@@ -108,7 +108,7 @@ namespace RHCQS_Services.Implement
                                                                 x.SubConstructionItems.Select(
                                                                     sub => new SubConstructionItemResponse(
                                                                         sub.Id,
-                                                                        sub.Name,
+                                                                        $"{sub.Name} ({x.Name})",
                                                                         sub.Coefficient,
                                                                         sub.Unit,
                                                                         sub.InsDate)).ToList()),
@@ -128,7 +128,7 @@ namespace RHCQS_Services.Implement
                                                                 x.SubConstructionItems.Select(
                                                                     sub => new SubConstructionItemResponse(
                                                                         sub.Id,
-                                                                        sub.Name,
+                                                                        $"{sub.Name} ({x.Name})",
                                                                         sub.Coefficient,
                                                                         sub.Unit,
                                                                         sub.InsDate)).ToList()),

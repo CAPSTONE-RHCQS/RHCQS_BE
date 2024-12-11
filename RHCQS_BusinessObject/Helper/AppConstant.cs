@@ -59,6 +59,10 @@ public static class AppConstant
         public const string KETCAU = "KETCAU";
         public const string DIENNUOC = "DIENNUOC";
         public const string DRAWINGHAVE = "HAVE_DRAWING";
+        public const string CONTRACT_CONSTRUCTION = "Construction";
+        public const string CONTRACT_DESIGN = "Design";
+        public const string APPENDIX_CONSTRUCTION = "Appendix_Construction";
+        public const string APPENDIX_DESIGN = "Appendix_Design";
     }
 
     public class ProjectStatus
@@ -143,7 +147,11 @@ public static class AppConstant
         [Description("Hợp đồng thi công nhà ở dân dụng")]
         Construction,
         [Description("Hợp đồng phụ lục")]
-        Appendix
+        Appendix,
+        [Description("Hợp đồng phụ lục thiết kế nhà ở dân dụng")]
+        Appendix_Design,
+        [Description("Hợp đồng phụ lục thi công nhà ở dân dụng")]
+        Appendix_Construction
     }
 
     public enum DesignDrawing

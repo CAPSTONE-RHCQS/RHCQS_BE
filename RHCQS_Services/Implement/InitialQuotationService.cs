@@ -97,9 +97,9 @@ namespace RHCQS_Services.Implement
                             item.Id,
                             item.ConstructionItem?.Name,
                             item.ConstructionItemId,
-                            item.SubConstructionId.HasValue ?
-                              item.ConstructionItem?.SubConstructionItems
-                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
+                           item.SubConstructionId.HasValue
+        ? $"{item.ConstructionItem?.SubConstructionItems.FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name} ({item.ConstructionItem?.Name})"
+                            : item.ConstructionItem!.Name,
                             item.SubConstructionId,
                             item.Area,
                             item.AreaConstruction,
@@ -348,9 +348,9 @@ namespace RHCQS_Services.Implement
                             item.Id,
                             item.ConstructionItem?.Name,
                             item.ConstructionItemId,
-                            item.SubConstructionId.HasValue ?
-                              item.ConstructionItem?.SubConstructionItems
-                                .FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name : item.ConstructionItem!.Name,
+                           item.SubConstructionId.HasValue
+        ? $"{item.ConstructionItem?.SubConstructionItems.FirstOrDefault(s => s.Id == item.SubConstructionId)?.Name} ({item.ConstructionItem?.Name})"
+                            : item.ConstructionItem!.Name,
                             item.SubConstructionId,
                             item.Area,
                             item.AreaConstruction,
@@ -777,7 +777,7 @@ namespace RHCQS_Services.Implement
                 sb.Append($@"
         <tr>
             <td>{noCount}</td>
-            <td>{item.Name}</td>
+            <td>{(string.IsNullOrEmpty(item.SubConstruction) ? item.Name : item.SubConstruction)}</td>
             <td>{item.Area}</td>
             <td>{item.Coefficient}</td>
             <td>{item.AreaConstruction}</td>
@@ -1126,7 +1126,7 @@ namespace RHCQS_Services.Implement
                     var itemInitial = new InitialQuotationItem()
                     {
                         Id = Guid.NewGuid(),
-                        Name = null,
+                        Name = item.Name,
                         ConstructionItemId = item.ConstructionItemId,
                         SubConstructionId = item.SubConstructionId,
                         Area = item.Area,

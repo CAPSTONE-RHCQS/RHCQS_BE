@@ -628,7 +628,7 @@ namespace RHCQS_Services.Implement
                     {
                         File = new FileDescription(file.FileName, file.OpenReadStream()),
                         PublicId = publicId,
-                        Folder = "Contract",
+                        Folder = "Invoice",
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true
@@ -729,7 +729,7 @@ namespace RHCQS_Services.Implement
                     {
                         File = new FileDescription(file.FileName, file.OpenReadStream()),
                         PublicId = $"Hop_dong_{paymentId}_{i}",
-                        Folder = "Contract",
+                        Folder = "Invoice",
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true
@@ -800,8 +800,7 @@ namespace RHCQS_Services.Implement
                 BatchPayment currentBatch = null;
                 var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
                                     predicate: p => p.PaymentId == paymentId,
-                                    include: p => p.Include(p => p.Contract!)
-                                                    .ThenInclude(p => p.Project));
+                                    include: p => p.Include(p => p.Contract!));
 
                 if (payBatchInfo == null || !payBatchInfo.Any())
                 {
@@ -822,7 +821,7 @@ namespace RHCQS_Services.Implement
                     {
                         File = new FileDescription(file.FileName, file.OpenReadStream()),
                         PublicId = $"Hop_dong_{paymentId}_{i}",
-                        Folder = "Contract",
+                        Folder = "Invoice",
                         UseFilename = true,
                         UniqueFilename = false,
                         Overwrite = true
@@ -872,12 +871,15 @@ namespace RHCQS_Services.Implement
                     if (contract != null)
                     {
                         contract.Status = AppConstant.ContractStatus.FINISHED;
-                        contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
 
                         var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
-                            predicate: x => x.ContractAppendix == contract.Id);
+                            predicate: x => x.ContractAppendix == contract.Id,
+                            include: x => x.Include(x => x.Project));
                         contractMain.Status = AppConstant.ContractStatus.FINISHED;
+
+                        //Update status project Signed Contract -> Finalized
+                        contractMain.Project.Status = ProjectStatus.FINALIZED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
                     }
                 }
@@ -992,17 +994,26 @@ namespace RHCQS_Services.Implement
                     {
                         //Update status in contract appendix
                         contract.Status = AppConstant.ContractStatus.FINISHED;
-                        if (contract.Project != null && contract.Type == AppConstant.ContractType.Construction.ToString())
+                        if (contract.Type.ToString() == AppConstant.ContractType.Construction.ToString())
                         {
                             contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                         }
+
+                        if (contract.Type == AppConstant.Type.APPENDIX_CONSTRUCTION)
+                        {
+                            contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
+                        }
+
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
                         
                         //Update status in contract main
-                        var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
-                              predicate: x => x.ContractAppendix == contract.Id);
-                        contractMain.Status = AppConstant.ContractStatus.FINISHED;
-                        _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
+                        if (contract.Type != AppConstant.ContractType.Appendix.ToString())
+                        {
+                            var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
+                                        predicate: x => x.ContractAppendix == contract.Id);
+                            contractMain.Status = AppConstant.ContractStatus.FINISHED;
+                            _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
+                        }
                     }
                     #endregion
 
@@ -1015,6 +1026,7 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError(ex.Code, ex.Message);
             }
         }
+
         public async Task<bool> CreateContractAppendix(ContractAppendixRequest request)
         {
             try
@@ -1058,6 +1070,16 @@ namespace RHCQS_Services.Implement
                 #endregion
 
                 #region Create contract appendix
+                string contractAppendixType = null;
+                if (contractInfo.Type == AppConstant.ContractType.Construction.ToString())
+                {
+                    contractAppendixType = AppConstant.ContractType.Appendix_Construction.ToString();
+                }
+                if (contractInfo.Type == AppConstant.ContractType.Design.ToString())
+                {
+                    contractAppendixType = AppConstant.ContractType.Appendix_Design.ToString();
+                }
+
                 var contractDrawing = new Contract
                 {
                     Id = Guid.NewGuid(),
@@ -1078,7 +1100,7 @@ namespace RHCQS_Services.Implement
                     RoughPackagePrice = contractInfo.RoughPackagePrice,
                     FinishedPackagePrice = contractInfo.FinishedPackagePrice,
                     Status = AppConstant.ContractStatus.PROCESSING,
-                    Type = AppConstant.ContractType.Appendix.ToString(),
+                    Type = contractAppendixType,
                     InsDate = LocalDateTime.VNDateTime(),
                 };
 
