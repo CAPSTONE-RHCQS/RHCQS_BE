@@ -397,7 +397,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="type">Approved</param>
         /// <returns></returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost(ApiEndPointConstant.Contract.ManagerApproveBillFromCustomerEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
