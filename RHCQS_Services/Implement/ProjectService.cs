@@ -389,7 +389,7 @@ namespace RHCQS_Services.Implement
                         Address = projectRequest.Address,
                         Area = projectRequest.Area,
                         IsDrawing = true,
-                        CustomerName = projectRequest.CustomerName ?? customerInfo.Username
+                        CustomerName = projectRequest.CustomerName
                     };
                 } else
                 {

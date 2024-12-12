@@ -147,10 +147,10 @@ namespace RHCQS_BE.Controllers
                 ));
 
                 var emailBody = $@"
-            <p>Xin chào,{customerEmail},</p>
-            <p>Bạn có cập nhật mới về báo giá chi tiết:</p>
-            <p><a href='{pdfUrl}'></a></p>
-            <p>Cảm ơn,<br> RHCQS team</p>";
+            Xin chào,{customerEmail},
+            Bạn có cập nhật mới về báo giá chi tiết:
+            {pdfUrl}
+            Cảm ơn, RHCQS team";
                 var sendemail = new EmailRequest
                 {
                     ToEmail = customerEmail,

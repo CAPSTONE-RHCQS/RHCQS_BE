@@ -192,7 +192,7 @@ namespace RHCQS_BE.Controllers
         /// <response code="200">Initial quotation details retrieved successfully</response>
         /// <response code="404">Initial quotation not found</response>
         #endregion
-        [Authorize(Roles = "Customer, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, SalesStaff, Manager, DesignStaff")]
         [HttpGet(ApiEndPointConstant.InitialQuotation.InitialQuotationDetailEndpoint)]
         [ProducesResponseType(typeof(HouseDesignDrawingResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailInitialQuotation(Guid id)
@@ -410,10 +410,10 @@ namespace RHCQS_BE.Controllers
                     notificationRequest.Body
                 ));
                 var emailBody = $@"
-            <p>Xin chào,{customerEmail},</p>
-            <p>Bạn có cập nhật mới về báo giá chi tiết:</p>
-            <p><a href='{pdfUrl}'></a></p>
-            <p>Cảm ơn,<br> RHCQS team</p>";
+            Xin chào,{customerEmail},
+            Bạn có cập nhật mới về báo giá chi tiết:
+            {pdfUrl}
+            Cảm ơn, RHCQS team";
                 var sendemail = new EmailRequest
                 {
                     ToEmail = customerEmail,
