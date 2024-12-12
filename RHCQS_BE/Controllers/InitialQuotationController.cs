@@ -409,23 +409,23 @@ namespace RHCQS_BE.Controllers
                     notificationRequest.Title,
                     notificationRequest.Body
                 ));
-            //    var emailBody = $@"
-            //<p>Hello {customerEmail},</p>
-            //<p>Bạn có cập nhật mới về báo giá chi tiết:</p>
-            //<p><a href='{pdfUrl}'></a></p>
-            //<p>Thanks,<br>Your RHCQS team</p>";
-            //    var sendemail = new EmailRequest
-            //    {
-            //        ToEmail = customerEmail,
-            //        Subject = "Cập nhật báo giá chi tiết",
-            //        Body = emailBody
-            //    };
-            //    Task.Run(() => _gmailSenderService.SendEmailAsync(
-            //        sendemail.ToEmail,
-            //        sendemail.Subject,
-            //        sendemail.Body,
-            //        null
-            //    ));
+                var emailBody = $@"
+            <p>Xin chào,{customerEmail},</p>
+            <p>Bạn có cập nhật mới về báo giá chi tiết:</p>
+            <p><a href='{pdfUrl}'></a></p>
+            <p>Cảm ơn,<br> RHCQS team</p>";
+                var sendemail = new EmailRequest
+                {
+                    ToEmail = customerEmail,
+                    Subject = "Cập nhật báo giá chi tiết",
+                    Body = emailBody
+                };
+                Task.Run(() => _gmailSenderService.SendEmailAsync(
+                    sendemail.ToEmail,
+                    sendemail.Subject,
+                    sendemail.Body,
+                    null
+                ));
                 return new ContentResult()
                 {
                     Content = result,
