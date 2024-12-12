@@ -28,6 +28,7 @@ namespace RHCQS_BE
                                "http://localhost:5173",
                                "http://localhost:8081",
                                "https://rhcqs.vercel.app",
+                               "https://rhcqs-one.vercel.app",
                                "https://rhqs-fzbda8gefsh7bnft.southeastasia-01.azurewebsites.net"
                            )
                            .AllowAnyHeader()
