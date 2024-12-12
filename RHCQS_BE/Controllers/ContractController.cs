@@ -324,7 +324,7 @@ namespace RHCQS_BE.Controllers
         /// <returns></returns>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.Contract.PaymentBatchAppendixConfirmEndpoint)]
+        [HttpPut(ApiEndPointConstant.Contract.PaymentBatchAppendixConfirmEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadContractAppendix(Guid paymentId, List<IFormFile> files)
@@ -397,8 +397,8 @@ namespace RHCQS_BE.Controllers
         /// <param name="type">Approved</param>
         /// <returns></returns>
         #endregion
-        //[Authorize(Roles = "Manager")]
-        [HttpPost(ApiEndPointConstant.Contract.ManagerApproveBillFromCustomerEndpoint)]
+        [Authorize(Roles = "Manager")]
+        [HttpPut(ApiEndPointConstant.Contract.ManagerApproveBillFromCustomerEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ManagerApproverBillFromCustomer(Guid paymentId, 
