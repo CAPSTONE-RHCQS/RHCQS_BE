@@ -358,16 +358,16 @@ namespace RHCQS_Services.Implement
                 switch (projectRequest.Type)
                 {
                     case AppConstant.Type.ALL:
-                        projectName = "Báo giá trọn gói " + LocalDateTime.VNDateTime();
+                        projectName = "Dự án báo giá trọn gói ";
                         break;
                     case AppConstant.Type.FINISHED:
-                        projectName = "Báo giá phần hoàn thiện " + LocalDateTime.VNDateTime();
+                        projectName = "Dự án báo giá phần hoàn thiện ";
                         break;
                     case AppConstant.Type.ROUGH:
-                        projectName = "Báo giá phần thô " + LocalDateTime.VNDateTime();
+                        projectName = "Dự án báo giá phần thô ";
                         break;
                     default:
-                        projectName = "Dự án báo giá " + LocalDateTime.VNDateTime();
+                        projectName = "Dự án báo giá ";
                         break;
                 }
 
