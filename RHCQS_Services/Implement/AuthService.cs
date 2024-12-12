@@ -65,7 +65,7 @@ namespace RHCQS_Services.Implement
                 var isEmailVerified = await IsEmailVerifiedAsync(email);
                 if (!isEmailVerified)
                 {
-                    await SendVerificationEmailAsync(email);
+                    Task.Run(() => SendVerificationEmailAsync(email));
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Unauthorized,
                         AppConstant.ErrMessage.EmailNotVerified
@@ -173,7 +173,7 @@ namespace RHCQS_Services.Implement
             }
             if (roleName == UserRoleForRegister.Customer.ToString())
             {
-                await SendVerificationEmailAsync(registerRequest.Email);
+                Task.Run(() => SendVerificationEmailAsync(registerRequest.Email));
             }
             return newAccount;
         }
@@ -294,64 +294,78 @@ namespace RHCQS_Services.Implement
         }
         private async Task SendVerificationEmailAsync(string email)
         {
-            //try
-            //{
+            try
+            {
                 var auth = FirebaseAuth.DefaultInstance;
 
-                var user = await auth.GetUserByEmailAsync(email);
-
-                if (user == null)
+                // Try to get the user by email
+                UserRecord user = null;
+                try
                 {
+                    user = await auth.GetUserByEmailAsync(email);
+                }
+                catch (FirebaseAuthException ex)
+                {
+                    // Handle user not found
+                    Console.WriteLine($"User with email {email} not found. Creating new user.");
+
                     var userRecordArgs = new UserRecordArgs
                     {
                         Email = email,
                         EmailVerified = false,
                         Disabled = false,
                     };
+
+                    // Create a new user
                     var userRecord = await auth.CreateUserAsync(userRecordArgs);
                     Console.WriteLine($"User created with UID: {userRecord.Uid}");
+
+                    // Assign the created user to the 'user' variable
+                    user = userRecord;
                 }
 
+                // Generate the email verification link
                 var link = await auth.GenerateEmailVerificationLinkAsync(email);
 
+                // Construct the email body
                 var emailBody = $@"
-            <p>Xin chào {email},</p>
-            <p>Nhấn vào link để xác thực email của bạn:</p>
-            <p><a href='{link}'>Xác thực email</a></p>
-            <p>Nếu bạn không yêu cầu xác minh địa chỉ này, bạn có thể bỏ qua email này.</p>
-            <p>Cảm ơn ,<br> RHCQS team</p>";
+                Xin chào {email},
+                Nhấn vào link để xác thực email của bạn:
+                {link}
+                Nếu bạn không yêu cầu xác minh địa chỉ này, bạn có thể bỏ qua email này.
 
-                await _gmail.SendEmailAsync(
-                    email,
-                    "Xác thực email",
-                    emailBody,
-                    null
-                );
+                Cảm ơn,
+                RHCQS team";
+
+
+                // Send the email via Gmail API or your custom email service
+                await _gmail.SendEmailAsync(email, "Xác thực email", emailBody, null);
 
                 Console.WriteLine($"Verification email sent to: {email}");
-            //}
-            //catch (FirebaseAuthException ex)
-            //{
-            //    throw new AppConstant.MessageError(
-            //        (int)AppConstant.ErrCode.Conflict,
-            //        $"Failed to send verification email: {ex.Message}"
-            //    );
-            //}
+            }
+            catch (FirebaseAuthException ex)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    $"Failed to send verification email: {ex.Message}"
+                );
+            }
         }
+
 
         public async Task<bool> IsEmailVerifiedAsync(string email)
         {
-            //try
-            //{
+            try
+            {
                 var userRecord = await FirebaseAuth.DefaultInstance.GetUserByEmailAsync(email);
 
                 return userRecord.EmailVerified;
-            //}
-            //catch (FirebaseAuthException ex)
-            //{
-            //    Console.WriteLine($"Error: {ex.Message}");
-            //    return false;
-            //}
+            }
+            catch (FirebaseAuthException ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return false;
+            }
         }
 
     }
