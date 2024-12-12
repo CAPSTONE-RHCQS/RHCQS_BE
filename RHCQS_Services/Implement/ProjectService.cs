@@ -477,7 +477,7 @@ namespace RHCQS_Services.Implement
                 #endregion
 
                 #region Create utility
-                if (projectRequest.PackageQuotations.Count > 0)
+                if (projectRequest.QuotationUtilitiesRequest != null)
                 {
                     foreach (var utl in projectRequest.QuotationUtilitiesRequest!)
                     {
