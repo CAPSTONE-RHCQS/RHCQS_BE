@@ -1,4 +1,5 @@
 ﻿using CloudinaryDotNet;
+using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -203,6 +204,39 @@ namespace RHCQS_BE.Controllers
         }
         #region SearchAccounts
         /// <summary>
+        /// Search listaccount by name or phonenumber.
+        /// </summary>
+        /// <param name="name">The name to search for.</param>
+        /// <param phone="phone">The phone to search for.</param>
+        /// <returns>The account that match the search criteria.</returns>
+        // GET: api/Account/Search
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Account.SearchAccountByPhoneOrNameEndpoint)]
+        public async Task<ActionResult> SearchAccountsByKeyAsync(string searchKey, int page, int size)
+        {
+
+            var accounts = await _accountService.SearchAccountsByKeyAsync(searchKey, page, size);
+
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var serializedResult = JsonConvert.SerializeObject(accounts, settings);
+
+            return new ContentResult
+            {
+                Content = serializedResult,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
+
+        }
+        #region SearchAccountsByname
+        /// <summary>
         /// Search account by name.
         /// </summary>
         /// <param name="name">The name to search for.</param>
@@ -211,9 +245,9 @@ namespace RHCQS_BE.Controllers
         #endregion
         [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.Account.SearchAccountEndpoint)]
-        public async Task<ActionResult<Account>> SearchAccountsByNameAsync(string name)
+        public async Task<ActionResult<Account>> SearchAccountsByNameAsync(string searchkey)
         {
-            var account = await _accountService.SearchAccountsByNameAsync(name);
+            var account = await _accountService.SearchAccountsByNameAsync(searchkey);
 
             var searchEmployee = new Account
             {
@@ -265,35 +299,17 @@ namespace RHCQS_BE.Controllers
         /// <returns>The updated account object.</returns>
         // PUT: api/account/{id}
         #endregion
-
         [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Account.AccountByIdEndpoint)]
         public async Task<ActionResult<Account>> UpdateAccountAsync(Guid id, [FromBody] AccountRequestForUpdate accountRequest)
         {
-
-/*            var existingAccount = await _accountService.GetAccountByIdAsync(id);
- 
-            if (accountRequest.ImageUrl != null)
-            {
-                var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
-                existingAccount.ImageUrl = imageUrl;
-            }*/
-/*            var account = new Account
-            {
-                Username = accountRequest.Username,
-                PhoneNumber = accountRequest.PhoneNumber,
-                DateOfBirth = accountRequest.DateOfBirth,
-                ImageUrl = null,
-                Deflag = accountRequest.Deflag,
-            };*/
 
             var updatedAccount = await _accountService.UpdateAccountAsync(id, accountRequest);
             if (updatedAccount == null)
             {
                 return StatusCode(500, "An error occurred while updating the account.");
             }
-
-            return Ok(new AccountResponse(
+            var accountResponse = new AccountResponse(
                 updatedAccount.Id,
                 updatedAccount.Username,
                 updatedAccount.PhoneNumber,
@@ -306,7 +322,23 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.RoleId,
                 updatedAccount.InsDate,
                 updatedAccount.UpsDate
-            ));
+            );
+
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var returnAccount = JsonConvert.SerializeObject(accountResponse, settings);
+
+            return new ContentResult
+            {
+                Content = returnAccount,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region UpdateProfile
         /// <summary>
@@ -326,7 +358,6 @@ namespace RHCQS_BE.Controllers
         /// <returns>The updated profile object.</returns>
         // PUT: api/account/profile/{id}
         #endregion
-
         [Authorize(Roles = "Customer")]
         [HttpPut(ApiEndPointConstant.Account.ProfileEndpoint)]
         public async Task<ActionResult<Account>> UpdateProfileForCustomerAsync([FromBody] AccountRequestForUpdateProfile accountRequest)
@@ -335,26 +366,13 @@ namespace RHCQS_BE.Controllers
 
             var existingAccount = await _accountService.GetAccountByIdAsync(Guid.Parse(accountId!));
 
-/*            if (accountRequest.ImageUrl != null)
-            {
-                var imageUrl = await _uploadImgService.UploadImageAsync(accountRequest.ImageUrl, "profile");
-                existingAccount.ImageUrl = imageUrl;
-            }*/
-/*            var account = new Account
-            {
-                Username = accountRequest.Username,
-                PhoneNumber = accountRequest.PhoneNumber,
-                DateOfBirth = accountRequest.DateOfBirth,
-                ImageUrl = accountRequest.ImageUrl,
-            };*/
-
             var updatedAccount = await _accountService.UpdateProfileAsync(existingAccount.Id, accountRequest);
             if (updatedAccount == null)
             {
                 return StatusCode(500, "An error occurred while updating the account.");
             }
 
-            return Ok(new AccountResponse(
+            var accountResponse = new AccountResponse(
                 updatedAccount.Id,
                 updatedAccount.Username,
                 updatedAccount.PhoneNumber,
@@ -367,7 +385,23 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.RoleId,
                 updatedAccount.InsDate,
                 updatedAccount.UpsDate
-            ));
+            );
+
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var returnAccount = JsonConvert.SerializeObject(accountResponse, settings);
+
+            return new ContentResult
+            {
+                Content = returnAccount,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
         #region UpdatePassword
         /// <summary>
@@ -403,7 +437,8 @@ namespace RHCQS_BE.Controllers
         {
             var updatedAccount = await _accountService.UpdateDeflagAccountAsync(id);
 
-            return Ok(new AccountResponse(
+
+            var account = new AccountResponse(
                 updatedAccount.Id,
                 updatedAccount.Username,
                 updatedAccount.PhoneNumber,
@@ -416,8 +451,29 @@ namespace RHCQS_BE.Controllers
                 updatedAccount.RoleId,
                 updatedAccount.InsDate,
                 updatedAccount.UpsDate
-            ));
+            );
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.None,
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+
+            var returnAccount = JsonConvert.SerializeObject(account, settings);
+
+            return new ContentResult
+            {
+                Content = returnAccount,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
+        #region UpdateImgforAccount
+        /// <summary>
+        /// Update image for account.
+        /// </summary>
+        /// <returns>The updated img account.</returns>
+        #endregion
         [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpPost(ApiEndPointConstant.Account.UploadImageProfileEndpoint)]
         [ProducesResponseType(typeof(List<string>), StatusCodes.Status200OK)]
@@ -428,25 +484,25 @@ namespace RHCQS_BE.Controllers
 
             if (request.AccountImage == null)
             {
-                return BadRequest("At least one image file is required.");
+                return BadRequest("Phải có hình hình.");
+            }
+            var isUploaded = await _accountService.CreateImageAccount(Guid.Parse(accountId!), request);
+            if (isUploaded != null)
+            {
+                var returntoken = JsonConvert.SerializeObject(isUploaded, Formatting.Indented);
+
+                return new ContentResult
+                {
+                    Content = returntoken,
+                    ContentType = "application/json",
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            else
+            {
+                return BadRequest("Cập nhật ảnh thất bại");
             }
 
-            try
-            {
-                var isUploaded = await _accountService.CreateImageAccount(Guid.Parse(accountId!), request);
-                if (isUploaded)
-                {
-                    return Ok("Images uploaded successfully.");
-                }
-                else
-                {
-                    return BadRequest("Image upload failed.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Error uploading images: {ex.Message}");
-            }
         }
 
         #region GetTotalSStaffAccount

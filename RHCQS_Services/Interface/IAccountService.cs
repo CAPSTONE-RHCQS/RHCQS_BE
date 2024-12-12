@@ -23,11 +23,12 @@ namespace RHCQS_Services.Interface
         public Task<IPaginate<AccountResponse>> GetListAccountAsync(int page, int size);
         public Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size);
         Task<Account> SearchAccountsByNameAsync(string name);
+        Task<IPaginate<AccountResponse>> SearchAccountsByKeyAsync(string key, int page, int size);
         Task<Account> UpdateAccountAsync(Guid id, AccountRequestForUpdate account);
         Task<Account> UpdateProfileAsync(Guid id, AccountRequestForUpdateProfile account);
         Task<Account> UpdateDeflagAccountAsync(Guid id);
         Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword);
-        Task<bool> CreateImageAccount(Guid accountId, ImageForAccount files);
+        Task<string> CreateImageAccount(Guid accountId, ImageForAccount files);
         Task<CurrentUserModel> GetCurrentLoginUser();
         Task<int> GetSStaffAccountCountAsync();
         Task<int> GetDStaffAccountCountAsync();

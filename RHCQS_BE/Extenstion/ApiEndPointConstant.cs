@@ -75,6 +75,7 @@ namespace RHCQS_BE.Extenstion
             public const string TotalAccountEndpoint = ApiEndpoint + "/account/total-account";
             public const string AccountProfileEndpoint = AccountEndpoint + "/profile";
             public const string SearchAccountEndpoint = AccountEndpoint + "/name";
+            public const string SearchAccountByPhoneOrNameEndpoint = AccountEndpoint + "/key";
             public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
             public const string UploadImageProfileEndpoint = ApiEndpoint + "/upload-profile-images";
             public const string TotalSStaffAccountEndpoint = ApiEndpoint + "/account/total-s-staff-account";

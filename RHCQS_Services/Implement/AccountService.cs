@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
@@ -217,7 +218,77 @@ namespace RHCQS_Services.Implement
                 return account;
             }
         }
+        public async Task<IPaginate<AccountResponse>> SearchAccountsByKeyAsync(string key, int page, int size)
+        {
+            if (page < 1 || size < 1)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.PageAndSizeError
+                );
+            }
 
+            var repository = _unitOfWork.GetRepository<Account>();
+
+            IPaginate<AccountResponse> accounts;
+
+            if (string.IsNullOrEmpty(key))
+            {
+                accounts = await repository.GetList(
+                    selector: x => new AccountResponse(
+                        x.Id,
+                        x.Username,
+                        x.PhoneNumber,
+                        x.DateOfBirth,
+                        x.PasswordHash,
+                        x.Email,
+                        x.ImageUrl,
+                        x.Deflag,
+                        x.Role.RoleName,
+                        x.RoleId,
+                        x.InsDate,
+                        x.UpsDate
+                    ),
+                    predicate: x => x.Deflag == true,
+                    include: s => s.Include(p => p.Role),
+                    page: page,
+                    size: size
+                );
+            }
+            else
+            {
+                accounts = await repository.GetList(
+                    selector: x => new AccountResponse(
+                        x.Id,
+                        x.Username,
+                        x.PhoneNumber,
+                        x.DateOfBirth,
+                        x.PasswordHash,
+                        x.Email,
+                        x.ImageUrl,
+                        x.Deflag,
+                        x.Role.RoleName,
+                        x.RoleId,
+                        x.InsDate,
+                        x.UpsDate
+                    ),
+                    predicate: x => (x.Username.Contains(key) || x.PhoneNumber.Contains(key)) && x.Deflag == true,
+                    include: s => s.Include(p => p.Role),
+                    page: page,
+                    size: size
+                );
+            }
+
+            if (accounts == null || !accounts.Items.Any())
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Account
+                );
+            }
+
+            return accounts;
+        }
         public async Task<Account> UpdateAccountAsync(Guid id, AccountRequestForUpdate account)
         {
             var accountRepository = _unitOfWork.GetRepository<Account>();
@@ -385,36 +456,42 @@ namespace RHCQS_Services.Implement
 
             return true;
         }
-        public async Task<bool> CreateImageAccount(Guid accountId, ImageForAccount files)
+        public async Task<string> CreateImageAccount(Guid accountId, ImageForAccount files)
         {
-            var uploadResults = new List<string>();
-            string nameImage = null;
+            string accountImg = null;
             if (files.AccountImage != null)
             {
-                nameImage = AppConstant.Profile.IMAGE;
-                var accountImg = await _uploadImgService.UploadFileForImageAccount(accountId, files.AccountImage, "profile", nameImage);
-                var accountinfo = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(x => x.Id == accountId);
-                accountinfo.ImageUrl = accountImg;
-                var role = await _unitOfWork.GetRepository<Role>().FirstOrDefaultAsync(x => x.Id == accountinfo.RoleId);
-                _unitOfWork.GetRepository<Account>().UpdateAsync(accountinfo);
-                if (role.RoleName == UserRoleForRegister.Customer.ToString())
-                {
-                    var customerRepository = _unitOfWork.GetRepository<Customer>();
-                    var _customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == accountinfo.Email);
+                string nameImage = AppConstant.Profile.IMAGE;
 
-                    if (_customer != null)
+                accountImg = await _uploadImgService.UploadFileForImageAccount(accountId, files.AccountImage, "profile", nameImage);
+
+                var accountInfo = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(x => x.Id == accountId);
+                if (accountInfo != null)
+                {
+                    accountInfo.ImageUrl = accountImg;
+
+                    _unitOfWork.GetRepository<Account>().UpdateAsync(accountInfo);
+
+                    var role = await _unitOfWork.GetRepository<Role>().FirstOrDefaultAsync(x => x.Id == accountInfo.RoleId);
+                    if (role != null && role.RoleName == UserRoleForRegister.Customer.ToString())
                     {
-                        _customer.ImgUrl = accountinfo.ImageUrl;
-                        _customer.UpsDate = LocalDateTime.VNDateTime();
-                        customerRepository.UpdateAsync(_customer);
+                        var customerRepository = _unitOfWork.GetRepository<Customer>();
+                        var _customer = await customerRepository.FirstOrDefaultAsync(c => c.Email == accountInfo.Email);
+
+                        if (_customer != null)
+                        {
+                            _customer.ImgUrl = accountImg;
+                            _customer.UpsDate = LocalDateTime.VNDateTime();
+                            customerRepository.UpdateAsync(_customer);
+                        }
                     }
+                    await _unitOfWork.CommitAsync();
                 }
-                await _unitOfWork.CommitAsync();
-                uploadResults.Add(accountImg);
             }
 
-            return uploadResults.Count > 0;
+            return accountImg;
         }
+
 
         public async Task<CurrentUserModel> GetCurrentLoginUser()
         {
@@ -602,7 +679,7 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.CreateAccountError
                 );
             }
-            await SendVerificationEmailAsync(registerRequest.Email);
+            //await SendVerificationEmailAsync(registerRequest.Email);
             return newAccount;
         }
         private string SanitizeEmail(string email)
