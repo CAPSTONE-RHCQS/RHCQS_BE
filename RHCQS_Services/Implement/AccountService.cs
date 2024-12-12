@@ -726,38 +726,5 @@ namespace RHCQS_Services.Implement
             );
             return count;
         }
-        private async Task SendVerificationEmailAsync(string email)
-        {
-            //try
-            //{
-            var auth = FirebaseAuth.DefaultInstance;
-            var userRecordArgs = new UserRecordArgs
-            {
-                Email = email,
-                EmailVerified = false,
-                Password = _configuration["EmailSettings:Password"],
-                Disabled = false,
-            };
-
-            var userRecord = await auth.CreateUserAsync(userRecordArgs);
-
-            var link = await auth.GenerateEmailVerificationLinkAsync(email);
-            await _gmail.SendEmailAsync(
-                email,
-                "Xác thực email",
-                $"Nhấn vào link để xác thực email của bạn:<br>{link}<br>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi.",
-                null
-            );
-
-            Console.WriteLine($"Verification email sent to: {email}");
-            //}
-            //catch (FirebaseAuthException ex)
-            //{
-            //    throw new AppConstant.MessageError(
-            //        (int)AppConstant.ErrCode.Conflict,
-            //        $"Failed to send verification email: {ex.Message}"
-            //    );
-            //}
-        }
     }
 }

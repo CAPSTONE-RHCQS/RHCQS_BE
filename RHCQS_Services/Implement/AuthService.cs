@@ -315,11 +315,11 @@ namespace RHCQS_Services.Implement
                 var link = await auth.GenerateEmailVerificationLinkAsync(email);
 
                 var emailBody = $@"
-            <p>Hello {email},</p>
-            <p>Follow this link to verify your email address:</p>
-            <p><a href='{link}'>Verify Email</a></p>
-            <p>If you didn’t ask to verify this address, you can ignore this email.</p>
-            <p>Thanks,<br>Your RHCQS team</p>";
+            <p>Xin chào {email},</p>
+            <p>Nhấn vào link để xác thực email của bạn:</p>
+            <p><a href='{link}'>Xác thực email</a></p>
+            <p>Nếu bạn không yêu cầu xác minh địa chỉ này, bạn có thể bỏ qua email này.</p>
+            <p>Cảm ơn ,<br> RHCQS team</p>";
 
                 await _gmail.SendEmailAsync(
                     email,
