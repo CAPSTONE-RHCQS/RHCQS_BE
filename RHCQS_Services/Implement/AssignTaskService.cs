@@ -60,7 +60,8 @@ namespace RHCQS_Services.Implement
         {
             IPaginate<DesignStaffWorkResponse> listDesign = await _unitOfWork.GetRepository<Account>().GetList(
                  predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD") &&
-                        !x.HouseDesignDrawings.Any(hdd => hdd.Status == AppConstant.HouseDesignStatus.PROCESSING ||
+                        !x.HouseDesignDrawings.Any(hdd => hdd.Status == AppConstant.HouseDesignStatus.PENDING ||
+                                                          hdd.Status == AppConstant.HouseDesignStatus.PROCESSING ||
                                                           hdd.Status == AppConstant.HouseDesignStatus.UPDATING),
                 selector: x => new DesignStaffWorkResponse(x.Id, x.ImageUrl, x.Username, x.Role.RoleName, x.PhoneNumber),
                 include: x => x.Include(x => x.HouseDesignDrawings!)

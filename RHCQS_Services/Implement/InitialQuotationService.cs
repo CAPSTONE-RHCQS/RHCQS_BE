@@ -3,6 +3,7 @@ using CloudinaryDotNet.Actions;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using DocumentFormat.OpenXml.Office2010.PowerPoint;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -1081,8 +1082,14 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedUtility);
                 }
+                #endregion
 
-
+                #region Check total precent batch payment 
+                var isTotalPrecent = request.BatchPayments.Sum(bp => bp.Percents) == 100;
+                if (!isTotalPrecent)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Invalid_BatchPayment);
+                }
                 #endregion
 
                 #region Update project & version present
