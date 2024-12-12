@@ -90,28 +90,33 @@ namespace RHCQS_BE.Hubs
         public async Task StartChatWithStaff(Guid customerId, Guid saleId, string initialMessage)
         {
             var context = _unitOfWork.GetRepository<Room>();
-            var existingRoom = await context.FirstOrDefaultAsync(r => r.SenderId == customerId && r.SenderId == saleId);
+            var existingRoom = await context.FirstOrDefaultAsync(r => r.SenderId == customerId && r.ReceiverId == saleId);
+            if (existingRoom == null)
+            {
+                var existingReceiver = context.FirstOrDefaultAsync(predicate: r => r.ReceiverId == customerId && r.SenderId == saleId);
+
+                if (existingReceiver == null)
+                {
+                    var room = new Room
+                    {
+                        Id = Guid.NewGuid(),
+                        SenderId = customerId,
+                        ReceiverId = saleId,
+                        InsDate = DateTime.Now,
+                    };
+
+                    await context.InsertAsync(room);
+                    await _unitOfWork.CommitAsync();
+
+                    await Clients.User(saleId.ToString()).SendAsync("ReceiveRoomNotification", room.Id.ToString());
+                    await SendMessageToRoom(room.Id, customerId.ToString(), initialMessage);
+                }
+            }
 
             if (existingRoom != null)
             {
                 await JoinRoom(existingRoom.Id, customerId.ToString());
                 await SendMessageToRoom(existingRoom.Id, customerId.ToString(), initialMessage);
-            }
-            else
-            {
-                var room = new Room
-                {
-                    Id = Guid.NewGuid(),
-                    SenderId = customerId,
-                    ReceiverId = saleId,
-                    InsDate = DateTime.Now,
-                };
-
-                await context.InsertAsync(room);
-                await _unitOfWork.CommitAsync();
-
-                await Clients.User(saleId.ToString()).SendAsync("ReceiveRoomNotification", room.Id.ToString());
-                await SendMessageToRoom(room.Id, customerId.ToString(), initialMessage);
             }
         }
 
