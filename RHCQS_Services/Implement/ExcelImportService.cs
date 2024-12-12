@@ -9,6 +9,7 @@ using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO.Packaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,7 +31,7 @@ namespace RHCQS_Services.Implement
 
             using var workbook = new XLWorkbook(excelStream);
             var worksheet = workbook.Worksheet(1);
-
+            var materials = await _unitOfWork.GetRepository<Material>().GetListAsync();
             foreach (var row in worksheet.RowsUsed().Skip(4))
             {
                 var name = row.Cell(3).GetValue<string>();
@@ -53,16 +54,24 @@ namespace RHCQS_Services.Implement
                         Note = row.Cell(8).GetValue<string?>(),
                         Type = row.Cell(9).GetValue<string?>()
                     };
-
-                    seenNames.Add(name);
-                    result.Add(data);
+                    var material = materials.FirstOrDefault(m => m.Code == data.Code);
+                    if (material == null)
+                    {
+                        errorMessages.Add($"Dòng {row.RowNumber()} không tìm thấy trong bảng vật tư: {name}");
+                    }
+                    else
+                    {
+                        seenNames.Add(name);
+                        result.Add(data);
+                    }
                 }
             }
 
             if (errorMessages.Any())
             {
                 var errorMessage = string.Join(Environment.NewLine, errorMessages);
-                throw new Exception($"Có lỗi với các dòng trùng tên:\n{errorMessage}");
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+$"{errorMessage}");
             }
 
             return result;
