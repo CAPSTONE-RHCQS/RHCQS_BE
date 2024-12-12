@@ -387,6 +387,8 @@ namespace RHCQS_Services.Implement
         {
             //try
             //{
+
+
                 if (packageRequest == null)
                 {
                     throw new AppConstant.MessageError(
@@ -398,7 +400,14 @@ namespace RHCQS_Services.Implement
                 var packageRepo = _unitOfWork.GetRepository<Package>();
 
                 // Tải thực thể Package chính mà không dùng Include
-                var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId);
+                var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId,
+                                    include: x => x.Include(x => x.PackageLabors)
+                                                         .ThenInclude(x => x.Labor)
+                                    .Include(x => x.PackageMaterials)
+                                                         .ThenInclude(x => x.Material)
+                                    .Include(x => x.PackageHouses)
+                                    .Include(x => x.PackageMapPromotions)
+                                    );
 
                 if (existingPackage == null)
                 {
@@ -419,13 +428,10 @@ namespace RHCQS_Services.Implement
                 // Cập nhật Package trước
                 packageRepo.UpdateAsync(existingPackage);
 
-                // Cập nhật các bảng con
-
                 // 1. Cập nhật PackageLabors
                 var laborRepo = _unitOfWork.GetRepository<PackageLabor>();
                 var existingLabors = await laborRepo.GetListAsync(predicate: pl => pl.PackageId == packageId);
 
-                // Xóa những thực thể không còn trong request
                 var laborIdsInRequest = packageRequest.PackageLabors?.Select(pl => pl.LaborId).ToList() ?? new List<Guid>();
                 var duplicateLaborIds = CheckDuplicateIds(laborIdsInRequest);
                 if (duplicateLaborIds.Any())
@@ -441,9 +447,10 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-        $"Các mã nhân công sau không hợp lệ: {string.Join(", ", invalidLaborIds)}"
+                        $"Các mã nhân công sau không hợp lệ: {string.Join(", ", invalidLaborIds)}"
                     );
                 }
+
                 var laborsToRemove = existingLabors.Where(pl => !laborIdsInRequest.Contains(pl.LaborId)).ToList();
                 foreach (var labor in laborsToRemove)
                 {
@@ -458,13 +465,13 @@ namespace RHCQS_Services.Implement
                     {
                         laborRepo.InsertAsync(new PackageLabor
                         {
+                            Id = Guid.NewGuid(),
                             LaborId = laborRequest.LaborId,
                             PackageId = packageId,
                             InsDate = LocalDateTime.VNDateTime()
                         });
                     }
                 }
-
                 // 2. Cập nhật PackageMaterials
                 var materialRepo = _unitOfWork.GetRepository<PackageMaterial>();
                 var existingMaterials = await materialRepo.GetListAsync(predicate: pm => pm.PackageId == packageId);
@@ -484,9 +491,10 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-        $"Các mã vật tư sau không hợp lệ: {string.Join(", ", invalidMaterialIds)}"
+                        $"Các mã vật tư sau không hợp lệ: {string.Join(", ", invalidMaterialIds)}"
                     );
                 }
+
                 var materialsToRemove = existingMaterials.Where(pm => !materialIdsInRequest.Contains((Guid)pm.MaterialId)).ToList();
                 foreach (var material in materialsToRemove)
                 {
@@ -500,6 +508,7 @@ namespace RHCQS_Services.Implement
                     {
                         materialRepo.InsertAsync(new PackageMaterial
                         {
+                            Id = Guid.NewGuid(),
                             MaterialId = materialRequest.MaterialId,
                             PackageId = packageId,
                             InsDate = LocalDateTime.VNDateTime()
@@ -507,37 +516,6 @@ namespace RHCQS_Services.Implement
                     }
                 }
 
-                //// 3. Cập nhật PackageHouses
-                //var houseRepo = _unitOfWork.GetRepository<PackageHouse>();
-                //if (packageRequest.PackageHouses != null)
-                //{
-                //    var existingHouses = await houseRepo.GetListAsync(predicate: ph => ph.PackageId == packageId);
-
-                //    var houseIdsInRequest = packageRequest.PackageHouses?.Select(ph => ph.DesignTemplateId).ToList() ?? new List<Guid>();
-                //    var housesToRemove = existingHouses.Where(ph => !houseIdsInRequest.Contains(ph.DesignTemplateId)).ToList();
-                //    foreach (var house in housesToRemove)
-                //    {
-                //        houseRepo.DeleteAsync(house);
-                //    }
-
-                //    foreach (var houseRequest in packageRequest.PackageHouses)
-                //    {
-                //        var existingHouse = existingHouses.FirstOrDefault(ph => ph.DesignTemplateId == houseRequest.DesignTemplateId);
-                //        if (existingHouse == null)
-                //        {
-                //            houseRepo.InsertAsync(new PackageHouse
-                //            {
-                //                DesignTemplateId = houseRequest.DesignTemplateId,
-                //                ImgUrl = houseRequest.ImgUrl,
-                //                Description = houseRequest.Description,
-                //                PackageId = packageId,
-                //                InsDate = LocalDateTime.VNDateTime()
-                //            });
-                //        }
-                //    }
-                //}
-
-                await _unitOfWork.CommitAsync();
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 if (!isSuccessful)
                 {
@@ -546,13 +524,11 @@ namespace RHCQS_Services.Implement
                         AppConstant.ErrMessage.UpdatePackage
                     );
                 }
+
                 return existingPackage;
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw;
-            //}
+            //}catch(Exception ex) { throw; }
         }
+
 
         public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
         {

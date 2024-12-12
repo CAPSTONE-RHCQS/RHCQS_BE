@@ -135,7 +135,7 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff, Manager")]
         [HttpPut(ApiEndPointConstant.Package.PackageEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateHouseTemplate([FromBody] PackageRequest package, Guid packageid)
+        public async Task<IActionResult> UpdatePackage([FromBody] PackageRequest package, Guid packageid)
         {
             //foreach (var packageHouse in package.PackageHouses)
             //{
@@ -146,7 +146,19 @@ namespace RHCQS_BE.Controllers
             //    }
             //}
             var update = await _packageService.UpdatePackage(package, packageid);
-            return Ok(update);
+            var settings = new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            };
+            var result = JsonConvert.SerializeObject(update, Formatting.Indented, settings);
+
+            // Return the result as a JSON response
+            return new ContentResult
+            {
+                Content = result,
+                ContentType = "application/json",
+                StatusCode = StatusCodes.Status200OK
+            };
         }
 
         #region GetDetailPackageByContainName
