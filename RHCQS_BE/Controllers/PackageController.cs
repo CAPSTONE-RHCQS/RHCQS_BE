@@ -201,7 +201,7 @@ namespace RHCQS_BE.Controllers
         /// <returns>return result or error</returns>
         #endregion
         [Authorize(Roles = "Manager")]
-        [HttpGet(ApiEndPointConstant.Package.DeletePackageEndpoint)]
+        [HttpDelete(ApiEndPointConstant.Package.DeletePackageEndpoint)]
         public async Task<IActionResult> DeletePackage(Guid id)
         {
 
@@ -210,7 +210,7 @@ namespace RHCQS_BE.Controllers
             if (result)
                 return NoContent();
 
-            return BadRequest(new { message = "Failed to delete the package." });
+            return BadRequest(new { message = "Xóa gói thất bại." });
 
         }
     }
