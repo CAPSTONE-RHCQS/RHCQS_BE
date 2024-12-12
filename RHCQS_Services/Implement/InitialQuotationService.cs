@@ -870,13 +870,16 @@ namespace RHCQS_Services.Implement
 
             foreach (var utility in request.UtilityInfos!)
             {
+                var calculatedValue = utility.Coefficient == 0
+                   ? utility.Quantity * utility.Price
+                   : utility.Coefficient * utility.Price;
                 sb.Append($@"
             <tr>
                 <td>{utility.Description}</td>
                 <td>{utility.Coefficient}</td>
                 <td>{utility.Quantity}</td>
                 <td>{utility.Price:N0}</td>
-                <td>{(utility.Coefficient * utility.Price):N0}</td>
+                 <td>{calculatedValue:N0}</td>
                 <td>VNĐ</td>
             </tr>");
             }
