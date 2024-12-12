@@ -739,6 +739,10 @@ namespace RHCQS_Services.Implement
                 font-weight: bold;
                 color: red;
             }
+            .total-row td {
+                    color: #53A6A8;
+                    font-weight: bold;
+            }
         </style>
     </head>
     <body>
@@ -746,7 +750,8 @@ namespace RHCQS_Services.Implement
     <p><strong>CÔNG TRÌNH:</strong> NHÀ Ở RIÊNG LẺ</p>
     <p><strong>ĐỊA ĐIỂM:</strong> " + request.Address + @"</p>
     <p><strong>CHỦ ĐẦU TƯ:</strong> " + request.AccountName + @"</p>
-    <p><strong>SỐ ĐIỆN THOẠI:</strong> " + request.Version + @"</p>
+    <p><strong>SỐ ĐIỆN THOẠI:</strong> " + request.PhoneNumber + @"</p>
+    <p><strong>MAIL:</strong> " + request.Email + @"</p>
 
     <h2>ĐIỀU 1. QUY MÔ CÔNG TRÌNH</h2>
     <p>Nhà ở dân dụng</p>
@@ -779,7 +784,7 @@ namespace RHCQS_Services.Implement
             <td>{noCount}</td>
             <td>{(string.IsNullOrEmpty(item.SubConstruction) ? item.Name : item.SubConstruction)}</td>
             <td>{item.Area}</td>
-            <td>{item.Coefficient}</td>
+            <td>{item.SubCoefficient ?? item.Coefficient}</td>
             <td>{item.AreaConstruction}</td>
             <td>m²</td>
         </tr>");
@@ -895,6 +900,7 @@ namespace RHCQS_Services.Implement
                     </table>");
             }
 
+            double? totalRoughAndFinished = request.TotalRough + request.TotalFinished;
             sb.Append($@"
     <h3>2.6. TỔNG GIÁ TRỊ HỢP ĐỒNG:</h3>
         <table>
@@ -905,7 +911,7 @@ namespace RHCQS_Services.Implement
             </tr>
             <tr>
                 <td>Giá trị báo giá sơ bộ xây dựng trước thuế</td>
-                <td>{request.TotalRough:N0}</td>
+                 <td>{totalRoughAndFinished:N0}</td>
                 <td>VNĐ</td>
             </tr>
             <tr>
@@ -914,8 +920,13 @@ namespace RHCQS_Services.Implement
                 <td>VNĐ</td>
             </tr>
             <tr>
-                <td>{request.PromotionInfo.Name}</td>
+                <td>Khuyến mãi: {request.PromotionInfo.Name}</td>
                 <td>{request.Discount:N0}</td>
+                <td>VNĐ</td>
+            </tr>
+            <tr  class=""total-row"">
+                <td>Tổng</td>
+                 <td>{totalRoughAndFinished + request.TotalUtilities - request.Discount:N0}</td>
                 <td>VNĐ</td>
             </tr>
         </table>
