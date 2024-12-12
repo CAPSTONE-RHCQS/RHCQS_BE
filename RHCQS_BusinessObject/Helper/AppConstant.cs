@@ -139,6 +139,10 @@ public static class AppConstant
         public const string PROGRESS = "Progress";
         public const string PAID = "Paid";
     }
+    public class Equiment
+    {
+        public const string EQUIPMENT = "Thiết bị";
+    }
     public class Profile
     {
         public const string IMAGE = "Ảnh Profile";

@@ -1,18 +1,11 @@
 ﻿using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
-using System;
-using System.Collections.Generic;
-using System.IO.Packaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace RHCQS_Services.Implement
 {
@@ -31,7 +24,10 @@ namespace RHCQS_Services.Implement
 
             using var workbook = new XLWorkbook(excelStream);
             var worksheet = workbook.Worksheet(1);
-            var materials = await _unitOfWork.GetRepository<Material>().GetListAsync();
+            var materials = await _unitOfWork.GetRepository<Material>().GetListAsync(
+                include: query => query.Include(m => m.MaterialSection)
+            );
+
             foreach (var row in worksheet.RowsUsed().Skip(4))
             {
                 var name = row.Cell(3).GetValue<string>();
@@ -54,7 +50,7 @@ namespace RHCQS_Services.Implement
                         Note = row.Cell(8).GetValue<string?>(),
                         Type = row.Cell(9).GetValue<string?>()
                     };
-                    var material = materials.FirstOrDefault(m => m.Code == data.Code);
+                    var material = materials.FirstOrDefault(m => m.Code == data.Code && m.MaterialSection.Name.ToLower() == AppConstant.Equiment.EQUIPMENT.ToLower());
                     if (material == null)
                     {
                         errorMessages.Add($"Dòng {row.RowNumber()} không tìm thấy trong bảng vật tư: {name}");
