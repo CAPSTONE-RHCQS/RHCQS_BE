@@ -21,5 +21,6 @@ namespace RHCQS_Services.Interface
         Task<Package> UpdatePackage(PackageRequest package, Guid id);
         Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name);
         Task<string> GeneratePackagePdf(Guid packageId);
+        Task<bool> DeletePackage(Guid packageId);
     }
 }

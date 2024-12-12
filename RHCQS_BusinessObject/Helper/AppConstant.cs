@@ -129,6 +129,8 @@ public static class AppConstant
     {
         public const string PROCESSING = "Processing";
         public const string UPDATED = "Updated";
+        public const string ACTIVE = "Active";
+        public const string INACTIVE = "InActive";
     }
 
     public class PaymentStatus
@@ -336,6 +338,8 @@ public static class AppConstant
         public const string PackageHouseNotFound = "Gói nhà không tìm thấy.";
         public const string PackagematerialNotFound = "Gói vật tư không tìm thấy.";
         public const string FailUploadPackagePdf = "Cập nhật gói dạng pdf thất bại.";
+        public const string DeletePackageFailed = "Xóa gói thất bại.";
+        
 
         //Media
         public const string Not_Found_Media = "Không tìm thấy Media!";

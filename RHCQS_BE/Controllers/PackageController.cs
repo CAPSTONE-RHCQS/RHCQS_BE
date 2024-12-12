@@ -193,5 +193,25 @@ namespace RHCQS_BE.Controllers
             };
 
         }
+        #region delete package
+        /// <summary>
+        /// delete package by ID.
+        /// </summary>
+        /// <param name="id">ID of the package need to delete</param>
+        /// <returns>return result or error</returns>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet(ApiEndPointConstant.Package.DeletePackageEndpoint)]
+        public async Task<IActionResult> DeletePackage(Guid id)
+        {
+
+            var result = await _packageService.DeletePackage(id);
+
+            if (result)
+                return NoContent();
+
+            return BadRequest(new { message = "Failed to delete the package." });
+
+        }
     }
 }

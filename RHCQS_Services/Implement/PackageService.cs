@@ -227,6 +227,66 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.Not_Found_Resource
                 );
         }
+        public async Task<bool> DeletePackage(Guid packageId)
+        {
+            // Lấy repository của Package
+            var packageRepo = _unitOfWork.GetRepository<Package>();
+
+            // Kiểm tra package có tồn tại hay không
+            var package = await packageRepo.FirstOrDefaultAsync(
+                predicate: p => p.Id == packageId && p.Status == AppConstant.Status.ACTIVE.ToLower(),
+                include: x => x.Include(p => p.PackageLabors)
+                               .Include(p => p.PackageMaterials)
+                               .Include(p => p.PackageHouses)
+                               .Include(p => p.PackageMapPromotions)
+                               .Include(p => p.WorkTemplates)
+            );
+
+            // Nếu không tồn tại, trả về lỗi
+            if (package == null)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Not_Found,
+                    AppConstant.ErrMessage.Not_Found_Resource
+                );
+            }
+
+            // Xóa các liên kết (nếu cần xóa từng phần riêng)
+            if (package.PackageLabors != null && package.PackageLabors.Any())
+            {
+                var packageLaborRepo = _unitOfWork.GetRepository<PackageLabor>();
+                packageLaborRepo.DeleteRangeAsync(package.PackageLabors);
+            }
+
+            if (package.PackageMaterials != null && package.PackageMaterials.Any())
+            {
+                var packageMaterialRepo = _unitOfWork.GetRepository<PackageMaterial>();
+                packageMaterialRepo.DeleteRangeAsync(package.PackageMaterials);
+            }
+
+
+            if (package.PackageMapPromotions != null && package.PackageMapPromotions.Any())
+            {
+                var packagePromotionRepo = _unitOfWork.GetRepository<PackageMapPromotion>();
+                packagePromotionRepo.DeleteRangeAsync(package.PackageMapPromotions);
+            }
+
+
+            packageRepo.DeleteAsync(package);
+
+            // Commit thay đổi
+            var isSuccessful = await _unitOfWork.CommitAsync() > 0;
+
+            if (!isSuccessful)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Conflict,
+                    AppConstant.ErrMessage.DeletePackageFailed
+                );
+            }
+
+            return isSuccessful;
+        }
 
         public async Task<bool> CreatePackage(PackageRequest packageRequest)
         {
@@ -257,7 +317,7 @@ namespace RHCQS_Services.Implement
                 PackageName = packageRequest.PackageName,
                 Unit = packageRequest.Unit,
                 Price = packageRequest.Price,
-                Status = packageRequest.Status,
+                Status = packageRequest.Status.ToLower(),
                 InsDate = LocalDateTime.VNDateTime(),
             };
 
@@ -353,7 +413,7 @@ namespace RHCQS_Services.Implement
                 existingPackage.PackageName = packageRequest.PackageName;
                 existingPackage.Unit = packageRequest.Unit;
                 existingPackage.Price = packageRequest.Price;
-                existingPackage.Status = packageRequest.Status;
+                existingPackage.Status = packageRequest.Status.ToLower();
                 existingPackage.UpsDate = LocalDateTime.VNDateTime();
 
                 // Cập nhật Package trước
@@ -418,7 +478,7 @@ namespace RHCQS_Services.Implement
                         $"Có mã vật tư bị trùng"
                     );
                 }
-                var invalidMaterialIds = await ValidateMaterialIdsAsync(laborIdsInRequest);
+                var invalidMaterialIds = await ValidateMaterialIdsAsync(materialIdsInRequest);
 
                 if (invalidMaterialIds.Any())
                 {

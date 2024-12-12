@@ -55,6 +55,7 @@ namespace RHCQS_BE.Extenstion
             public const string PackageDetailEndpoint = PackageEndpoint + "/id";
             public const string PackageByNameEndpoint = PackageEndpoint + "/name";
             public const string PackageAutoCharacter = PackageEndpoint + "/contain/name";
+            public const string DeletePackageEndpoint = PackageEndpoint + "/package-id";
         }
         public static class Blog
         {
