@@ -90,6 +90,7 @@ public static class AppConstant
 
     public class HouseDesignStatus
     {
+        public const string PENDING = "Pending";
         public const string PROCESSING = "Processing";
         public const string REVIEWING = "Reviewing";
         public const string REJECTED = "Rejected";
@@ -306,6 +307,7 @@ public static class AppConstant
         public const string Not_Comment_Quotation = "Báo giá đã đóng, bạn không được ghi chú!";
         public const string Already_Finalized_Quotation = "Đã có báo giá hoàn thành!";
         public const string Ended_Quotation = "Báo giá đã đóng!";
+        public const string Invalid_BatchPayment = "Tổng phần trăm của các đợt thanh toán không bằng 100%";
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";

@@ -12,6 +12,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
     {
         public HouseDesignDrawingResponse(
             string projectType,
+            Guid initialQuotationId,
             Guid id, Guid projectId,
             string staffName, double? versionPresent,
             string? name, int? step,
@@ -21,6 +22,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             List<HouseDesignVersionResponse>? versions)
         {
             ProjectType = projectType;
+            InitialQuotationId = initialQuotationId;
             Id = id;
             ProjectId = projectId;
             StaffName = staffName;
@@ -35,6 +37,7 @@ namespace RHCQS_BusinessObject.Payload.Response.HouseDesign
             Versions = versions;
         }
         public string ProjectType { get; set; }
+        public Guid InitialQuotationId {  get; set; }
         public Guid Id { get; set; }
 
         public Guid ProjectId { get; set; }

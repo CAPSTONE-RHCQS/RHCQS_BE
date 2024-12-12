@@ -114,6 +114,9 @@ namespace RHCQS_Services.Implement
                 throw new MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
+            var initialQuotationFinalized = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                            predicate: i => i.ProjectId == drawingItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED);
+
             List<DependOnVersion> dependOnVersions = new();
 
             if (drawingItem.Step > 1)
@@ -152,6 +155,7 @@ namespace RHCQS_Services.Implement
 
             var result = new HouseDesignDrawingResponse(
                 projectType: drawingItem.Project.Type,
+                initialQuotationId: initialQuotationFinalized.Id,
                 id: drawingItem.Id,
                 projectId: drawingItem.ProjectId,
                 staffName: drawingItem.Account.Username,
@@ -195,6 +199,9 @@ namespace RHCQS_Services.Implement
                 throw new InvalidOperationException($"No drawing found for type: {type}");
             }
 
+            var initialQuotationFinalized = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                           predicate: i => i.ProjectId == drawingItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED);
+
             List<DependOnVersion> dependOnVersions = new();
 
             if (drawingItem.Step > 1)
@@ -231,6 +238,7 @@ namespace RHCQS_Services.Implement
 
             var result = new HouseDesignDrawingResponse(
                 projectType: drawingItem.Project.Type,
+                initialQuotationId: initialQuotationFinalized.Id,
                 id: drawingItem.Id,
                 projectId: drawingItem.ProjectId,
                 staffName: drawingItem.Account.Username,
