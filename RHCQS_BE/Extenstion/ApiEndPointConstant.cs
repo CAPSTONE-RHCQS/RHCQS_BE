@@ -340,5 +340,13 @@ namespace RHCQS_BE.Extenstion
             public const string RoomListWaitingEndpoint = RoomEndpoint + "/waiting";
             public const string ListMessageEndpoint = RoomEndpoint + "/message";
         }
+
+        public static class DesignPrice
+        {
+            public const string DesignPriceEndpoint = ApiEndpoint + "/designprice";
+            public const string DesignPriceListEndpoint = ApiEndpoint + "/alldesignprices";
+            public const string SearchDesignPriceEndpoint = DesignPriceListEndpoint + "/name";
+            public const string DesignPriceDetailEndpoint = DesignPriceListEndpoint + "/id";
+        }
     }
 }
