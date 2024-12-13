@@ -340,7 +340,6 @@ namespace RHCQS_Services.Implement
                                     .ThenInclude(x => x.Payment)
                                .Include(x => x.BatchPayments)
             );
-
             presentFinalQuotation.Status = AppConstant.QuotationStatus.ENDED;
             presentFinalQuotation.UpsDate = LocalDateTime.VNDateTime();
             _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(presentFinalQuotation);
