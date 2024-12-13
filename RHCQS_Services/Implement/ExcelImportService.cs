@@ -50,7 +50,7 @@ namespace RHCQS_Services.Implement
                         Note = row.Cell(8).GetValue<string?>(),
                         Type = row.Cell(9).GetValue<string?>()
                     };
-                    var material = materials.FirstOrDefault(m => m.Code == data.Code && m.MaterialSection.Name.ToLower() == AppConstant.Equiment.EQUIPMENT.ToLower());
+                    var material = materials.FirstOrDefault(m => m.Code == data.Code && m.MaterialSection.Name.ToLower().Contains(AppConstant.Equiment.EQUIPMENT.ToLower()));
                     if (material == null)
                     {
                         errorMessages.Add($"Dòng {row.RowNumber()} không tìm thấy trong bảng vật tư: {name}");
