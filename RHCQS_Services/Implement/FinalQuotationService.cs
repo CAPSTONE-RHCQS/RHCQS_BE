@@ -973,6 +973,7 @@ namespace RHCQS_Services.Implement
                     .Select(group => new ConstructionSummary(
                         group.Key,
                         group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceFinished ?? 0),
                         group.Sum(qi => qi.TotalPriceLabor ?? 0)
                     )).FirstOrDefault();
 
@@ -983,6 +984,7 @@ namespace RHCQS_Services.Implement
                 .Select(group => new ConstructionSummary(
                     group.Key,
                     group.Sum(qi => qi.TotalPriceRough ?? 0),
+                    group.Sum(qi => qi.TotalPriceFinished ?? 0),
                     group.Sum(qi => qi.TotalPriceLabor ?? 0)
                 )).FirstOrDefault();
             var equipmentCost = finalQuotation.EquipmentItems
@@ -991,6 +993,7 @@ namespace RHCQS_Services.Implement
             var equipmentCostSummary = new ConstructionSummary(
                 "EQUIPMENT",
                 (double)(equipmentCost ?? 0.0),
+                0,
                 0
             );
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -1262,6 +1265,7 @@ namespace RHCQS_Services.Implement
                     .Select(group => new ConstructionSummary(
                         group.Key,
                         group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceFinished ?? 0),
                         group.Sum(qi => qi.TotalPriceLabor ?? 0)
                     )).FirstOrDefault();
 
@@ -1272,6 +1276,7 @@ namespace RHCQS_Services.Implement
                 .Select(group => new ConstructionSummary(
                     group.Key,
                     group.Sum(qi => qi.TotalPriceRough ?? 0),
+                    group.Sum(qi => qi.TotalPriceFinished ?? 0),
                     group.Sum(qi => qi.TotalPriceLabor ?? 0)
                 )).FirstOrDefault();
             var equipmentCost = finalQuotation.EquipmentItems
@@ -1280,6 +1285,7 @@ namespace RHCQS_Services.Implement
             var equipmentCostSummary = new ConstructionSummary(
                 "EQUIPMENT",
                 (double)(equipmentCost ?? 0.0),
+                0,
                 0
             );
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
