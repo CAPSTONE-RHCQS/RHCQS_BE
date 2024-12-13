@@ -405,7 +405,8 @@ namespace RHCQS_Services.Implement
                         ProjectCode = GenerateRandom.GenerateRandomString(5),
                         Address = projectRequest.Address,
                         Area = projectRequest.Area,
-                        IsDrawing = false
+                        IsDrawing = false,
+                        CustomerName = projectRequest.CustomerName
                     };
                 }
                  
