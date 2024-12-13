@@ -165,7 +165,6 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.InitialQuotation).WithMany(p => p.BatchPayments)
                 .HasForeignKey(d => d.InitialQuotationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_BactchPayment_InitialQuotation");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.BatchPayments)
@@ -882,7 +881,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("WorkTemplate", tb => tb.HasTrigger("trg_CalculateTotalCost"));
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InsDate).HasColumnType("datetime"); 
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
 
             entity.HasOne(d => d.ContructionWork).WithMany(p => p.WorkTemplates)
                 .HasForeignKey(d => d.ContructionWorkId)

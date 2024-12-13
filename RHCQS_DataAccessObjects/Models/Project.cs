@@ -33,6 +33,8 @@ public partial class Project
 
     public Guid? DesignPriceId { get; set; }
 
+    public string? ReasonCancle { get; set; }
+
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
 
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
