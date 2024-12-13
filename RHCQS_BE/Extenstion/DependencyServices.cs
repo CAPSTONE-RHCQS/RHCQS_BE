@@ -108,6 +108,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<IConstructionWorkService, ConstructionWorkService>();
             services.AddScoped<IGmailSenderService, GmailSenderService>();
+            services.AddScoped<IDesignPriceService, DesignPriceService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
