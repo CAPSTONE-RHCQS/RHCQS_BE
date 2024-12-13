@@ -399,7 +399,6 @@ namespace RHCQS_Services.Implement
                         var batchPayment = new BatchPayment
                         {
                             Id = Guid.NewGuid(),
-                            InitialQuotationId = matchingBatchPayment.InitialQuotationId,
                             ContractId = matchingBatchPayment.ContractId,
                             InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = finalQuotation.Id,
