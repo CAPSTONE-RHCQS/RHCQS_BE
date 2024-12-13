@@ -34,6 +34,8 @@ public partial class RhcqsContext : DbContext
 
     public virtual DbSet<Customer> Customers { get; set; }
 
+    public virtual DbSet<DesignPrice> DesignPrices { get; set; }
+
     public virtual DbSet<DesignTemplate> DesignTemplates { get; set; }
 
     public virtual DbSet<EquipmentItem> EquipmentItems { get; set; }
@@ -273,6 +275,15 @@ public partial class RhcqsContext : DbContext
             entity.HasOne(d => d.Account).WithMany(p => p.Customers)
                 .HasForeignKey(d => d.AccountId)
                 .HasConstraintName("FK_Customer_Account");
+        });
+
+        modelBuilder.Entity<DesignPrice>(entity =>
+        {
+            entity.ToTable("DesignPrice");
+
+            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.InsDate).HasColumnType("datetime");
+            entity.Property(e => e.UpsDate).HasColumnType("datetime");
         });
 
         modelBuilder.Entity<DesignTemplate>(entity =>
@@ -658,6 +669,10 @@ public partial class RhcqsContext : DbContext
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Project_Customer");
+
+            entity.HasOne(d => d.DesignPrice).WithMany(p => p.Projects)
+                .HasForeignKey(d => d.DesignPriceId)
+                .HasConstraintName("FK_Project_DesignPrice");
         });
 
         modelBuilder.Entity<Promotion>(entity =>
@@ -867,7 +882,7 @@ public partial class RhcqsContext : DbContext
             entity.ToTable("WorkTemplate", tb => tb.HasTrigger("trg_CalculateTotalCost"));
 
             entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.InsDate).HasColumnType("datetime");
+            entity.Property(e => e.InsDate).HasColumnType("datetime"); 
 
             entity.HasOne(d => d.ContructionWork).WithMany(p => p.WorkTemplates)
                 .HasForeignKey(d => d.ContructionWorkId)
