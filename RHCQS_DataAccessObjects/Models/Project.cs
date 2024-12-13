@@ -31,11 +31,15 @@ public partial class Project
 
     public bool? IsContractDesign { get; set; }
 
+    public Guid? DesignPriceId { get; set; }
+
     public virtual ICollection<AssignTask> AssignTasks { get; set; } = new List<AssignTask>();
 
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
 
     public virtual Customer Customer { get; set; } = null!;
+
+    public virtual DesignPrice? DesignPrice { get; set; }
 
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
 
