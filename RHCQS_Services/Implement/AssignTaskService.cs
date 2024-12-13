@@ -34,7 +34,7 @@ namespace RHCQS_Services.Implement
             try
             {
                 IPaginate<AccountResponse> listSales = await _unitOfWork.GetRepository<Account>().GetList(
-              predicate: x => x.RoleId == Guid.Parse("9959CE96-DE26-40A7-B8A7-28A704062E89") &&
+              predicate: x => x.RoleId == Guid.Parse("9959CE96-DE26-40A7-B8A7-28A704062E89") && x.Deflag != false &&
                 x.AssignTasks.Count(at => at.Project.Status == AppConstant.ProjectStatus.PROCESSING) <= 1 &&
                 x.AssignTasks.Count(at => at.Project.Status == AppConstant.ProjectStatus.PROCESSING ||
                                           at.Project.Status == AppConstant.ProjectStatus.FINALIZED ||
@@ -59,7 +59,7 @@ namespace RHCQS_Services.Implement
         public async Task<IPaginate<DesignStaffWorkResponse>> ListDesignStaffWorkAvailable(int page, int size)
         {
             IPaginate<DesignStaffWorkResponse> listDesign = await _unitOfWork.GetRepository<Account>().GetList(
-                 predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD") &&
+                 predicate: x => x.RoleId == Guid.Parse("7AF0D75E-1157-48B4-899D-3196DEED5FAD") && x.Deflag != false &&
                         !x.HouseDesignDrawings.Any(hdd => hdd.Status == AppConstant.HouseDesignStatus.PENDING ||
                                                           hdd.Status == AppConstant.HouseDesignStatus.PROCESSING ||
                                                           hdd.Status == AppConstant.HouseDesignStatus.UPDATING),
