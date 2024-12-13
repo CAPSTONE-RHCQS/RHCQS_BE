@@ -656,6 +656,7 @@ public partial class RhcqsContext : DbContext
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Projects)
                 .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Project_Customer");
         });
 
