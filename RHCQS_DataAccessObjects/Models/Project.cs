@@ -7,7 +7,7 @@ public partial class Project
 {
     public Guid Id { get; set; }
 
-    public Guid? CustomerId { get; set; }
+    public Guid CustomerId { get; set; }
 
     public string? Name { get; set; }
 
@@ -27,7 +27,7 @@ public partial class Project
 
     public bool? IsDrawing { get; set; }
 
-    public string? CustomerName { get; set; }
+    public string CustomerName { get; set; } = null!;
 
     public bool? IsContractDesign { get; set; }
 
@@ -35,7 +35,7 @@ public partial class Project
 
     public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();
 
-    public virtual Customer? Customer { get; set; }
+    public virtual Customer Customer { get; set; } = null!;
 
     public virtual ICollection<FinalQuotation> FinalQuotations { get; set; } = new List<FinalQuotation>();
 
