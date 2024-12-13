@@ -261,11 +261,11 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedEquiment);
             }
             //worktemlateid
-            //var isValidWorkTemplate = ValidateDuplicateWorkTemplateIds(request.FinalQuotationItems, out var duplicateConstructionIds);
-            //if (!isValidWorkTemplate)
-            //{
-            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedWorktemplate);
-            //}
+            var isValidWorkTemplate = ValidateDuplicateWorkTemplateIds(request.FinalQuotationItems, out var duplicateConstructionIds);
+            if (!isValidWorkTemplate)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedWorktemplate);
+            }
             #endregion
 
             #region check and update something
@@ -359,7 +359,7 @@ namespace RHCQS_Services.Implement
                 ProjectId = request.ProjectId,
                 PromotionId = request.PromotionId,
                 TotalPrice = 0,
-                Note = request.Note,
+                Note = null,
                 Version = newVersion,
                 InsDate = LocalDateTime.VNDateTime(),
                 UpsDate = LocalDateTime.VNDateTime(),
