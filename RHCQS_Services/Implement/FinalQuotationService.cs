@@ -247,6 +247,7 @@ namespace RHCQS_Services.Implement
             }
 
             #region Check request duplicate
+            //Utility
             var isValidUtility = ValidateDuplicateUtilities(request.Utilities, out var duplicateIds);
             if (!isValidUtility)
             {
@@ -259,6 +260,12 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedEquiment);
             }
+            //worktemlateid
+            //var isValidWorkTemplate = ValidateDuplicateWorkTemplateIds(request.FinalQuotationItems, out var duplicateConstructionIds);
+            //if (!isValidWorkTemplate)
+            //{
+            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedWorktemplate);
+            //}
             #endregion
 
             #region check and update something
@@ -293,7 +300,6 @@ namespace RHCQS_Services.Implement
 
             var highestFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
                 p => p.ProjectId == request.ProjectId
-                    && p.QuotationUtilities.Any()
                     && p.BatchPayments.Any(),
                 orderBy: p => p.OrderByDescending(p => p.Version),
                 include: p => p.Include(x => x.Project)
@@ -326,7 +332,6 @@ namespace RHCQS_Services.Implement
             #region updatepresentversion
             var presentFinalQuotation = await finalQuotationRepo.FirstOrDefaultAsync(
                 p => p.ProjectId == request.ProjectId && p.Version == request.VersionPresent
-                    && p.QuotationUtilities.Any()
                     && p.BatchPayments.Any(),
                 orderBy: p => p.OrderByDescending(p => p.Version),
                 include: p => p.Include(x => x.Project)
@@ -2002,6 +2007,24 @@ namespace RHCQS_Services.Implement
 
             return false;
         }
+        public bool ValidateDuplicateWorkTemplateIds(
+            List<FinalQuotationItemRequest> requests,
+            out List<Guid>? duplicateConstructionIds)
+        {
+            duplicateConstructionIds = requests
+                .Where(r => r.QuotationItems != null && r.QuotationItems.Any())
+                .GroupBy(r => r.ConstructionId)
+                .Where(group =>
+                    group.SelectMany(g => g.QuotationItems)
+                         .GroupBy(q => q.WorkTemplateId)
+                         .Any(g => g.Count() > 1)) 
+                .Select(g => g.Key)
+                .ToList();
+
+            return !duplicateConstructionIds.Any();
+        }
+
+
         public async Task<string> GetStatusFinalQuotation(Guid finalId)
         {
             var finalInfo = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(predicate: i => i.Id == finalId);

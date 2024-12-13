@@ -83,7 +83,7 @@ $"{errorMessage}");
                     selector: wt => new
                     {
                         wt.Id,
-                        wt.ContructionWork.Code,
+                        Code = wt.ContructionWork.Code,
                         wt.InsDate,
                         wt.LaborCost,
                         wt.MaterialCost,
