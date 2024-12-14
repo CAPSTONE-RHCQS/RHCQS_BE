@@ -32,7 +32,7 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        public async Task<List<DesignPriceResponse>> GetListDesignPrice(int page, int size)
+        public async Task<List<DesignPriceResponse>> GetListDesignPrice()
         {
             var result = (await _unitOfWork.GetRepository<DesignPrice>()
                  .GetListAsync(
