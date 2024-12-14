@@ -44,5 +44,6 @@ namespace RHCQS_Services.Interface
         Task<int> GetTotalProjectCountAsync();
 
         Task<string> GetStatusProjectDetail(Guid projectId);
+        Task<int> GetTotalProjectBySalesStaff(Guid accountId);
     }
 }
