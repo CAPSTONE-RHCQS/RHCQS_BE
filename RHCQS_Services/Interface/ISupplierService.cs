@@ -18,5 +18,6 @@ namespace RHCQS_Services.Interface
         Task<string?> UploadSupplierImage(IFormFile image);
         Task<bool> UpdateSupplier(Guid id, SupplierUpdateRequest request);
         Task<List<SupplierResponse>> SearchSupplierByName(string name);
+        Task<IPaginate<SupplierResponse>> SearchSupplierByNameWithPag(string? name, int page, int size);
     }
 }
