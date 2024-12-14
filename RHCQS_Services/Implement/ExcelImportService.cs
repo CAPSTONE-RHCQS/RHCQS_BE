@@ -27,8 +27,12 @@ namespace RHCQS_Services.Implement
             var materials = await _unitOfWork.GetRepository<Material>().GetListAsync(
                 include: query => query.Include(m => m.MaterialSection)
             );
+            var validRows = worksheet.RowsUsed()
+                .Skip(4)
+                .Where(row => row.CellsUsed()
+                    .Any(cell => !string.IsNullOrWhiteSpace(cell.GetValue<string>())));
 
-            foreach (var row in worksheet.RowsUsed().Skip(4))
+            foreach (var row in validRows)
             {
                 var name = row.Cell(3).GetValue<string>();
 
@@ -74,92 +78,99 @@ $"{errorMessage}");
         }
         public async Task<List<GroupedConstructionResponse>> ProcessWorkTemplateFileAsync(Stream excelStream, Guid packageId)
         {
-            var result = new List<GroupedConstructionResponse>();
-            var errorMessages = new List<string>();
-
-            var workTemplatesDb = await _unitOfWork.GetRepository<WorkTemplate>()
-                .GetListAsync(
-                    predicate: wt => wt.PackageId == packageId,
-                    selector: wt => new
-                    {
-                        wt.Id,
-                        Code = wt.ContructionWork.Code,
-                        wt.InsDate,
-                        wt.LaborCost,
-                        wt.MaterialCost,
-                        wt.MaterialFinishedCost,
-                        wt.TotalCost,
-                        ConstructionWorkName = wt.ContructionWork.WorkName,
-                        Unit = wt.ContructionWork.Unit,
-                        ConstructionItemId = wt.ContructionWork.Construction.Id,
-                        ConstructionItemName = wt.ContructionWork.Construction.Name
-                    }
-                );
-
-            using var workbook = new XLWorkbook(excelStream);
-            var worksheet = workbook.Worksheet(1);
-            var workTemplateListFromFile = new List<WorkTemplateExcelResponse>();
-
-            foreach (var row in worksheet.RowsUsed().Skip(1))
+            try
             {
-                var constructionWorkName = row.Cell(1).GetValue<string>().Trim();
-                var code = row.Cell(2).GetValue<string>().Trim();
-                var constructionName = row.Cell(3).GetValue<string>().Trim();
+                var result = new List<GroupedConstructionResponse>();
+                var errorMessages = new List<string>();
 
-                var dbTemplate = workTemplatesDb.FirstOrDefault(dbTemplate =>
-                    string.Equals(dbTemplate.Code, code, StringComparison.OrdinalIgnoreCase));
+                var workTemplatesDb = await _unitOfWork.GetRepository<WorkTemplate>()
+                    .GetListAsync(
+                        predicate: wt => wt.PackageId == packageId,
+                        selector: wt => new
+                        {
+                            wt.Id,
+                            Code = wt.ContructionWork.Code,
+                            wt.InsDate,
+                            wt.LaborCost,
+                            wt.MaterialCost,
+                            wt.MaterialFinishedCost,
+                            wt.TotalCost,
+                            ConstructionWorkName = wt.ContructionWork.WorkName,
+                            Unit = wt.ContructionWork.Unit,
+                            ConstructionItemId = wt.ContructionWork.Construction.Id,
+                            ConstructionItemName = wt.ContructionWork.Construction.Name
+                        }
+                    );
 
-                if (dbTemplate == null)
+                using var workbook = new XLWorkbook(excelStream);
+                var worksheet = workbook.Worksheet(1);
+                var workTemplateListFromFile = new List<WorkTemplateExcelResponse>();
+                var validRows = worksheet.RowsUsed()
+                    .Skip(5)
+                    .Where(row => row.CellsUsed()
+                        .Any(cell => !string.IsNullOrWhiteSpace(cell.GetValue<string>())));
+
+                foreach (var row in validRows)
                 {
-                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Dòng {row.RowNumber()}: Không tìm thấy WorkTemplate với Code '{code}' trong cơ sở dữ liệu.");
+                    var constructionWorkName = row.Cell(1).GetValue<string>().Trim();
+                    var code = row.Cell(2).GetValue<string>().Trim();
+                    var constructionName = row.Cell(3).GetValue<string>().Trim();
+
+                    var dbTemplate = workTemplatesDb.FirstOrDefault(dbTemplate =>
+                        string.Equals(dbTemplate.Code, code, StringComparison.OrdinalIgnoreCase));
+
+                    if (dbTemplate == null)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+    $"Dòng {row.RowNumber()}: Không tìm thấy WorkTemplate với Code '{code}' trong cơ sở dữ liệu.");
+                    }
+
+                    var workTemplate = new WorkTemplateExcelResponse
+                    {
+                        WorkTemplateId = dbTemplate.Id,
+                        Code = code,
+                        ConstructionId = dbTemplate.ConstructionItemId,
+                        ConstructionName = constructionName,
+                        ConstructionWorkName = constructionWorkName,
+                        Weight = row.Cell(4).GetValue<double>(),
+                        LaborCost = row.Cell(5).GetValue<double>(),
+                        MaterialCost = row.Cell(6).GetValue<double>(),
+                        MaterialFinishedCost = row.Cell(7).GetValue<double>(),
+                        Unit = row.Cell(8).GetValue<string>()
+                    };
+
+                    workTemplateListFromFile.Add(workTemplate);
                 }
 
-                var workTemplate = new WorkTemplateExcelResponse
+                if (errorMessages.Any())
                 {
-                    WorkTemplateId = dbTemplate.Id,
-                    Code = code,
-                    ConstructionId = dbTemplate.ConstructionItemId,
-                    ConstructionName = constructionName,
-                    ConstructionWorkName = constructionWorkName,
-                    Weight = row.Cell(4).GetValue<double>(),
-                    LaborCost = row.Cell(5).GetValue<double>(),
-                    MaterialCost = row.Cell(6).GetValue<double>(),
-                    MaterialFinishedCost = row.Cell(7).GetValue<double>(),
-                    Unit = row.Cell(8).GetValue<string>()
-                };
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
+    $"Có lỗi với các dòng:\n{errorMessages}");
+                }
 
-                workTemplateListFromFile.Add(workTemplate);
-            }
-
-            if (errorMessages.Any())
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
-$"Có lỗi với các dòng:\n{errorMessages}");
-            }
-
-            var groupedResult = workTemplateListFromFile
-                .GroupBy(wt => new { wt.ConstructionId, wt.ConstructionName })
-                .Select(group => new GroupedConstructionResponse
-                {
-                    ConstructionId = group.Key.ConstructionId,
-                    ConstructionName = group.Key.ConstructionName,
-                    WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
+                var groupedResult = workTemplateListFromFile
+                    .GroupBy(wt => new { wt.ConstructionId, wt.ConstructionName })
+                    .Select(group => new GroupedConstructionResponse
                     {
-                        WorkTemplateId = wt.WorkTemplateId,
-                        Code = wt.Code,
-                        ConstructionWorkName = wt.ConstructionWorkName,
-                        Weight = wt.Weight,
-                        LaborCost = wt.LaborCost,
-                        MaterialCost = wt.MaterialCost,
-                        MaterialFinishedCost = wt.MaterialFinishedCost,
-                        Unit = wt.Unit
+                        ConstructionId = group.Key.ConstructionId,
+                        ConstructionName = group.Key.ConstructionName,
+                        WorkTemplates = group.Select(wt => new WorkTemplateExcelShow
+                        {
+                            WorkTemplateId = wt.WorkTemplateId,
+                            Code = wt.Code,
+                            ConstructionWorkName = wt.ConstructionWorkName,
+                            Weight = wt.Weight,
+                            LaborCost = wt.LaborCost,
+                            MaterialCost = wt.MaterialCost,
+                            MaterialFinishedCost = wt.MaterialFinishedCost,
+                            Unit = wt.Unit
 
-                    }).ToList()
-                })
-                .ToList();
+                        }).ToList()
+                    })
+                    .ToList();
 
-            return groupedResult;
+                return groupedResult;
+            }catch(Exception ex) { throw; }
         }
 
     }
