@@ -14,7 +14,7 @@ namespace RHCQS_Services.Interface
 {
     public interface IDesignPriceService
     {
-        Task<IPaginate<DesignPriceResponse>> GetListDesignPrice(int page, int size);
+        Task<List<DesignPriceResponse>> GetListDesignPrice();
         Task<DesignPriceResponse> GetDetailDesignPrice(Guid id);
         Task<bool> CreateDesignPrice(DesignPriceRequest request);
         Task<bool> UpdateDesignPrice(Guid id, DesignPriceRequest request);
