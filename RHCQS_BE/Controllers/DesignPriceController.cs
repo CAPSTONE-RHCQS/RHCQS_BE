@@ -31,7 +31,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of design price in the system</returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Customer, Manager")]
         [HttpGet(ApiEndPointConstant.DesignPrice.DesignPriceListEndpoint)]
         [ProducesResponseType(typeof(DesignPriceResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetListDesignPrice()
@@ -52,7 +52,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>Design price in the system</returns>
         #endregion
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Customer, Manager")]
         [HttpGet(ApiEndPointConstant.DesignPrice.DesignPriceDetailEndpoint)]
         [ProducesResponseType(typeof(DesignPriceResponse), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDetailDesignPrice(Guid id)
