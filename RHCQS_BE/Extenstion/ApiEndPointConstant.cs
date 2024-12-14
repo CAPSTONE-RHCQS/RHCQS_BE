@@ -134,6 +134,7 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectHaveDrawingEndpoint = ProjectEndpoint + "/drawing-have";
             public const string FilterProjectsMultiParams = ProjectEndpoint + "/multi-filter";
             public const string TotalProjectEndpoint = ProjectEndpoint + "/total-project";
+            public const string TotalProjectOfStaffEndpoint = ProjectEndpoint + "/total-project-staff";
             public const string ProjectStatusEndpoint = ProjectEndpoint + "/status/id";
         }
 
@@ -305,6 +306,7 @@ namespace RHCQS_BE.Extenstion
             public const string LaborEndpoint = ApiEndpoint + "/labor";
             public const string LaborListEndpoint = ApiEndpoint + "/alllabors";
             public const string SearchLaborEndpoint = LaborEndpoint + "/name";
+            public const string SearchLaborWithPagEndpoint = LaborEndpoint + "/all-name";
             public const string SearchLaborWithoutPackageEndpoint = LaborEndpoint + "/allname";
             public const string LaborDetailEndpoint = LaborEndpoint + "/id";
             public const string ImportExcel = LaborEndpoint + "/import-excel";
@@ -332,6 +334,7 @@ namespace RHCQS_BE.Extenstion
             public const string SupplierEndpoint = ApiEndpoint + "/supplier";
             public const string SupplierListEndpoint = ApiEndpoint + "/allsuppliers";
             public const string SearchSupplierEndpoint = SupplierEndpoint + "/name";
+            public const string SearchSupplierWithPagEndpoint = SupplierEndpoint + "/all-name";
             public const string SupplierDetailEndpoint = SupplierEndpoint + "/id";
         }
 
