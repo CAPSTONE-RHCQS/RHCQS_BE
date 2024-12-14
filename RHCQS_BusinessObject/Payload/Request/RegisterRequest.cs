@@ -27,12 +27,12 @@ namespace RHCQS_BusinessObject.Payload.Request
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum UserRoleForRegister
     {
-        Customer,
-        Manager
+        Customer
     }
     public enum UserRoleForManagerRegister
     {
         SalesStaff,
-        DesignStaff
+        DesignStaff,
+        Manager
     }
 }

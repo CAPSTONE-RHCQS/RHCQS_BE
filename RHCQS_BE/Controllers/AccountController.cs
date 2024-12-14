@@ -36,7 +36,7 @@ namespace RHCQS_BE.Controllers
         }
         #region Register Staff API
         /// <summary>
-        /// Manager create staff account.
+        /// Manager create account. Role: MANAGER
         /// </summary>
         #endregion
         [Authorize(Roles = "Manager")]
