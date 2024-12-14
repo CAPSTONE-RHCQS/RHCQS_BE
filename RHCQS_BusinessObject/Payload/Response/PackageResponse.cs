@@ -179,20 +179,27 @@ namespace RHCQS_BusinessObject.Payload.Response
 
     public class PackageHousesResponse
     {
-        public PackageHousesResponse(Guid id, Guid designTemplateId, string? imgUrl, DateTime? insDate)
+        public PackageHousesResponse(Guid id, Guid designTemplateId, string? name, string? imgUrl,
+            string? description, int? numberOfBed, int? numberOfFloor, DateTime? insDate)
         {
             Id = id;
             DesignTemplateId = designTemplateId;
+            DesignName = name;
             ImgUrl = imgUrl;
+            Description = description;
+            NumberOfBed = numberOfBed;
+            NumberOfFloor = numberOfFloor;
             InsDate = insDate;
         }
 
         public Guid Id { get; set; }
 
         public Guid DesignTemplateId { get; set; }
-
+        public string? DesignName { get; set; }
         public string? ImgUrl { get; set; }
-
+        public string? Description { get; set; }
+        public int? NumberOfBed { get; set; }
+        public int? NumberOfFloor { get; set; }
         public DateTime? InsDate { get; set; }
     }
     public class PackageResponseForMobile

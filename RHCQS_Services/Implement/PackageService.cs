@@ -77,7 +77,11 @@ namespace RHCQS_Services.Implement
                 package.PackageHouses?.Select(ph => new PackageHousesResponse(
                     ph.Id,
                     ph.DesignTemplateId,
+                    ph.DesignTemplate?.Name ?? string.Empty,
                     ph.ImgUrl,
+                    ph.DesignTemplate?.Description ?? string.Empty,
+                    ph.DesignTemplate?.NumberOfBed ?? 0,
+                    ph.DesignTemplate?.NumberOfFloor ?? 0,
                     ph.InsDate
                 )).ToList() ?? new List<PackageHousesResponse>(),
 
@@ -187,6 +191,7 @@ namespace RHCQS_Services.Implement
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
                 predicate: x => x.Id.Equals(id) && x.Status == "Active",
                 include: x => x.Include(x => x.PackageHouses)
+                               .ThenInclude(lb => lb.DesignTemplate)
                                .Include(pd => pd.PackageLabors)
                                .ThenInclude(lb => lb.Labor)
                                .Include(pd => pd.PackageMaterials)
@@ -210,6 +215,7 @@ namespace RHCQS_Services.Implement
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
                 predicate: x => x.PackageName.Contains(name) && x.Status == "Active",
                 include: x => x.Include(x => x.PackageHouses)
+                               .ThenInclude(lb => lb.DesignTemplate)
                                .Include(pd => pd.PackageLabors)
                                .ThenInclude(lb => lb.Labor)
                                .Include(pd => pd.PackageMaterials)
