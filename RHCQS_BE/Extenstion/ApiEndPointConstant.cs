@@ -323,6 +323,7 @@ namespace RHCQS_BE.Extenstion
             public const string MaterialSectionEndpoint = ApiEndpoint + "/materialsection";
             public const string MaterialSectionListEndpoint = ApiEndpoint + "/allmaterialsections";
             public const string SearchMaterialSectionEndpoint = MaterialSectionEndpoint + "/name";
+            public const string SearchMaterialSectionPagEndpoint = MaterialSectionEndpoint + "/all-name";
             public const string MaterialSectionDetailEndpoint = MaterialSectionEndpoint + "/id";
         }
 
