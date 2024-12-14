@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CloudinaryDotNet;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Helper;
@@ -206,8 +207,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<ProjectDesignStaffResponse> GetDetailProjectByIdForDesignStaff(Guid id, Guid accountId)
         {
-            var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id 
-                                && w.HouseDesignDrawings.Any( h => h.AccountId == accountId),
+            var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id
+                                && w.HouseDesignDrawings.Any(h => h.AccountId == accountId),
                                 include: w => w.Include(p => p.Customer)
                                                 .Include(p => p.AssignTasks)
                                                 .ThenInclude(p => p.Account)
@@ -248,7 +249,7 @@ namespace RHCQS_Services.Implement
                               .FirstOrDefault(h => h.AccountId == accountId)?.Step;
 
             var houseDesignItem = projectItem.HouseDesignDrawings?
-                .Where(h => h.Step < currentStep && h.Status == AppConstant.HouseDesignStatus.ACCEPTED) 
+                .Where(h => h.Step < currentStep && h.Status == AppConstant.HouseDesignStatus.ACCEPTED)
                 .Select(h => new HouseDesignDrawingInfo
                 {
                     Id = h.Id,
@@ -391,7 +392,8 @@ namespace RHCQS_Services.Implement
                         IsDrawing = true,
                         CustomerName = projectRequest.CustomerName
                     };
-                } else
+                }
+                else
                 {
                     projectItem = new Project
                     {
@@ -409,7 +411,7 @@ namespace RHCQS_Services.Implement
                         CustomerName = projectRequest.CustomerName
                     };
                 }
-                 
+
                 await _unitOfWork.GetRepository<Project>().InsertAsync(projectItem);
                 #endregion
 
@@ -677,14 +679,16 @@ namespace RHCQS_Services.Implement
                     finalResponse,
                     processingResponse
                 );
-            } else
+            }
+            else
             {
                 //Change step Final quotation -> Contract construction
                 if (processingResponse == null && finalResponse == null)
                 {
                     processingResponse = null;
                     finalResponse = null;
-                } else if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
+                }
+                else if (processingResponse == null && finalResponse.Status == AppConstant.QuotationStatus.FINALIZED)
                 {
                     processingResponse = new ContractProcessingAppResponse
                     {
@@ -972,7 +976,7 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Invalid_ElectricityWater);
             }
-                
+
             var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(predicate: p => p.Id == request.ProjectId,
                                                                                              include: p => p.Include(p => p.Customer!));
 
@@ -1049,5 +1053,12 @@ namespace RHCQS_Services.Implement
             var result = project.Status;
             return result.ToString();
         }
+        public async Task<int> GetTotalProjectBySalesStaff(Guid accountId)
+        {
+            int totalProjectCount = await _unitOfWork.GetRepository<AssignTask>().CountAsync(predicate: x => x.AccountId == accountId);
+
+            return totalProjectCount;
+        }
+
     }
 }
