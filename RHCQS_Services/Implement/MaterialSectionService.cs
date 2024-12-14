@@ -126,5 +126,22 @@ namespace RHCQS_Services.Implement
                 orderBy: x => x.OrderBy(x => x.InsDate)
             );
         }
+
+        public async Task<IPaginate<MaterialSectionResponse>> SearchMaterialSectionByNameWithPag(string? name, int page, int size)
+        {
+            return await _unitOfWork.GetRepository<MaterialSection>().GetList(
+                selector: x => new MaterialSectionResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    InsDate = x.InsDate,
+                    Code = x.Code
+                },
+                predicate: mt => mt.Name.Contains(name) || string.IsNullOrWhiteSpace(name),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                page: page,
+                size: size
+            );
+        }
     }
 }
