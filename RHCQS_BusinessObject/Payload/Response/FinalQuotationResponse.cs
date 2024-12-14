@@ -330,6 +330,7 @@ namespace RHCQS_BusinessObject.Payload.Response
     public class ConstructionSummary
     {
         public string Type { get; set; }
+        public double TotalPriceFinished { get; set; }
         public double TotalPriceRough { get; set; }
         public double TotalPriceLabor { get; set; }
 
@@ -337,10 +338,11 @@ namespace RHCQS_BusinessObject.Payload.Response
         {
         }
 
-        public ConstructionSummary(string type, double totalPriceRough, double totalPriceLabor)
+        public ConstructionSummary(string type, double totalPriceRough, double totalPriceFinished, double totalPriceLabor)
         {
             Type = type;
             TotalPriceRough = totalPriceRough;
+            TotalPriceFinished = totalPriceFinished;
             TotalPriceLabor = totalPriceLabor;
         }
     }

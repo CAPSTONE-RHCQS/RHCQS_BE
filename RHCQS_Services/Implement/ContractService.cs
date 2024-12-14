@@ -1062,7 +1062,7 @@ namespace RHCQS_Services.Implement
 
                 foreach (var batchPayment in batchPaymentsToCancel)
                 {
-                    initialId = batchPayment.InitialQuotationId;
+                    initialId = (Guid)batchPayment.InitialQuotationId;
                     batchPayment.Status = "Cancel";
                 }
 

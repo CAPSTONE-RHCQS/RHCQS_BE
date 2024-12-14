@@ -1308,7 +1308,7 @@ namespace RHCQS_Services.Implement
             }
             catch (AppConstant.MessageError ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
             }
         }
 

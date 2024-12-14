@@ -261,11 +261,11 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedEquiment);
             }
             //worktemlateid
-            //var isValidWorkTemplate = ValidateDuplicateWorkTemplateIds(request.FinalQuotationItems, out var duplicateConstructionIds);
-            //if (!isValidWorkTemplate)
-            //{
-            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedWorktemplate);
-            //}
+            var isValidWorkTemplate = ValidateDuplicateWorkTemplateIds(request.FinalQuotationItems, out var duplicateConstructionIds);
+            if (!isValidWorkTemplate)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.DuplicatedWorktemplate);
+            }
             #endregion
 
             #region check and update something
@@ -359,7 +359,7 @@ namespace RHCQS_Services.Implement
                 ProjectId = request.ProjectId,
                 PromotionId = request.PromotionId,
                 TotalPrice = 0,
-                Note = request.Note,
+                Note = null,
                 Version = newVersion,
                 InsDate = LocalDateTime.VNDateTime(),
                 UpsDate = LocalDateTime.VNDateTime(),
@@ -399,7 +399,6 @@ namespace RHCQS_Services.Implement
                         var batchPayment = new BatchPayment
                         {
                             Id = Guid.NewGuid(),
-                            InitialQuotationId = matchingBatchPayment.InitialQuotationId,
                             ContractId = matchingBatchPayment.ContractId,
                             InsDate = LocalDateTime.VNDateTime(),
                             FinalQuotationId = finalQuotation.Id,
@@ -973,6 +972,7 @@ namespace RHCQS_Services.Implement
                     .Select(group => new ConstructionSummary(
                         group.Key,
                         group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceFinished ?? 0),
                         group.Sum(qi => qi.TotalPriceLabor ?? 0)
                     )).FirstOrDefault();
 
@@ -983,6 +983,7 @@ namespace RHCQS_Services.Implement
                 .Select(group => new ConstructionSummary(
                     group.Key,
                     group.Sum(qi => qi.TotalPriceRough ?? 0),
+                    group.Sum(qi => qi.TotalPriceFinished ?? 0),
                     group.Sum(qi => qi.TotalPriceLabor ?? 0)
                 )).FirstOrDefault();
             var equipmentCost = finalQuotation.EquipmentItems
@@ -991,6 +992,7 @@ namespace RHCQS_Services.Implement
             var equipmentCostSummary = new ConstructionSummary(
                 "EQUIPMENT",
                 (double)(equipmentCost ?? 0.0),
+                0,
                 0
             );
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -1262,6 +1264,7 @@ namespace RHCQS_Services.Implement
                     .Select(group => new ConstructionSummary(
                         group.Key,
                         group.Sum(qi => qi.TotalPriceRough ?? 0),
+                        group.Sum(qi => qi.TotalPriceFinished ?? 0),
                         group.Sum(qi => qi.TotalPriceLabor ?? 0)
                     )).FirstOrDefault();
 
@@ -1272,6 +1275,7 @@ namespace RHCQS_Services.Implement
                 .Select(group => new ConstructionSummary(
                     group.Key,
                     group.Sum(qi => qi.TotalPriceRough ?? 0),
+                    group.Sum(qi => qi.TotalPriceFinished ?? 0),
                     group.Sum(qi => qi.TotalPriceLabor ?? 0)
                 )).FirstOrDefault();
             var equipmentCost = finalQuotation.EquipmentItems
@@ -1280,6 +1284,7 @@ namespace RHCQS_Services.Implement
             var equipmentCostSummary = new ConstructionSummary(
                 "EQUIPMENT",
                 (double)(equipmentCost ?? 0.0),
+                0,
                 0
             );
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
@@ -1934,9 +1939,11 @@ namespace RHCQS_Services.Implement
         {
             var paginatedList = await _unitOfWork.GetRepository<FinalQuotation>()
                 .GetList(
-                    predicate: x => x.ProjectId == projectId &&
-                                (x.Status == AppConstant.QuotationStatus.APPROVED ||
-                                x.Status == AppConstant.QuotationStatus.FINALIZED),
+                    predicate: x => x.ProjectId == projectId && x.Version != 0 &&
+                               (x.Status == AppConstant.QuotationStatus.APPROVED ||
+                                x.Status == AppConstant.QuotationStatus.FINALIZED ||
+                                x.Status == AppConstant.QuotationStatus.UPDATING ||
+                                x.Status == AppConstant.QuotationStatus.ENDED),
                     selector: x => new FinalAppResponse(
                         x.Id,
                         x.Version,

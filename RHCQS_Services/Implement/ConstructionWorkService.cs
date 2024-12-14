@@ -41,54 +41,74 @@ namespace RHCQS_Services.Implement
 
         public async Task<ConstructionWorkItemResponse> GetConstructionWorkDetail(Guid workId)
         {
-            var workInfo = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
+            try
+            {
+                var workInfo = await _unitOfWork.GetRepository<ConstructionWork>().FirstOrDefaultAsync(
                     predicate: x => x.Id == workId,
                     include: x => x.Include(x => x.ConstructionWorkResources)
                                         .ThenInclude(x => x.MaterialSection)
                                     .Include(x => x.ConstructionWorkResources)
                                         .ThenInclude(x => x.Labor)
                                     .Include(x => x.WorkTemplates)
-                                      .ThenInclude(x => x.Package!)
-                                      .Include(x => x.Construction!));
-            if (workInfo == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Construction_Work_Not_Found);
-            }
-            var response = new ConstructionWorkItemResponse
-            {
-                ConstructionItemName = workInfo.Construction.Name!,
-                Id = workInfo.Id,
-                WorkName = workInfo.WorkName,
-                ConstructionId = workInfo.ConstructionId,
-                InsDate = workInfo.InsDate,
-                Unit = workInfo.Unit,
-                Code = workInfo.Code,
-                Resources = workInfo.ConstructionWorkResources.Select(resource => new ConstructionWorkResourceItem
-                {
-                    Id = resource.Id,
-                    MaterialSectionId = resource.MaterialSectionId,
-                    MaterialSectionName = resource.MaterialSection?.Name ?? null,
-                    MaterialSectionNorm = resource.MaterialSectionNorm,
-                    LaborId = resource.LaborId,
-                    LaborName = resource.Labor?.Name ?? null,
-                    LaborNorm = resource.LaborNorm,
-                    InsDate = resource.InsDate
-                }).ToList(),
-                WorkTemplates = workInfo.WorkTemplates.Select(work => new WorkTemplateItem
-                {
-                    Id = work.Id,
-                    PackageId = (Guid)work.PackageId!,
-                    PackageName = work.Package.PackageName ?? null,
-                    LaborCost = work.LaborCost ?? 0.0,
-                    MaterialCost = work.MaterialCost ?? 0.0,
-                    MaterialFinishedCost = work.MaterialFinishedCost ?? 0.0,
-                    TotalCost = work.TotalCost ?? 0.0,
-                    InsDate = work.InsDate
-                }).ToList()
-            };
+                                        .ThenInclude(x => x.Package!)
+                                    .Include(x => x.Construction!));
 
-            return response;
+                if (workInfo == null)
+                {
+                    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Construction_Work_Not_Found);
+                }
+
+                var response = new ConstructionWorkItemResponse
+                {
+                    ConstructionItemName = workInfo.Construction?.Name ?? string.Empty,
+                    Id = workInfo.Id,
+                    WorkName = workInfo.WorkName,
+                    ConstructionId = workInfo.ConstructionId,
+                    InsDate = workInfo.InsDate,
+                    Unit = workInfo.Unit,
+                    Code = workInfo.Code,
+                    Resources = workInfo.ConstructionWorkResources.Select(resource => new ConstructionWorkResourceItem
+                    {
+                        Id = resource.Id,
+                        MaterialSectionId = resource.MaterialSectionId,
+                        MaterialSectionName = resource.MaterialSection?.Name ?? null,
+                        MaterialSectionNorm = resource.MaterialSectionNorm,
+                        LaborId = resource.LaborId,
+                        LaborName = resource.Labor?.Name ?? null,
+                        LaborNorm = resource.LaborNorm,
+                        InsDate = resource.InsDate
+                    }).ToList(),
+                    WorkTemplates = MapWorkTemplates(workInfo.WorkTemplates)
+                };
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error retrieving construction work detail: {ex.Message}");
+            }
         }
+
+        private List<WorkTemplateItem> MapWorkTemplates(ICollection<WorkTemplate>? workTemplates)
+        {
+            if (workTemplates == null || !workTemplates.Any())
+            {
+                return new List<WorkTemplateItem>();
+            }
+
+            return workTemplates.Select(work => new WorkTemplateItem
+            {
+                Id = work.Id,
+                PackageId = work.PackageId ?? Guid.Empty,
+                PackageName = work.Package?.PackageName ?? null,
+                LaborCost = work.LaborCost ?? 0.0,
+                MaterialCost = work.MaterialCost ?? 0.0,
+                MaterialFinishedCost = work.MaterialFinishedCost ?? 0.0,
+                TotalCost = work.TotalCost ?? 0.0,
+                InsDate = work.InsDate
+            }).ToList();
+        }
+
         public async Task<WorkTemplateItem> GetConstructionWorkPrice(Guid workId)
         {
             var workInfo = await _unitOfWork.GetRepository<WorkTemplate>().FirstOrDefaultAsync(
