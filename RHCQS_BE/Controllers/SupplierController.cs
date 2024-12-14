@@ -173,5 +173,26 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region SearchSupplierByNameWithPag
+        /// <summary>
+        /// Searches suppliers by name (pag).
+        /// </summary>
+        /// <param name="name">The name or partial name of the supplier.</param>
+        #endregion
+        [Authorize(Roles = "Manager")]
+        [HttpGet(ApiEndPointConstant.Supplier.SearchSupplierWithPagEndpoint)]
+        [ProducesResponseType(typeof(List<SupplierResponse>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SearchSupplierByNameWithPag(string? name, int page, int size)
+        {
+            var listSearchSupplier = await _supplierService.SearchSupplierByNameWithPag(name, page, size);
+            var result = JsonConvert.SerializeObject(listSearchSupplier, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }
