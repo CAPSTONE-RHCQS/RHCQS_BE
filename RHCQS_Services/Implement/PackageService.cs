@@ -385,8 +385,8 @@ namespace RHCQS_Services.Implement
 
         public async Task<Package> UpdatePackage(PackageRequest packageRequest, Guid packageId)
         {
-            //try
-            //{
+            try
+            {
 
 
                 if (packageRequest == null)
@@ -402,9 +402,7 @@ namespace RHCQS_Services.Implement
                 // Tải thực thể Package chính mà không dùng Include
                 var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId,
                                     include: x => x.Include(x => x.PackageLabors)
-                                                         .ThenInclude(x => x.Labor)
                                     .Include(x => x.PackageMaterials)
-                                                         .ThenInclude(x => x.Material)
                                     .Include(x => x.PackageHouses)
                                     .Include(x => x.PackageMapPromotions)
                                     );
@@ -438,7 +436,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-                        $"Có mã nhân công bị trùng"
+                        $"Có nhân công bị trùng"
                     );
                 }
                 var invalidLaborIds = await ValidateLaborIdsAsync(laborIdsInRequest);
@@ -447,7 +445,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-                        $"Các mã nhân công sau không hợp lệ: {string.Join(", ", invalidLaborIds)}"
+                        $"Có nhân công không có trong cơ sở dữ liệu"
                     );
                 }
 
@@ -482,7 +480,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-                        $"Có mã vật tư bị trùng"
+                        $"Có vật tư bị trùng"
                     );
                 }
                 var invalidMaterialIds = await ValidateMaterialIdsAsync(materialIdsInRequest);
@@ -491,7 +489,7 @@ namespace RHCQS_Services.Implement
                 {
                     throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-                        $"Các mã vật tư sau không hợp lệ: {string.Join(", ", invalidMaterialIds)}"
+                        $"Có vật tư không có trong cơ sở dữ liệu"
                     );
                 }
 
@@ -526,7 +524,8 @@ namespace RHCQS_Services.Implement
                 }
 
                 return existingPackage;
-            //}catch(Exception ex) { throw; }
+            }
+            catch (Exception ex) { throw; }
         }
 
 
