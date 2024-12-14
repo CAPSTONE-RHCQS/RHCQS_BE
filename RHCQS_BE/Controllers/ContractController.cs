@@ -455,5 +455,33 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
+
+        #region GetPriceContractDesignByAreaInitialQuotation
+        /// <summary>
+        /// Get price design contract 
+        /// 
+        /// ROLE: SALE STAFF
+        /// </summary>
+        /// <remarks>
+        /// WEB STAFF
+        /// </remarks>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff")]
+        [HttpGet(ApiEndPointConstant.Contract.ContractDesignGetPriceDesignEndpoint)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetPriceContractDesignByAreaInitialQuotation(Guid projectId)
+        {
+            var contractItem = await _contractService.GetPriceContractDesignByAreaInitialQuotation(projectId);
+            var result = JsonConvert.SerializeObject(contractItem, Formatting.Indented);
+            return new ContentResult()
+            {
+                Content = result,
+                StatusCode = StatusCodes.Status200OK,
+                ContentType = "application/json"
+            };
+        }
     }
 }

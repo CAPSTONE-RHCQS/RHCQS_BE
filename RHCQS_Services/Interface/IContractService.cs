@@ -28,5 +28,6 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateContractAppendix(ContractAppendixRequest request);
         Task<string> UploadBillContractAppendix(Guid paymentId, List<IFormFile> bills);
         Task<string> DeleteCustomerBillPayment(Guid paymentId);
+        Task<double> GetPriceContractDesignByAreaInitialQuotation(Guid projectId);
     }
 }

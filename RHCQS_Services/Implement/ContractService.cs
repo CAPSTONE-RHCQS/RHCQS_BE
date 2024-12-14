@@ -1005,7 +1005,7 @@ namespace RHCQS_Services.Implement
                         }
 
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
-                        
+
                         //Update status in contract main
                         if (contract.Type != AppConstant.ContractType.Appendix.ToString())
                         {
@@ -1176,6 +1176,25 @@ namespace RHCQS_Services.Implement
             _unitOfWork.GetRepository<Medium>().DeleteAsync(itemMedia);
 
             var result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_DELETE : AppConstant.ErrMessage.Fail_Delete;
+            return result;
+        }
+
+        public async Task<double> GetPriceContractDesignByAreaInitialQuotation(Guid projectId)
+        {
+            var initialQuotaiton = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                                   predicate: i => i.ProjectId == projectId && i.Status == QuotationStatus.FINALIZED);
+            if (initialQuotaiton == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.NotFinalizedQuotationInitial);
+            }
+
+            var priceDesign = await _unitOfWork.GetRepository<DesignPrice>().FirstOrDefaultAsync(
+                                           predicate: d => d.AreaFrom <= initialQuotaiton.Area && d.AreaTo >= initialQuotaiton.Area);
+            if (priceDesign == null)
+            {
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.NotFinalizedQuotationInitial);
+            }
+            double result = (double)priceDesign.Price! * (double)initialQuotaiton.Area!;
             return result;
         }
     }
