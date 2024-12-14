@@ -19,7 +19,8 @@ namespace RHCQS_Services.Interface
         Task<bool> CreateLabor(LaborRequest request);
         Task<bool> UpdateLabor(Guid id, LaborRequest request);
         Task<bool> ImportLaborFromExcel(IFormFile excelFile);
-        Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string name);
+        Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string? name);
         Task<List<LaborResponse>> SearchLaborByNameWithoutPackage(string name);
+        Task<IPaginate<LaborResponse>> SearchLaborByNameWithPag(string? name, int page, int size);
     }
 }
