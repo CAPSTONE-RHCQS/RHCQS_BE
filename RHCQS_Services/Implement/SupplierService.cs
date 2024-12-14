@@ -139,6 +139,29 @@ namespace RHCQS_Services.Implement
                 orderBy: x => x.OrderBy(x => x.InsDate)
             );
         }
+        public async Task<IPaginate<SupplierResponse>> SearchSupplierByNameWithPag(string? name, int page, int size)
+        {
+            return await _unitOfWork.GetRepository<Supplier>().GetList(
+                selector: x => new SupplierResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Email = x.Email,
+                    ConstractPhone = x.ConstractPhone,
+                    ImgUrl = x.ImgUrl,
+                    InsDate = x.InsDate,
+                    UpsDate = x.UpsDate,
+                    Deflag = x.Deflag,
+                    ShortDescription = x.ShortDescription,
+                    Description = x.Description,
+                    Code = x.Code
+                },
+                predicate: x => x.Name.Contains(name) || string.IsNullOrWhiteSpace(name),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                page: page,
+                size: size
+            );
+        }
 
         public async Task<bool> UpdateSupplier(Guid id, SupplierUpdateRequest request)
         {
