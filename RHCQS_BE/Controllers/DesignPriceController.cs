@@ -34,9 +34,9 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "Manager")]
         [HttpGet(ApiEndPointConstant.DesignPrice.DesignPriceListEndpoint)]
         [ProducesResponseType(typeof(DesignPriceResponse), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetListDesignPrice(int page, int size)
+        public async Task<IActionResult> GetListDesignPrice()
         {
-            var listDesignPrices = await _designPriceService.GetListDesignPrice(page, size);
+            var listDesignPrices = await _designPriceService.GetListDesignPrice();
             var result = JsonConvert.SerializeObject(listDesignPrices, Formatting.Indented);
             return new ContentResult()
             {
