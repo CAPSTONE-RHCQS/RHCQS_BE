@@ -535,5 +535,19 @@ namespace RHCQS_BE.Controllers
             var totalProjectCount = await _projectService.GetStatusProjectDetail(projectId);
             return Ok(totalProjectCount);
         }
+
+        #region GetTotalProjectOfStaff
+        /// <summary>
+        /// Get total projects.
+        /// </summary>
+        /// <returns>Number of projects.</returns>
+        #endregion
+        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Project.TotalProjectOfStaffEndpoint)]
+        public async Task<ActionResult<int>> GetTotalProjectOfStaff(Guid accountId)
+        {
+            var totalProjectCount = await _projectService.GetTotalProjectBySalesStaff(accountId);
+            return Ok(totalProjectCount);
+        }
     }
 }
