@@ -50,6 +50,27 @@ namespace RHCQS_Services.Implement
             );
         }
 
+        public async Task<IPaginate<LaborResponse>> SearchLaborByNameWithPag(string? name, int page, int size)
+        {
+            return await _unitOfWork.GetRepository<Labor>().GetList(
+                selector: x => new LaborResponse
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Price = x.Price,
+                    InsDate = x.InsDate,
+                    UpsDate = x.UpsDate,
+                    Deflag = x.Deflag,
+                    Type = x.Type,
+                    Code = x.Code
+                },
+                predicate : x => x.Name.Contains(name) || string.IsNullOrWhiteSpace(name),
+                orderBy: x => x.OrderBy(x => x.InsDate),
+                page: page,
+                size: size
+            );
+        }
+
         public async Task<LaborResponse> GetDetailLabor(Guid id)
         {
             var labor = await _unitOfWork.GetRepository<Labor>().FirstOrDefaultAsync(
@@ -132,7 +153,7 @@ namespace RHCQS_Services.Implement
             }
         }
 
-        public async Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string name)
+        public async Task<List<LaborResponse>> SearchLaborByName(Guid packageId, string? name)
         {
             var result = (await _unitOfWork.GetRepository<PackageLabor>()
                 .GetListAsync(
