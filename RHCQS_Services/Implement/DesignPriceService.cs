@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OfficeOpenXml;
@@ -13,6 +14,7 @@ using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using System;
 using System.Collections.Generic;
+using System.IO.Packaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,22 +32,22 @@ namespace RHCQS_Services.Implement
             _logger = logger;
         }
 
-        public async Task<IPaginate<DesignPriceResponse>> GetListDesignPrice(int page, int size)
+        public async Task<List<DesignPriceResponse>> GetListDesignPrice(int page, int size)
         {
-            return await _unitOfWork.GetRepository<DesignPrice>().GetList(
-                selector: x => new DesignPriceResponse
-                {
-                    Id = x.Id,
-                    AreaFrom = x.AreaFrom,
-                    AreaTo = x.AreaTo,
-                    Price = x.Price,
-                    InsDate = x.InsDate,
-                    UpsDate = x.UpsDate
-                },
-                orderBy: x => x.OrderBy(x => x.InsDate),
-                page: page,
-                size: size
-            );
+            var result = (await _unitOfWork.GetRepository<DesignPrice>()
+                 .GetListAsync(
+                     selector: x => new DesignPriceResponse
+                     {
+                         Id = x.Id,
+                         AreaFrom = x.AreaFrom,
+                         AreaTo = x.AreaTo,
+                         Price = x.Price,
+                         InsDate = x.InsDate,
+                         UpsDate = x.UpsDate
+                     },
+                     orderBy: x => x.OrderBy(dp => dp.InsDate)
+                 )).ToList();
+            return result;
         }
 
         public async Task<DesignPriceResponse> GetDetailDesignPrice(Guid id)
