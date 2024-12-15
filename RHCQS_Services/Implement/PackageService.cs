@@ -407,8 +407,7 @@ namespace RHCQS_Services.Implement
 
                 // Tải thực thể Package chính mà không dùng Include
                 var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId,
-                                    include: x => x.Include(x => x.PackageLabors)
-                                    .Include(x => x.PackageMaterials)
+                                    include: x => x
                                     .Include(x => x.PackageHouses)
                                     .Include(x => x.PackageMapPromotions)
                                     );

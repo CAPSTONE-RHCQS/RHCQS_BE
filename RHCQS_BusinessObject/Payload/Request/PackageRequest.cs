@@ -21,9 +21,9 @@ namespace RHCQS_BusinessObject.Payload.Request
 
         public string? Status { get; set; }
 
-        public List<PackageLaborRequest> PackageLabors { get; set; }
+        public List<PackageLaborRequest>? PackageLabors { get; set; }
 
-        public List<PackageMaterialRequest> PackageMaterials { get; set; }
+        public List<PackageMaterialRequest>? PackageMaterials { get; set; }
 
         //public List<PackageHousesRequest>? PackageHouses { get; set; }
 
@@ -39,13 +39,13 @@ namespace RHCQS_BusinessObject.Payload.Request
     //}
     public class PackageLaborRequest
     {
-        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
+        //[Required(ErrorMessage = "Nhân công là bắt buộc phải có.")]
         public Guid LaborId { get; set; }
 
     }
     public class PackageMaterialRequest
     {
-        [Required(ErrorMessage = "Id là bắt buộc phải có.")]
+        //[Required(ErrorMessage = "Id là bắt buộc phải có.")]
         public Guid MaterialId { get; set; }
 
 
