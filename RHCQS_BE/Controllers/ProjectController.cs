@@ -374,9 +374,9 @@ namespace RHCQS_BE.Controllers
         [HttpPut(ApiEndPointConstant.Project.ProjectCancelEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CancelProject([FromQuery] Guid projectId)
+        public async Task<IActionResult> CancelProject([FromQuery] Guid projectId, string reasonCanceled)
         {
-            var isCreate = await _projectService.CancelProject(projectId);
+            var isCreate = await _projectService.CancelProject(projectId, reasonCanceled);
             return isCreate ? Ok(isCreate) : BadRequest();
         }
 
