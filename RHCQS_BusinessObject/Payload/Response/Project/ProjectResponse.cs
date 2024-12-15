@@ -66,6 +66,7 @@ namespace RHCQS_BusinessObject.Payload.Response.Project
         public string StaffPhone { get; set; }
         public string StaffAvatar { get; set; }
         public bool? IsDrawing { get; set; }
+        public string? ReasonCanceled { get; set; }
 
         public List<InitialInfo>? InitialInfo { get; set; }
         public List<HouseDesignDrawingInfo>? HouseDesignDrawingInfo { get; set; }
