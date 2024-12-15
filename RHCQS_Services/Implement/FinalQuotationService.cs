@@ -789,9 +789,12 @@ namespace RHCQS_Services.Implement
                         return uploadResult.SecureUrl.ToString();
                     }
                 }
-                catch (Exception ex)
+                catch (AppConstant.MessageError ex)
                 {
-                    throw new Exception(ex.Message);
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+$"{ex}"
+                    );
                 }
             }
             else if (request.Type?.ToLower() == AppConstant.QuotationStatus.REJECTED.ToLower())

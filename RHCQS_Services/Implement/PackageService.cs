@@ -180,7 +180,7 @@ namespace RHCQS_Services.Implement
 
                 return listPackage.ToList();
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, ex.Message);
             }
@@ -497,7 +497,7 @@ namespace RHCQS_Services.Implement
 
                 return existingPackage;
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
                 throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
@@ -531,7 +531,7 @@ $"{ex.Message}"
                     price: packageItem.Price ?? 0
                 )).ToList();
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
                 throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
@@ -597,7 +597,7 @@ $"{ex.Message}"
                     return uploadResult.SecureUrl.ToString();
                 }
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
                 throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
