@@ -25,7 +25,7 @@ namespace RHCQS_Services.Interface
 
         Task<string> AssignQuotation(Guid accountId, Guid initialQuotationId);
 
-        Task<bool> CancelProject(Guid projectId);
+        Task<bool> CancelProject(Guid projectId, string reasonCanceled);
         Task<ProjectAppResponse> TrackingProject(Guid projectId);
 
         Task<bool> CreateProjectTemplateHouse(TemplateHouseProjectRequest request);

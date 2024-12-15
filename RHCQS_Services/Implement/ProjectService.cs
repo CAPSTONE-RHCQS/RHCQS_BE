@@ -585,7 +585,7 @@ namespace RHCQS_Services.Implement
             return isSuccessful ? "Phân công Sales thành công!" : throw new Exception("Phân công thất bại!");
         }
 
-        public async Task<bool> CancelProject(Guid projectId)
+        public async Task<bool> CancelProject(Guid projectId, string reasonCanceled)
         {
             var infoProject = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
                             predicate: x => x.Id == projectId,
@@ -605,6 +605,8 @@ namespace RHCQS_Services.Implement
                 {
                     //Cancel Project
                     infoProject.Status = AppConstant.ProjectStatus.ENDED;
+                    infoProject.ReasonCanceled = reasonCanceled;
+                    //infoProject.ReasonCancle
                     _unitOfWork.GetRepository<Project>().UpdateAsync(infoProject);
 
                     //Cancel Initial Quotation
@@ -630,12 +632,46 @@ namespace RHCQS_Services.Implement
                         _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(item);
                     }
 
+                    //Canel Contract
                     foreach (var item in infoProject.Contracts)
                     {
                         item.Status = AppConstant.ContractStatus.ENDED;
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(item);
 
                         //Cancel batch payment
+                        var listBatch = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
+                                        predicate: bp => bp.ContractId == item.Id);
+                        if (listBatch != null && listBatch.Any())
+                        {
+                            foreach (var batch in listBatch)
+                            {
+                                batch.Status = "Canceled";
+                                _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(batch);
+                            }
+                        }
+
+                        //Cancel contract appendix
+                        var contractAppendices = await _unitOfWork.GetRepository<Contract>()
+                                                .GetListAsync(predicate: c => c.ContractAppendix == item.Id);
+                        if (contractAppendices != null && contractAppendices.Any())
+                        {
+                            foreach (var appendix in contractAppendices)
+                            {
+                                appendix.Status = AppConstant.ContractStatus.ENDED;
+                                _unitOfWork.GetRepository<Contract>().UpdateAsync(appendix);
+
+                                var listBatchAppendix = await _unitOfWork.GetRepository<BatchPayment>()
+                                                     .GetListAsync(predicate: bp => bp.ContractId == appendix.Id);
+                                if (listBatchAppendix != null && listBatchAppendix.Any())
+                                {
+                                    foreach (var batch in listBatchAppendix)
+                                    {
+                                        batch.Status = "Canceled";
+                                        _unitOfWork.GetRepository<BatchPayment>().UpdateAsync(batch);
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     bool isSuccessful = await _unitOfWork.CommitAsync() > 0;

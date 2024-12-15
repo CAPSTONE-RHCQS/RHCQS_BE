@@ -225,5 +225,7 @@ namespace RHCQS_BE.Controllers
             return BadRequest(new { message = "Xóa gói thất bại." });
 
         }
+
+       
     }
 }

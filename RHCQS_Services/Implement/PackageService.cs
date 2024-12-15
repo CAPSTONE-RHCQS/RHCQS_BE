@@ -67,11 +67,11 @@ namespace RHCQS_Services.Implement
                     pm.Material?.Type,
                     pm.Material.Price ?? 0.0,
                     pm.Material.Unit
-                    //pm.Material.Size,
-                    //pm.Material.Shape,
-                    //pm.Material.ImgUrl,
-                    //pm.Material.Description,
-                    //pm.InsDate
+                //pm.Material.Size,
+                //pm.Material.Shape,
+                //pm.Material.ImgUrl,
+                //pm.Material.Description,
+                //pm.InsDate
                 )).ToList() ?? new List<PackageMaterialResponse>(),
 
                 package.PackageHouses?.Select(ph => new PackageHousesResponse(
@@ -784,14 +784,13 @@ $"{ex.Message}"
         public List<Guid> CheckDuplicateIds(List<Guid> ids)
         {
             var duplicateIds = ids
-                .GroupBy(id => id)            
+                .GroupBy(id => id)
                 .Where(group => group.Count() > 1)
                 .Select(group => group.Key)
                 .ToList();
 
             return duplicateIds;
         }
-
     }
 
 }
