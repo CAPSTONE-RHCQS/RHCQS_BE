@@ -436,21 +436,6 @@ namespace RHCQS_BE.Controllers
             if (pdfUrl == AppConstant.Message.SUCCESSFUL_UPDATE)
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
-                var customerEmail = await _accountService.GetEmailByQuotationIdAsync(initialId);
-                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
-                var notificationRequest = new NotificationRequest
-                {
-                    Email = customerEmail,
-                    DeviceToken = deviceToken,
-                    Title = "Báo giá sơ bộ",
-                    Body = $"Báo giá sơ bộ có cập nhật mới bạn cần xem."
-                };
-                Task.Run(() => _firebaseService.SendNotificationAsync(
-                    notificationRequest.Email,
-                    notificationRequest.DeviceToken,
-                    notificationRequest.Title,
-                    notificationRequest.Body
-                ));
                 return new ContentResult()
                 {
                     Content = result,
