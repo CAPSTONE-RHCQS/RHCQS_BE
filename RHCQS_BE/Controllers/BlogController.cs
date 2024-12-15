@@ -129,17 +129,14 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.Blog.BlogEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> CreateBlog([FromBody] BlogRequest blogRequest)
+        public async Task<IActionResult> CreateBlog([FromForm] BlogRequest blogRequest)
         {
+            var curAccountId = Guid.Empty;
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            blogRequest.AccountId = Guid.Parse(accountId);
-            if (!string.IsNullOrEmpty(blogRequest.ImgUrl))
-            {
-                string imgUrl = await _uploadImgService.UploadImageAsync(blogRequest.ImgUrl, "Blog");
-                blogRequest.ImgUrl = imgUrl;
-            }
+            curAccountId = Guid.Parse(accountId);
 
-            var isCreated = await _blogService.CreateBlogAsync(blogRequest);
+            var isCreated = await _blogService.CreateBlogAsync(blogRequest, curAccountId);
+
             return Ok(isCreated ? AppConstant.Message.SUCCESSFUL_CREATE : AppConstant.Message.ERROR);
         }
 
@@ -154,17 +151,13 @@ namespace RHCQS_BE.Controllers
         [Authorize(Roles = "SalesStaff")]
         [HttpPut(ApiEndPointConstant.Blog.BlogEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
-        public async Task<IActionResult> UpdateBlog([FromBody] BlogRequest blogRequest, Guid blogId)
+        public async Task<IActionResult> UpdateBlog([FromForm] BlogRequest blogRequest, [FromForm] Guid blogId)
         {
+            var curAccountId = Guid.Empty;
             var accountId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            blogRequest.AccountId = Guid.Parse(accountId);
-            if (!string.IsNullOrEmpty(blogRequest.ImgUrl))
-            {
-                string imgUrl = await _uploadImgService.UploadImageAsync(blogRequest.ImgUrl, "Blog");
-                blogRequest.ImgUrl = imgUrl;
-            }
+            curAccountId = Guid.Parse(accountId);
 
-            var isUpdated = await _blogService.UpdateBlogAsync(blogId, blogRequest);
+            var isUpdated = await _blogService.UpdateBlogAsync(blogId, blogRequest, curAccountId);
             return Ok(isUpdated ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.Message.ERROR);
         }
         #region DeleteBlog

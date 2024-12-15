@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
@@ -18,12 +20,14 @@ namespace RHCQS_Services.Implement
     public class BlogService : IBlogService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUploadImgService _uploadImgService;
         private readonly ILogger<BlogService> _logger;
 
-        public BlogService(IUnitOfWork unitOfWork, ILogger<BlogService> logger)
+        public BlogService(IUnitOfWork unitOfWork, ILogger<BlogService> logger, IUploadImgService uploadImgService)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
+            _uploadImgService = uploadImgService;
         }
 
         public async Task<IPaginate<BlogResponse>> GetListBlogAsync(int page, int size)
@@ -135,9 +139,9 @@ namespace RHCQS_Services.Implement
                 blog.UpsDate
             );
         }
-        public async Task<bool> CreateBlogAsync(BlogRequest request)
+        public async Task<bool> CreateBlogAsync(BlogRequest request, Guid curAccountId)
         {
-            var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(x => x.Id == request.AccountId);
+            var account = await _unitOfWork.GetRepository<Account>().FirstOrDefaultAsync(x => x.Id == curAccountId);
             if (account == null)
             {
                 throw new AppConstant.MessageError(
@@ -146,23 +150,31 @@ namespace RHCQS_Services.Implement
                 );
             }
 
+            string imgUrl = null;
+            if (request.imageFile != null)
+            {
+                imgUrl = await _uploadImgService.UploadImageFolder(request.imageFile, null, "Blog");
+            }
+
             var blog = new Blog
             {
                 Id = Guid.NewGuid(),
-                AccountId = request.AccountId,
+                AccountId = curAccountId,
                 Heading = request.Heading,
                 SubHeading = request.SubHeading,
                 Context = request.Context,
-                ImgUrl = request.ImgUrl,
+                ImgUrl = imgUrl,
                 InsDate = LocalDateTime.VNDateTime()
             };
 
             await _unitOfWork.GetRepository<Blog>().InsertAsync(blog);
+
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-            return isSuccessful;       
+            return isSuccessful;
         }
 
-        public async Task<bool> UpdateBlogAsync(Guid id, BlogRequest request)
+
+        public async Task<bool> UpdateBlogAsync(Guid id, BlogRequest request,Guid curAccountId)
         {
             var blog = await _unitOfWork.GetRepository<Blog>().FirstOrDefaultAsync(x => x.Id == id);
             if (blog == null)
@@ -172,11 +184,17 @@ namespace RHCQS_Services.Implement
                     AppConstant.ErrMessage.Not_Found_Blog
                 );
             }
+            string imgUrl = null;
+            if (request.imageFile != null)
+            {
+                imgUrl = await _uploadImgService.UploadImageFolder(request.imageFile, null, "Blog");
+            }
 
             blog.Heading = request.Heading;
+            blog.AccountId = curAccountId;
             blog.SubHeading = request.SubHeading;
             blog.Context = request.Context;
-            blog.ImgUrl = request.ImgUrl;
+            blog.ImgUrl = imgUrl;
             blog.UpsDate = LocalDateTime.VNDateTime();
 
             _unitOfWork.GetRepository<Blog>().UpdateAsync(blog);

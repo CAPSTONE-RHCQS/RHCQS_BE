@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using Microsoft.AspNetCore.Http;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObjects;
 using RHCQS_DataAccessObjects.Models;
@@ -17,8 +18,8 @@ namespace RHCQS_Services.Interface
         Task<BlogResponse> GetBlogById(Guid id);
         Task<BlogResponse> GetBlogByAccountId(Guid accountid);
         Task<BlogResponse> GetBlogByAccountName(string accountname);
-        Task<bool> CreateBlogAsync(BlogRequest request);
-        Task<bool> UpdateBlogAsync(Guid id, BlogRequest request);
+        Task<bool> CreateBlogAsync(BlogRequest request, Guid curAccountId);
+        Task<bool> UpdateBlogAsync(Guid id, BlogRequest request, Guid curAccountId);
         Task<bool> DeleteBlog(Guid id);
 
     }
