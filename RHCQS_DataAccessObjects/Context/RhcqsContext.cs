@@ -217,6 +217,12 @@ public partial class RhcqsContext : DbContext
 
         modelBuilder.Entity<ConstructionWorkResource>(entity =>
         {
+            entity.ToTable(tb =>
+                {
+                    tb.HasTrigger("UpdateWorkTemplateCostsResources");
+                    tb.HasTrigger("trg_UpdateWorkTemplateCosts");
+                });
+
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.InsDate).HasColumnType("datetime");
 
@@ -426,7 +432,7 @@ public partial class RhcqsContext : DbContext
 
         modelBuilder.Entity<Labor>(entity =>
         {
-            entity.ToTable("Labor");
+            entity.ToTable("Labor", tb => tb.HasTrigger("UpdateWorkTemplateCostsLabor"));
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Code).HasMaxLength(10);
@@ -440,7 +446,7 @@ public partial class RhcqsContext : DbContext
 
         modelBuilder.Entity<Material>(entity =>
         {
-            entity.ToTable("Material");
+            entity.ToTable("Material", tb => tb.HasTrigger("UpdateWorkTemplateCosts"));
 
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.Code).HasMaxLength(10);

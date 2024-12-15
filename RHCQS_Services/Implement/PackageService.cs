@@ -277,7 +277,6 @@ namespace RHCQS_Services.Implement
             }
 
             var packageRepo = _unitOfWork.GetRepository<Package>();
-            //var workTemplateRepo = _unitOfWork.GetRepository<WorkTemplate>();
             var constructionWorkResourceRepo = _unitOfWork.GetRepository<ConstructionWorkResource>();
 
             if (await packageRepo.AnyAsync(p => p.PackageName.Contains(packageRequest.PackageName)))
@@ -307,47 +306,34 @@ namespace RHCQS_Services.Implement
                 InsDate = LocalDateTime.VNDateTime(),
             }).ToList() ?? new List<PackageLabor>();
 
-            package.PackageMaterials = packageRequest.PackageMaterials?.Select(pm => new PackageMaterial
+            var packageMaterials = new List<PackageMaterial>();
+            foreach (var pm in packageRequest.PackageMaterials)
             {
-                Id = Guid.NewGuid(),
-                MaterialId = pm.MaterialId,
-                PackageId = package.Id,
-                InsDate = LocalDateTime.VNDateTime()
-            }).ToList() ?? new List<PackageMaterial>();
+                var material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(
+                    p => p.Id == pm.MaterialId
+                );
 
-            //if ( packageRequest.PackageHouses != null)
-            //{
-            //    package.PackageHouses = packageRequest.PackageHouses?.Select(ph => new PackageHouse
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        DesignTemplateId = ph.DesignTemplateId,
-            //        ImgUrl = ph.ImgUrl,
-            //        Description = ph.Description,
-            //        PackageId = package.Id,
-            //        InsDate = LocalDateTime.VNDateTime()
-            //    }).ToList() ?? new List<PackageHouse>();
-            //}
+                if (material == null)
+                {
+                    throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.NotFound,
+                        $"Vật tư không hợp lệ"
+                    );
+                }
+
+                packageMaterials.Add(new PackageMaterial
+                {
+                    Id = Guid.NewGuid(),
+                    MaterialId = pm.MaterialId,
+                    MaterialSectionId = material.MaterialSectionId,
+                    PackageId = package.Id,
+                    InsDate = LocalDateTime.VNDateTime()
+                });
+            }
+
+            package.PackageMaterials = packageMaterials;
 
             await packageRepo.InsertAsync(package);
-
-            //if (packageRequest.WorkTemplate != null)
-            //{
-            //    var workTemplates = packageRequest.WorkTemplate?.Select(wt => new WorkTemplate
-            //    {
-            //        Id = Guid.NewGuid(),
-            //        PackageId = package.Id,
-            //        ContructionWorkId = wt.ConstructionWorKid,
-            //        LaborCost = wt.LaborCost,
-            //        MaterialCost = wt.MaterialCost,
-            //        MaterialFinishedCost = wt.MaterialFinishedCost,
-            //        InsDate = LocalDateTime.VNDateTime(),
-            //    }).ToList();
-
-            //    if (workTemplates != null && workTemplates.Any())
-            //    {
-            //        await workTemplateRepo.InsertRangeAsync(workTemplates);
-            //    }
-            //}
 
             bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
             if (!isSuccessful)
@@ -365,8 +351,6 @@ namespace RHCQS_Services.Implement
         {
             try
             {
-
-
                 if (packageRequest == null)
                 {
                     throw new AppConstant.MessageError(
@@ -378,10 +362,10 @@ namespace RHCQS_Services.Implement
                 var packageRepo = _unitOfWork.GetRepository<Package>();
 
                 var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId,
-                                    include: x => x
-                                    .Include(x => x.PackageHouses)
-                                    .Include(x => x.PackageMapPromotions)
-                                    );
+                                        include: x => x
+                                        .Include(x => x.PackageHouses)
+                                        .Include(x => x.PackageMapPromotions)
+                                        );
 
                 if (existingPackage == null)
                 {
@@ -391,6 +375,7 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                // Update package fields
                 existingPackage.Type = packageRequest.PackageType;
                 existingPackage.PackageName = packageRequest.PackageName;
                 existingPackage.Unit = packageRequest.Unit;
@@ -400,6 +385,9 @@ namespace RHCQS_Services.Implement
 
                 packageRepo.UpdateAsync(existingPackage);
 
+                #region Package Labors
+
+                // Handle PackageLabors update
                 var laborRepo = _unitOfWork.GetRepository<PackageLabor>();
                 var existingLabors = await laborRepo.GetListAsync(predicate: pl => pl.PackageId == packageId);
 
@@ -412,8 +400,8 @@ namespace RHCQS_Services.Implement
                         $"Có nhân công bị trùng"
                     );
                 }
-                var invalidLaborIds = await ValidateLaborIdsAsync(laborIdsInRequest);
 
+                var invalidLaborIds = await ValidateLaborIdsAsync(laborIdsInRequest);
                 if (invalidLaborIds.Any())
                 {
                     throw new AppConstant.MessageError(
@@ -422,12 +410,14 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                // Remove labors not in the request
                 var laborsToRemove = existingLabors.Where(pl => !laborIdsInRequest.Contains(pl.LaborId)).ToList();
                 foreach (var labor in laborsToRemove)
                 {
                     laborRepo.DeleteAsync(labor);
                 }
 
+                // Add new labors from the request
                 foreach (var laborRequest in packageRequest.PackageLabors ?? new List<PackageLaborRequest>())
                 {
                     var existingLabor = existingLabors.FirstOrDefault(pl => pl.LaborId == laborRequest.LaborId);
@@ -443,6 +433,11 @@ namespace RHCQS_Services.Implement
                     }
                 }
 
+                #endregion
+
+                #region Package Materials
+
+                // Handle PackageMaterials update
                 var materialRepo = _unitOfWork.GetRepository<PackageMaterial>();
                 var existingMaterials = await materialRepo.GetListAsync(predicate: pm => pm.PackageId == packageId);
 
@@ -455,8 +450,8 @@ namespace RHCQS_Services.Implement
                         $"Có vật tư bị trùng"
                     );
                 }
-                var invalidMaterialIds = await ValidateMaterialIdsAsync(materialIdsInRequest);
 
+                var invalidMaterialIds = await ValidateMaterialIdsAsync(materialIdsInRequest);
                 if (invalidMaterialIds.Any())
                 {
                     throw new AppConstant.MessageError(
@@ -465,6 +460,7 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
+                // Remove materials not in the request
                 var materialsToRemove = existingMaterials.Where(pm => !materialIdsInRequest.Contains((Guid)pm.MaterialId)).ToList();
                 foreach (var material in materialsToRemove)
                 {
@@ -476,16 +472,32 @@ namespace RHCQS_Services.Implement
                     var existingMaterial = existingMaterials.FirstOrDefault(pm => pm.MaterialId == materialRequest.MaterialId);
                     if (existingMaterial == null)
                     {
+                        var material = await _unitOfWork.GetRepository<Material>().FirstOrDefaultAsync(
+                            p => p.Id == materialRequest.MaterialId
+                        );
+
+                        if (material == null)
+                        {
+                            throw new AppConstant.MessageError(
+                                (int)AppConstant.ErrCode.NotFound,
+                                $"Material with Id {materialRequest.MaterialId} not found"
+                            );
+                        }
+
                         materialRepo.InsertAsync(new PackageMaterial
                         {
                             Id = Guid.NewGuid(),
                             MaterialId = materialRequest.MaterialId,
+                            MaterialSectionId = material.MaterialSectionId,
                             PackageId = packageId,
                             InsDate = LocalDateTime.VNDateTime()
                         });
                     }
                 }
 
+                #endregion
+
+                // Commit changes
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
                 if (!isSuccessful)
                 {
@@ -501,11 +513,10 @@ namespace RHCQS_Services.Implement
             {
                 throw new AppConstant.MessageError(
                         (int)AppConstant.ErrCode.Bad_Request,
-$"{ex.Message}"
+                        $"{ex.Message}"
                     );
             }
         }
-
 
         public async Task<List<AutoPackageResponse>> GetDetailPackageByContainName(string name)
         {

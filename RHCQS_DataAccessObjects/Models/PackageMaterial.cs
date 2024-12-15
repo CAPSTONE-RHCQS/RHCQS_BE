@@ -13,6 +13,8 @@ public partial class PackageMaterial
 
     public Guid? PackageId { get; set; }
 
+    public Guid? MaterialSectionId { get; set; }
+
     public virtual Material? Material { get; set; }
 
     public virtual Package? Package { get; set; }
