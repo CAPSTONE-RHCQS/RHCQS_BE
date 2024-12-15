@@ -196,6 +196,7 @@ namespace RHCQS_Services.Implement
                 StaffPhone = string.Join(", ", projectItem.AssignTasks.Select(x => x.Account.PhoneNumber)),
                 StaffAvatar = string.Join(", ", projectItem.AssignTasks.Select(x => x.Account.ImageUrl)),
                 IsDrawing = projectItem.IsDrawing,
+                ReasonCanceled = projectItem.ReasonCanceled,
                 InitialInfo = initialItem,
                 HouseDesignDrawingInfo = houseDesignItem,
                 FinalInfo = finalItem,
