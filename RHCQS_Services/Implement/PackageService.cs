@@ -122,7 +122,7 @@ namespace RHCQS_Services.Implement
             var listPackage = await _unitOfWork.GetRepository<Package>().GetList(
                 selector: x => MapPackageListToResponse(x),
                 orderBy: x => x.OrderBy(x => x.InsDate),
-                predicate: x => x.Status == "Active",
+                predicate: x => x.Status.ToLower() == AppConstant.Status.ACTIVE.ToLower(),
                 page: page,
                 size: size
             );
@@ -175,7 +175,7 @@ namespace RHCQS_Services.Implement
                     //               .ThenInclude(ms => ms.MaterialSection)
                     //            .Include(x => x.PackageHouses),
                     orderBy: x => x.OrderBy(x => x.InsDate),
-                    predicate: x => x.Status == "Active"
+                    predicate: x => x.Status.ToLower() == AppConstant.Status.ACTIVE.ToLower()
                 );
 
                 return listPackage.ToList();
@@ -189,7 +189,7 @@ namespace RHCQS_Services.Implement
         public async Task<PackageResponse> GetPackageDetail(Guid id)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                predicate: x => x.Id.Equals(id) && x.Status == "Active",
+                predicate: x => x.Id.Equals(id) && x.Status.ToLower() == AppConstant.Status.ACTIVE.ToLower(),
                 include: x => x.Include(x => x.PackageHouses)
                                .ThenInclude(lb => lb.DesignTemplate)
                                .Include(pd => pd.PackageLabors)
@@ -213,7 +213,7 @@ namespace RHCQS_Services.Implement
         public async Task<PackageResponse> GetPackageByName(string name)
         {
             var package = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
-                predicate: x => x.PackageName.Contains(name) && x.Status == "Active",
+                predicate: x => x.PackageName.Contains(name) && x.Status.ToLower() == AppConstant.Status.ACTIVE.ToLower(),
                 include: x => x.Include(x => x.PackageHouses)
                                .ThenInclude(lb => lb.DesignTemplate)
                                .Include(pd => pd.PackageLabors)
@@ -235,20 +235,12 @@ namespace RHCQS_Services.Implement
         }
         public async Task<bool> DeletePackage(Guid packageId)
         {
-            // Lấy repository của Package
             var packageRepo = _unitOfWork.GetRepository<Package>();
 
-            // Kiểm tra package có tồn tại hay không
             var package = await packageRepo.FirstOrDefaultAsync(
-                predicate: p => p.Id == packageId && p.Status == AppConstant.Status.ACTIVE.ToLower(),
-                include: x => x.Include(p => p.PackageLabors)
-                               .Include(p => p.PackageMaterials)
-                               .Include(p => p.PackageHouses)
-                               .Include(p => p.PackageMapPromotions)
-                               .Include(p => p.WorkTemplates)
+                predicate: p => p.Id == packageId && p.Status == AppConstant.Status.ACTIVE.ToLower()
             );
 
-            // Nếu không tồn tại, trả về lỗi
             if (package == null)
             {
                 throw new AppConstant.MessageError(
@@ -257,30 +249,10 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            // Xóa các liên kết (nếu cần xóa từng phần riêng)
-            if (package.PackageLabors != null && package.PackageLabors.Any())
-            {
-                var packageLaborRepo = _unitOfWork.GetRepository<PackageLabor>();
-                packageLaborRepo.DeleteRangeAsync(package.PackageLabors);
-            }
+            package.Status = AppConstant.Status.INACTIVE.ToLower();
 
-            if (package.PackageMaterials != null && package.PackageMaterials.Any())
-            {
-                var packageMaterialRepo = _unitOfWork.GetRepository<PackageMaterial>();
-                packageMaterialRepo.DeleteRangeAsync(package.PackageMaterials);
-            }
+            packageRepo.UpdateAsync(package);
 
-
-            if (package.PackageMapPromotions != null && package.PackageMapPromotions.Any())
-            {
-                var packagePromotionRepo = _unitOfWork.GetRepository<PackageMapPromotion>();
-                packagePromotionRepo.DeleteRangeAsync(package.PackageMapPromotions);
-            }
-
-
-            packageRepo.DeleteAsync(package);
-
-            // Commit thay đổi
             var isSuccessful = await _unitOfWork.CommitAsync() > 0;
 
             if (!isSuccessful)
@@ -405,7 +377,6 @@ namespace RHCQS_Services.Implement
 
                 var packageRepo = _unitOfWork.GetRepository<Package>();
 
-                // Tải thực thể Package chính mà không dùng Include
                 var existingPackage = await packageRepo.FirstOrDefaultAsync(predicate: p => p.Id == packageId,
                                     include: x => x
                                     .Include(x => x.PackageHouses)
@@ -420,7 +391,6 @@ namespace RHCQS_Services.Implement
                     );
                 }
 
-                // Cập nhật các thuộc tính cơ bản của Package
                 existingPackage.Type = packageRequest.PackageType;
                 existingPackage.PackageName = packageRequest.PackageName;
                 existingPackage.Unit = packageRequest.Unit;
@@ -428,10 +398,8 @@ namespace RHCQS_Services.Implement
                 existingPackage.Status = packageRequest.Status.ToLower();
                 existingPackage.UpsDate = LocalDateTime.VNDateTime();
 
-                // Cập nhật Package trước
                 packageRepo.UpdateAsync(existingPackage);
 
-                // 1. Cập nhật PackageLabors
                 var laborRepo = _unitOfWork.GetRepository<PackageLabor>();
                 var existingLabors = await laborRepo.GetListAsync(predicate: pl => pl.PackageId == packageId);
 
@@ -460,7 +428,6 @@ namespace RHCQS_Services.Implement
                     laborRepo.DeleteAsync(labor);
                 }
 
-                // Thêm hoặc cập nhật những thực thể từ request
                 foreach (var laborRequest in packageRequest.PackageLabors ?? new List<PackageLaborRequest>())
                 {
                     var existingLabor = existingLabors.FirstOrDefault(pl => pl.LaborId == laborRequest.LaborId);
@@ -475,7 +442,7 @@ namespace RHCQS_Services.Implement
                         });
                     }
                 }
-                // 2. Cập nhật PackageMaterials
+
                 var materialRepo = _unitOfWork.GetRepository<PackageMaterial>();
                 var existingMaterials = await materialRepo.GetListAsync(predicate: pm => pm.PackageId == packageId);
 
@@ -530,7 +497,13 @@ namespace RHCQS_Services.Implement
 
                 return existingPackage;
             }
-            catch (Exception ex) { throw; }
+            catch (Exception ex)
+            {
+                throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+$"{ex.Message}"
+                    );
+            }
         }
 
 
@@ -560,7 +533,10 @@ namespace RHCQS_Services.Implement
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+$"{ex.Message}"
+                    );
             }
         }
         public async Task<string> GeneratePackagePdf(Guid packageId)
@@ -623,7 +599,10 @@ namespace RHCQS_Services.Implement
             }
             catch (Exception ex)
             {
-                throw new Exception("Error generating PDF for package: " + ex.Message);
+                throw new AppConstant.MessageError(
+                        (int)AppConstant.ErrCode.Bad_Request,
+$"{ex.Message}"
+                    );
             }
         }
 
