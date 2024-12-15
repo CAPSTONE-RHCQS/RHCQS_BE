@@ -1575,8 +1575,8 @@ $"{ex}"
 
             int noCount = 1;
             var rough = request.ConstructionRough;
-            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor);
-            string roughTypeDisplay = rough.Type == "ROUGH" ? "Phần thô" : "Phần thô";
+            decimal roughTotalAmount = (decimal)(rough.TotalPriceRough + rough.TotalPriceLabor + rough.TotalPriceFinished);
+            string roughTypeDisplay = rough.Type == "WORK_ROUGH" ? "Phần thô" : "Phần thô";
             sb.Append($@"
     <tr>
         <td>{noCount++}</td>
@@ -1587,8 +1587,8 @@ $"{ex}"
     </tr>");
 
             var finished = request.ConstructionFinished;
-            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor);
-            string finishedTypeDisplay = finished.Type == "FINISHED" ? "Phần hoàn thiện" : "Phần hoàn thiện";
+            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor + rough.TotalPriceFinished);
+            string finishedTypeDisplay = finished.Type == "WORK_FINISHED" ? "Phần hoàn thiện" : "Phần hoàn thiện";
             sb.Append($@"
     <tr>
         <td>{noCount++}</td>
