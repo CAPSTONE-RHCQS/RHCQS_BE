@@ -1007,7 +1007,7 @@ namespace RHCQS_Services.Implement
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contract);
 
                         //Update status in contract main
-                        if (contract.Type != AppConstant.ContractType.Appendix.ToString())
+                        if (contract.Type == AppConstant.ContractType.Appendix.ToString())
                         {
                             var contractMain = await _unitOfWork.GetRepository<Contract>().FirstOrDefaultAsync(
                                         predicate: x => x.ContractAppendix == contract.Id);
