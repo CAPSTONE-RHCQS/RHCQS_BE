@@ -114,8 +114,14 @@ namespace RHCQS_Services.Implement
                 throw new MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.House_Design_Not_Found);
             }
 
+            
             var initialQuotationFinalized = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
                                             predicate: i => i.ProjectId == drawingItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED);
+
+            if (drawingItem.Project.Type == AppConstant.Type.DRAWINGHAVE)
+            {
+                initialQuotationFinalized = null;
+            }
 
             List<DependOnVersion> dependOnVersions = new();
 
@@ -155,7 +161,7 @@ namespace RHCQS_Services.Implement
 
             var result = new HouseDesignDrawingResponse(
                 projectType: drawingItem.Project.Type,
-                initialQuotationId: initialQuotationFinalized.Id,
+                initialQuotationId: initialQuotationFinalized != null ? initialQuotationFinalized.Id : Guid.Empty,
                 id: drawingItem.Id,
                 projectId: drawingItem.ProjectId,
                 staffName: drawingItem.Account.Username,

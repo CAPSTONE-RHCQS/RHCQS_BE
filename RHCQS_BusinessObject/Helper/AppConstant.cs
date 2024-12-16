@@ -316,6 +316,7 @@ public static class AppConstant
 
         //Contract
         public const string ContractOver = "Hợp đồng thiết kế đã tồn tại!";
+        public const string Invalid_Area = "Diện tích không có trong dữ liệu tính toán!";
 
         //Discount
         public const string InvalidDiscount = "Tiền giảm giá không hợp lệ!";
