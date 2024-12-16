@@ -19,9 +19,9 @@ namespace RHCQS_BusinessObject.Payload.Request
         [NotEmptyOrWhitespace(ErrorMessage = "Tên chủ đầu tư không được để trống hoặc chỉ chứa khoảng trắng.")]
         public string CustomerName { get; set; }
 
-        [Required(ErrorMessage = "Tên dự án là bắt buộc.")]
-        [MaxLength(100, ErrorMessage = "Tên dự án không được vượt quá 100 ký tự.")]
-        public string? Name { get; set; }
+        //[Required(ErrorMessage = "Tên dự án là bắt buộc.")]
+        //[MaxLength(100, ErrorMessage = "Tên dự án không được vượt quá 100 ký tự.")]
+        //public string? Name { get; set; }
 
         [Required(ErrorMessage = "Loại dự án là bắt buộc.")]
         [MaxLength(50, ErrorMessage = "Loại dự án không được vượt quá 50 ký tự.")]
