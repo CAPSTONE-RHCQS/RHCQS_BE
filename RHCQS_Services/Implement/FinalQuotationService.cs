@@ -999,7 +999,7 @@ $"{ex}"
                 0
             );
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                            ci => ci.ProjectId == finalQuotation.ProjectId,
+                            ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status ==  AppConstant.QuotationStatus.FINALIZED,
                             include: ci => ci.Include(x => x.PackageQuotations)
                                              .ThenInclude(x => x.Package)
                                              .Include(x => x.Project)
@@ -1008,8 +1008,7 @@ $"{ex}"
                                              .ThenInclude(x => x.Media)
                                              .Include(x => x.InitialQuotationItems)
                                              .ThenInclude(x => x.ConstructionItem)
-                                             .ThenInclude(x => x.SubConstructionItems),
-                            orderBy: query => query.OrderByDescending(x => x.Version));
+                                             .ThenInclude(x => x.SubConstructionItems));
 
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == AppConstant.Type.ROUGH);
@@ -1291,7 +1290,7 @@ $"{ex}"
                 0
             );
             var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                            ci => ci.ProjectId == finalQuotation.ProjectId,
+                            ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status ==  AppConstant.QuotationStatus.FINALIZED,
                             include: ci => ci.Include(x => x.PackageQuotations)
                                              .ThenInclude(x => x.Package)
                                              .Include(x => x.Media)
@@ -1301,8 +1300,7 @@ $"{ex}"
                                              .ThenInclude(x => x.Media)
                                              .Include(x => x.InitialQuotationItems)
                                              .ThenInclude(x => x.ConstructionItem)
-                                             .ThenInclude(x => x.SubConstructionItems),
-                            orderBy: query => query.OrderByDescending(x => x.Version));
+                                             .ThenInclude(x => x.SubConstructionItems));
             var mediaList = initialQuotation.Media;
             var roughPackage = initialQuotation.PackageQuotations
                     .FirstOrDefault(item => item.Type == AppConstant.Type.ROUGH);
@@ -1581,19 +1579,19 @@ $"{ex}"
     <tr>
         <td>{noCount++}</td>
         <td>{roughTypeDisplay}</td>
-        <td>{rough.TotalPriceRough:N0}</td>
+        <td>{rough.TotalPriceRough + rough.TotalPriceFinished:N0}</td>
         <td>{rough.TotalPriceLabor:N0}</td>
         <td class='highlight'>{roughTotalAmount:N0}</td>
     </tr>");
 
             var finished = request.ConstructionFinished;
-            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor + rough.TotalPriceFinished);
+            decimal finishedTotalAmount = (decimal)(finished.TotalPriceRough + finished.TotalPriceLabor + finished.TotalPriceFinished);
             string finishedTypeDisplay = finished.Type == "WORK_FINISHED" ? "Phần hoàn thiện" : "Phần hoàn thiện";
             sb.Append($@"
     <tr>
         <td>{noCount++}</td>
         <td>{finishedTypeDisplay}</td>
-        <td>{finished.TotalPriceRough:N0}</td>
+        <td>{finished.TotalPriceRough + finished.TotalPriceFinished:N0}</td>
         <td>{finished.TotalPriceLabor:N0}</td>
         <td class='highlight'>{finishedTotalAmount:N0}</td>
     </tr>");
