@@ -1192,7 +1192,7 @@ namespace RHCQS_Services.Implement
                                            predicate: d => d.AreaFrom <= initialQuotaiton.Area && d.AreaTo >= initialQuotaiton.Area);
             if (priceDesign == null)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.NotFinalizedQuotationInitial);
+                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound, AppConstant.ErrMessage.Invalid_Area);
             }
             double result = (double)priceDesign.Price! * (double)initialQuotaiton.Area!;
             return result;
