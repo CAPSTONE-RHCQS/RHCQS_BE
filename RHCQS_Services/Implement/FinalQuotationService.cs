@@ -1044,22 +1044,22 @@ $"{ex}"
                 })
                 .ToList();
 
-            var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
-                .OrderBy(hd => hd.Step)
-                .SelectMany(hd => hd.HouseDesignVersions)
-                .Select(hd =>
-                {
-                    var media = hd.Media.FirstOrDefault(m => m.HouseDesignVersionId == hd.Id);
-                    var url = media?.Url ?? string.Empty;
+            //var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
+            //    .OrderBy(hd => hd.Step)
+            //    .SelectMany(hd => hd.HouseDesignVersions)
+            //    .Select(hd =>
+            //    {
+            //        var media = hd.Media.FirstOrDefault(m => m.HouseDesignVersionId == hd.Id);
+            //        var url = media?.Url ?? string.Empty;
 
-                    return new HouseDrawingVersionInf(
-                        hd.HouseDesignDrawingId,
-                        hd.Name ?? string.Empty,
-                        url,
-                        hd.Version
-                    );
-                })
-                .ToList();
+            //        return new HouseDrawingVersionInf(
+            //            hd.HouseDesignDrawingId,
+            //            hd.Name ?? string.Empty,
+            //            url,
+            //            hd.Version
+            //        );
+            //    })
+            //    .ToList();
 
             var customerPhone = finalQuotation.Project.Customer.PhoneNumber;
             var email = finalQuotation.Project.Customer.Email;
@@ -1072,7 +1072,7 @@ $"{ex}"
                 finalQuotation.Project.Area ?? null,
                 initialQuotation.Id,
                 initialQuotation.Version,
-                houseDesignDrawingsList,
+                //houseDesignDrawingsList,
                 packageInfo,
                 finalQuotation.Project.Type ?? string.Empty,
                 finalQuotation.Project.Address ?? string.Empty,
@@ -1336,21 +1336,21 @@ $"{ex}"
                 })
                 .ToList();
 
-            var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
-                .OrderBy(hd => hd.Step)
-                .SelectMany(hd => hd.HouseDesignVersions)
-                .Select(hd =>
-                {
-                    var url = mediaList.FirstOrDefault(m => m.HouseDesignVersionId == hd.Id)?.Url ?? string.Empty;
+            //var houseDesignDrawingsList = initialQuotation.Project.HouseDesignDrawings
+            //    .OrderBy(hd => hd.Step)
+            //    .SelectMany(hd => hd.HouseDesignVersions)
+            //    .Select(hd =>
+            //    {
+            //        var url = mediaList.FirstOrDefault(m => m.HouseDesignVersionId == hd.Id)?.Url ?? string.Empty;
 
-                    return new HouseDrawingVersionInf(
-                        hd.HouseDesignDrawingId,
-                        hd.Name ?? string.Empty,
-                        url,
-                        hd.Version
-                    );
-                })
-                .ToList();
+            //        return new HouseDrawingVersionInf(
+            //            hd.HouseDesignDrawingId,
+            //            hd.Name ?? string.Empty,
+            //            url,
+            //            hd.Version
+            //        );
+            //    })
+            //    .ToList();
             var customerPhone = finalQuotation.Project.Customer.PhoneNumber;
             var email = finalQuotation.Project.Customer.Email;
             var response = new FinalQuotationResponse(
@@ -1362,7 +1362,7 @@ $"{ex}"
                 finalQuotation.Project.Area ?? null,
                 initialQuotation.Id,
                 initialQuotation.Version,
-                houseDesignDrawingsList,
+                //houseDesignDrawingsList,
                 packageInfo,
                 finalQuotation.Project.Type ?? string.Empty,
                 finalQuotation.Project.Address ?? string.Empty,
