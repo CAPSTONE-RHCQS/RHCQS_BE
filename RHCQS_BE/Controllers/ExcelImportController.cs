@@ -20,6 +20,11 @@ namespace RHCQS_BE.Controllers
         {
             _excelImportService = excelImportService;
         }
+        #region Import equiment
+        /// <summary>
+        /// Import excel equiment
+        /// </summary>
+        #endregion
         [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.EquiqmentExcel.EquimentExcelEndpoint)]
         [ProducesResponseType(typeof(EquiqmentExcelResponse), StatusCodes.Status200OK)]
@@ -39,6 +44,11 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+        #region Import Worktemplate
+        /// <summary>
+        /// Import excel worktemplate
+        /// </summary>
+        #endregion
         [Authorize(Roles = "SalesStaff")]
         [HttpPost(ApiEndPointConstant.EquiqmentExcel.WorkTemplateExcelEndpoint)]
         [ProducesResponseType(typeof(EquiqmentExcelResponse), StatusCodes.Status200OK)]

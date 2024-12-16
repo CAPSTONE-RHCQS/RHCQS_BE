@@ -91,6 +91,12 @@ namespace RHCQS_BE.Controllers
                 StatusCode = StatusCodes.Status200OK
             };
         }
+        #region Refresh token
+        /// <summary>
+        /// Refresh JWT token 
+        /// </summary>
+        /// <returns>Home</returns> 
+        #endregion
         [AllowAnonymous]
         [HttpPost(ApiEndPointConstant.Auth.RefreshTokenEndpoint)]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
