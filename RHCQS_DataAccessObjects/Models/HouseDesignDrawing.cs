@@ -23,6 +23,8 @@ public partial class HouseDesignDrawing
 
     public Guid? AccountId { get; set; }
 
+    public bool? IsCustomerUpload { get; set; }
+
     public virtual Account? Account { get; set; }
 
     public virtual ICollection<HouseDesignVersion> HouseDesignVersions { get; set; } = new List<HouseDesignVersion>();

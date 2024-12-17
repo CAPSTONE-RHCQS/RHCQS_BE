@@ -526,7 +526,8 @@ namespace RHCQS_Services.Implement
                     Type = type,
                     HaveDrawing = true,
                     InsDate = LocalDateTime.VNDateTime(),
-                    AccountId = accountId
+                    AccountId = accountId,
+                    IsCustomerUpload = true
                 };
 
                 await _unitOfWork.GetRepository<HouseDesignDrawing>().InsertAsync(houseDrawing);

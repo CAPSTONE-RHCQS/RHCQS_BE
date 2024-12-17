@@ -162,6 +162,7 @@ namespace RHCQS_Services.Implement
                                                                          InsDate = h.InsDate,
                                                                          Status = h.Status
                                                                      }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
+            bool isCustomerUpload = projectItem.HouseDesignDrawings.All(h => h.IsCustomerUpload == true);
 
             var contractItem = projectItem.Contracts?.Select(c => new ContractInfo
             {
@@ -197,6 +198,7 @@ namespace RHCQS_Services.Implement
                 StaffAvatar = string.Join(", ", projectItem.AssignTasks.Select(x => x.Account.ImageUrl)),
                 IsDrawing = projectItem.IsDrawing,
                 ReasonCanceled = projectItem.ReasonCanceled,
+                IsCustomerUpload = isCustomerUpload,
                 InitialInfo = initialItem,
                 HouseDesignDrawingInfo = houseDesignItem,
                 FinalInfo = finalItem,
