@@ -162,7 +162,8 @@ namespace RHCQS_Services.Implement
                                                                          InsDate = h.InsDate,
                                                                          Status = h.Status
                                                                      }).OrderBy(h => h.Step).ToList() ?? new List<HouseDesignDrawingInfo>();
-            bool isCustomerUpload = projectItem.HouseDesignDrawings.All(h => h.IsCustomerUpload == true);
+            bool isCustomerUpload = projectItem.HouseDesignDrawings.Any() &&
+                        projectItem.HouseDesignDrawings.All(h => h.IsCustomerUpload == true);
 
             var contractItem = projectItem.Contracts?.Select(c => new ContractInfo
             {
