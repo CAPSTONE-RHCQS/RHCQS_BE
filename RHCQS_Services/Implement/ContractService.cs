@@ -992,15 +992,29 @@ namespace RHCQS_Services.Implement
                     #region Update status in contract
                     if (finalBatch != null && finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                     {
-                        //Update status in contract appendix
-                        contract.Status = AppConstant.ContractStatus.FINISHED;
+                        //Check completed hosue design drawing
+                        if (contract.Project.Status != AppConstant.ProjectStatus.DESIGNED
+                           && contract.Project.Status != AppConstant.ProjectStatus.UNDER_REVIEW
+                           && contract.Project.Status != AppConstant.ProjectStatus.SIGNED_CONTRACT
+                           && contract.Project.Status != AppConstant.ProjectStatus.FINALIZED)
+                        {
+                            throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Completed_Design);
+                        }
+                        //Update status in contract design
+                        if (contract.Type.ToString() == ContractType.Design.ToString())
+                        {
+                            contract.Status = AppConstant.ContractStatus.FINISHED;
+                        }
+                        //Update status in contract construction
                         if (contract.Type.ToString() == AppConstant.ContractType.Construction.ToString())
                         {
+                            contract.Status = AppConstant.ContractStatus.FINISHED;
                             contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                         }
-
+                        //Update status in contract appendix
                         if (contract.Type == AppConstant.Type.APPENDIX_CONSTRUCTION)
                         {
+                            contract.Status = AppConstant.ContractStatus.FINISHED;
                             contract.Project.Status = AppConstant.ProjectStatus.FINALIZED;
                         }
 
