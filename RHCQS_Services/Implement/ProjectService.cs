@@ -109,7 +109,6 @@ namespace RHCQS_Services.Implement
             return listProjects;
         }
 
-
         public async Task<ProjectDetail> GetDetailProjectById(Guid id)
         {
             var projectItem = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(w => w.Id == id,
@@ -838,7 +837,7 @@ namespace RHCQS_Services.Implement
                 //System find package rough
                 var packageRough = await _unitOfWork.GetRepository<Package>().FirstOrDefaultAsync(
                                         predicate: p => p.Type == AppConstant.Type.ROUGH
-                                        && p.PackageHouses.Any(p => p.DesignTemplateId == p.DesignTemplateId));
+                                        && p.PackageHouses.Any(p => p.DesignTemplateId == templateHouseInfo.DesignTemplateId));
 
                 //Calculate total rough from buidling area
                 double totalPriceRough = 0;
