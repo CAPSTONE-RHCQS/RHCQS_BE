@@ -688,43 +688,5 @@ namespace RHCQS_Services.Implement
 
             return email.Replace("@", "_at_").Replace(".", "_dot_");
         }
-
-        public async Task<int> GetSStaffAccountCountAsync()
-        {
-            var accountRepository = _unitOfWork.GetRepository<Account>();
-
-            int count = await accountRepository.CountAsync(x => x.Role.RoleName == AppConstant.Role.SalesStaff && x.Deflag == true);
-
-            return count;
-        }
-        public async Task<int> GetDStaffAccountCountAsync()
-        {
-            var accountRepository = _unitOfWork.GetRepository<Account>();
-
-            int count = await accountRepository.CountAsync(x => x.Role.RoleName == AppConstant.Role.DesignStaff && x.Deflag == true);
-
-            return count;
-        }
-        public async Task<int> GetCustomerAccountCountAsync()
-        {
-            var accountRepository = _unitOfWork.GetRepository<Account>();
-
-            int count = await accountRepository.CountAsync(x => x.Role.RoleName == AppConstant.Role.Customer && x.Deflag == true);
-
-            return count;
-        }
-
-        public async Task<int> GetCustomerAccountsCreatedTodayAsync()
-        {
-            var today = DateTime.UtcNow.Date;
-            var accountRepository = _unitOfWork.GetRepository<Account>();
-
-            int count = await accountRepository.CountAsync(
-                x => x.Role.RoleName == AppConstant.Role.Customer &&
-                     x.InsDate.HasValue &&
-                     x.InsDate.Value.Date == today
-            );
-            return count;
-        }
     }
 }
