@@ -615,7 +615,7 @@ namespace RHCQS_Services.Implement
                     foreach (var item in infoProject.InitialQuotations)
                     {
                         item.Deflag = false;
-                        item.Status = AppConstant.QuotationStatus.ENDED;
+                        item.Status = AppConstant.QuotationStatus.CANCELED;
                         _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(item);
                     }
 
@@ -623,14 +623,14 @@ namespace RHCQS_Services.Implement
                     foreach (var item in infoProject.FinalQuotations)
                     {
                         item.Deflag = false;
-                        item.Status = AppConstant.QuotationStatus.ENDED;
+                        item.Status = AppConstant.QuotationStatus.CANCELED;
                         _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(item);
                     }
 
                     //Cancel HouseDesignDrawing
                     foreach (var item in infoProject.HouseDesignDrawings)
                     {
-                        item.Status = AppConstant.HouseDesignStatus.ENDED;
+                        item.Status = AppConstant.HouseDesignStatus.CANCELED;
                         _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(item);
                     }
 
