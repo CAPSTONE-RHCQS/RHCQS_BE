@@ -1012,7 +1012,7 @@ $"{ex}"
             if (initialQuotation == null)
             {
                 initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                    ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.CANCELED,
+                    ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.CANCELED && ci.Deflag == true,
                     include: ci => ci.Include(x => x.PackageQuotations)
                                      .ThenInclude(x => x.Package)
                                      .Include(x => x.Project)
@@ -1318,7 +1318,7 @@ $"{ex}"
             if (initialQuotation == null)
             {
                 initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                    ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.CANCELED,
+                    ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.CANCELED && ci.Deflag == true,
                     include: ci => ci.Include(x => x.PackageQuotations)
                                      .ThenInclude(x => x.Package)
                                      .Include(x => x.Project)
