@@ -179,10 +179,11 @@ namespace RHCQS_BusinessObject.Payload.Response
     }
     public class PackageHouseResponse
     {
-        public PackageHouseResponse(Guid id, Guid packageId, string? packageName, string? imgUrl, DateTime? insDate, string? description)
+        public PackageHouseResponse(Guid id, Guid packageId,double? price, string? packageName, string? imgUrl, DateTime? insDate, string? description)
         {
             Id = id;
             PackageId = packageId;
+            Price = price;
             PackageName = packageName;
             ImgUrl = imgUrl;
             InsDate = insDate;
@@ -192,7 +193,7 @@ namespace RHCQS_BusinessObject.Payload.Response
         public Guid Id { get; set; }
 
         public Guid PackageId { get; set; }
-
+        public double? Price { get; set; }
         public string? PackageName { get; set; }
 
         public string? ImgUrl { get; set; }
