@@ -506,20 +506,6 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region GetTotalProject
-        /// <summary>
-        /// Get total projects.
-        /// </summary>
-        /// <returns>Number of projects.</returns>
-        #endregion
-        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Project.TotalProjectEndpoint)]
-        public async Task<ActionResult<int>> GetTotalProject()
-        {
-            var totalProjectCount = await _projectService.GetTotalProjectCountAsync();
-            return Ok(totalProjectCount);
-        }
-
         #region GetStatusProjectDetail
         /// <summary>
         /// Get status projects for Web
@@ -533,20 +519,6 @@ namespace RHCQS_BE.Controllers
         public async Task<ActionResult<int>> GetStatusProjectDetail(Guid projectId)
         {
             var totalProjectCount = await _projectService.GetStatusProjectDetail(projectId);
-            return Ok(totalProjectCount);
-        }
-
-        #region GetTotalProjectOfStaff
-        /// <summary>
-        /// Get total projects.
-        /// </summary>
-        /// <returns>Number of projects.</returns>
-        #endregion
-        [Authorize(Roles = "DesignStaff, SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Project.TotalProjectOfStaffEndpoint)]
-        public async Task<ActionResult<int>> GetTotalProjectOfStaff(Guid accountId)
-        {
-            var totalProjectCount = await _projectService.GetTotalProjectBySalesStaff(accountId);
             return Ok(totalProjectCount);
         }
     }
