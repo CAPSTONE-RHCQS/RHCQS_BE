@@ -17,6 +17,7 @@ namespace RHCQS_Services.Interface
         Task<Account> RegisterForStaffAsync(RegisterRequest registerRequest, UserRoleForManagerRegister selectedrole);
         Task<SendEmailAndNotiReponse> GetEmailByQuotationIdAsync(Guid quotationId);
         Task<string> GetEmailByProjectIdAsync(Guid projectId);
+        Task<SendEmailAndNotiReponse> GetEmailByProjectIdForSendNotiAsync(Guid versionId);
         Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id);
         Task<Account> GetAccountByIdAsync(Guid id);
         Task<int> GetTotalAccountCountAsync();

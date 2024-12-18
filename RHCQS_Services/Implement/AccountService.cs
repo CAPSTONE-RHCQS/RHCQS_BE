@@ -559,6 +559,46 @@ namespace RHCQS_Services.Implement
 
             return account.Email;
         }
+        public async Task<SendEmailAndNotiReponse> GetEmailByProjectIdForSendNotiAsync(Guid versionId)
+        {
+            if (versionId == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var drawVersionRepo = _unitOfWork.GetRepository<HouseDesignVersion>();
+            var drawVersion = await drawVersionRepo.FirstOrDefaultAsync(
+                v => v.Id == versionId,
+                include: v => v.Include(v => v.HouseDesignDrawing)
+                               .ThenInclude(d => d.Project)
+                               .ThenInclude(p => p.Customer)
+                               .ThenInclude(c => c.Account)
+            );
+
+            // Validate the loaded data.
+            var project = drawVersion?.HouseDesignDrawing?.Project;
+            var customer = project?.Customer;
+            var account = customer?.Account;
+
+            if (customer?.Deflag == true && account?.Deflag == true)
+            {
+                return new SendEmailAndNotiReponse
+                {
+                    Email = account.Email,
+                    ProjectCode = project.ProjectCode,
+                    CustomerName = project.CustomerName
+                };
+            }
+
+            throw new AppConstant.MessageError(
+                (int)AppConstant.ErrCode.Not_Found,
+                AppConstant.ErrMessage.Not_Found_Account
+            );
+        }
+
         public async Task<SendEmailAndNotiReponse> GetEmailByQuotationIdAsync(Guid quotationId)
         {
             if (quotationId == Guid.Empty)
