@@ -1341,6 +1341,7 @@ namespace RHCQS_Services.Implement
 
 
                 //Update status present quotation
+                initialItem.Deflag = true;
                 initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
                 //Update area project following finalized initial quotation
                 initialItem.Project.Area = initialItem.Area;
@@ -1380,6 +1381,7 @@ namespace RHCQS_Services.Implement
                 #endregion
 
                 //Update status present quotation
+                finalInfo.Deflag = true;
                 finalInfo.Status = AppConstant.QuotationStatus.FINALIZED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalInfo);
 
