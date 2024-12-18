@@ -109,6 +109,7 @@ namespace RHCQS_BE.Extenstion
             services.AddScoped<IConstructionWorkService, ConstructionWorkService>();
             services.AddScoped<IGmailSenderService, GmailSenderService>();
             services.AddScoped<IDesignPriceService, DesignPriceService>();
+            services.AddScoped<IDashboardService, DashboardService>();
             services.AddApiBehavior();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));
             services.AddSignalR();
