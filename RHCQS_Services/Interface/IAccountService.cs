@@ -18,7 +18,6 @@ namespace RHCQS_Services.Interface
         Task<string> GetEmailByProjectIdAsync(Guid projectId);
         Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id);
         Task<Account> GetAccountByIdAsync(Guid id);
-        Task<int> GetTotalAccountCountAsync();
         Task<int> GetActiveAccountCountAsync();
         public Task<IPaginate<AccountResponse>> GetListAccountAsync(int page, int size);
         public Task<IPaginate<AccountResponse>> GetListAccountByRoleIdAsync(Guid id,int page, int size);
@@ -30,9 +29,5 @@ namespace RHCQS_Services.Interface
         Task<bool> UpdatePasswordAsync(Guid id, string currentPassword, string newPassword);
         Task<string> CreateImageAccount(Guid accountId, ImageForAccount files);
         Task<CurrentUserModel> GetCurrentLoginUser();
-        Task<int> GetSStaffAccountCountAsync();
-        Task<int> GetDStaffAccountCountAsync();
-        Task<int> GetCustomerAccountCountAsync();
-        Task<int> GetCustomerAccountsCreatedTodayAsync();
     }
 }
