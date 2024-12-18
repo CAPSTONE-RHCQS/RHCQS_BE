@@ -15,7 +15,7 @@ namespace RHCQS_BusinessObject.Payload.Request.Mate
         public Guid? MaterialSectionId { get; set; }
         public string? Name { get; set; }
         [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0.")]
-        public decimal? Price { get; set; }
+        public double? Price { get; set; }
         public string? Unit { get; set; }
         public string? Size { get; set; }
         public string? Shape { get; set; }
