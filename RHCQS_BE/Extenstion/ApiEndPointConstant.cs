@@ -74,16 +74,11 @@ namespace RHCQS_BE.Extenstion
             public const string AccountByIdEndpoint = AccountEndpoint + "/id";
             public const string AccountByRoleIdEndpoint = AccountEndpoint + "/roleid";
             public const string ActiveAccountEndpoint = ApiEndpoint + "/account/active-account";
-            public const string TotalAccountEndpoint = ApiEndpoint + "/account/total-account";
             public const string AccountProfileEndpoint = AccountEndpoint + "/profile";
             public const string SearchAccountEndpoint = AccountEndpoint + "/name";
             public const string SearchAccountByPhoneOrNameEndpoint = AccountEndpoint + "/key";
             public const string UpdateDeflagEndpoint = AccountEndpoint + "/updatedeflag/id";
             public const string UploadImageProfileEndpoint = ApiEndpoint + "/upload-profile-images";
-            public const string TotalSStaffAccountEndpoint = ApiEndpoint + "/account/total-s-staff-account";
-            public const string TotalDStaffAccountEndpoint = ApiEndpoint + "/account/total-d-staff-account";
-            public const string TotalCustomerAccountEndpoint = ApiEndpoint + "/account/total-customer-account";
-            public const string TotalCustomerTodayAccountEndpoint = ApiEndpoint + "/account/total-cus-today-account";
 
         }
         public static class EquiqmentExcel
@@ -134,8 +129,6 @@ namespace RHCQS_BE.Extenstion
             public const string ProjectSearchByContainName = ProjectEndpoint + "/contain/name";
             public const string ProjectHaveDrawingEndpoint = ProjectEndpoint + "/drawing-have";
             public const string FilterProjectsMultiParams = ProjectEndpoint + "/multi-filter";
-            public const string TotalProjectEndpoint = ProjectEndpoint + "/total-project";
-            public const string TotalProjectOfStaffEndpoint = ProjectEndpoint + "/total-project-staff";
             public const string ProjectStatusEndpoint = ProjectEndpoint + "/status/id";
         }
 
@@ -281,9 +274,6 @@ namespace RHCQS_BE.Extenstion
             public const string PaymentBatchForCustomerEndpoint = PaymentEndpoint + "/list/app";
             public const string PaymentConfirmEndpoint = PaymentEndpoint + "/confirm";
             public const string PaymentBillUrlEndpoint = PaymentEndpoint + "/customer/bill";
-            public const string TotalPriceEndpoint = PaymentEndpoint + "/totalprice";
-            public const string TotalProgressPriceEndpoint = PaymentEndpoint + "/totalprogressprice";
-            public const string TotalPaidPriceEndpoint = PaymentEndpoint + "/totalpaidprice";
         }
 
         public static class General
@@ -353,6 +343,21 @@ namespace RHCQS_BE.Extenstion
             public const string DesignPriceListEndpoint = ApiEndpoint + "/alldesignprices";
             public const string SearchDesignPriceEndpoint = DesignPriceListEndpoint + "/name";
             public const string DesignPriceDetailEndpoint = DesignPriceListEndpoint + "/id";
+        }
+
+        public static class Dashboard
+        {
+            public const string DashboardEndpoint = ApiEndpoint + "/dashboard";
+            public const string TotalAccountEndpoint = DashboardEndpoint + "/total-account";
+            public const string TotalSStaffAccountEndpoint = DashboardEndpoint + "total-s-staff-account";
+            public const string TotalDStaffAccountEndpoint = DashboardEndpoint + "/total-d-staff-account";
+            public const string TotalCustomerAccountEndpoint = DashboardEndpoint + "/total-customer-account";
+            public const string TotalCustomerTodayAccountEndpoint = DashboardEndpoint + "/total-cus-today-account";
+            public const string TotalProjectEndpoint = DashboardEndpoint + "/total-project";
+            public const string TotalProjectOfStaffEndpoint = DashboardEndpoint + "/total-project-staff";
+            public const string TotalPriceEndpoint = DashboardEndpoint + "/totalprice";
+            public const string TotalProgressPriceEndpoint = DashboardEndpoint + "/totalprogressprice";
+            public const string TotalPaidPriceEndpoint = DashboardEndpoint + "/totalpaidprice";
         }
     }
 }
