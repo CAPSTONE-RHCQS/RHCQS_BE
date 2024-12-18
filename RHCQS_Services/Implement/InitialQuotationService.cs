@@ -670,7 +670,7 @@ namespace RHCQS_Services.Implement
                 initialItem.ReasonReject = request.Reason;
                 _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(initialItem);
 
-                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_UPDATE : AppConstant.ErrMessage.Send_Fail;
+                var isSuccessful = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.REJECTED : AppConstant.ErrMessage.Send_Fail;
                 return isSuccessful;
             }
             return null;
@@ -1341,6 +1341,7 @@ namespace RHCQS_Services.Implement
 
 
                 //Update status present quotation
+                initialItem.Deflag = true;
                 initialItem.Status = AppConstant.QuotationStatus.FINALIZED;
                 //Update area project following finalized initial quotation
                 initialItem.Project.Area = initialItem.Area;
@@ -1380,6 +1381,7 @@ namespace RHCQS_Services.Implement
                 #endregion
 
                 //Update status present quotation
+                finalInfo.Deflag = true;
                 finalInfo.Status = AppConstant.QuotationStatus.FINALIZED;
                 _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(finalInfo);
 

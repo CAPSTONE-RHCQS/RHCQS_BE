@@ -94,6 +94,7 @@ namespace RHCQS_Services.Implement
                         pgk => new PackageHouseResponse(
                             pgk.Id,
                             pgk.PackageId,
+                            pgk.Package.Price,
                             pgk.Package.PackageName,
                             pgk.ImgUrl,
                             pgk.InsDate,
@@ -383,6 +384,7 @@ namespace RHCQS_Services.Implement
                         .Select(pkg => new PackageHouseResponse(
                             pkg.Id,
                             pkg.PackageId,
+                            pkg.Package.Price,
                             pkg.Package.PackageName,
                             pkg.ImgUrl,
                             pkg.InsDate,
@@ -579,6 +581,7 @@ namespace RHCQS_Services.Implement
                         .Select(pkg => new PackageHouseResponse(
                             pkg.Id,
                             pkg.PackageId,
+                            pkg.Package.Price,
                             pkg.Package.PackageName,
                             pkg.ImgUrl,
                             pkg.InsDate,

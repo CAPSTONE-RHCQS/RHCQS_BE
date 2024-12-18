@@ -21,7 +21,7 @@ public class GmailSenderService : IGmailSenderService
     {
         var emailMessage = new MimeMessage();
         emailMessage.From.Add(new MailboxAddress("RHCQS", _emailSettings.Username));
-        emailMessage.To.Add(new MailboxAddress("", toEmail));
+        emailMessage.To.Add(new MailboxAddress("", SanitizeEmail(toEmail)));
         emailMessage.Subject = subject;
 
         var bodyBuilder = new BodyBuilder { TextBody = body };
@@ -55,5 +55,11 @@ public class GmailSenderService : IGmailSenderService
                 throw new Exception("An error occurred while sending the email: " + e.Message, e);
             }
         }
+    }
+    private string SanitizeEmail(string email)
+    {
+        if (string.IsNullOrEmpty(email)) return string.Empty;
+
+        return email.Replace("_at_", "@").Replace("_dot_", ".");
     }
 }

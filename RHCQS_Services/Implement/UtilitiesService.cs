@@ -69,6 +69,7 @@ namespace RHCQS_Services.Implement
             else
             {
                 var listConstruction = await _unitOfWork.GetRepository<UtilityOption>().GetList(
+                predicate: x => !x.Type!.Equals(AppConstant.Type.TEMPLATE),
                selector: x => new UtilityResponse(x.Id, x.Name, x.Type, x.Deflag, x.InsDate,
                                                            x.UpsDate,
                                                            x.UtilitiesSections.Select(

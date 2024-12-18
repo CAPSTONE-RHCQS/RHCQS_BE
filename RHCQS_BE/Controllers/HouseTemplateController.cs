@@ -73,7 +73,7 @@ namespace RHCQS_BE.Controllers
         /// </summary>
         /// <returns>List of housetemplate in the system</returns>
         #endregion
-        //[Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
+        [Authorize(Roles = "Customer, DesignStaff, SalesStaff, Manager")]
         [HttpGet(ApiEndPointConstant.HouseTemplate.HouseTemplateListEndpoint)]
         [ProducesResponseType(typeof(IEnumerable<HouseTemplateResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -120,7 +120,7 @@ namespace RHCQS_BE.Controllers
             };
         }
 
-        #region SearchHouseTemplate
+        #region GetHouseTemplateDetail
         /// <summary>
         /// Get detailhousetemplate by id.
         /// </summary>

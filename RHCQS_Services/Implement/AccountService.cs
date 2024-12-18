@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using RHCQS_BusinessObject.Helper;
+using RHCQS_BusinessObject.Payload;
 using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.CurrentUserModel;
@@ -556,9 +557,49 @@ namespace RHCQS_Services.Implement
                 );
             }
 
-            return SanitizeEmail(account.Email);
+            return account.Email;
         }
-        public async Task<string> GetEmailByQuotationIdAsync(Guid quotationId)
+        public async Task<SendEmailAndNotiReponse> GetEmailByProjectIdForSendNotiAsync(Guid versionId)
+        {
+            if (versionId == Guid.Empty)
+            {
+                throw new AppConstant.MessageError(
+                    (int)AppConstant.ErrCode.Bad_Request,
+                    AppConstant.ErrMessage.NullValue
+                );
+            }
+
+            var drawVersionRepo = _unitOfWork.GetRepository<HouseDesignVersion>();
+            var drawVersion = await drawVersionRepo.FirstOrDefaultAsync(
+                v => v.Id == versionId,
+                include: v => v.Include(v => v.HouseDesignDrawing)
+                               .ThenInclude(d => d.Project)
+                               .ThenInclude(p => p.Customer)
+                               .ThenInclude(c => c.Account)
+            );
+
+            // Validate the loaded data.
+            var project = drawVersion?.HouseDesignDrawing?.Project;
+            var customer = project?.Customer;
+            var account = customer?.Account;
+
+            if (customer?.Deflag == true && account?.Deflag == true)
+            {
+                return new SendEmailAndNotiReponse
+                {
+                    Email = account.Email,
+                    ProjectCode = project.ProjectCode,
+                    CustomerName = project.CustomerName
+                };
+            }
+
+            throw new AppConstant.MessageError(
+                (int)AppConstant.ErrCode.Not_Found,
+                AppConstant.ErrMessage.Not_Found_Account
+            );
+        }
+
+        public async Task<SendEmailAndNotiReponse> GetEmailByQuotationIdAsync(Guid quotationId)
         {
             if (quotationId == Guid.Empty)
             {
@@ -581,7 +622,12 @@ namespace RHCQS_Services.Implement
                 var account = finalQuotation.Project.Customer.Account;
                 if (account != null && account.Deflag == true)
                 {
-                    return SanitizeEmail(account.Email);
+                    return new SendEmailAndNotiReponse
+                    {
+                        Email = account.Email,
+                        ProjectCode = finalQuotation.Project.ProjectCode,
+                        CustomerName = finalQuotation.Project.CustomerName
+                    };
                 }
             }
 
@@ -598,7 +644,12 @@ namespace RHCQS_Services.Implement
                 var account = initialQuotation.Project.Customer.Account;
                 if (account != null && account.Deflag == true)
                 {
-                    return SanitizeEmail(account.Email);
+                    return new SendEmailAndNotiReponse
+                    {
+                        Email = account.Email,
+                        ProjectCode = initialQuotation.Project.ProjectCode,
+                        CustomerName = initialQuotation.Project.CustomerName
+                    };
                 }
             }
 
@@ -682,9 +733,9 @@ namespace RHCQS_Services.Implement
             //await SendVerificationEmailAsync(registerRequest.Email);
             return newAccount;
         }
-        private string SanitizeEmail(string email)
-        {
-            if (string.IsNullOrEmpty(email)) return string.Empty;
+        //private string SanitizeEmail(string email)
+        //{
+        //    if (string.IsNullOrEmpty(email)) return string.Empty;
 
             return email.Replace("@", "_at_").Replace(".", "_dot_");
         }

@@ -69,8 +69,10 @@ namespace RHCQS_Services.Implement
             if (contractItem.Type == AppConstant.ContractType.Design.ToString())
             {
                 var initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
-                                predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
-                                include: i => i.Include(i => i.Media));
+                                          predicate: i => i.ProjectId == contractItem.ProjectId && (i.Status == AppConstant.QuotationStatus.FINALIZED
+                                        || (i.Status == QuotationStatus.CANCELED && i.Deflag == true)),
+                 include: i => i.Include(i => i.Media));
+
 
                 if (initialQuotation == null)
                 {
@@ -87,7 +89,8 @@ namespace RHCQS_Services.Implement
             else if (contractItem.Type == AppConstant.ContractType.Construction.ToString())
             {
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
-                                predicate: i => i.ProjectId == contractItem.ProjectId && i.Status == AppConstant.QuotationStatus.FINALIZED,
+                                predicate: i => i.ProjectId == contractItem.ProjectId && (i.Status == AppConstant.QuotationStatus.FINALIZED
+                                        || (i.Status == QuotationStatus.CANCELED && i.Deflag == true)),
                                 include: i => i.Include(i => i.Media));
 
                 if (finalQuotation == null)
@@ -914,6 +917,7 @@ namespace RHCQS_Services.Implement
 
                 // BatchPaymentRequest
                 var batchPaymentRequests = finalInfo.BatchPayments
+                     .OrderBy(batchPayment => batchPayment.NumberOfBatch)
                     .Select((batchPayment, index) => new InitialToBatchPayment
                     {
                         NumberOfBatches = index + 1,
@@ -922,7 +926,7 @@ namespace RHCQS_Services.Implement
                         PaymentPhase = batchPayment.Payment.PaymentPhase,
                         Percents = batchPayment.Payment.Percents ?? 0,
                         Description = batchPayment.Payment.Description
-                    }).OrderBy(x => x.NumberOfBatches)
+                    })
                     .ToList();
 
                 var result = new FinalToContractResponse()

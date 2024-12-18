@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using RHCQS_BE.Extenstion;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Request.HouseDesign;
 using RHCQS_BusinessObject.Payload.Request.InitialQuotation;
 using RHCQS_BusinessObjects;
+using RHCQS_Services.Implement;
 using RHCQS_Services.Interface;
 using System.Security.Claims;
 
@@ -16,10 +18,13 @@ namespace RHCQS_BE.Controllers
     public class HouseDesignVersionController : ControllerBase
     {
         private readonly IHouseDesignVersionService _designVersionService;
-
-        public HouseDesignVersionController(IHouseDesignVersionService designVersionService)
+        private readonly IFirebaseService _firebaseService;
+        private readonly IAccountService _accountService;
+        public HouseDesignVersionController(IHouseDesignVersionService designVersionService, IFirebaseService firebaseService, IAccountService accountService)
         {
             _designVersionService = designVersionService;
+            _firebaseService = firebaseService;
+            _accountService = accountService;
         }
 
         #region GetDetailVersionById
@@ -169,6 +174,26 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> AssignHouseDrawing([FromQuery] Guid Id, [FromBody] AssignHouseDrawingRequest request)
         {
             var isApprove = await _designVersionService.ApproveHouseDrawing(Id, request);
+            var customerEmail = await _accountService.GetEmailByProjectIdForSendNotiAsync(Id);
+            var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail.Email);
+
+            var notificationRequest = new NotificationRequest
+            {
+                Email = customerEmail.Email,
+                DeviceToken = deviceToken,
+                Title = "Bản vẽ thiết kế",
+                Body = @$"Bản vẽ thiết kế của dự án có mã là {customerEmail.ProjectCode} 
+đã có cập nhật mới bạn cần xem."
+            };
+            Task.Run(async () =>
+            {
+                _firebaseService.SendNotificationAsync(
+                    notificationRequest.Email,
+                    notificationRequest.DeviceToken,
+                    notificationRequest.Title,
+                    notificationRequest.Body
+                );
+            });
             return Ok(isApprove ? AppConstant.Message.SUCCESSFUL_APPROVE : AppConstant.Message.ERROR);
         }
 
