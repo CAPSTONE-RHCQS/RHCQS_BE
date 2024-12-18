@@ -133,56 +133,5 @@ namespace RHCQS_BE.Controllers
                 ContentType = "application/json"
             };
         }
-
-        #region GetTotalPrice
-        /// <summary>
-        /// Retrieves the list of all batch payments across all projects.
-        /// 
-        /// Role: SALE STAFF - MANAGER
-        /// </summary>
-        /// <returns>Amount of total price</returns>
-        #endregion
-        [Authorize(Roles = "SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Payment.TotalPriceEndpoint)]
-        [ProducesResponseType(typeof(double), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTotalPrice()
-        {
-            var totalPrice = await _paymentService.GetTotalPriceOfBatchPayments();
-            return Ok(new { TotalPrice = totalPrice });
-        }
-
-        #region GetTotalPriceProgress
-        /// <summary>
-        /// Retrieves the list of all batch payments progress across all projects.
-        /// 
-        /// Role: SALE STAFF - MANAGER
-        /// </summary>
-        /// <returns>Amount of total progress price</returns>
-        #endregion
-        [Authorize(Roles = "SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Payment.TotalProgressPriceEndpoint)]
-        [ProducesResponseType(typeof(double), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTotalPriceProgress()
-        {
-            var totalPrice = await _paymentService.GetTotalPriceProgressOfBatchPayments();
-            return Ok(new { TotalPrice = totalPrice });
-        }
-
-        #region GetTotalPricePaid
-        /// <summary>
-        /// Retrieves the list of all batch payments paid across all projects.
-        /// 
-        /// Role: SALE STAFF - MANAGER
-        /// </summary>
-        /// <returns>Amount of total paid price</returns>
-        #endregion
-        [Authorize(Roles = "SalesStaff, Manager")]
-        [HttpGet(ApiEndPointConstant.Payment.TotalPaidPriceEndpoint)]
-        [ProducesResponseType(typeof(double), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetTotalPricePaid()
-        {
-            var totalPrice = await _paymentService.GetTotalPricePaidOfBatchPayments();
-            return Ok(new { TotalPrice = totalPrice });
-        }
     }
 }
