@@ -827,7 +827,7 @@ $"{ex}"
             //{
                 var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
             x => x.Id.Equals(id)
-            && (x.Deflag == true)
+            //&& (x.Deflag == true)
             && x.BatchPayments.Any(),
             include: x => x.Include(x => x.Project)
                            .ThenInclude(x => x.Customer!)
@@ -1009,7 +1009,21 @@ $"{ex}"
                                              .Include(x => x.InitialQuotationItems)
                                              .ThenInclude(x => x.ConstructionItem)
                                              .ThenInclude(x => x.SubConstructionItems));
-
+            if (initialQuotation == null)
+            {
+                initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                    ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.CANCELED,
+                    include: ci => ci.Include(x => x.PackageQuotations)
+                                     .ThenInclude(x => x.Package)
+                                     .Include(x => x.Project)
+                                     .ThenInclude(x => x.HouseDesignDrawings)
+                                     .ThenInclude(x => x.HouseDesignVersions)
+                                     .ThenInclude(x => x.Media)
+                                     .Include(x => x.InitialQuotationItems)
+                                     .ThenInclude(x => x.ConstructionItem)
+                                     .ThenInclude(x => x.SubConstructionItems)
+                );
+            }
             var roughPackage = initialQuotation.PackageQuotations
                 .FirstOrDefault(item => item.Type == AppConstant.Type.ROUGH);
 
@@ -1113,7 +1127,7 @@ $"{ex}"
             var finalQuotation = await _unitOfWork.GetRepository<FinalQuotation>().FirstOrDefaultAsync(
                 x => x.ProjectId.Equals(projectid)
                 && x.Version == 0
-                && (x.Deflag == true)
+                //&& (x.Deflag == true)
                 && x.BatchPayments.Any(),
                 include: x => x.Include(x => x.Project)
                                .ThenInclude(x => x.Customer!)
@@ -1301,7 +1315,22 @@ $"{ex}"
                                              .Include(x => x.InitialQuotationItems)
                                              .ThenInclude(x => x.ConstructionItem)
                                              .ThenInclude(x => x.SubConstructionItems));
-            var mediaList = initialQuotation.Media;
+            if (initialQuotation == null)
+            {
+                initialQuotation = await _unitOfWork.GetRepository<InitialQuotation>().FirstOrDefaultAsync(
+                    ci => ci.ProjectId == finalQuotation.ProjectId && ci.Status == AppConstant.QuotationStatus.CANCELED,
+                    include: ci => ci.Include(x => x.PackageQuotations)
+                                     .ThenInclude(x => x.Package)
+                                     .Include(x => x.Project)
+                                     .ThenInclude(x => x.HouseDesignDrawings)
+                                     .ThenInclude(x => x.HouseDesignVersions)
+                                     .ThenInclude(x => x.Media)
+                                     .Include(x => x.InitialQuotationItems)
+                                     .ThenInclude(x => x.ConstructionItem)
+                                     .ThenInclude(x => x.SubConstructionItems)
+                );
+            }
+            //var mediaList = initialQuotation.Media;
             var roughPackage = initialQuotation.PackageQuotations
                     .FirstOrDefault(item => item.Type == AppConstant.Type.ROUGH);
 
