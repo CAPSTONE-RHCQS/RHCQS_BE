@@ -358,6 +358,7 @@ namespace RHCQS_Services.Implement
                                 UnitPrice = worksheet.Cells[row, 8].Value?.ToString(),
                                 MaterialSectionId = materialsectionId,
                                 Code = code,
+                                Type = worksheet.Cells[row, 11].Value?.ToString(),
                                 IsAvailable = true,
                                 InsDate = LocalDateTime.VNDateTime(),
                                 UpsDate = LocalDateTime.VNDateTime()
