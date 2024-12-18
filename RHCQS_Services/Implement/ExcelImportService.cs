@@ -34,8 +34,12 @@ namespace RHCQS_Services.Implement
 
             foreach (var row in validRows)
             {
+                var stt = row.Cell(1).GetValue<string>();
                 var name = row.Cell(3).GetValue<string>();
-
+                if (string.IsNullOrWhiteSpace(stt))
+                {
+                    continue;
+                }
                 if (seenNames.Contains(name))
                 {
                     errorMessages.Add($"Dòng {row.RowNumber()} trùng tên: {name}");
@@ -44,7 +48,7 @@ namespace RHCQS_Services.Implement
                 {
                     var data = new EquiqmentExcelResponse
                     {
-                        STT = row.Cell(1).GetValue<string>(),
+                        STT = stt,
                         Code = row.Cell(2).GetValue<string>(),
                         Name = name,
                         Unit = row.Cell(4).GetValue<string>(),
