@@ -595,9 +595,8 @@ namespace RHCQS_Services.Implement
                             include: x => x.Include(x => x.InitialQuotations)
                                            .Include(x => x.FinalQuotations)
                                            .Include(x => x.HouseDesignDrawings)
-                                           .Include(x => x.Contracts)
-
-                );
+                                           .Include(x => x.Contracts));
+            
             if (infoProject == null)
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.Not_Found, AppConstant.ErrMessage.ProjectNotExit);
@@ -616,7 +615,7 @@ namespace RHCQS_Services.Implement
                     foreach (var item in infoProject.InitialQuotations)
                     {
                         item.Deflag = false;
-                        item.Status = AppConstant.QuotationStatus.CANCELED;
+                        item.Status = AppConstant.QuotationStatus.ENDED;
                         _unitOfWork.GetRepository<InitialQuotation>().UpdateAsync(item);
                     }
 
@@ -624,14 +623,14 @@ namespace RHCQS_Services.Implement
                     foreach (var item in infoProject.FinalQuotations)
                     {
                         item.Deflag = false;
-                        item.Status = AppConstant.QuotationStatus.CANCELED;
+                        item.Status = AppConstant.QuotationStatus.ENDED;
                         _unitOfWork.GetRepository<FinalQuotation>().UpdateAsync(item);
                     }
 
                     //Cancel HouseDesignDrawing
                     foreach (var item in infoProject.HouseDesignDrawings)
                     {
-                        item.Status = AppConstant.HouseDesignStatus.CANCELED;
+                        item.Status = AppConstant.HouseDesignStatus.ENDED;
                         _unitOfWork.GetRepository<HouseDesignDrawing>().UpdateAsync(item);
                     }
 
