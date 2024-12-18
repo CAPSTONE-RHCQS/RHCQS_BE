@@ -1,4 +1,5 @@
-﻿using RHCQS_BusinessObject.Payload.Request;
+﻿using RHCQS_BusinessObject.Payload;
+using RHCQS_BusinessObject.Payload.Request;
 using RHCQS_BusinessObject.Payload.Response;
 using RHCQS_BusinessObject.Payload.Response.CurrentUserModel;
 using RHCQS_BusinessObjects;
@@ -14,7 +15,7 @@ namespace RHCQS_Services.Interface
     public interface IAccountService
     {
         Task<Account> RegisterForStaffAsync(RegisterRequest registerRequest, UserRoleForManagerRegister selectedrole);
-        Task<string> GetEmailByQuotationIdAsync(Guid quotationId);
+        Task<SendEmailAndNotiReponse> GetEmailByQuotationIdAsync(Guid quotationId);
         Task<string> GetEmailByProjectIdAsync(Guid projectId);
         Task<AccountCustomerResponse> GetAccountOrCustomerByIdAsync(Guid id);
         Task<Account> GetAccountByIdAsync(Guid id);

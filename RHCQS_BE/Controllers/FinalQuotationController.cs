@@ -131,38 +131,50 @@ namespace RHCQS_BE.Controllers
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
 
                 var customerEmail = await _accountService.GetEmailByQuotationIdAsync(finalId);
-                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail);
+                var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail.Email);
+
                 var notificationRequest = new NotificationRequest
                 {
-                    Email = customerEmail,
+                    Email = customerEmail.Email,
                     DeviceToken = deviceToken,
                     Title = "Báo giá chi tiết",
-                    Body = $"Báo giá chi tiết có cập nhật mới bạn cần xem."
+                    Body = @$"Báo giá chi tiết của dự án có mã là {customerEmail.ProjectCode} 
+đã có cập nhật mới bạn cần xem."
                 };
-                Task.Run(() => _firebaseService.SendNotificationAsync(
-                    notificationRequest.Email,
-                    notificationRequest.DeviceToken,
-                    notificationRequest.Title,
-                    notificationRequest.Body
-                ));
+
 
                 var emailBody = $@"
-            Xin chào,{customerEmail},
-            Bạn có cập nhật mới về báo giá chi tiết:
-            {pdfUrl}
-            Cảm ơn, RHCQS team";
+        Xin chào {customerEmail.Email},
+        Chúng tôi có cập nhật mới về báo giá chi tiết của dự án có mã là {customerEmail.ProjectCode} với link sau:
+        {pdfUrl}
+        Cảm ơn, RHCQS team";
+
                 var sendemail = new EmailRequest
                 {
-                    ToEmail = customerEmail,
-                    Subject = "Cập nhật báo giá chi tiết",
+                    ToEmail = customerEmail.Email,
+                    Subject = "Cập nhật mới về báo giá chi tiết",
                     Body = emailBody
                 };
-                Task.Run(() => _gmailSenderService.SendEmailAsync(
-                    sendemail.ToEmail,
-                    sendemail.Subject,
-                    sendemail.Body,
-                    null
-                ));
+
+                // Gộp chung cả hai tác vụ vào một Task.Run
+                Task.Run(async () =>
+                {
+                    await Task.WhenAll(
+                        _firebaseService.SendNotificationAsync(
+                            notificationRequest.Email,
+                            notificationRequest.DeviceToken,
+                            notificationRequest.Title,
+                            notificationRequest.Body
+                        ),
+                        _gmailSenderService.SendEmailAsync(
+                            sendemail.ToEmail,
+                            sendemail.Subject,
+                            sendemail.Body,
+                            null
+                        )
+                    );
+                });
+
                 return new ContentResult()
                 {
                     Content = result,
@@ -170,6 +182,7 @@ namespace RHCQS_BE.Controllers
                     ContentType = "application/json"
                 };
             }
+
             if (pdfUrl == AppConstant.Message.REJECTED)
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
@@ -189,7 +202,6 @@ namespace RHCQS_BE.Controllers
                     StatusCode = StatusCodes.Status400BadRequest,
                     ContentType = "application/json"
                 };
-
             }
         }
         #region GetDetailFinalQuotationById

@@ -121,8 +121,8 @@ namespace RHCQS_Services.Implement
                 };
 
                 var response = await _firebaseMessaging.SendAsync(message);
-
-                await SaveNotificationAsync(email, deviceToken, title, body);
+            var sanitizedEmail = email.Replace("@", "_at_").Replace(".", "_dot_");
+            await SaveNotificationAsync(sanitizedEmail, deviceToken, title, body);
 
                 return response;
             //}
