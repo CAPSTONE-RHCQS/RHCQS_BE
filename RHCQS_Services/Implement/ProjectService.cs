@@ -1075,13 +1075,6 @@ namespace RHCQS_Services.Implement
             return listProjects;
         }
 
-        public async Task<int> GetTotalProjectCountAsync()
-        {
-            var projectCount = _unitOfWork.GetRepository<Project>();
-            return await projectCount.CountAsync();
-        }
-
-
         public async Task<string> GetStatusProjectDetail(Guid projectId)
         {
             var project = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
@@ -1093,12 +1086,5 @@ namespace RHCQS_Services.Implement
             var result = project.Status;
             return result.ToString();
         }
-        public async Task<int> GetTotalProjectBySalesStaff(Guid accountId)
-        {
-            int totalProjectCount = await _unitOfWork.GetRepository<AssignTask>().CountAsync(predicate: x => x.AccountId == accountId);
-
-            return totalProjectCount;
-        }
-
     }
 }
