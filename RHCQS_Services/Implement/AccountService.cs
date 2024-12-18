@@ -736,8 +736,7 @@ namespace RHCQS_Services.Implement
         //private string SanitizeEmail(string email)
         //{
         //    if (string.IsNullOrEmpty(email)) return string.Empty;
-
-            return email.Replace("@", "_at_").Replace(".", "_dot_");
-        }
+        //    return email.Replace("@", "_at_").Replace(".", "_dot_");
+        //}
     }
 }
