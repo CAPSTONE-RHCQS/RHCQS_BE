@@ -893,7 +893,7 @@ namespace RHCQS_Services.Implement
                         contractMain.Status = AppConstant.ContractStatus.FINISHED;
 
                         //Update status project Signed Contract -> Finalized
-                        if (contract.Type == AppConstant.ContractType.Construction.ToString())
+                        if (contract.Type == AppConstant.ContractType.Appendix_Construction.ToString())
                         {
                             contractMain.Project.Status = ProjectStatus.FINALIZED;
                         }
