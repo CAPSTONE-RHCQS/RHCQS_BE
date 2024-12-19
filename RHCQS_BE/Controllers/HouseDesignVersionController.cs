@@ -176,25 +176,27 @@ namespace RHCQS_BE.Controllers
             var isApprove = await _designVersionService.ApproveHouseDrawing(Id, request);
             var customerEmail = await _accountService.GetEmailByProjectIdForSendNotiAsync(Id);
             var deviceToken = await _firebaseService.GetDeviceTokenAsync(customerEmail.Email);
-
-            var notificationRequest = new NotificationRequest
+            if(isApprove.IsSuccessful == true && isApprove.Message == AppConstant.Message.DRAW_APPROVE)
             {
-                Email = customerEmail.Email,
-                DeviceToken = deviceToken,
-                Title = "Bản vẽ thiết kế",
-                Body = @$"Bản vẽ thiết kế của dự án có mã là {customerEmail.ProjectCode} 
+                var notificationRequest = new NotificationRequest
+                {
+                    Email = customerEmail.Email,
+                    DeviceToken = deviceToken,
+                    Title = "Bản vẽ thiết kế",
+                    Body = @$"Bản vẽ thiết kế của dự án có mã là {customerEmail.ProjectCode} 
 đã có cập nhật mới bạn cần xem."
-            };
-            Task.Run(async () =>
-            {
-                _firebaseService.SendNotificationAsync(
-                    notificationRequest.Email,
-                    notificationRequest.DeviceToken,
-                    notificationRequest.Title,
-                    notificationRequest.Body
-                );
-            });
-            return Ok(isApprove ? AppConstant.Message.SUCCESSFUL_APPROVE : AppConstant.Message.ERROR);
+                };
+                Task.Run(async () =>
+                {
+                    _firebaseService.SendNotificationAsync(
+                        notificationRequest.Email,
+                        notificationRequest.DeviceToken,
+                        notificationRequest.Title,
+                        notificationRequest.Body
+                    );
+                });
+            }
+            return Ok(isApprove.IsSuccessful ? AppConstant.Message.SUCCESSFUL_APPROVE : AppConstant.Message.ERROR);
         }
 
         #region ConfirmDesignDrawingFromCustomer

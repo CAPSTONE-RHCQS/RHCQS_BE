@@ -213,6 +213,9 @@ public static class AppConstant
         public const string SUCCESSFUL_DEVICE_TOKEN_RETRIEVE = "Lấy token thiết bị thành công!";
         public const string ERROR_DEVICE_TOKEN_RETRIEVE = "Lấy token thiết bị thất bại!";
         public const string SUCCESSFUL_APPROVE = "Phê duyệt thành công!";
+        public const string DRAW_APPROVE = "Đã chấp nhận bản vẽ thành công.";
+        public const string DRAW_REJECT = "Đã từ chối bản vẽ thành công.";
+        public const string DRAW_FAIL = "Cập nhật trạng thái bản vẽ thất bại.";
     }
     public class ErrMessage
     {
