@@ -125,6 +125,16 @@ namespace RHCQS_BE.Controllers
         public async Task<IActionResult> ApproveFinalFromManager([FromQuery] Guid finalId, [FromBody] ApproveQuotationRequest request)
         {
             var pdfUrl = await _finalQuotationService.ApproveFinalFromManager(finalId, request);
+            if (pdfUrl == AppConstant.Message.REJECTED)
+            {
+                var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+                return new ContentResult()
+                {
+                    Content = result,
+                    StatusCode = StatusCodes.Status200OK,
+                    ContentType = "application/json"
+                };
+            }
 
             if (!string.IsNullOrEmpty(pdfUrl))
             {
@@ -175,17 +185,6 @@ namespace RHCQS_BE.Controllers
                     );
                 });
 
-                return new ContentResult()
-                {
-                    Content = result,
-                    StatusCode = StatusCodes.Status200OK,
-                    ContentType = "application/json"
-                };
-            }
-
-            if (pdfUrl == AppConstant.Message.REJECTED)
-            {
-                var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
                 return new ContentResult()
                 {
                     Content = result,

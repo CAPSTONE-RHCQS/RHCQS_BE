@@ -390,6 +390,16 @@ namespace RHCQS_BE.Controllers
         {
             var pdfUrl = await _initialService.ApproveInitialFromManager(initialId, request);
 
+            if (pdfUrl == AppConstant.Message.REJECTED)
+            {
+                var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
+                return new ContentResult()
+                {
+                    Content = result,
+                    StatusCode = StatusCodes.Status200OK,
+                    ContentType = "application/json"
+                };
+            }
             if (!string.IsNullOrEmpty(pdfUrl))
             {
                 var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
@@ -437,16 +447,6 @@ namespace RHCQS_BE.Controllers
                         )
                     );
                 });
-                return new ContentResult()
-                {
-                    Content = result,
-                    StatusCode = StatusCodes.Status200OK,
-                    ContentType = "application/json"
-                };
-            }
-            if (pdfUrl == AppConstant.Message.REJECTED)
-            {
-                var result = JsonConvert.SerializeObject(pdfUrl, Formatting.Indented);
                 return new ContentResult()
                 {
                     Content = result,
