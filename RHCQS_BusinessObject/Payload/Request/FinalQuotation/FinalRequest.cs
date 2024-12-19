@@ -30,7 +30,7 @@ namespace RHCQS_BusinessObject.Payload.Request.FinalQuotation
 
         public List<BatchPaymentInfoRequest>? BatchPaymentInfos { get; set; }
 
-        public List<EquipmentItemsRequest> EquipmentItems { get; set; }
+        public List<EquipmentItemsRequest>? EquipmentItems { get; set; }
 
         public List<UtilitiesUpdateRequestForFinal>? Utilities { get; set; }
 

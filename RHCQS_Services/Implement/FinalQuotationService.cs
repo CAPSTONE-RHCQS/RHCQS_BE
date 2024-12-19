@@ -285,11 +285,11 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
                     AppConstant.ErrMessage.ProjectFinalIdNotfound);
             }
-            if (request.EquipmentItems == null)
-            {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
-                "Thiết bị là cần thiết có");
-            }
+            //if (request.EquipmentItems == null)
+            //{
+            //    throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
+            //    "Thiết bị là cần thiết có");
+            //}
             if (request.PromotionId.HasValue)
             {
                 var promotionExists = await _unitOfWork.GetRepository<Promotion>()
