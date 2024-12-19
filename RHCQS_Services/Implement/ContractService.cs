@@ -1071,7 +1071,7 @@ namespace RHCQS_Services.Implement
                 var batchPaymentsToCancel = contractInfo.BatchPayments
                     .Where(bp => cancelBatchPaymentIds.Contains(bp.Id))
                     .ToList();
-                Guid initialId = Guid.Empty;
+                Guid? initialId = null;
                 if (batchPaymentsToCancel.Count < 1)
                 {
                     throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict,
@@ -1080,7 +1080,16 @@ namespace RHCQS_Services.Implement
 
                 foreach (var batchPayment in batchPaymentsToCancel)
                 {
-                    initialId = (Guid)batchPayment.InitialQuotationId;
+                    if (contractInfo.Project.Type == AppConstant.Type.TEMPLATE 
+                     || contractInfo.Project.Type == AppConstant.Type.DRAWINGHAVE)
+                    {
+                        initialId = null;
+                    }
+                    else
+                    {
+                        initialId = batchPayment.InitialQuotationId;
+                    }
+
                     batchPayment.Status = "Cancel";
                 }
 
