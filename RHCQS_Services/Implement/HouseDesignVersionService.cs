@@ -317,6 +317,12 @@ namespace RHCQS_Services.Implement
                             throw new AppConstant.MessageError((int)AppConstant.ErrCode.Bad_Request, AppConstant.ErrMessage.Not_Reason);
                         }
                         drawingItem.Reason = request.Reason;
+
+                        if (drawingItem.HouseDesignDrawing.Project.Type == AppConstant.Type.DRAWINGHAVE)
+                        {
+                            drawingItem.HouseDesignDrawing.Project.Status = AppConstant.ProjectStatus.UNDER_REVIEW;
+                        }
+                        
                     }
                     _unitOfWork.GetRepository<HouseDesignVersion>().UpdateAsync(drawingItem);
                 }
