@@ -88,7 +88,7 @@ namespace RHCQS_Services.Implement
                 include: x => x.Include(x => x.Payment!)
                                .ThenInclude(x => x.PaymentType)
                                .Include(x => x.Contract!),
-                orderBy: x => x.OrderBy(x => x.Payment.Priority)
+                orderBy: x => x.OrderBy(x => x.Payment.PaymentDate)
             );
 
             if (allBatches == null || !allBatches.Any())
