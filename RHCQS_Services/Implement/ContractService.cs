@@ -803,7 +803,8 @@ namespace RHCQS_Services.Implement
                 BatchPayment currentBatch = null;
                 var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
                                     predicate: p => p.PaymentId == paymentId,
-                                    include: p => p.Include(p => p.Contract!));
+                                    include: p => p.Include(p => p.Contract!)
+                                                    .ThenInclude(p => p.Project));
 
                 if (payBatchInfo == null || !payBatchInfo.Any())
                 {
@@ -870,6 +871,15 @@ namespace RHCQS_Services.Implement
 
                 if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                 {
+                    string projectStatus = payBatchInfo.First().Contract.Project.Status.ToString();
+                    if (projectStatus != AppConstant.ProjectStatus.DESIGNED
+                    && projectStatus != AppConstant.ProjectStatus.UNDER_REVIEW
+                    && projectStatus != AppConstant.ProjectStatus.SIGNED_CONTRACT
+                    && projectStatus != AppConstant.ProjectStatus.FINALIZED)
+                    {
+                        throw new AppConstant.MessageError((int)AppConstant.ErrCode.Conflict, AppConstant.ErrMessage.Not_Completed_Design);
+                    }
+
                     var contract = payBatchInfo.First().Contract;
                     if (contract != null)
                     {
@@ -882,7 +892,11 @@ namespace RHCQS_Services.Implement
                         contractMain.Status = AppConstant.ContractStatus.FINISHED;
 
                         //Update status project Signed Contract -> Finalized
-                        contractMain.Project.Status = ProjectStatus.FINALIZED;
+                        if (contract.Type == AppConstant.ContractType.Construction.ToString())
+                        {
+                            contractMain.Project.Status = ProjectStatus.FINALIZED;
+                        }
+
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
                     }
                 }
@@ -890,9 +904,9 @@ namespace RHCQS_Services.Implement
                 string result = await _unitOfWork.CommitAsync() > 0 ? AppConstant.Message.SUCCESSFUL_SAVE : AppConstant.ErrMessage.Fail_Save;
                 return result;
             }
-            catch (Exception ex)
+            catch (AppConstant.MessageError ex)
             {
-                throw new AppConstant.MessageError((int)AppConstant.ErrCode.Internal_Server_Error, ex.Message);
+                throw new AppConstant.MessageError(ex.Code, ex.Message);
             }
         }
 
