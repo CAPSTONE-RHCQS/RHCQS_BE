@@ -285,7 +285,9 @@ namespace RHCQS_Services.Implement
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
                     AppConstant.ErrMessage.ProjectFinalIdNotfound);
             }
-            if (request.EquipmentItems == null)
+            if (request.EquipmentItems == null ||
+    !request.EquipmentItems.Any() ||
+    request.EquipmentItems.Any(item => item == null || string.IsNullOrWhiteSpace(item.Name)))
             {
                 throw new AppConstant.MessageError((int)AppConstant.ErrCode.NotFound,
                 "Thiết bị là cần thiết có");
