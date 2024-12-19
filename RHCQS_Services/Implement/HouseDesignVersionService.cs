@@ -18,6 +18,7 @@ using System.Net.Http.Headers;
 using RHCQS_BusinessObject.Payload.Response.HouseDesign;
 using RHCQS_BusinessObject.Helper;
 using RHCQS_BusinessObject.Payload.Request.HaveDrawing;
+using RHCQS_BusinessObject.Payload.Response;
 
 namespace RHCQS_Services.Implement
 {
@@ -265,7 +266,7 @@ namespace RHCQS_Services.Implement
             return isUpdate;
         }
 
-        public async Task<bool> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
+        public async Task<ApproveHouseDrawingResponse> ApproveHouseDrawing(Guid Id, AssignHouseDrawingRequest request)
         {
             try
             {
@@ -321,8 +322,33 @@ namespace RHCQS_Services.Implement
                 }
 
                 bool isSuccessful = await _unitOfWork.CommitAsync() > 0;
-
-                return isSuccessful;
+                if (isSuccessful)
+                {
+                    if (request.Type == AppConstant.HouseDesignStatus.APPROVED)
+                    {
+                        return new ApproveHouseDrawingResponse
+                        {
+                            IsSuccessful = true,
+                            Message = AppConstant.Message.DRAW_APPROVE
+                        };
+                    }
+                    else if(request.Type == AppConstant.HouseDesignStatus.REJECTED)
+                    {
+                        return new ApproveHouseDrawingResponse
+                        {
+                            IsSuccessful = true,
+                            Message = AppConstant.Message.DRAW_REJECT
+                        };
+                    }
+                }
+                else
+                {
+                    return new ApproveHouseDrawingResponse
+                    {
+                        IsSuccessful = false,
+                        Message = AppConstant.Message.DRAW_FAIL
+                    };
+                }
             }
             catch (Exception ex)
             {
