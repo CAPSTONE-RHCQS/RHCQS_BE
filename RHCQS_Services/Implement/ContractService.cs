@@ -803,8 +803,7 @@ namespace RHCQS_Services.Implement
                 BatchPayment currentBatch = null;
                 var payBatchInfo = await _unitOfWork.GetRepository<BatchPayment>().GetListAsync(
                                     predicate: p => p.PaymentId == paymentId,
-                                    include: p => p.Include(p => p.Contract!)
-                                                    .ThenInclude(p => p.Project));
+                                    include: p => p.Include(p => p.Contract!));
 
                 if (payBatchInfo == null || !payBatchInfo.Any())
                 {
@@ -871,7 +870,9 @@ namespace RHCQS_Services.Implement
 
                 if (finalBatch.NumberOfBatch == currentBatch.NumberOfBatch)
                 {
-                    string projectStatus = payBatchInfo.First().Contract.Project.Status.ToString();
+                    var projectInfo = await _unitOfWork.GetRepository<Project>().FirstOrDefaultAsync(
+                                            predicate: p => p.Id == payBatchInfo.First().Contract.ProjectId);
+                    string projectStatus = projectInfo.Status.ToString();
                     if (projectStatus != AppConstant.ProjectStatus.DESIGNED
                     && projectStatus != AppConstant.ProjectStatus.UNDER_REVIEW
                     && projectStatus != AppConstant.ProjectStatus.SIGNED_CONTRACT
@@ -896,7 +897,6 @@ namespace RHCQS_Services.Implement
                         {
                             contractMain.Project.Status = ProjectStatus.FINALIZED;
                         }
-
                         _unitOfWork.GetRepository<Contract>().UpdateAsync(contractMain);
                     }
                 }
@@ -1094,7 +1094,7 @@ namespace RHCQS_Services.Implement
 
                 foreach (var batchPayment in batchPaymentsToCancel)
                 {
-                    if (contractInfo.Project.Type == AppConstant.Type.TEMPLATE 
+                    if (contractInfo.Project.Type == AppConstant.Type.TEMPLATE
                      || contractInfo.Project.Type == AppConstant.Type.DRAWINGHAVE)
                     {
                         initialId = null;
