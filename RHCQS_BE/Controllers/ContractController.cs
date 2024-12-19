@@ -440,7 +440,7 @@ namespace RHCQS_BE.Controllers
         /// <param name="paymentId"></param>
         /// <returns></returns>
         #endregion
-        [Authorize(Roles = "Customer")]
+        [Authorize(Roles = "Customer, Manager")]
         [HttpDelete(ApiEndPointConstant.Contract.CustomerDeleteBillEndpoint)]
         [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
