@@ -171,5 +171,56 @@ namespace RHCQS_BE.Controllers
             var totalPrice = await _dashboardService.GetTotalPricePaidOfBatchPayments();
             return Ok(new { TotalPrice = totalPrice });
         }
+
+        #region GetTotalPriceByMonth
+        /// <summary>
+        /// Retrieves the list of all batch payments across all projects by month.
+        /// 
+        /// Role: SALE STAFF - MANAGER
+        /// </summary>
+        /// <returns>Amount of total price</returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Dashboard.TotalPriceByMonthEndpoint)]
+        [ProducesResponseType(typeof(double), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTotalPriceByMonth(int month, int year)
+        {
+            var totalPrice = await _dashboardService.GetTotalPriceOfBatchPaymentsByMonth(month,year);
+            return Ok(new { TotalPrice = totalPrice });
+        }
+
+        #region GetTotalPriceProgressByMonth
+        /// <summary>
+        /// Retrieves the list of all batch payments progress across all projects by month.
+        /// 
+        /// Role: SALE STAFF - MANAGER
+        /// </summary>
+        /// <returns>Amount of total progress price</returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Dashboard.TotalProgressPriceByMonthEndpoint)]
+        [ProducesResponseType(typeof(double), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTotalPriceProgressByMonth(int month, int year)
+        {
+            var totalPrice = await _dashboardService.GetTotalPriceProgressOfBatchPaymentsByMonth(month, year);
+            return Ok(new { TotalPrice = totalPrice });
+        }
+
+        #region GetTotalPricePaidByMonth
+        /// <summary>
+        /// Retrieves the list of all batch payments paid across all projects by month.
+        /// 
+        /// Role: SALE STAFF - MANAGER
+        /// </summary>
+        /// <returns>Amount of total paid price</returns>
+        #endregion
+        [Authorize(Roles = "SalesStaff, Manager")]
+        [HttpGet(ApiEndPointConstant.Dashboard.TotalPaidPriceByMonthEndpoint)]
+        [ProducesResponseType(typeof(double), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTotalPricePaidByMonth(int month, int year)
+        {
+            var totalPrice = await _dashboardService.GetTotalPricePaidOfBatchPaymentsByMonth(month, year);
+            return Ok(new { TotalPrice = totalPrice });
+        }
     }
 }

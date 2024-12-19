@@ -5,6 +5,7 @@ using RHCQS_DataAccessObjects.Models;
 using RHCQS_Repositories.UnitOfWork;
 using RHCQS_Services.Interface;
 using Microsoft.EntityFrameworkCore;
+using DocumentFormat.OpenXml.Bibliography;
 
 namespace RHCQS_Services.Implement
 {
@@ -110,6 +111,66 @@ namespace RHCQS_Services.Implement
             var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
                 .GetListAsync(
                     predicate: x => x.Status == "Paid",
+                    include: x => x.Include(x => x.Payment!)
+                );
+
+            if (totalPrice == null || !totalPrice.Any())
+            {
+                return 0;
+            }
+
+            var total = totalPrice.Sum(batch => batch.Payment?.TotalPrice ?? 0);
+            return total;
+        }
+
+        public async Task<double> GetTotalPriceOfBatchPaymentsByMonth(int month, int year)
+        {
+            var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
+                .GetListAsync(
+                    predicate: x => (x.Status == "Progress" || x.Status == "Paid") && x.Payment != null &&
+                    x.Payment.PaymentDate.HasValue &&
+                    x.Payment.PaymentDate.Value.Month == month &&
+                    x.Payment.PaymentDate.Value.Year == year,
+                    include: x => x.Include(x => x.Payment!)
+                );
+
+            if (totalPrice == null || !totalPrice.Any())
+            {
+                return 0;
+            }
+
+            var total = totalPrice.Sum(batch => batch.Payment?.TotalPrice ?? 0);
+            return total;
+        }
+
+        public async Task<double> GetTotalPriceProgressOfBatchPaymentsByMonth(int month, int year)
+        {
+            var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
+                .GetListAsync(
+                    predicate: x => x.Status == "Progress" && x.Payment != null &&
+                    x.Payment.PaymentDate.HasValue &&
+                    x.Payment.PaymentDate.Value.Month == month &&
+                    x.Payment.PaymentDate.Value.Year == year,
+                    include: x => x.Include(x => x.Payment!)
+                );
+
+            if (totalPrice == null || !totalPrice.Any())
+            {
+                return 0;
+            }
+
+            var total = totalPrice.Sum(batch => batch.Payment?.TotalPrice ?? 0);
+            return total;
+        }
+
+        public async Task<double> GetTotalPricePaidOfBatchPaymentsByMonth(int month, int year)
+        {
+            var totalPrice = await _unitOfWork.GetRepository<BatchPayment>()
+                .GetListAsync(
+                    predicate: x => x.Status == "Paid" && x.Payment != null &&
+                    x.Payment.PaymentDate.HasValue &&
+                    x.Payment.PaymentDate.Value.Month == month &&
+                    x.Payment.PaymentDate.Value.Year == year,
                     include: x => x.Include(x => x.Payment!)
                 );
 

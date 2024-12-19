@@ -358,6 +358,9 @@ namespace RHCQS_BE.Extenstion
             public const string TotalPriceEndpoint = DashboardEndpoint + "/totalprice";
             public const string TotalProgressPriceEndpoint = DashboardEndpoint + "/totalprogressprice";
             public const string TotalPaidPriceEndpoint = DashboardEndpoint + "/totalpaidprice";
+            public const string TotalPriceByMonthEndpoint = DashboardEndpoint + "/totalprice-bymonth";
+            public const string TotalProgressPriceByMonthEndpoint = DashboardEndpoint + "/totalprogressprice-bymonth";
+            public const string TotalPaidPriceByMonthEndpoint = DashboardEndpoint + "/totalpaidprice-bymonth";
         }
     }
 }

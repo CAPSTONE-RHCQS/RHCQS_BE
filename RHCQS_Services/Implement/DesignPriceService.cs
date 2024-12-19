@@ -45,7 +45,7 @@ namespace RHCQS_Services.Implement
                          InsDate = x.InsDate,
                          UpsDate = x.UpsDate
                      },
-                     orderBy: x => x.OrderBy(dp => dp.InsDate)
+                     orderBy: x => x.OrderBy(dp => dp.AreaFrom)
                  )).ToList();
             return result;
         }

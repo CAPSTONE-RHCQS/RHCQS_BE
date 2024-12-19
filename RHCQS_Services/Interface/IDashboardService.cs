@@ -18,5 +18,8 @@ namespace RHCQS_Services.Interface
         Task<double> GetTotalPriceOfBatchPayments();
         Task<double> GetTotalPriceProgressOfBatchPayments();
         Task<double> GetTotalPricePaidOfBatchPayments();
+        Task<double> GetTotalPriceOfBatchPaymentsByMonth(int month, int year);
+        Task<double> GetTotalPriceProgressOfBatchPaymentsByMonth(int month, int year);
+        Task<double> GetTotalPricePaidOfBatchPaymentsByMonth(int month, int year);
     }
 }
