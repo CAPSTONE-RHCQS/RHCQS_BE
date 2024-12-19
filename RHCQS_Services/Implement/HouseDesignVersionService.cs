@@ -360,6 +360,11 @@ namespace RHCQS_Services.Implement
             {
                 throw new Exception(ex.Message, ex);
             }
+            return new ApproveHouseDrawingResponse
+            {
+                IsSuccessful = false,
+                Message = "Có lỗi xảy ra."
+            };
         }
 
         public async Task<string> ConfirmDesignDrawingFromCustomer(Guid versionId)
