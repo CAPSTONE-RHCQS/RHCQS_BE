@@ -109,7 +109,7 @@ namespace RHCQS_BE.Controllers
                 request.ImgUrl = imageUrl;
 
                 var isCreated = await _materialService.CreateMaterial(request);
-                return isCreated ? Ok(isCreated) : BadRequest("Failed to create a new material.");
+                return isCreated ? Ok("Tạo mới vật liệu thành công") : BadRequest("Thất bại tạo mới vật liệu.");
             }
             catch (AppConstant.MessageError ex)
             {
@@ -149,7 +149,7 @@ namespace RHCQS_BE.Controllers
                 return BadRequest("No file uploaded");
 
             var isImported = await _materialService.ImportMaterialFromExcel(file);
-            return isImported ? Ok(true) : BadRequest("Failed to import data");
+            return isImported ? Ok("Tải file excel thành công.") : BadRequest("Thất bại khi tải file lên.");
         } 
 
         #region UpdateMaterial
@@ -179,7 +179,7 @@ namespace RHCQS_BE.Controllers
                     request.ImgUrl = imageUrl;
                 }
                 var isUpdated = await _materialService.UpdateMaterial(id, request);
-                return isUpdated ? Ok(isUpdated) : BadRequest();
+                return isUpdated ? Ok("Cập nhật vật liệu thành công.") : BadRequest("Có lỗi khi cập nhật vật liệu");
             }
             catch (AppConstant.MessageError ex)
             {

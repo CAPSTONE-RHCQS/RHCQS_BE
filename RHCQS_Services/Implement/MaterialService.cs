@@ -137,6 +137,10 @@ namespace RHCQS_Services.Implement
                 await _unitOfWork.GetRepository<Material>().InsertAsync(newMaterial);
                 return await _unitOfWork.CommitAsync() > 0;
             }
+            catch (AppConstant.MessageError ex)
+            {
+                throw ex;
+            }
             catch (Exception)
             {
                 throw new AppConstant.MessageError(
