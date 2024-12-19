@@ -818,7 +818,7 @@ namespace RHCQS_Services.Implement
                 {
                     Id = Guid.NewGuid(),
                     CustomerId = customerInfo.Id,
-                    Name = "Báo giá sơ bộ " + LocalDateTime.VNDateTime(),
+                    Name = "Báo giá sơ bộ "/*+ LocalDateTime.VNDateTime()*/,
                     Type = AppConstant.Type.TEMPLATE,
                     Status = AppConstant.ProjectStatus.PROCESSING,
                     InsDate = LocalDateTime.VNDateTime(),
