@@ -371,7 +371,7 @@ namespace RHCQS_Services.Implement
                         projectName = "Dự án báo giá phần thô ";
                         break;
                     default:
-                        projectName = "Dự án báo giá ";
+                        projectName = "Dự án báo giá mẫu nhà ";
                         break;
                 }
 
