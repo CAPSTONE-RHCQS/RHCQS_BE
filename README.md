@@ -18,32 +18,36 @@
   - Manage supplier
   - Dashboard
 
-- [**Nguyen Van Tien - BE Main**](https://github.com/nvtiendev)  
-  **Feature:**
-  - Final quotation
-  - Package construction
-  - Build calculate construction work
-  - Auth system
-  - Manage profile actor
-  - Manage blog
-  - Notification mobile
-  **Others:**
-  - Deploy proejct in Azure
+- - [**Nguyen Van Tien - BE Main**](https://github.com/nvtiendev)  
+  **Feature:**  
+  - Final quotation  
+  - Package construction  
+  - Build calculate construction work  
+  - Auth system  
+  - Manage profile actor  
+  - Manage blog  
+  - Notification mobile  
+
+  **Others:**  
+  - Deploy project in Azure  
+
 - [**Tran Thi Kim Ngan - BE Main**](https://github.com/ngandolh)  
-  **Feature:**
-  - Initial quotation
-  - Processing house design drawing
-  - Contract design, contract construction.
-  - Build calculate construction work
-  - Manage promotion
-  - Chat
-  - Manage template design house
-  - Manage construction
-  - Manage project
-  **Others:**
-  - Cloudinary
-  - Generate PDF
-  - Deploy proejct in Render, Azure
+  **Feature:**  
+  - Initial quotation  
+  - Processing house design drawing  
+  - Contract design, contract construction.  
+  - Build calculate construction work  
+  - Manage promotion  
+  - Chat  
+  - Manage template design house  
+  - Manage construction  
+  - Manage project  
+
+  **Others:**  
+  - Cloudinary  
+  - Generate PDF  
+  - Deploy project in Render, Azure  
+
 
 <img src="https://res.cloudinary.com/de7pulfdj/image/upload/v1737274025/tyq109gtzgh8xiqlhv4m.png" alt="Swagger RHCQS"/>
 
