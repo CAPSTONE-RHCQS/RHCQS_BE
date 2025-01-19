@@ -4,10 +4,6 @@
   <h3>Team: RHCQS - 5 members</h3>
 </div>
 
-<div align="center">
-<h3 class="center">Back-end team</h3>
-</div>
-
 # Back-end Team
 
 - [**Bui Hieu Khang - BA, Tester**](https://github.com/Bhieukhang)  
