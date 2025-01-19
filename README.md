@@ -19,7 +19,7 @@
   - Dashboard
 
 - [**Nguyen Van Tien - BE Main**](https://github.com/nvtiendev)  
-  Feature:
+  **Feature:**
   - Final quotation
   - Package construction
   - Build calculate construction work
@@ -27,10 +27,10 @@
   - Manage profile actor
   - Manage blog
   - Notification mobile
-  Others:
+  **Others:**
   - Deploy proejct in Azure
 - [**Tran Thi Kim Ngan - BE Main**](https://github.com/ngandolh)  
-  Feature:
+  **Feature:**
   - Initial quotation
   - Processing house design drawing
   - Contract design, contract construction.
@@ -40,7 +40,7 @@
   - Manage template design house
   - Manage construction
   - Manage project
-  Others:
+  **Others:**
   - Cloudinary
   - Generate PDF
   - Deploy proejct in Render, Azure
