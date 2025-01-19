@@ -12,14 +12,47 @@
 
 - [**Bui Hieu Khang - BA, Tester**](https://github.com/Bhieukhang)  
   Responsible for business analysis and testing features, ensuring quality and completeness.
+  Feature:
+  - Manage material
+  - Manage labor
+  - Manage supplier
+  - Dashboard
 
 - [**Nguyen Van Tien - BE Main**](https://github.com/nvtiendev)  
-  Lead back-end developer, focusing on core API development and system architecture.
-
+  Feature:
+  - Final quotation
+  - Package construction
+  - Build calculate construction work
+  - Auth system
+  - Manage profile actor
+  - Manage blog
+  - Notification mobile
+  Others:
+  - Deploy proejct in Azure
 - [**Tran Thi Kim Ngan - BE Main**](https://github.com/ngandolh)  
-  Back-end developer, working on feature implementation and database management.
+  Feature:
+  - Initial quotation
+  - Processing house design drawing
+  - Contract design, contract construction.
+  - Build calculate construction work
+  - Manage promotion
+  - Chat
+  - Manage template design house
+  - Manage construction
+  - Manage project
+  Others:
+  - Cloudinary
+  - Generate PDF
+  - Deploy proejct in Render, Azure
 
 <img src="https://res.cloudinary.com/de7pulfdj/image/upload/v1737274025/tyq109gtzgh8xiqlhv4m.png" alt="Swagger RHCQS"/>
+
+# Technology
+- NET 8.0
+- SQL Server
+- Docker
+- Third party: Cloudinary, Firebase, Mail
+- Cloudinary: Azure, Render
 
 # Functional Requirement
 
