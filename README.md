@@ -6,12 +6,18 @@
 
 <div align="center">
 <h3 class="center">Back-end team</h3>
-<ul style="list-style: none; padding: 0;">
-    <li>Bui Hieu Khang - BA, Tester</li>
-    <li>Nguyen Van Tien - BE main</li>
-    <li>Tran Thi Kim Ngan - BE main</li>
-  </ul>
 </div>
+
+# Back-end Team
+
+- [**Bui Hieu Khang - BA, Tester**](https://github.com/Bhieukhang)  
+  Responsible for business analysis and testing features, ensuring quality and completeness.
+
+- [**Nguyen Van Tien - BE Main**](https://github.com/nvtiendev)  
+  Lead back-end developer, focusing on core API development and system architecture.
+
+- [**Tran Thi Kim Ngan - BE Main**](https://github.com/ngandolh)  
+  Back-end developer, working on feature implementation and database management.
 
 <img src="https://res.cloudinary.com/de7pulfdj/image/upload/v1737274025/tyq109gtzgh8xiqlhv4m.png" alt="Swagger RHCQS"/>
 
