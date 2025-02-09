@@ -53,7 +53,7 @@
 - SQL Server
 - Docker
 - Third party: Cloudinary, Firebase, Mail
-- Cloudinary: Azure, Render
+- Server: Azure, Render
 
 # Functional Requirement
 
